@@ -36,4 +36,17 @@ impl Context {
         })
         .to_string()
     }
+
+    /// Check if any {tag} in text points to a List value.
+    /// Returns the tag name and the list items if found.
+    pub fn get_list_for_action(&self, text: &str) -> Option<(String, Vec<ContextModel>)> {
+        let re = regex::Regex::new(r"\{(\w+)\}").unwrap();
+        for cap in re.captures_iter(text) {
+            let tag = cap.get(1).unwrap().as_str();
+            if let Some(ContextModel::List(items)) = self.values.get(tag) {
+                return Some((tag.to_string(), items.clone()));
+            }
+        }
+        None
+    }
 }

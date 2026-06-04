@@ -1,34 +1,15 @@
-# Vibe Action — Smart Commit
-# AI-powered commit message generation.
-#
-# Fields:
-#   keys     - trigger phrases (ru/en/zh)
-#   trigger  - main action (executed last)
-#   actions  - preparation steps (optional). Order is resolved by {tag} dependencies.
-#
-# Trigger and action fields:
-#   tag      - name for {tag} references (globally visible across files)
-#   type     - cmd (terminal) | llm (model)
-#   match    - regex pattern for result validation (optional)
-#   expect   - expected result type:
-#              void         - no result (execution only)
-#              bool         - true/false or yes/no
-#              number       - integer or float
-#              string       - text
-#              json         - valid JSON
-#              list<T>      - list of elements (list<string>, list<number>, list<json>, ...)
-#   action   - command (cmd) or prompt (llm). Supports {tag} substitution.
-
 keys:
-  - закомить
+  - коммит
   - commit
   - 提交
 
 trigger:
   tag: commit
   type: cmd
-  expect: void
-  action: "echo '{commit_message}'"
+  expect: string
+  action: |
+    echo "Your commit:"
+    echo "git commit -m '{commit_message}'"
 
 actions:
   - tag: changed_files
@@ -39,19 +20,26 @@ actions:
 
   - tag: file_diffs
     type: cmd
-    expect: list<string>
-    action: 'git diff {changed_files}'
+    expect: string
+    action: 'git diff --stat {changed_files}'
 
   - tag: file_summaries
     type: llm
     expect: string
     action: |
-      Для каждого файла опиши изменения одной строкой:
+      For each file below, describe the changes in one line:
       {file_diffs}
 
   - tag: commit_message
     type: llm
     expect: string
     action: |
-      Объедини описания в одно commit message в стиле conventional commits:
+      Write a single conventional commit message summarizing ALL changes below.
+      Choose the best type: feat (new feature), fix (bug fix), docs (documentation),
+      refactor (code restructuring), test (testing), chore (maintenance).
+      Examples:
+        feat: add user authentication
+        fix: resolve memory leak in parser
+        docs: update API documentation
+      Reply with ONE message:
       {file_summaries}

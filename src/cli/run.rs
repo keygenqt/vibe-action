@@ -41,7 +41,13 @@ pub async fn execute(action: RunAction) {
     )
     .await
     {
-        Ok(result) => print_success!("{}", result),
+        Ok(result) => {
+            if result.is_empty() {
+                print_success!("Done.");
+            } else {
+                print_success!("{}", result);
+            }
+        }
         Err(e) => exit_error!("{}", e),
     };
 }

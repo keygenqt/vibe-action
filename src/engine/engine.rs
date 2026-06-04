@@ -7,22 +7,17 @@ use crate::engine::cluster::Cluster;
 use crate::engine::context::Context;
 use crate::engine::resolver::Resolver;
 use crate::engine::shell::Shell;
-use crate::models::action::ActionMode;
+use crate::models::action::{ActionMode, ActionModel, ExpectMode};
 use crate::models::context::ContextModel;
 use crate::models::flow::FlowModel;
 
 /// Progress info for a running step.
 #[derive(Debug, Clone)]
 pub struct StepProgress {
-    /// Step tag name.
     pub tag: String,
-    /// Step type: cmd or llm.
     pub step_type: String,
-    /// Percent complete (0.0-100.0).
     pub percent: f32,
-    /// Current step number.
     pub current: usize,
-    /// Total steps (including trigger).
     pub total: usize,
 }
 
@@ -42,13 +37,11 @@ impl Engine {
         );
 
         for (i, action) in order.iter().enumerate() {
-            let percent = (i as f32 / total as f32) * 100.0;
-
             if let Some(cb) = on_progress {
                 cb(&StepProgress {
                     tag: action.tag.clone(),
                     step_type: format!("{:?}", action.r#type),
-                    percent,
+                    percent: ((i + 1) as f32 / total as f32) * 100.0,
                     current: i + 1,
                     total,
                 });
@@ -59,30 +52,7 @@ impl Engine {
                 None => None,
             };
 
-            let resolved_action = ctx.substitute(&action.action);
-            tracing::debug!(
-                "[{}/{}] {} ({:?}): {}",
-                i + 1,
-                order.len(),
-                action.tag,
-                action.r#type,
-                resolved_action
-            );
-
-            let raw = match action.r#type {
-                ActionMode::Cmd => {
-                    let result = Shell::exec(&resolved_action).await?;
-                    tracing::debug!("  <- {} ({} bytes)", action.tag, result.to_string().len());
-                    result
-                }
-                ActionMode::Llm => {
-                    tracing::debug!("  -> calling LLM...");
-                    let result = Cluster::exec(&resolved_action).await?;
-                    let preview: String = result.to_string().chars().take(100).collect();
-                    tracing::debug!("  <- {}: {}", action.tag, preview);
-                    result
-                }
-            };
+            let raw = Self::execute_action(action, &ctx).await?;
 
             let validated = ContextModel::from_str(
                 &action.tag,
@@ -110,18 +80,7 @@ impl Engine {
             None => None,
         };
 
-        let resolved_trigger = ctx.substitute(&flow.trigger.action);
-        tracing::debug!(
-            "[trigger] {} ({:?}): {}",
-            flow.trigger.tag,
-            flow.trigger.r#type,
-            resolved_trigger
-        );
-
-        let result = match flow.trigger.r#type {
-            ActionMode::Cmd => Shell::exec(&resolved_trigger).await?,
-            ActionMode::Llm => Cluster::exec(&resolved_trigger).await?,
-        };
+        let result = Self::execute_action(&flow.trigger, &ctx).await?;
 
         let validated = ContextModel::from_str(
             &flow.trigger.tag,
@@ -131,6 +90,88 @@ impl Engine {
         )?;
 
         tracing::info!("Flow completed: {}", flow.trigger.tag);
-        Ok(validated.to_string())
+
+        if matches!(flow.trigger.expect, ExpectMode::Void) {
+            Ok(String::new())
+        } else {
+            Ok(validated.to_string())
+        }
+    }
+
+    /// Debug log for action execution.
+    fn debug_log(tag: &str, r#type: &ActionMode, original: &str, resolved: &str, result: &str) {
+        let preview_original: String = original.chars().take(300).collect();
+        let preview_resolved: String = resolved.chars().take(300).collect();
+        let preview_result: String = result.chars().take(300).collect();
+        tracing::debug!(
+            r#"[{}] ({})
+------------- original (len:{})
+{}
+------------- resolved (len:{})
+{}
+------------- result (len:{})
+{}
+-------------"#,
+            tag,
+            match r#type {
+                ActionMode::Cmd => "cmd",
+                ActionMode::Llm => "llm",
+            },
+            original.len(),
+            preview_original,
+            resolved.len(),
+            preview_resolved,
+            result.len(),
+            preview_result,
+        );
+    }
+
+    /// Execute a single action, handling list<T> inputs.
+    async fn execute_action(action: &ActionModel, ctx: &Context) -> Result<ContextModel> {
+        if let Some((list_tag, list_values)) = ctx.get_list_for_action(&action.action) {
+            let is_list_expect = matches!(&action.expect, ExpectMode::List(_));
+            let mut results = Vec::new();
+
+            for item in &list_values {
+                let single_action = action
+                    .action
+                    .replace(&format!("{{{}}}", list_tag), &item.to_string());
+                let raw = Self::exec_raw(action, &single_action).await?;
+                Self::debug_log(
+                    &action.tag,
+                    &action.r#type,
+                    &action.action,
+                    &single_action,
+                    &raw.to_string(),
+                );
+                results.push(raw);
+            }
+
+            if is_list_expect {
+                Ok(ContextModel::List(results))
+            } else {
+                let joined: Vec<String> = results.iter().map(|r| r.to_string()).collect();
+                Ok(ContextModel::String(joined.join("\n")))
+            }
+        } else {
+            let resolved = ctx.substitute(&action.action);
+            let result = Self::exec_raw(action, &resolved).await?;
+            Self::debug_log(
+                &action.tag,
+                &action.r#type,
+                &action.action,
+                &resolved,
+                &result.to_string(),
+            );
+            Ok(result)
+        }
+    }
+
+    /// Execute raw command or LLM prompt.
+    async fn exec_raw(action: &ActionModel, resolved: &str) -> Result<ContextModel> {
+        match action.r#type {
+            ActionMode::Cmd => Shell::exec(resolved).await,
+            ActionMode::Llm => Cluster::exec(resolved).await,
+        }
     }
 }

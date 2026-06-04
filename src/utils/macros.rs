@@ -87,7 +87,9 @@ macro_rules! print_state {
 macro_rules! print_progress {
     ($($arg:tt)*) => {{
         if !$crate::configs::app::AppConfig::is_debug() {
-            print!("\r\x1b[1m\x1b[36mprogress\x1b[0m: {}", format!($($arg)*));
+            let msg = format!($($arg)*);
+            // Clear to end of line before printing.
+            print!("\r\x1b[1m\x1b[36mprogress\x1b[0m: {}\x1b[K", msg);
             std::io::Write::flush(&mut std::io::stdout()).unwrap();
         }
     }};
