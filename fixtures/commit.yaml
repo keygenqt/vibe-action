@@ -1,8 +1,5 @@
 keys:
-  - коммит
   - commit
-  - 提交
-
 trigger:
   tag: commit
   type: cmd
@@ -10,26 +7,22 @@ trigger:
   action: |
     echo "Your commit:"
     echo "git commit -m '{commit_message}'"
-
 actions:
   - tag: changed_files
     type: cmd
     match: '.+'
     expect: list<string>
     action: 'git diff --name-only'
-
   - tag: file_diffs
     type: cmd
     expect: string
     action: 'git diff --stat {changed_files}'
-
   - tag: file_summaries
     type: llm
     expect: string
     action: |
       For each file below, describe the changes in one line:
       {file_diffs}
-
   - tag: commit_message
     type: llm
     expect: string
