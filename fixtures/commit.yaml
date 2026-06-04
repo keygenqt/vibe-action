@@ -1,0 +1,57 @@
+# Vibe Action — Smart Commit
+# AI-powered commit message generation.
+#
+# Fields:
+#   keys     - trigger phrases (ru/en/zh)
+#   trigger  - main action (executed last)
+#   actions  - preparation steps (optional). Order is resolved by {tag} dependencies.
+#
+# Trigger and action fields:
+#   tag      - name for {tag} references (globally visible across files)
+#   type     - cmd (terminal) | llm (model)
+#   match    - regex pattern for result validation (optional)
+#   expect   - expected result type:
+#              void         - no result (execution only)
+#              bool         - true/false or yes/no
+#              number       - integer or float
+#              string       - text
+#              json         - valid JSON
+#              list<T>      - list of elements (list<string>, list<number>, list<json>, ...)
+#   action   - command (cmd) or prompt (llm). Supports {tag} substitution.
+
+keys:
+  - закомить
+  - commit
+  - 提交
+
+trigger:
+  tag: commit
+  type: cmd
+  expect: void
+  action: "echo '{commit_message}'"
+
+actions:
+  - tag: changed_files
+    type: cmd
+    match: '.+'
+    expect: list<string>
+    action: 'git diff --name-only'
+
+  - tag: file_diffs
+    type: cmd
+    expect: list<string>
+    action: 'git diff {changed_files}'
+
+  - tag: file_summaries
+    type: llm
+    expect: string
+    action: |
+      Для каждого файла опиши изменения одной строкой:
+      {file_diffs}
+
+  - tag: commit_message
+    type: llm
+    expect: string
+    action: |
+      Объедини описания в одно commit message в стиле conventional commits:
+      {file_summaries}
