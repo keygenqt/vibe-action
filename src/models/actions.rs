@@ -2,100 +2,121 @@
 //! Loads all flows from configured directories and provides lookup.
 
 use anyhow::Result;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::fs;
-use std::path::Path;
+use std::path::PathBuf;
+use walkdir::WalkDir;
 
-use crate::configs::source::ActionSourceConfig;
+use crate::default;
 use crate::models::flow::FlowModel;
 
 /// Aggregated actions from all sources.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct ActionsModel {
     /// All loaded flows.
     pub flows: Vec<FlowModel>,
 }
 
+impl Default for ActionsModel {
+    /// Create with all default actions embedded in the binary.
+    fn default() -> Self {
+        Self {
+            flows: vec![
+                default::act_default::commit::default(),
+                default::act_default::extract::default(),
+                default::act_default::find::default(),
+                default::gen_default::naming::default(),
+                default::gen_default::synonyms::default(),
+                default::gen_default::tone::default(),
+                default::mod_default::spellcheck::default(),
+                default::mod_default::todo::default(),
+                default::mod_default::translate::default(),
+            ],
+        }
+    }
+}
 impl ActionsModel {
-    /// Find a flow matching the user prompt.
-    pub fn find(&self, prompt: &str) -> Option<&FlowModel> {
-        let prompt_lower = prompt.to_lowercase();
-        self.flows.iter().find(|f| {
-            f.keys
-                .iter()
-                .any(|k| prompt_lower.contains(&k.to_lowercase()))
-        })
+    /// Find a flow by name (exact match).
+    pub fn find(&self, name: &str) -> Option<&FlowModel> {
+        self.flows.iter().find(|f| f.name == name)
     }
 
-    /// Load flows from all configured sources.
-    pub fn load(sources: &[ActionSourceConfig]) -> Result<Self> {
-        let mut flows = Vec::new();
-        for source in sources {
-            if source.is_dir() {
-                flows.extend(Self::load_from_dir(&source.resolve()?)?);
-            } else if source.is_file() {
-                flows.push(Self::load_from_file(&source.resolve()?)?);
-            } else {
-                anyhow::bail!("Action source not found or unsupported: {}", source);
+    /// Load flows from a directory (recursively reads all .yaml files).
+    pub fn load(path: &PathBuf) -> Result<Self> {
+        let mut actions = Self { flows: vec![] };
+        if path.is_dir() {
+            for entry in WalkDir::new(path).follow_links(true) {
+                let entry = entry?;
+                let file_path = entry.path();
+                if file_path
+                    .extension()
+                    .map_or(false, |e| e == "yaml" || e == "yml")
+                {
+                    let flow = FlowModel::load(&file_path.to_path_buf())?;
+                    actions.flows.push(flow);
+                }
             }
+        } else if path.is_file() {
+            let flow = FlowModel::load(&path.to_path_buf())?;
+            actions.flows.push(flow);
+        } else {
+            return Ok(ActionsModel::default());
         }
-        let actions = Self { flows };
         actions.validate()?;
         Ok(actions)
     }
 
-    /// Load all .yaml files from a directory recursively.
-    fn load_from_dir(dir: &Path) -> Result<Vec<FlowModel>> {
-        let mut flows = Vec::new();
-        for entry in walkdir::WalkDir::new(dir).follow_links(true) {
-            let entry = entry?;
-            let path = entry.path();
-            if path
-                .extension()
-                .map_or(false, |e| e == "yaml" || e == "yml")
-            {
-                let content = fs::read_to_string(path)?;
-                let flow: FlowModel = yaml_serde::from_str(&content)
-                    .map_err(|e| anyhow::anyhow!("Failed to parse {}: {}", path.display(), e))?;
-                flows.push(flow);
+    /// Save all flows to their respective YAML files (only if file doesn't exist).
+    pub fn save(&self, path: &PathBuf) -> Result<()> {
+        for flow in &self.flows {
+            let file_path = path.join(flow.path.clone());
+            if file_path.exists() {
+                continue;
             }
+            if let Some(parent) = file_path.parent() {
+                if !parent.exists() {
+                    fs::create_dir_all(parent)?;
+                }
+            }
+
+            let header = format!(
+                r#"# Vibe Action — {}
+# {}
+#
+# Fields:
+#   name    - Action name (CLI subcommand)
+#   about   - Short description
+#   args    - CLI arguments (optional)
+#   trigger - Main action (executed last)
+#   actions - Preparation steps (optional)
+"#,
+                flow.name, flow.about
+            );
+
+            let yaml = yaml_serde::to_string(flow)?;
+            let content = format!("{}\n{}", header, yaml);
+            fs::write(file_path, &content)?;
         }
-        Ok(flows)
+        Ok(())
     }
 
-    /// Load a single .yaml file.
-    fn load_from_file(path: &Path) -> Result<FlowModel> {
-        let content = fs::read_to_string(path)?;
-        yaml_serde::from_str(&content)
-            .map_err(|e| anyhow::anyhow!("Failed to parse {}: {}", path.display(), e))
-    }
-
-    /// Validate all flows: each flow internally, plus duplicate keys across flows.
+    /// Validate all flows: each flow internally, plus duplicate names across flows.
     fn validate(&self) -> Result<()> {
         // Validate each flow.
         for flow in &self.flows {
             flow.validate()?;
         }
-        // Check for duplicate keys across different flows.
-        let mut all_keys: HashMap<&str, &str> = HashMap::new(); // key -> flow tag
+        // Check for duplicate names across flows.
+        let mut names: HashSet<&str> = HashSet::new();
         for flow in &self.flows {
-            for key in &flow.keys {
-                if let Some(existing_flow) =
-                    all_keys.insert(key.as_str(), flow.trigger.tag.as_str())
-                {
-                    anyhow::bail!(
-                        "Duplicate key '{}' found in flows '{}' and '{}'",
-                        key,
-                        existing_flow,
-                        flow.trigger.tag
-                    );
-                }
+            if !names.insert(flow.name.as_str()) {
+                anyhow::bail!("Duplicate action name '{}' across flows", flow.name);
             }
         }
-        // Check for duplicate trigger tags across flows.
-        let mut all_tags: HashSet<&str> = HashSet::new();
+        // Check for duplicate trigger tags across flows (global {tag} namespace).
+        let mut tags: HashSet<&str> = HashSet::new();
         for flow in &self.flows {
-            if !all_tags.insert(flow.trigger.tag.as_str()) {
+            if !tags.insert(flow.trigger.tag.as_str()) {
                 anyhow::bail!("Duplicate trigger tag '{}' across flows", flow.trigger.tag);
             }
         }

@@ -13,6 +13,7 @@ use crate::configs::app::AppConfig;
 
 mod cli;
 mod configs;
+mod default;
 mod engine;
 mod models;
 mod utils;

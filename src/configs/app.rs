@@ -15,7 +15,6 @@ use vibe_cluster::Provider;
 
 use crate::configs::cluster::ClusterConfig;
 use crate::configs::estimator::EstimatorConfig;
-use crate::configs::source::ActionSourceConfig;
 use crate::models::actions::ActionsModel;
 use crate::models::flow::FlowModel;
 use crate::utils;
@@ -34,8 +33,6 @@ static GLOBAL_CONFIG: OnceLock<AppConfig> = OnceLock::new();
 pub struct AppConfig {
     /// Configuration version.
     pub version: String,
-    /// Action sources.
-    pub actions: Vec<ActionSourceConfig>,
     /// Complexity estimator configuration.
     pub estimator: EstimatorConfig,
     /// LLM cluster nodes (local and cloud models).
@@ -50,8 +47,6 @@ impl Default for AppConfig {
     fn default() -> Self {
         Self {
             version: constants::CONFIG_VERSION.to_string(),
-            // @todo
-            actions: vec!["~/Documents/Gitcode/Projects/vibe-action/fixtures".into()],
             estimator: EstimatorConfig::default(),
             cluster: vec![ClusterConfig::default()],
             actions_model: None,
@@ -96,6 +91,7 @@ impl AppConfig {
         // Initialize config.
         let config = Self::load_with_path(path)?;
         config.validate()?;
+
         Ok(())
     }
 
@@ -125,7 +121,10 @@ impl AppConfig {
             }
         };
         // Load actions from configured sources.
-        config.actions_model = Some(ActionsModel::load(&config.actions)?);
+        let path_actions = &path::actions_dir();
+        let actions = ActionsModel::load(&path_actions)?;
+        actions.save(&path_actions)?;
+        config.actions_model = Some(actions);
         // Cache globally.
         GLOBAL_CONFIG.set(config).ok();
         Ok(GLOBAL_CONFIG.get().unwrap())
@@ -186,26 +185,16 @@ impl AppConfig {
                 ],
             ),
         ];
-        let json = yaml_serde::to_string(self)?;
-        let content = utils::yaml::add_comments(json, commits);
+        let yaml = yaml_serde::to_string(self)?;
+        let content = utils::yaml::add_comments(yaml, commits);
         fs::write(path::config_default_path(), content)?;
         Ok(())
     }
 
     /// Validate configuration.
     fn validate(&self) -> Result<()> {
-        // Check at least one actions source.
-        if self.actions.is_empty() {
-            anyhow::bail!(
-                "No action sources configured. Add at least one directory or file to 'actions'."
-            );
-        }
         // Validate estimator.
         self.estimator.validate()?;
-        // Check each source exists.
-        for source in &self.actions {
-            source.validate()?;
-        }
         // Validate each cluster node.
         for node in &self.cluster {
             node.validate()?;

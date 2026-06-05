@@ -3,10 +3,10 @@
 
 use anyhow::Result;
 use regex::Regex;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Action type: command or LLM.
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ActionMode {
     /// Execute command in terminal.
@@ -16,7 +16,7 @@ pub enum ActionMode {
 }
 
 /// Expected result type.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum ExpectMode {
     /// No result.
     Void,
@@ -33,7 +33,7 @@ pub enum ExpectMode {
 }
 
 /// A single action step.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActionModel {
     /// Tag name for {tag} references.
     pub tag: String,

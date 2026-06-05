@@ -7,16 +7,22 @@ use std::env;
 use std::path::Path;
 use std::path::PathBuf;
 
+use crate::utils::constants::ACTIONS_DIR_NAME;
 use crate::utils::constants::CONFIG_DIR_NAME;
 use crate::utils::constants::CONFIG_FILE_NAME;
 
-/// Get config directory path: ~/.vibe-action/
+/// Get config directory path
 pub fn config_dir() -> PathBuf {
     let home = home_dir().expect("Failed to get home directory");
     home.join(CONFIG_DIR_NAME)
 }
 
-/// Get default config file path: ~/.vibe-action/config.yaml
+/// Get default actions directory path
+pub fn actions_dir() -> PathBuf {
+    config_dir().join(ACTIONS_DIR_NAME)
+}
+
+/// Get default config file path
 pub fn config_default_path() -> PathBuf {
     config_dir().join(CONFIG_FILE_NAME)
 }

@@ -32,7 +32,7 @@ impl Engine {
 
         tracing::info!(
             "Starting flow: {} ({} steps + trigger)",
-            flow.keys.join(", "),
+            flow.name,
             order.len()
         );
 

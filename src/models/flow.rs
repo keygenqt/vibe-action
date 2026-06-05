@@ -3,41 +3,73 @@
 
 use anyhow::Result;
 use regex::Regex;
-use serde::Deserialize;
-use std::collections::{HashMap, HashSet};
+use serde::{Deserialize, Serialize};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+    path::PathBuf,
+};
 
-use crate::models::action::ActionModel;
+use crate::models::{action::ActionModel, arg::ActionArg};
 
-/// One action flow: keys -> steps -> trigger.
-#[derive(Debug, Clone, Deserialize)]
+/// One action flow: name, args, trigger, steps.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FlowModel {
-    /// Trigger phrases (ru/en/zh).
-    pub keys: Vec<String>,
+    /// Action name (used as CLI subcommand).
+    pub name: String,
+    /// Short description for help.
+    pub about: String,
+    /// CLI arguments.
+    #[serde(default)]
+    pub args: Vec<ActionArg>,
     /// Main action executed last.
     pub trigger: ActionModel,
     /// Preparation steps executed before trigger.
     #[serde(default)]
     pub actions: Vec<ActionModel>,
+    /// File path this flow was loaded from (for save/reload).
+    #[serde(skip)]
+    pub path: PathBuf,
 }
 
 impl FlowModel {
-    /// Validate the flow: keys, tags, references, dependencies.
+    /// Load and validate a FlowModel from a YAML file.
+    pub fn load(path: &PathBuf) -> Result<Self> {
+        let content = fs::read_to_string(path)?;
+        let mut flow: Self = yaml_serde::from_str(&content)
+            .map_err(|e| anyhow::anyhow!("Failed to parse {}: {}", path.display(), e))?;
+        flow.path = path.clone();
+        flow.validate()?;
+        Ok(flow)
+    }
+
+    /// Validate the flow: name, tags, references, dependencies.
     pub fn validate(&self) -> Result<()> {
-        // Validate each action's fields.
+        // Check name is not empty.
+        if self.name.trim().is_empty() {
+            anyhow::bail!("Flow has no name. Add a name for the CLI command.");
+        }
+        // Validate args.
+        for arg in &self.args {
+            arg.validate()?;
+        }
+        // Validate trigger.
         self.trigger.validate()?;
+        // Validate each action.
         for action in &self.actions {
             action.validate()?;
-        }
-        // Check keys are not empty.
-        if self.keys.is_empty() {
-            anyhow::bail!("Flow has no keys. Add at least one trigger phrase.");
         }
         // Check trigger tag is set.
         if self.trigger.tag.is_empty() {
             anyhow::bail!("Trigger must have a tag.");
         }
-        // Check no duplicate tags across trigger and actions.
+        // Collect all valid tags: args + trigger.tag + actions[].tag.
         let mut tags: HashSet<&str> = HashSet::new();
+        for arg in &self.args {
+            if !tags.insert(arg.name.as_str()) {
+                anyhow::bail!("Duplicate argument: '{}'", arg.name);
+            }
+        }
         tags.insert(self.trigger.tag.as_str());
         for action in &self.actions {
             if action.tag.is_empty() {
