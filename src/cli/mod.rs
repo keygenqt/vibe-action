@@ -1,5 +1,6 @@
 //! CLI command handlers.
 //! Run and serve subcommands.
 
-pub mod run;
-pub mod srv;
+pub mod action;
+pub mod prompt;
+pub mod system;

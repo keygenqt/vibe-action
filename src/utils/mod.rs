@@ -2,6 +2,7 @@
 //! Application configuration, constants, output macros, and path helpers.
 
 pub mod app;
+pub mod clap;
 pub mod constants;
 pub mod macros;
 pub mod path;

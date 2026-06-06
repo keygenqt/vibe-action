@@ -40,7 +40,7 @@ impl Engine {
             if let Some(cb) = on_progress {
                 cb(&StepProgress {
                     tag: action.tag.clone(),
-                    step_type: format!("{:?}", action.r#type),
+                    step_type: action.r#type.to_string(),
                     percent: ((i + 1) as f32 / total as f32) * 100.0,
                     current: i + 1,
                     total,
@@ -68,7 +68,7 @@ impl Engine {
         if let Some(cb) = on_progress {
             cb(&StepProgress {
                 tag: flow.trigger.tag.clone(),
-                step_type: format!("{:?}", flow.trigger.r#type),
+                step_type: flow.trigger.r#type.to_string(),
                 percent: 100.0,
                 current: total,
                 total,
@@ -136,6 +136,7 @@ impl Engine {
                 let single_action = action
                     .action
                     .replace(&format!("{{{}}}", list_tag), &item.to_string());
+
                 let raw = Self::exec_raw(action, &single_action).await?;
                 Self::debug_log(
                     &action.tag,

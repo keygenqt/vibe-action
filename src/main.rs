@@ -3,13 +3,9 @@
 
 use std::path::PathBuf;
 
-use clap::CommandFactory;
-use clap::Parser;
-use clap::Subcommand;
+use clap::{Parser, Subcommand};
 
-use crate::cli::run::RunAction;
-use crate::cli::srv::SrvAction;
-use crate::configs::app::AppConfig;
+use crate::{cli::system::SystemSubcommands, configs::app::AppConfig};
 
 mod cli;
 mod configs;
@@ -38,30 +34,61 @@ struct App {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Execute an action by key or free-form prompt.
-    Run(RunAction),
+    /// Execute a dynamic YAML action
+    Action,
 
-    /// Validate configuration and cache management.
-    Srv {
+    /// Direct prompt to the LLM cluster
+    Prompt {
+        /// The prompt text
+        #[arg(required = true, num_args = 1..)]
+        text: Vec<String>,
+    },
+
+    /// System utilities, maintenance, and validation
+    System {
         #[command(subcommand)]
-        action: SrvAction,
+        subcommand: SystemSubcommands,
     },
 }
 
 #[tokio::main]
 async fn main() {
-    let app = App::parse();
+    // Parse command-line arguments (global flags only at this stage)
+    let (config_path, debug) = utils::clap::parse_global_flags();
 
-    // Initialize config (creates defaults if missing).
-    if let Err(error) = AppConfig::init(app.config.clone(), app.debug) {
-        exit_error!("{}", error);
+    // Initialize configuration: load or create default config, validate, set up logging
+    if let Err(e) = AppConfig::init(config_path, debug) {
+        exit_error!("{}", e);
     }
 
-    match app.command {
-        Some(Commands::Run(action)) => cli::run::execute(action).await,
-        Some(Commands::Srv { action }) => cli::srv::execute(action).await,
-        None => {
-            let _ = App::command().print_help();
+    // Obtain the global configuration singleton (initialized above)
+    let config = match AppConfig::instance() {
+        Ok(v) => v,
+        Err(e) => exit_error!("{}", e),
+    };
+
+    // Build the full CLI tree, enriching the `action` subcommand with
+    // dynamically loaded YAML actions from the configuration
+    let mut app_builder = build_app!(&config);
+    let matches = app_builder.clone().get_matches();
+
+    // Dispatch to the appropriate handler (built-in commands or dynamic actions)
+    match matches.subcommand() {
+        Some(("action", sub_matches)) => {
+            if let Some((cmd_name, action_matches)) = sub_matches.subcommand() {
+                cli::action::execute(cmd_name, action_matches, config).await;
+            } else {
+                utils::clap::print_subcommand_help(&mut app_builder, "action");
+            }
+        }
+        Some(("prompt", sub_matches)) => {
+            cli::prompt::execute(sub_matches).await;
+        }
+        Some(("system", sub_matches)) => {
+            cli::system::execute(sub_matches).await;
+        }
+        _ => {
+            let _ = app_builder.print_help();
         }
     }
 }

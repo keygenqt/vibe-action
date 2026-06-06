@@ -16,7 +16,6 @@ use vibe_cluster::Provider;
 use crate::configs::cluster::ClusterConfig;
 use crate::configs::estimator::EstimatorConfig;
 use crate::models::actions::ActionsModel;
-use crate::models::flow::FlowModel;
 use crate::utils;
 use crate::utils::constants;
 use crate::utils::path;
@@ -63,18 +62,6 @@ impl AppConfig {
     /// Get the global config instance (loads if not cached).
     pub fn instance() -> Result<&'static Self> {
         Self::load_with_path(None)
-    }
-
-    /// Find an action matching the prompt.
-    pub fn search_action(&self, prompt: &str) -> Result<&FlowModel> {
-        let actions = self
-            .actions_model
-            .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("Actions not loaded."))?;
-
-        actions
-            .find(prompt)
-            .ok_or_else(|| anyhow::anyhow!("No action found for: '{}'", prompt))
     }
 
     /// Initialize configuration, creating default files if missing.

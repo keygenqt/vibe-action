@@ -16,6 +16,9 @@ pub struct ActionArg {
     /// Help text.
     #[serde(default)]
     pub help: Option<String>,
+    /// @todo
+    #[serde(default)]
+    pub required: Option<bool>,
 }
 
 impl ActionArg {

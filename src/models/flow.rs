@@ -43,6 +43,18 @@ impl FlowModel {
         Ok(flow)
     }
 
+    /// Apply CLI arguments by replacing {arg} placeholders in all action strings.
+    pub fn apply_args(&mut self, args: &HashMap<String, String>) {
+        for action in &mut self.actions {
+            for (key, value) in args {
+                action.action = action.action.replace(&format!("{{{}}}", key), value);
+            }
+        }
+        for (key, value) in args {
+            self.trigger.action = self.trigger.action.replace(&format!("{{{}}}", key), value);
+        }
+    }
+
     /// Validate the flow: name, tags, references, dependencies.
     pub fn validate(&self) -> Result<()> {
         // Check name is not empty.

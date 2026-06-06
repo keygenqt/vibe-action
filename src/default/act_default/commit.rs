@@ -17,6 +17,7 @@ pub fn default() -> FlowModel {
             short: Some("p".into()),
             expect: ExpectMode::String,
             help: Some("Path to git repository (default: current directory)".into()),
+            required: Some(true),
         }],
         trigger: ActionModel {
             tag: "commit".into(),
