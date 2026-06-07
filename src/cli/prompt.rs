@@ -3,12 +3,11 @@
 
 use clap::ArgMatches;
 
+use crate::utils;
+
 /// Execute the `prompt` command with the given parsed arguments.
-pub async fn execute(sub_matches: &ArgMatches) {
-    let text = sub_matches
-        .get_many::<String>("text")
-        .map(|vals| vals.cloned().collect::<Vec<_>>().join(" "))
-        .unwrap_or_default();
+pub async fn execute(matches: &ArgMatches) {
+    let text = utils::clap::extract_text(matches, "text");
     // TODO: send `text` directly to the LLM cluster
     println!("TODO: direct prompt to LLM — {}", text);
 }

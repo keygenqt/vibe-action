@@ -4,6 +4,8 @@
 use clap::{ArgMatches, FromArgMatches, Subcommand};
 use std::path::PathBuf;
 
+use crate::exit_error;
+
 #[derive(Subcommand, Debug)]
 pub enum SystemSubcommands {
     /// Build the CLI from actions — compile actions into SQLite cache
@@ -18,10 +20,10 @@ pub enum SystemSubcommands {
 }
 
 /// Execute the `system` command with the given parsed arguments.
-pub async fn execute(sub_matches: &ArgMatches) {
-    let subcommand = match SystemSubcommands::from_arg_matches(sub_matches) {
+pub async fn execute(matches: &ArgMatches) {
+    let subcommand = match SystemSubcommands::from_arg_matches(matches) {
         Ok(cmd) => cmd,
-        _ => return,
+        _ => exit_error!("Failed to parse system subcommand"),
     };
     match subcommand {
         SystemSubcommands::Build => {

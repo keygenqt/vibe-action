@@ -10,7 +10,7 @@ readme = "README.md"
 
 [dependencies]
 # CLI
-clap = { version = "4.6", features = ["derive"] }
+clap = { version = "4.6", features = ["derive", "string"] }
 clap-cargo = "0.18"
 colored = "3.1"
 

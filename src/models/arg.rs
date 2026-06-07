@@ -1,61 +1,64 @@
-use anyhow::Result;
+//! Action argument model.
+//! Defines CLI arguments for YAML actions.
+
 use serde::{Deserialize, Serialize};
 
-use crate::models::action::ExpectMode;
+use crate::models::{action::ExpectMode, arg_value::ArgActionValue};
 
 /// CLI argument definition.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ActionArg {
+pub struct ArgActionModel {
     /// Argument name (used as --name and {name} tag).
     pub name: String,
     /// Short flag (e.g. -p).
     #[serde(default)]
-    pub short: Option<String>,
+    pub short: Option<char>,
     /// Expected type.
     pub expect: ExpectMode,
     /// Help text.
     #[serde(default)]
     pub help: Option<String>,
-    /// @todo
+    /// Whether the argument is required (default: false).
     #[serde(default)]
-    pub required: Option<bool>,
+    pub required: bool,
+    /// Resolved values from CLI input (not serialized).
+    #[serde(skip, default)]
+    pub values: Vec<ArgActionValue>,
 }
 
-impl ActionArg {
-    /// Validate argument fields for clap compatibility.
-    pub fn validate(&self) -> Result<()> {
-        // Name must not be empty.
-        if self.name.trim().is_empty() {
-            anyhow::bail!("Argument name must not be empty.");
+impl ArgActionModel {
+    /// Fill values from CLI matches. Handles multiple values (e.g., for list types).
+    pub fn resolve_values(&mut self, matches: &clap::ArgMatches) {
+        if let Some(values) = matches.get_many::<String>(&self.name) {
+            self.values = values
+                .map(|v| ArgActionValue::new_with_check(&self.name, v))
+                .collect();
         }
-        // Name must be alphanumeric with underscores.
-        if !self.name.chars().all(|c| c.is_alphanumeric() || c == '_') {
-            anyhow::bail!(
-                "Argument name '{}' must only contain letters, numbers, or underscores.",
-                self.name
-            );
-        }
-        // Short must be a single letter if present.
-        if let Some(short) = &self.short {
-            if short.len() != 1 || !short.chars().all(|c| c.is_alphabetic()) {
-                anyhow::bail!("Short flag must be a single letter, got '{}'.", short);
-            }
-        }
-        // Validate expect type is clap-compatible.
-        match &self.expect {
-            ExpectMode::Void | ExpectMode::Json | ExpectMode::List(_) => {
-                anyhow::bail!(
-                    "Argument '{}' has unsupported type '{}' for CLI. Use string, number, or bool.",
-                    self.name,
-                    self.expect
-                );
-            }
-            _ => {}
-        }
-        Ok(())
     }
 }
 
+/// Convert ArgActionModel into a clap::Arg for CLI building.
+impl From<&ArgActionModel> for clap::Arg {
+    fn from(model: &ArgActionModel) -> Self {
+        let leaked_name: &'static str = &*Box::leak(model.name.clone().into_boxed_str());
+        let mut arg = clap::Arg::new(leaked_name)
+            .long(leaked_name)
+            .required(model.required);
+        if let Some(help) = &model.help {
+            let leaked_help: &'static str = &*Box::leak(help.clone().into_boxed_str());
+            arg = arg.help(leaked_help);
+        }
+        if let Some(c) = model.short {
+            arg = arg.short(c);
+        }
+        match &model.expect {
+            ExpectMode::Bool => arg.action(clap::ArgAction::SetTrue),
+            _ => arg.value_parser(clap::value_parser!(String)),
+        }
+    }
+}
+
+/// Display ExpectMode as a human-readable string.
 impl std::fmt::Display for ExpectMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {

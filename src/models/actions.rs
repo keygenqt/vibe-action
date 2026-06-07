@@ -2,13 +2,13 @@
 //! Loads all flows from configured directories and provides lookup.
 
 use anyhow::Result;
-use std::collections::HashSet;
 use std::fs;
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
 use crate::default;
 use crate::models::flow::FlowModel;
+use crate::validate::ValidateTrait;
 
 /// Aggregated actions from all sources.
 #[derive(Debug, Clone)]
@@ -96,29 +96,6 @@ impl ActionsModel {
             let yaml = yaml_serde::to_string(flow)?;
             let content = format!("{}\n{}", header, yaml);
             fs::write(file_path, &content)?;
-        }
-        Ok(())
-    }
-
-    /// Validate all flows: each flow internally, plus duplicate names across flows.
-    fn validate(&self) -> Result<()> {
-        // Validate each flow.
-        for flow in &self.flows {
-            flow.validate()?;
-        }
-        // Check for duplicate names across flows.
-        let mut names: HashSet<&str> = HashSet::new();
-        for flow in &self.flows {
-            if !names.insert(flow.name.as_str()) {
-                anyhow::bail!("Duplicate action name '{}' across flows", flow.name);
-            }
-        }
-        // Check for duplicate trigger tags across flows (global {tag} namespace).
-        let mut tags: HashSet<&str> = HashSet::new();
-        for flow in &self.flows {
-            if !tags.insert(flow.trigger.tag.as_str()) {
-                anyhow::bail!("Duplicate trigger tag '{}' across flows", flow.trigger.tag);
-            }
         }
         Ok(())
     }

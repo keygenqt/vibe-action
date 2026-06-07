@@ -3,7 +3,7 @@
 
 use std::path::PathBuf;
 
-use clap::{Arg, ColorChoice, Command};
+use clap::{Arg, ArgMatches, ColorChoice, Command};
 
 /// Builds the full hierarchical CLI command tree including dynamic YAML actions.
 ///
@@ -20,17 +20,7 @@ macro_rules! build_app {
                     for flow in &actions_model.flows {
                         let mut dynamic_cmd = Command::new(flow.name.as_str()).about(&flow.about);
                         for arg_def in &flow.args {
-                            let mut clap_arg = Arg::new(arg_def.name.as_str())
-                                .long(arg_def.name.as_str())
-                                .help(arg_def.help.as_deref().unwrap_or(""))
-                                .value_parser(clap::value_parser!(String))
-                                .required(arg_def.required.unwrap_or(false));
-
-                            if let Some(short) = &arg_def.short {
-                                if let Some(c) = short.chars().next() {
-                                    clap_arg = clap_arg.short(c);
-                                }
-                            }
+                            let clap_arg: Arg = arg_def.into();
                             dynamic_cmd = dynamic_cmd.arg(clap_arg);
                         }
 
@@ -75,4 +65,12 @@ pub fn parse_global_flags() -> (Option<PathBuf>, bool) {
     let config_path = global_matches.get_one::<PathBuf>("config").cloned();
     let debug = global_matches.get_flag("debug");
     (config_path, debug)
+}
+
+/// Extract a multi-value string argument from matches and join with spaces.
+pub fn extract_text(matches: &ArgMatches, name: &str) -> String {
+    matches
+        .get_many::<String>(name)
+        .map(|vals| vals.cloned().collect::<Vec<_>>().join(" "))
+        .unwrap_or_default()
 }

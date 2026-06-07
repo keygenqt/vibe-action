@@ -3,7 +3,7 @@
 use std::path::PathBuf;
 
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::arg::ActionArg;
+use crate::models::arg::ArgActionModel;
 use crate::models::flow::FlowModel;
 
 /// Returns the default commit FlowModel.
@@ -12,12 +12,13 @@ pub fn default() -> FlowModel {
         name: "commit".into(),
         about: "AI-generated commit message".into(),
         path: PathBuf::from("act/commit.yaml"),
-        args: vec![ActionArg {
+        args: vec![ArgActionModel {
             name: "path".into(),
-            short: Some("p".into()),
+            short: Some('p'),
             expect: ExpectMode::String,
             help: Some("Path to git repository (default: current directory)".into()),
-            required: Some(true),
+            required: true,
+            values: Vec::new(),
         }],
         trigger: ActionModel {
             tag: "commit".into(),

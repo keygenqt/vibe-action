@@ -13,6 +13,7 @@ mod default;
 mod engine;
 mod models;
 mod utils;
+mod validate;
 
 #[derive(Parser)]
 #[command(name = utils::app::app_name())]

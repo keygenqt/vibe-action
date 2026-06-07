@@ -16,10 +16,12 @@ use vibe_cluster::Provider;
 use crate::configs::cluster::ClusterConfig;
 use crate::configs::estimator::EstimatorConfig;
 use crate::models::actions::ActionsModel;
+use crate::models::flow::FlowModel;
 use crate::utils;
 use crate::utils::constants;
 use crate::utils::path;
 use crate::utils::yaml::YamlComment;
+use crate::validate::ValidateTrait;
 
 /// Global debug mode flag.
 static DEBUG_MODE: AtomicBool = AtomicBool::new(false);
@@ -178,15 +180,16 @@ impl AppConfig {
         Ok(())
     }
 
-    /// Validate configuration.
-    fn validate(&self) -> Result<()> {
-        // Validate estimator.
-        self.estimator.validate()?;
-        // Validate each cluster node.
-        for node in &self.cluster {
-            node.validate()?;
-        }
-        Ok(())
+    /// Find a flow by name from the loaded actions model.
+    pub fn find_flow(&self, name: &str) -> Result<FlowModel> {
+        let actions = self
+            .actions_model
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("No actions loaded."))?;
+        actions
+            .find(name)
+            .cloned()
+            .ok_or_else(|| anyhow::anyhow!("Unknown action: {}", name))
     }
 
     /// Create estimator cluster from config.
