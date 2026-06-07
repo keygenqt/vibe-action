@@ -4,13 +4,13 @@
 use anyhow::Result;
 use vibe_cluster::Prompt;
 
-use crate::{configs::app::AppConfig, models::context::ContextModel};
+use crate::configs::app::AppConfig;
 
 pub struct Cluster;
 
 impl Cluster {
-    /// Execute an LLM prompt and return the response.
-    pub async fn exec(prompt: &str) -> Result<ContextModel> {
+    /// Execute an LLM prompt and return the response text.
+    pub async fn exec(prompt: &str) -> Result<String> {
         let complexity = Self::complexity(prompt).await.unwrap_or(0.5);
         let config = AppConfig::instance()?;
         let cluster = config.create_cluster(complexity)?;
@@ -20,7 +20,7 @@ impl Cluster {
             .map_err(|e| anyhow::anyhow!("Cluster error: {}", e))?
             .text
             .ok_or_else(|| anyhow::anyhow!("Empty response from cluster"))?;
-        Ok(ContextModel::String(response.trim().to_string()))
+        Ok(response.trim().to_string())
     }
 
     /// Estimate complexity for a prompt.
@@ -29,14 +29,22 @@ impl Cluster {
         let estimator = config.create_estimator()?;
 
         let complexity_prompt = format!(
-            "Rate prompt complexity from 0.00 to 1.00 based on:\n\
-             - Depth of knowledge required (shallow -> deep expertise)\n\
-             - Code involvement (no code -> architecture/creative)\n\
-             - Analytical demand (simple recall -> comparison/synthesis)\n\
-             - Output complexity (few words -> structured document/code)\n\n\
-             Reply ONLY with the number (two decimal places, e.g. 0.50).\n\n\
-             <prompt>\n{prompt}\n</prompt>"
-        );
+            r#"
+Rate prompt complexity from 0.00 to 1.00 based on:
+ - Depth of knowledge required (shallow -> deep expertise)
+ - Code involvement (no code -> architecture/creative)
+ - Analytical demand (simple recall -> comparison/synthesis)
+ - Output complexity (few words -> structured document/code)
+
+Reply ONLY with the number (two decimal places, e.g. 0.50).
+
+<prompt>
+{prompt}
+</prompt>
+    "#
+        )
+        .trim()
+        .to_string();
 
         let response = estimator
             .call(Prompt::new(&complexity_prompt, None))

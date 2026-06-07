@@ -4,5 +4,6 @@
 pub mod cluster;
 pub mod context;
 pub mod engine;
-pub mod resolver;
+pub mod resolve;
 pub mod shell;
+pub mod sort;

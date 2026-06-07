@@ -3,12 +3,13 @@
 use std::path::PathBuf;
 
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::flow::FlowModel;
+use crate::models::flow::{FlowMode, FlowModel};
 
 /// Returns the default find FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "find".into(),
+        mode: FlowMode::Output,
         about: "Fuzzy file finder with AI-powered search".into(),
         path: PathBuf::from("act/find.yaml"),
         args: vec![],

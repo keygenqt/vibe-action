@@ -3,12 +3,13 @@
 use std::path::PathBuf;
 
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::flow::FlowModel;
+use crate::models::flow::{FlowMode, FlowModel};
 
 /// Returns the default synonyms FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "synonyms".into(),
+        mode: FlowMode::Output,
         about: "Find synonyms for a given word".into(),
         path: PathBuf::from("gen/synonyms.yaml"),
         args: vec![],

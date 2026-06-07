@@ -1,7 +1,9 @@
 //! Runtime context for tag values.
-//! Stores resolved tag -> value mapping and handles {tag} substitution.
+//! Stores resolved tag -> value mapping and handles {tag} expansion.
 
 use std::collections::HashMap;
+
+use regex::Regex;
 
 use crate::models::context::ContextModel;
 
@@ -23,30 +25,54 @@ impl Context {
         self.values.insert(tag.to_string(), value);
     }
 
-    /// Replace all {tag} placeholders in text with their resolved values.
-    /// Unknown tags are left unchanged.
-    pub fn substitute(&self, text: &str) -> String {
-        let re = regex::Regex::new(r"\{(\w+)\}").unwrap();
+    /// Fill {tag} placeholders.
+    /// Simple tags are replaced with their values.
+    /// List tags expand into multiple strings (cartesian product).
+    pub fn fill(&self, text: &str) -> Vec<String> {
+        let re = Regex::new(r"\{(\w+)\}").unwrap();
+
+        // Collect all list tags.
+        let list_tags: Vec<(&str, &[ContextModel])> = re
+            .captures_iter(text)
+            .filter_map(|cap| {
+                let tag = cap.get(1).unwrap().as_str();
+                if let Some(ContextModel::List(items)) = self.values.get(tag) {
+                    if !items.is_empty() {
+                        return Some((tag, items.as_slice()));
+                    }
+                }
+                None
+            })
+            .collect();
+
+        // Start with the original text.
+        let mut results = vec![text.to_string()];
+
+        // For each list tag, expand results with each item.
+        for (tag, items) in &list_tags {
+            let mut next = Vec::new();
+            for item in *items {
+                for current in &results {
+                    let replaced = current.replace(&format!("{{{}}}", tag), &item.to_string());
+                    next.push(replaced);
+                }
+            }
+            results = next;
+        }
+
+        // Fill remaining simple tags in each result.
+        results.iter().map(|r| self.fill_simple(r, &re)).collect()
+    }
+
+    /// Simple fill without list expansion.
+    fn fill_simple(&self, text: &str, re: &Regex) -> String {
         re.replace_all(text, |caps: &regex::Captures| {
-            let tag = &caps[1];
+            let tag = caps.get(1).unwrap().as_str();
             self.values
                 .get(tag)
                 .map(|v| v.to_string())
                 .unwrap_or_else(|| caps.get(0).unwrap().as_str().to_string())
         })
         .to_string()
-    }
-
-    /// Check if any {tag} in text points to a List value.
-    /// Returns the tag name and the list items if found.
-    pub fn get_list_for_action(&self, text: &str) -> Option<(String, Vec<ContextModel>)> {
-        let re = regex::Regex::new(r"\{(\w+)\}").unwrap();
-        for cap in re.captures_iter(text) {
-            let tag = cap.get(1).unwrap().as_str();
-            if let Some(ContextModel::List(items)) = self.values.get(tag) {
-                return Some((tag.to_string(), items.clone()));
-            }
-        }
-        None
     }
 }

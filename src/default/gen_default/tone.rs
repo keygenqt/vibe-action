@@ -3,12 +3,13 @@
 use std::path::PathBuf;
 
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::flow::FlowModel;
+use crate::models::flow::{FlowMode, FlowModel};
 
 /// Returns the default tone FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "tone".into(),
+        mode: FlowMode::Output,
         about: "Change the tone of a text (friendly, formal, casual, etc.)".into(),
         path: PathBuf::from("gen/tone.yaml"),
         args: vec![],

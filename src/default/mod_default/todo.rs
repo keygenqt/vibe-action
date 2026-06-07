@@ -3,12 +3,13 @@
 use std::path::PathBuf;
 
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::flow::FlowModel;
+use crate::models::flow::{FlowMode, FlowModel};
 
 /// Returns the default todo FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "todo".into(),
+        mode: FlowMode::Output,
         about: "Find and document @todo markers in code".into(),
         path: PathBuf::from("mod/todo.yaml"),
         args: vec![],

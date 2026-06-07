@@ -4,13 +4,11 @@
 use anyhow::Result;
 use std::process::Command;
 
-use crate::models::context::ContextModel;
-
 pub struct Shell;
 
 impl Shell {
     /// Execute a shell command and return its output.
-    pub async fn exec(command: &str) -> Result<ContextModel> {
+    pub async fn exec(command: &str) -> Result<String> {
         let output = Command::new("sh")
             .arg("-c")
             .arg(command)
@@ -25,7 +23,6 @@ impl Shell {
                 stderr.trim()
             ));
         }
-        let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        Ok(ContextModel::String(stdout))
+        Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
     }
 }

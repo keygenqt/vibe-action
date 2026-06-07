@@ -3,12 +3,13 @@
 use std::path::PathBuf;
 
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::flow::FlowModel;
+use crate::models::flow::{FlowMode, FlowModel};
 
 /// Returns the default spellcheck FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "spellcheck".into(),
+        mode: FlowMode::Output,
         about: "Check and fix spelling in text or files".into(),
         path: PathBuf::from("mod/spellcheck.yaml"),
         args: vec![],

@@ -4,12 +4,13 @@ use std::path::PathBuf;
 
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
 use crate::models::arg::ArgActionModel;
-use crate::models::flow::FlowModel;
+use crate::models::flow::{FlowMode, FlowModel};
 
 /// Returns the default commit FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "commit".into(),
+        mode: FlowMode::Ask,
         about: "AI-generated commit message".into(),
         path: PathBuf::from("act/commit.yaml"),
         args: vec![ArgActionModel {
@@ -26,8 +27,7 @@ pub fn default() -> FlowModel {
             expect: ExpectMode::String,
             r#match: None,
             action: r#"
-echo "Your commit:"
-echo "cd {path} && git commit -m '{commit_message}'"
+cd {path} && git add . && git commit -m '{commit_message}'
             "#
             .trim()
             .into(),
@@ -45,7 +45,7 @@ echo "cd {path} && git commit -m '{commit_message}'"
                 r#type: ActionMode::Cmd,
                 expect: ExpectMode::String,
                 r#match: None,
-                action: "cd {path} && git diff --stat {changed_files}".into(),
+                action: "cd {path} && git diff --stat -- {changed_files}".into(),
             },
             ActionModel {
                 tag: "file_summaries".into(),

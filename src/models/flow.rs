@@ -11,11 +11,32 @@ use crate::{
     validate::ValidateTrait,
 };
 
+/// Flow execution mode — controls what happens with the trigger result.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum FlowMode {
+    /// Print the final result to console (default).
+    Output,
+    /// Execute the trigger command without confirmation.
+    Exec,
+    /// Ask user for confirmation (Y/N) before executing.
+    Ask,
+}
+
+impl Default for FlowMode {
+    fn default() -> Self {
+        FlowMode::Output
+    }
+}
+
 /// One action flow: name, args, trigger, steps.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FlowModel {
     /// Action name (used as CLI subcommand).
     pub name: String,
+    /// Execution mode for the trigger.
+    #[serde(default)] // default = Output
+    pub mode: FlowMode,
     /// Short description for help.
     pub about: String,
     /// CLI arguments.

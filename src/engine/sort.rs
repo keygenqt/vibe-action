@@ -1,5 +1,5 @@
-//! Tag dependency resolver.
-//! Builds a dependency graph from {tag} references and returns topological order.
+//! Topological sort for action dependencies.
+//! Resolves {tag} references to determine execution order.
 
 use std::collections::{HashMap, HashSet, VecDeque};
 
@@ -8,18 +8,18 @@ use regex::Regex;
 
 use crate::models::{action::ActionModel, flow::FlowModel};
 
-pub struct Resolver;
+pub struct TopologicalSort;
 
-impl Resolver {
-    /// Build execution order from actions based on {tag} dependencies.
-    /// Returns actions in topological order (dependencies first).
-    pub fn resolve(flow: &FlowModel) -> Result<Vec<&ActionModel>> {
+impl TopologicalSort {
+    /// Sort actions by {tag} dependencies using Kahn's algorithm.
+    /// Returns actions in execution order (dependencies first).
+    pub fn sort(flow: &FlowModel) -> Result<Vec<ActionModel>> {
         let re = Regex::new(r"\{(\w+)\}").unwrap();
 
         // Map tag -> action for quick lookup.
-        let mut tag_to_action: HashMap<&str, &ActionModel> = HashMap::new();
+        let mut tag_to_action: HashMap<&str, ActionModel> = HashMap::new();
         for action in &flow.actions {
-            tag_to_action.insert(&action.tag, action);
+            tag_to_action.insert(&action.tag, action.clone());
         }
 
         let mut in_degree: HashMap<&str, usize> = HashMap::new();
@@ -54,11 +54,11 @@ impl Resolver {
             .map(|(tag, _)| *tag)
             .collect();
 
-        let mut order: Vec<&ActionModel> = Vec::with_capacity(flow.actions.len());
+        let mut order: Vec<ActionModel> = Vec::with_capacity(flow.actions.len());
 
         while let Some(tag) = queue.pop_front() {
             if let Some(action) = tag_to_action.get(tag) {
-                order.push(action);
+                order.push(action.clone());
             }
             if let Some(dependents) = deps.get(tag) {
                 for dep in dependents {

@@ -3,12 +3,13 @@
 use std::path::PathBuf;
 
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::flow::FlowModel;
+use crate::models::flow::{FlowMode, FlowModel};
 
 /// Returns the default naming FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "naming".into(),
+        mode: FlowMode::Output,
         about: "Generate name suggestions for variables, functions, or projects".into(),
         path: PathBuf::from("gen/naming.yaml"),
         args: vec![],

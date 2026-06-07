@@ -3,12 +3,13 @@
 use std::path::PathBuf;
 
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::flow::FlowModel;
+use crate::models::flow::{FlowMode, FlowModel};
 
 /// Returns the default translate FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "translate".into(),
+        mode: FlowMode::Output,
         about: "Translate text or files to another language".into(),
         path: PathBuf::from("mod/translate.yaml"),
         args: vec![],
