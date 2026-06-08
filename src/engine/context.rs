@@ -25,13 +25,13 @@ impl Context {
         self.values.insert(tag.to_string(), value);
     }
 
-    /// Fill {tag} placeholders.
-    /// Simple tags are replaced with their values.
-    /// List tags expand into multiple strings (cartesian product).
+    /// Fill {tag} placeholders with list expansion.
+    /// Simple tags are skipped during the loop and handled at the very end.
+    /// List tags expand the results matrix into multiple variants (cartesian product).
     pub fn fill(&self, text: &str) -> Vec<String> {
         let re = Regex::new(r"\{(\w+)\}").unwrap();
 
-        // Collect all list tags.
+        // Collect all list tags found in the text template.
         let list_tags: Vec<(&str, &[ContextModel])> = re
             .captures_iter(text)
             .filter_map(|cap| {
@@ -45,10 +45,10 @@ impl Context {
             })
             .collect();
 
-        // Start with the original text.
+        // Start matrix resolution with the original text string.
         let mut results = vec![text.to_string()];
 
-        // For each list tag, expand results with each item.
+        // Generate the cartesian product: expand results for each item in each list tag.
         for (tag, items) in &list_tags {
             let mut next = Vec::new();
             for item in *items {
@@ -60,8 +60,36 @@ impl Context {
             results = next;
         }
 
-        // Fill remaining simple tags in each result.
+        // Fill any remaining non-list (scalar) placeholders across all expanded strings.
         results.iter().map(|r| self.fill_simple(r, &re)).collect()
+    }
+
+    /// Fill {tag} placeholders by merging list values into a single plain string.
+    /// Uses a newline '\n' separator for multi-line blocks (e.g., LLM prompts)
+    /// and a space ' ' separator for single-line structures (e.g., shell commands).
+    pub fn fill_join(&self, text: &str) -> String {
+        let re = Regex::new(r"\{(\w+)\}").unwrap();
+
+        // Contextual line formatting detection.
+        let separator = if text.contains('\n') { "\n" } else { " " };
+
+        re.replace_all(text, |caps: &regex::Captures| {
+            let tag = caps.get(1).unwrap().as_str();
+            self.values
+                .get(tag)
+                .map(|v| match v {
+                    // Flatten lists directly into the placeholder zone.
+                    ContextModel::List(items) => items
+                        .iter()
+                        .map(|i| i.to_string())
+                        .collect::<Vec<_>>()
+                        .join(separator),
+                    other => other.to_string(),
+                })
+                // Fallback to the original matching placeholder if the key is missing in memory.
+                .unwrap_or_else(|| caps.get(0).unwrap().as_str().to_string())
+        })
+        .to_string()
     }
 
     /// Simple fill without list expansion.

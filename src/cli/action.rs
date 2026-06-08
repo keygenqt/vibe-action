@@ -6,7 +6,7 @@ use inquire::Confirm;
 
 use crate::{
     configs::app::AppConfig, engine::engine::Engine, exit_error, models::flow::FlowMode,
-    print_info, print_newline, print_progress, print_success, print_warning,
+    print_info, print_newline, print_progress, print_success, print_success_block,
 };
 
 /// Execute a dynamic action command.
@@ -52,7 +52,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
 
     match flow.mode {
         FlowMode::Output => {
-            print_success!("{}", engine.trigger_fill());
+            print_success_block!("{}", engine.trigger_fill());
         }
         FlowMode::Exec => {
             let trigger = engine.trigger().clone();
@@ -78,7 +78,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
                     print_success!("{}", result);
                 }
                 Ok(false) => print_info!("{}", text),
-                Err(_) => print_warning!("Error with questionnaire, try again later"),
+                Err(_) => {}
             }
         }
     }

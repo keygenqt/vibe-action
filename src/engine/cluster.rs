@@ -26,6 +26,12 @@ impl Cluster {
     /// Estimate complexity for a prompt.
     async fn complexity(prompt: &str) -> Result<f32> {
         let config = AppConfig::instance()?;
+
+        // Single model — no estimation needed, use its range.
+        if config.cluster.len() == 1 {
+            return Ok(1.0);
+        }
+
         let estimator = config.create_estimator()?;
 
         let complexity_prompt = format!(

@@ -19,7 +19,7 @@ pub fn default() -> FlowModel {
             expect: ExpectMode::String,
             r#match: None,
             action: r#"
-echo "Extracted: coming soon..."
+Coming soon...
             "#
             .trim()
             .into(),

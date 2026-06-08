@@ -8,7 +8,7 @@ use crate::engine::context::Context;
 use crate::engine::resolve::Resolve;
 use crate::engine::shell::Shell;
 use crate::engine::sort::TopologicalSort;
-use crate::models::action::{ActionMode, ActionModel};
+use crate::models::action::{ActionMode, ActionModel, ExpectMode};
 use crate::models::flow::FlowModel;
 
 /// Pipeline execution engine — resolves dependencies, executes actions, manages context.
@@ -63,9 +63,15 @@ impl Engine {
         Ok(raw_outputs.join("\n"))
     }
 
-    /// Execute an action and return raw string outputs. Context::fill handles list expansion.
+    /// Execute an action and return raw string outputs.
     async fn execute_action(action: &ActionModel, ctx: &Context) -> Result<Vec<String>> {
-        let expanded = ctx.fill(&action.action);
+        // If the action expects a List return type, use cartesian expansion.
+        // Otherwise, compress list tags into a single scalar block inline.
+        let expanded = match &action.expect {
+            ExpectMode::List(_) => ctx.fill(&action.action),
+            _ => vec![ctx.fill_join(&action.action)],
+        };
+
         let mut results = Vec::with_capacity(expanded.len());
         for single_action in &expanded {
             let raw = Self::exec_raw(action, single_action).await?;
@@ -97,9 +103,10 @@ impl Engine {
         resolved: &str,
         result: &str,
     ) {
-        let preview_original: String = original.chars().take(300).collect();
-        let preview_resolved: String = resolved.chars().take(300).collect();
-        let preview_result: String = result.chars().take(300).collect();
+        let size = 2000;
+        let preview_original: String = original.chars().take(size).collect();
+        let preview_resolved: String = resolved.chars().take(size).collect();
+        let preview_result: String = result.chars().take(size).collect();
         tracing::debug!(
             r#"[{}] ({})
 ------------- original (len:{})

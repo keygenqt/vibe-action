@@ -32,7 +32,20 @@ impl Resolve {
             ExpectMode::Number => Self::resolve_number(&raw),
             ExpectMode::String => Self::resolve_string(&raw),
             ExpectMode::Json => Self::resolve_json(&raw),
-            ExpectMode::List(inner) => Self::resolve_list(&raw, inner, match_regex),
+            ExpectMode::List(inner) => {
+                if outputs.len() > 1 {
+                    let mut parsed = Vec::with_capacity(outputs.len());
+                    for item in outputs {
+                        let trimmed = item.trim().to_string();
+                        if !trimmed.is_empty() {
+                            parsed.push(Self::resolve(vec![trimmed], inner, match_regex)?);
+                        }
+                    }
+                    Ok(ContextModel::List(parsed))
+                } else {
+                    Self::resolve_list(&raw, inner, match_regex)
+                }
+            }
         }
     }
 

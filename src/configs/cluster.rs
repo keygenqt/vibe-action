@@ -39,8 +39,10 @@ impl Default for ClusterConfig {
     fn default() -> Self {
         Self {
             provider: "ollama".to_string(),
-            host: "http://localhost:11434".to_string(),
-            model: "qwen2.5-coder:3b-instruct".to_string(),
+            // @todo
+            // host: "http://localhost:11434".to_string(),
+            host: "http://192.168.1.10:11434".to_string(),
+            model: "qwen2.5-coder:14b-instruct".to_string(),
             complexity_from: 0.0,
             complexity_to: 1.0,
             timeout_secs: 60,

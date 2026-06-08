@@ -41,20 +41,28 @@ cd {path} && git add . && git commit -m '{commit_message}'
                 action: "cd {path} && git diff --name-only".into(),
             },
             ActionModel {
-                tag: "file_diffs".into(),
+                tag: "file_diff".into(),
                 r#type: ActionMode::Cmd,
-                expect: ExpectMode::String,
+                expect: ExpectMode::List(Box::new(ExpectMode::String)),
                 r#match: None,
-                action: "cd {path} && git diff --stat -- {changed_files}".into(),
+                action: "cd {path} && git diff {changed_files}".into(),
             },
             ActionModel {
-                tag: "file_summaries".into(),
+                tag: "file_summary".into(),
                 r#type: ActionMode::Llm,
-                expect: ExpectMode::String,
+                expect: ExpectMode::List(Box::new(ExpectMode::String)),
                 r#match: None,
                 action: r#"
-For each file below, describe the changes in one line:
-{file_diffs}
+[Task]
+Summarize the git diff below in strictly ONE sentence (max 10 words).
+Start with an action verb (Add, Fix, Refactor, Change).
+Write strictly in English.
+
+[Diff]
+{file_diff}
+
+[Result]
+<summary>
                 "#
                 .trim()
                 .into(),
@@ -65,15 +73,17 @@ For each file below, describe the changes in one line:
                 expect: ExpectMode::String,
                 r#match: None,
                 action: r#"
-Write a single conventional commit message summarizing ALL changes below.
-Choose the best type: feat (new feature), fix (bug fix), docs (documentation),
-refactor (code restructuring), test (testing), chore (maintenance).
-Examples:
-  feat: add user authentication
-  fix: resolve memory leak in parser
-  docs: update API documentation
-Reply with ONE message:
-{file_summaries}
+[Task]
+Combine all summaries below into ONE conventional commit message.
+Write strictly in English and in ONE short sentence (max 15 words).
+Allowed types: feat, fix, docs, refactor, test, chore.
+
+[Summaries]
+{file_summary}
+
+[Result]
+<type>: <commit>
+
                 "#
                 .trim()
                 .into(),
