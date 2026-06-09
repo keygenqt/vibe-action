@@ -1,7 +1,6 @@
 //! Value resolver — converts raw strings into typed ContextModel values.
 
 use anyhow::Result;
-use regex::Regex;
 use serde_json::Value;
 
 use crate::models::action::ExpectMode;
@@ -13,19 +12,10 @@ pub struct Resolve;
 // Resolve — отдельные методы для каждого типа
 impl Resolve {
     /// Main entry point — route to specific type handler.
-    pub fn resolve(
-        outputs: Vec<String>,
-        expect: &ExpectMode,
-        match_regex: Option<&Regex>,
-    ) -> Result<ContextModel> {
+    /// Main entry point — route to specific type handler.
+    pub fn resolve(outputs: Vec<String>, expect: &ExpectMode) -> Result<ContextModel> {
         let raw = outputs.join("\n");
-        if !matches!(expect, ExpectMode::List(_)) {
-            if let Some(re) = match_regex {
-                if !re.is_match(raw.trim()) {
-                    anyhow::bail!("Value does not match pattern '{}'", re.as_str());
-                }
-            }
-        }
+
         match expect {
             ExpectMode::Void => Self::resolve_void(&raw),
             ExpectMode::Bool => Self::resolve_bool(&raw),
@@ -38,12 +28,12 @@ impl Resolve {
                     for item in outputs {
                         let trimmed = item.trim().to_string();
                         if !trimmed.is_empty() {
-                            parsed.push(Self::resolve(vec![trimmed], inner, match_regex)?);
+                            parsed.push(Self::resolve(vec![trimmed], inner)?);
                         }
                     }
                     Ok(ContextModel::List(parsed))
                 } else {
-                    Self::resolve_list(&raw, inner, match_regex)
+                    Self::resolve_list(&raw, inner)
                 }
             }
         }
@@ -102,11 +92,7 @@ impl Resolve {
     }
 
     /// Recursive list resolution.
-    fn resolve_list(
-        raw: &str,
-        inner: &ExpectMode,
-        match_regex: Option<&Regex>,
-    ) -> Result<ContextModel> {
+    fn resolve_list(raw: &str, inner: &ExpectMode) -> Result<ContextModel> {
         let items: Vec<&str> = raw
             .trim()
             .lines()
@@ -119,7 +105,7 @@ impl Resolve {
         }
         let mut parsed = Vec::with_capacity(items.len());
         for item in &items {
-            parsed.push(Self::resolve(vec![item.to_string()], inner, match_regex)?);
+            parsed.push(Self::resolve(vec![item.to_string()], inner)?);
         }
         Ok(ContextModel::List(parsed))
     }

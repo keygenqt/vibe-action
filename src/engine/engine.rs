@@ -73,14 +73,9 @@ impl Engine {
 
     /// Compile match regex, execute action, resolve and validate result, store in context.
     pub async fn exec_action(&mut self, action: &ActionModel) -> Result<String> {
-        let compiled_match = match &action.r#match {
-            Some(pattern) => Some(Regex::new(pattern)?),
-            None => None,
-        };
         let raw_outputs = Self::execute_action(action, &self.ctx).await?;
-        let validated =
-            Resolve::resolve(raw_outputs.clone(), &action.expect, compiled_match.as_ref())
-                .map_err(|e| anyhow::anyhow!("[{}] {}", action.tag, e))?;
+        let validated = Resolve::resolve(raw_outputs.clone(), &action.expect)
+            .map_err(|e| anyhow::anyhow!("[{}] {}", action.tag, e))?;
         self.ctx.set(&action.tag, validated);
         Ok(raw_outputs.join("\n"))
     }
@@ -88,6 +83,7 @@ impl Engine {
     /// Execute an action and return raw string outputs.
     async fn execute_action(action: &ActionModel, ctx: &Context) -> Result<Vec<String>> {
         let escape = action.r#type == ActionMode::Cmd;
+        let compiled_match = action.r#match.as_ref().map(|p| Regex::new(p)).transpose()?;
 
         // Use has_loop_tags to decide: expand or join.
         let expanded = if ctx.has_loop_tags(&action.action) {
@@ -99,6 +95,17 @@ impl Engine {
         let mut results = Vec::with_capacity(expanded.len());
         for single_action in &expanded {
             let raw = Self::exec_raw(action, single_action).await?;
+
+            if let Some(re) = &compiled_match {
+                if !re.is_match(raw.trim()) {
+                    anyhow::bail!(
+                        "Value does not match pattern '{}': '{}'",
+                        re.as_str(),
+                        raw.trim()
+                    );
+                }
+            }
+
             Self::log_action(
                 &action.tag,
                 &action.r#type,
