@@ -44,7 +44,6 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
                 .prompt();
             match ans {
                 Ok(true) => {
-                    print_newline!();
                     engine
                         .exec_action(action)
                         .await
