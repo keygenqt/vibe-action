@@ -67,7 +67,7 @@ Write strictly in English.
                 r#type: ActionMode::Llm,
                 expect: ExpectMode::String,
                 r#match: None,
-                confirm: false,
+                confirm: true,
                 action: r#"
 [Task]
 Combine all summaries below into ONE conventional commit message.
