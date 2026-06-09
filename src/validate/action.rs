@@ -25,13 +25,6 @@ impl ValidateTrait for ActionModel {
         }
         // Validate match regex if present.
         if let Some(pattern) = &self.r#match {
-            if matches!(self.expect, ExpectMode::Json) {
-                anyhow::bail!(
-                    "Action '{}' has a 'match' regex pattern, but 'expect' is set to Json. \
-                    Regex validation is not supported for structured JSON objects.",
-                    self.tag
-                );
-            }
             regex::Regex::new(pattern).map_err(|e| {
                 anyhow::anyhow!("Action '{}' has invalid match regex: {}", self.tag, e)
             })?;

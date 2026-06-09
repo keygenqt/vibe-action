@@ -66,7 +66,6 @@ impl std::fmt::Display for ExpectMode {
             ExpectMode::Bool => write!(f, "bool"),
             ExpectMode::Number => write!(f, "number"),
             ExpectMode::String => write!(f, "string"),
-            ExpectMode::Json => write!(f, "json"),
             ExpectMode::List(inner) => write!(f, "list<{}>", inner),
         }
     }

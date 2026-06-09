@@ -21,7 +21,6 @@ impl ValidateTrait for ArgActionModel {
             );
         }
 
-        // Валидация short теперь тривиальна и безопасна
         if let Some(short) = self.short {
             if !short.is_ascii_alphabetic() {
                 anyhow::bail!("Short flag must be an ASCII letter, got '{}'.", short);
@@ -29,7 +28,7 @@ impl ValidateTrait for ArgActionModel {
         }
 
         match &self.expect {
-            ExpectMode::Void | ExpectMode::Json | ExpectMode::List(_) => {
+            ExpectMode::Void | ExpectMode::List(_) => {
                 anyhow::bail!("Argument '{}' has unsupported type для CLI.", self.name);
             }
             _ => {}

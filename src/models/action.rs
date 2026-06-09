@@ -25,8 +25,6 @@ pub enum ExpectMode {
     Number,
     /// Text.
     String,
-    /// Valid JSON.
-    Json,
     /// List of values.
     List(Box<ExpectMode>),
 }
@@ -74,7 +72,6 @@ impl<'de> Deserialize<'de> for ExpectMode {
             "bool" => Ok(ExpectMode::Bool),
             "number" => Ok(ExpectMode::Number),
             "string" => Ok(ExpectMode::String),
-            "json" => Ok(ExpectMode::Json),
             _ => Err(serde::de::Error::custom(format!(
                 "Unknown expect type: {}",
                 s
@@ -95,7 +92,6 @@ impl Serialize for ExpectMode {
                 ExpectMode::Bool => "bool".to_string(),
                 ExpectMode::Number => "number".to_string(),
                 ExpectMode::String => "string".to_string(),
-                ExpectMode::Json => "json".to_string(),
                 ExpectMode::List(inner) => format!("list<{}>", stringify(inner)),
             }
         }

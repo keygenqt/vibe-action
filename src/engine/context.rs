@@ -1,11 +1,20 @@
 //! Runtime context for tag values.
 //! Stores resolved tag -> value mapping and handles {tag} expansion with pipe modifiers.
 
-use std::collections::HashMap;
-
+use anyhow::Result;
 use regex::Regex;
+use std::collections::HashMap;
+use std::fmt::Write;
 
 use crate::models::context::ContextModel;
+
+/// @todo
+pub struct ExpandedTemplate {
+    /// @todo
+    pub items: Vec<String>,
+    /// @todo
+    pub is_list: bool,
+}
 
 /// Runtime context holding resolved tag values.
 pub struct Context {
@@ -30,115 +39,103 @@ impl Context {
         self.values.get(tag)
     }
 
-    /// Check if template has pure list tags (without |join) that trigger loop mode.
-    pub fn has_loop_tags(&self, text: &str) -> bool {
+    /// Fill {tag} placeholders and always return an ExpandedTemplate structure.
+    pub fn fill(&self, text: &str, escape: bool) -> Result<ExpandedTemplate> {
         let re = Regex::new(r"\{(\w+)(?:\|(\w+))?\}").unwrap();
-        re.captures_iter(text).any(|cap| {
-            let tag = cap.get(1).unwrap().as_str();
-            let modifier = cap.get(2).map(|m| m.as_str()).unwrap_or("");
-            if modifier == "join" {
-                return false;
-            }
-            matches!(self.values.get(tag), Some(ContextModel::List(items)) if !items.is_empty())
-        })
-    }
 
-    /// Fill {tag} placeholders with list expansion (cartesian product).
-    /// Skips tags with |join modifier. Replaces full placeholder including modifiers.
-    pub fn fill(&self, text: &str, escape: bool) -> Vec<String> {
-        let re = Regex::new(r"\{(\w+)(?:\|(\w+))?\}").unwrap();
-        let text = &Self::strip_all_template_quotes(text, escape);
+        let clean_text = Self::strip_all_template_quotes(text, escape);
+        let mut results = vec![clean_text.clone()];
+        let mut is_list = false;
 
-        // Collect (tag_name, full_placeholder, items) for replacement.
-        let list_tags: Vec<(String, String, &[ContextModel])> = re
-            .captures_iter(text)
-            .filter_map(|cap| {
-                let full_match = cap.get(0).unwrap().as_str().to_string();
-                let tag = cap.get(1).unwrap().as_str();
-                let modifier = cap.get(2).map(|m| m.as_str()).unwrap_or("");
-                if modifier == "join" {
-                    return None;
-                }
-                if let Some(ContextModel::List(items)) = self.values.get(tag) {
-                    if !items.is_empty() {
-                        return Some((tag.to_string(), full_match, items.as_slice()));
+        for cap in re.captures_iter(&clean_text) {
+            let placeholder = cap.get(0).unwrap().as_str();
+            let tag_name = cap.get(1).unwrap().as_str();
+
+            if let Some(context_value) = self.values.get(tag_name) {
+                let modifier = cap.get(2).map(|m| m.as_str()).unwrap_or_default();
+                let processed_value = self.apply_modifier(&modifier, context_value, escape)?;
+
+                match processed_value {
+                    ContextModel::String(s) => {
+                        let mut final_string = s;
+                        if escape {
+                            final_string = shell_words::quote(&final_string).to_string();
+                        }
+                        for current in results.iter_mut() {
+                            *current = current.replace(placeholder, &final_string);
+                        }
                     }
-                }
-                None
-            })
-            .collect();
+                    ContextModel::List(items) => {
+                        is_list = true;
+                        let mut next = Vec::new();
+                        for item in items {
+                            let mut final_string = item.to_string();
+                            if escape {
+                                final_string = shell_words::quote(&final_string).to_string();
+                            }
+                            for current in &results {
+                                next.push(current.replace(placeholder, &final_string));
+                            }
+                        }
+                        results = next;
+                    }
 
-        let mut results = vec![text.to_string()];
-        for (_tag_name, full_placeholder, items) in &list_tags {
-            let mut next = Vec::new();
-            for item in *items {
-                for current in &results {
-                    let raw_val = item.to_string();
-                    let safe_val = if escape {
-                        shell_words::quote(&raw_val).to_string()
-                    } else {
-                        raw_val
-                    };
-                    // Replace the full placeholder (e.g., {tag|upper})
-                    let replaced = current.replace(full_placeholder, &safe_val);
-                    next.push(replaced);
+                    _ => {}
                 }
             }
-            results = next;
         }
 
-        // Fill remaining scalar tags in each expanded result.
-        results.iter().map(|r| self.fill_join(r, escape)).collect()
-    }
-
-    /// Fill {tag} placeholders by merging list values into a single plain string.
-    /// Supports pipe modifiers: join, upper, lower, trim, length.
-    /// Escapes each list element individually before joining.
-    pub fn fill_join(&self, text: &str, escape: bool) -> String {
-        let re = Regex::new(r"\{(\w+)(?:\|(\w+))?\}").unwrap();
-        let text = &Self::strip_all_template_quotes(text, escape);
-
-        let separator = if text.contains('\n') { "\n" } else { " " };
-
-        re.replace_all(text, |caps: &regex::Captures| {
-            let tag = caps.get(1).unwrap().as_str();
-            let modifier = caps.get(2).map(|m| m.as_str()).unwrap_or("");
-
-            self.values
-                .get(tag)
-                .map(|v| match v {
-                    ContextModel::List(items) => items
-                        .iter()
-                        .map(|i| {
-                            // Apply modifier and escape each element individually.
-                            let mut s = Self::apply_modifier(&i.to_string(), modifier);
-                            if escape {
-                                s = shell_words::quote(&s).to_string();
-                            }
-                            s
-                        })
-                        .collect::<Vec<_>>()
-                        .join(separator),
-                    other => {
-                        let mut s = Self::apply_modifier(&other.to_string(), modifier);
-                        if escape {
-                            s = shell_words::quote(&s).to_string();
-                        }
-                        s
-                    }
-                })
-                .unwrap_or_else(|| caps.get(0).unwrap().as_str().to_string())
+        Ok(ExpandedTemplate {
+            items: results,
+            is_list,
         })
-        .to_string()
     }
 
-    /// Apply pipe modifier to a resolved value.
-    fn apply_modifier(text: &str, modifier: &str) -> String {
+    /// Apply pipe modifier to a resolved ContextModel value.
+    fn apply_modifier(
+        &self,
+        modifier: &str,
+        value: &ContextModel,
+        escape: bool,
+    ) -> Result<ContextModel> {
         match modifier {
-            "upper" => text.to_uppercase(),
-            "lower" => text.to_lowercase(),
-            "trim" => text.trim().to_string(),
-            _ => text.to_string(),
+            "join" => {
+                if let ContextModel::List(items) = value {
+                    let mut buffer = String::new();
+                    for (idx, item) in items.iter().enumerate() {
+                        if idx > 0 {
+                            buffer.push('\n');
+                        }
+                        let s = item.to_string();
+                        if escape {
+                            write!(buffer, "{}", shell_words::quote(&s))?;
+                        } else {
+                            buffer.push_str(&s);
+                        }
+                    }
+                    Ok(ContextModel::String(buffer))
+                } else {
+                    anyhow::bail!("Modifier 'join' expects a list, but got a scalar value")
+                }
+            }
+            "upper" | "lower" | "trim" => {
+                if let ContextModel::String(s) = value {
+                    let mutated = match modifier {
+                        "upper" => s.to_uppercase(),
+                        "lower" => s.to_lowercase(),
+                        "trim" => s.trim().to_string(),
+                        _ => unreachable!(),
+                    };
+                    Ok(ContextModel::String(if escape {
+                        shell_words::quote(&mutated).to_string()
+                    } else {
+                        mutated
+                    }))
+                } else {
+                    anyhow::bail!("Modifier '{}' expects a string, but got a list", modifier)
+                }
+            }
+            _ => Ok(value.clone()),
         }
     }
 

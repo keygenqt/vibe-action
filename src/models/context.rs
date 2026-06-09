@@ -1,8 +1,6 @@
 //! Runtime context model for tag values.
 //! Stores resolved action results with type information.
 
-use serde_json::Value;
-
 /// A resolved tag value with its type.
 #[derive(Debug, Clone)]
 pub enum ContextModel {
@@ -10,7 +8,6 @@ pub enum ContextModel {
     Bool(bool),
     Number(f64),
     String(String),
-    Json(Value),
     List(Vec<ContextModel>),
 }
 
@@ -21,7 +18,6 @@ impl std::fmt::Display for ContextModel {
             ContextModel::Bool(v) => write!(f, "{}", v),
             ContextModel::Number(v) => write!(f, "{}", v),
             ContextModel::String(v) => write!(f, "{}", v),
-            ContextModel::Json(v) => write!(f, "{}", v),
             ContextModel::List(items) => {
                 let strings: Vec<String> = items.iter().map(|i| i.to_string()).collect();
                 write!(f, "{}", strings.join("\n"))

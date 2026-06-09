@@ -8,7 +8,8 @@ use crate::engine::context::Context;
 use crate::engine::resolve::Resolve;
 use crate::engine::shell::Shell;
 use crate::engine::sort::TopologicalSort;
-use crate::models::action::{ActionMode, ActionModel};
+use crate::models::action::{ActionMode, ActionModel, ExpectMode};
+use crate::models::context::ContextModel;
 use crate::models::flow::FlowModel;
 
 /// Pipeline execution engine — resolves dependencies, executes actions, manages context.
@@ -45,7 +46,10 @@ impl Engine {
     /// Get the enriched action text with all tags filled, formatted for display.
     pub fn action_display(&self, action: &ActionModel) -> String {
         let is_encode = action.r#type == ActionMode::Cmd;
-        let filled = self.ctx.fill_join(&action.action, is_encode);
+        let filled = match self.ctx.fill(&action.action, is_encode) {
+            Ok(expanded) => expanded.items.join("\n"),
+            Err(_) => action.action.clone(),
+        };
         match action.r#type {
             ActionMode::Cmd => filled
                 .replace(" && ", " \\\n  && ")
@@ -71,31 +75,41 @@ impl Engine {
         Ok(value)
     }
 
-    /// Compile match regex, execute action, resolve and validate result, store in context.
-    pub async fn exec_action(&mut self, action: &ActionModel) -> Result<String> {
-        let raw_outputs = Self::execute_action(action, &self.ctx).await?;
-        let validated = Resolve::resolve(raw_outputs.clone(), &action.expect)
-            .map_err(|e| anyhow::anyhow!("[{}] {}", action.tag, e))?;
-        self.ctx.set(&action.tag, validated);
-        Ok(raw_outputs.join("\n"))
+    /// Execute action: fill tags, run shell/LLM, validate with regex, resolve types, store in context.
+    pub async fn exec_action(&mut self, action: &ActionModel) -> Result<()> {
+        // Execute action and get raw outputs with list metadata.
+        let (outputs, is_list) = Self::execute_action(action, &self.ctx).await?;
+        // Build the final ContextModel: list of items or single value.
+        let data = if is_list {
+            let inner_expect = match &action.expect {
+                ExpectMode::List(inner) => inner.as_ref(),
+                _ => &action.expect,
+            };
+            let mut parsed_items = Vec::with_capacity(outputs.len());
+            for item in outputs {
+                let validated = Resolve::resolve(&item, inner_expect)?;
+                parsed_items.push(validated);
+            }
+            ContextModel::List(parsed_items)
+        } else {
+            let raw_single = outputs.into_iter().next().unwrap_or_default();
+            Resolve::resolve(&raw_single, &action.expect)?
+        };
+        // Store validated result in context.
+        self.ctx.set(&action.tag, data);
+        Ok(())
     }
 
-    /// Execute an action and return raw string outputs.
-    async fn execute_action(action: &ActionModel, ctx: &Context) -> Result<Vec<String>> {
+    /// Fill template, execute shell/LLM, validate each output against regex.
+    async fn execute_action(action: &ActionModel, ctx: &Context) -> Result<(Vec<String>, bool)> {
         let escape = action.r#type == ActionMode::Cmd;
         let compiled_match = action.r#match.as_ref().map(|p| Regex::new(p)).transpose()?;
+        let expanded = ctx.fill(&action.action, escape)?;
+        let mut results = Vec::with_capacity(expanded.items.len());
 
-        // Use has_loop_tags to decide: expand or join.
-        let expanded = if ctx.has_loop_tags(&action.action) {
-            ctx.fill(&action.action, escape)
-        } else {
-            vec![ctx.fill_join(&action.action, escape)]
-        };
-
-        let mut results = Vec::with_capacity(expanded.len());
-        for single_action in &expanded {
+        // Execute and validate each expanded action.
+        for single_action in &expanded.items {
             let raw = Self::exec_raw(action, single_action).await?;
-
             if let Some(re) = &compiled_match {
                 if !re.is_match(raw.trim()) {
                     anyhow::bail!(
@@ -105,7 +119,6 @@ impl Engine {
                     );
                 }
             }
-
             Self::log_action(
                 &action.tag,
                 &action.r#type,
@@ -115,7 +128,8 @@ impl Engine {
             );
             results.push(raw);
         }
-        Ok(results)
+
+        Ok((results, expanded.is_list))
     }
 
     /// Execute raw command or LLM prompt.
