@@ -8,11 +8,11 @@ use std::fmt::Write;
 
 use crate::models::context::ContextModel;
 
-/// @todo
+/// Result of expanding a template with context values.
 pub struct ExpandedTemplate {
-    /// @todo
+    /// Expanded template strings (one per combination if list tags were present).
     pub items: Vec<String>,
-    /// @todo
+    /// Whether the expansion involved list tags (loop mode).
     pub is_list: bool,
 }
 
