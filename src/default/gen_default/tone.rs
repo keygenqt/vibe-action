@@ -4,15 +4,18 @@ use std::path::PathBuf;
 
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
 use crate::models::arg::ArgActionModel;
-use crate::models::flow::{FlowMode, FlowModel};
+use crate::models::flow::{FlowFormat, FlowModel};
 
 /// Returns the default tone FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "tone".into(),
-        mode: FlowMode::Output,
+        output: "tag_tone".into(),
+        format: FlowFormat::Rich,
         about: "Change the tone of a text based on your instructions".into(),
         path: PathBuf::from("gen/tone.yaml"),
+        r#match: None,
+        clipboard: true,
         args: vec![ArgActionModel {
             name: "text".into(),
             short: Some('t'),
@@ -21,19 +24,14 @@ pub fn default() -> FlowModel {
             required: true,
             values: Vec::new(),
         }],
-        trigger: ActionModel {
-            tag: "tone".into(),
-            r#type: ActionMode::Cmd,
-            expect: ExpectMode::String,
-            r#match: None,
-            action: "{rewritten_text}".into(),
-        },
-        actions: vec![ActionModel {
-            tag: "rewritten_text".into(),
-            r#type: ActionMode::Llm,
-            expect: ExpectMode::String,
-            r#match: None,
-            action: r#"
+        actions: vec![
+            ActionModel {
+                tag: "tag_rewritten_text".into(),
+                r#type: ActionMode::Llm,
+                expect: ExpectMode::String,
+                r#match: None,
+                confirm: false,
+                action: r#"
 [Task]
 Rewrite the input text to make its tone professional, calm, and polite.
 NEVER repeat rude, obscene, or aggressive words.
@@ -49,9 +47,18 @@ Input: Это что за говнокод? Перепиши нормально!
 
 [Result]
 <rewritten_text>
-        "#
-            .trim()
-            .into(),
-        }],
+                "#
+                .trim()
+                .into(),
+            },
+            ActionModel {
+                tag: "tag_tone".into(),
+                r#type: ActionMode::Cmd,
+                expect: ExpectMode::String,
+                r#match: None,
+                confirm: false,
+                action: "echo '{tag_rewritten_text}'".into(),
+            },
+        ],
     }
 }

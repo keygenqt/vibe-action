@@ -11,40 +11,44 @@ use crate::{
     validate::ValidateTrait,
 };
 
-/// Flow execution mode — controls what happens with the trigger result.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+/// Visual style density for rendering the final result in the terminal.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-pub enum FlowMode {
-    /// Print the final result to console (default).
-    Output,
-    /// Execute the trigger command without confirmation.
-    Exec,
-    /// Ask user for confirmation (Y/N) before executing.
-    Ask,
+pub enum FlowFormat {
+    /// Minimum overhead. Just a standard status line: 'success: <result>'.
+    Compact,
+    /// High visibility. Wrapped inside a beautifully formatted UI block.
+    Rich,
 }
 
-impl Default for FlowMode {
+impl Default for FlowFormat {
     fn default() -> Self {
-        FlowMode::Output
+        FlowFormat::Compact
     }
 }
 
-/// One action flow: name, args, trigger, steps.
+/// One action flow: name, mode, steps, result source.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FlowModel {
     /// Action name (used as CLI subcommand).
     pub name: String,
-    /// Execution mode for the trigger.
-    #[serde(default)] // default = Output
-    pub mode: FlowMode,
+    /// Tag name in context to use as final result.
+    pub output: String,
+    /// How to handle the final result (Output, Exec, Ask, Clip).
+    #[serde(default)]
+    pub format: FlowFormat,
     /// Short description for help.
     pub about: String,
+    /// Optional regex validation for the result.
+    #[serde(default)]
+    pub r#match: Option<String>,
+    /// Automatically copy the final terminal output to the clipboard.
+    #[serde(default)]
+    pub clipboard: bool,
     /// CLI arguments.
     #[serde(default)]
     pub args: Vec<ArgActionModel>,
-    /// Main action executed last.
-    pub trigger: ActionModel,
-    /// Preparation steps executed before trigger.
+    /// Preparation steps.
     #[serde(default)]
     pub actions: Vec<ActionModel>,
     /// File path this flow was loaded from (for save/reload).
@@ -73,14 +77,6 @@ impl FlowModel {
                 for v in &arg.values {
                     action.action = action.action.replace(&format!("{{{}}}", v.name), &v.value);
                 }
-            }
-        }
-        for arg in &self.args {
-            for v in &arg.values {
-                self.trigger.action = self
-                    .trigger
-                    .action
-                    .replace(&format!("{{{}}}", v.name), &v.value);
             }
         }
         self

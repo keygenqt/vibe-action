@@ -32,6 +32,8 @@ regex = "1.10"
 dunce = "1"
 walkdir = "2.5"
 url = "2.5"
+arboard = "3.6"
+shell-words = "1.1"
 
 # Debug logging (--debug flag)
 tracing = "0.1"

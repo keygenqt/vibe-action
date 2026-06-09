@@ -17,8 +17,10 @@ pub struct Engine {
     ctx: Context,
     /// Actions in topological order (dependencies first).
     actions: Vec<ActionModel>,
-    /// The trigger action (executed last, handled by CLI).
-    trigger: ActionModel,
+    /// Tag name for the final result.
+    output: String,
+    /// Optional regex validation for the result.
+    match_regex: Option<Regex>,
 }
 
 impl Engine {
@@ -27,7 +29,11 @@ impl Engine {
         Ok(Self {
             ctx: Context::new(),
             actions: TopologicalSort::sort(flow)?,
-            trigger: flow.trigger.clone(),
+            output: flow.output.clone(),
+            match_regex: match &flow.r#match {
+                Some(pattern) => Some(Regex::new(pattern)?),
+                None => None,
+            },
         })
     }
 
@@ -36,17 +42,33 @@ impl Engine {
         &self.actions
     }
 
-    /// Get the trigger action.
-    pub fn trigger(&self) -> &ActionModel {
-        &self.trigger
+    /// Get the enriched action text with all tags filled, formatted for display.
+    pub fn action_display(&self, action: &ActionModel) -> String {
+        let is_encode = action.r#type == ActionMode::Cmd;
+        let filled = self.ctx.fill_join(&action.action, is_encode);
+        match action.r#type {
+            ActionMode::Cmd => filled
+                .replace(" && ", " \\\n  && ")
+                .replace(" | ", " \\\n  | ")
+                .replace(" ; ", " \\\n  ; "),
+            ActionMode::Llm => filled.trim().to_string(),
+        }
     }
 
-    /// Get the trigger action text with all tags filled.
-    pub fn trigger_fill(&self) -> String {
-        self.ctx
-            .fill(&self.trigger.action)
-            .join("\n")
-            .replace(" && ", " \\\n  && ")
+    /// Get the validated result.
+    pub fn result(&self) -> Result<String> {
+        let value = self
+            .ctx
+            .get(&self.output)
+            .map(|v| v.to_string())
+            .unwrap_or_default();
+
+        if let Some(re) = &self.match_regex {
+            if !re.is_match(&value) {
+                anyhow::bail!("Result does not match pattern '{}': {}", re.as_str(), value);
+            }
+        }
+        Ok(value)
     }
 
     /// Compile match regex, execute action, resolve and validate result, store in context.
@@ -65,11 +87,13 @@ impl Engine {
 
     /// Execute an action and return raw string outputs.
     async fn execute_action(action: &ActionModel, ctx: &Context) -> Result<Vec<String>> {
+        let escape = action.r#type == ActionMode::Cmd;
+
         // If the action expects a List return type, use cartesian expansion.
         // Otherwise, compress list tags into a single scalar block inline.
         let expanded = match &action.expect {
-            ExpectMode::List(_) => ctx.fill(&action.action),
-            _ => vec![ctx.fill_join(&action.action)],
+            ExpectMode::List(_) => ctx.fill(&action.action, escape),
+            _ => vec![ctx.fill_join(&action.action, escape)],
         };
 
         let mut results = Vec::with_capacity(expanded.len());

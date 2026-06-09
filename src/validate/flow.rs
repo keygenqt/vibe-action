@@ -15,28 +15,25 @@ impl ValidateTrait for FlowModel {
         if self.name.trim().is_empty() {
             anyhow::bail!("Flow has no name. Add a name for the CLI command.");
         }
+        // Check source is not empty.
+        if self.output.trim().is_empty() {
+            anyhow::bail!("Flow has no source. Specify which tag to use as result.");
+        }
         // Validate args.
         for arg in &self.args {
             arg.validate()?;
         }
-        // Validate trigger.
-        self.trigger.validate()?;
         // Validate each action.
         for action in &self.actions {
             action.validate()?;
         }
-        // Check trigger tag is set.
-        if self.trigger.tag.is_empty() {
-            anyhow::bail!("Trigger must have a tag.");
-        }
-        // Collect all valid tags: args + trigger.tag + actions[].tag.
+        // Collect all valid tags: args + actions[].tag.
         let mut tags: HashSet<&str> = HashSet::new();
         for arg in &self.args {
             if !tags.insert(arg.name.as_str()) {
                 anyhow::bail!("Duplicate argument: '{}'", arg.name);
             }
         }
-        tags.insert(self.trigger.tag.as_str());
         for action in &self.actions {
             if action.tag.is_empty() {
                 anyhow::bail!("Action must have a tag.");
@@ -45,12 +42,22 @@ impl ValidateTrait for FlowModel {
                 anyhow::bail!("Duplicate tag: '{}'", action.tag);
             }
         }
-        // Check all {tag} references in trigger and actions exist.
+        // Check source references an existing tag.
+        if !tags.contains(self.output.as_str()) {
+            anyhow::bail!(
+                "Output '{}' must reference an existing action tag.",
+                self.output
+            );
+        }
+        // Check all {tag} references in actions exist.
         let re = Regex::new(r"\{(\w+)\}").unwrap();
         for action in &self.actions {
             validate_tag_references(&action.action, &tags, &re)?;
         }
-        validate_tag_references(&self.trigger.action, &tags, &re)?;
+        // Validate match regex if present.
+        if let Some(pattern) = &self.r#match {
+            Regex::new(pattern).map_err(|e| anyhow::anyhow!("Invalid match regex: {}", e))?;
+        }
         // Check for circular dependencies via {tag}.
         validate_no_cycles(self, &tags, &re)?;
         Ok(())
@@ -74,14 +81,6 @@ fn validate_no_cycles(flow: &FlowModel, tags: &HashSet<&str>, re: &Regex) -> Res
     for tag in tags.iter() {
         graph.insert(*tag, vec![]);
     }
-    let trigger_deps = extract_tag_refs(&flow.trigger.action, re);
-    graph.insert(
-        flow.trigger.tag.as_str(),
-        trigger_deps
-            .into_iter()
-            .filter(|d| tags.contains(d))
-            .collect(),
-    );
     for action in &flow.actions {
         let deps = extract_tag_refs(&action.action, re);
         graph.insert(

@@ -43,6 +43,9 @@ pub struct ActionModel {
     /// Optional regex pattern for validation.
     #[serde(default)]
     pub r#match: Option<String>,
+    /// Ask for confirmation before executing.
+    #[serde(default)]
+    pub confirm: bool,
     /// Command or prompt.
     pub action: String,
 }

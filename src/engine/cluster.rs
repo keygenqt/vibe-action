@@ -17,7 +17,7 @@ impl Cluster {
         let response = cluster
             .call(Prompt::new(prompt, None))
             .await
-            .map_err(|e| anyhow::anyhow!("Cluster error: {}", e))?
+            .map_err(|e| anyhow::anyhow!("{}", e))?
             .text
             .ok_or_else(|| anyhow::anyhow!("Empty response from cluster"))?;
         Ok(response.trim().to_string())

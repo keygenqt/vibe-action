@@ -4,15 +4,18 @@ use std::path::PathBuf;
 
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
 use crate::models::arg::ArgActionModel;
-use crate::models::flow::{FlowMode, FlowModel};
+use crate::models::flow::{FlowFormat, FlowModel};
 
 /// Returns the default commit FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "commit".into(),
-        mode: FlowMode::Ask,
+        output: "tag_commit".into(),
+        format: FlowFormat::Compact,
         about: "AI-generated commit message".into(),
         path: PathBuf::from("act/commit.yaml"),
+        r#match: None,
+        clipboard: false,
         args: vec![ArgActionModel {
             name: "path".into(),
             short: Some('p'),
@@ -21,37 +24,29 @@ pub fn default() -> FlowModel {
             required: true,
             values: Vec::new(),
         }],
-        trigger: ActionModel {
-            tag: "commit".into(),
-            r#type: ActionMode::Cmd,
-            expect: ExpectMode::String,
-            r#match: None,
-            action: r#"
-cd {path} && git add . && git commit -m '{commit_message}'
-            "#
-            .trim()
-            .into(),
-        },
         actions: vec![
             ActionModel {
-                tag: "changed_files".into(),
+                tag: "tag_changed_files".into(),
                 r#type: ActionMode::Cmd,
                 expect: ExpectMode::List(Box::new(ExpectMode::String)),
                 r#match: Some(".+".into()),
+                confirm: false,
                 action: "cd {path} && git diff --name-only".into(),
             },
             ActionModel {
-                tag: "file_diff".into(),
+                tag: "tag_file_diff".into(),
                 r#type: ActionMode::Cmd,
                 expect: ExpectMode::List(Box::new(ExpectMode::String)),
                 r#match: None,
-                action: "cd {path} && git diff {changed_files}".into(),
+                confirm: false,
+                action: "cd {path} && git diff {tag_changed_files}".into(),
             },
             ActionModel {
-                tag: "file_summary".into(),
+                tag: "tag_file_summary".into(),
                 r#type: ActionMode::Llm,
                 expect: ExpectMode::List(Box::new(ExpectMode::String)),
                 r#match: None,
+                confirm: false,
                 action: r#"
 [Task]
 Summarize the git diff below in strictly ONE sentence (max 10 words).
@@ -59,7 +54,7 @@ Start with an action verb (Add, Fix, Refactor, Change).
 Write strictly in English.
 
 [Diff]
-{file_diff}
+{tag_file_diff}
 
 [Result]
 <summary>
@@ -68,10 +63,11 @@ Write strictly in English.
                 .into(),
             },
             ActionModel {
-                tag: "commit_message".into(),
+                tag: "tag_commit_message".into(),
                 r#type: ActionMode::Llm,
                 expect: ExpectMode::String,
                 r#match: None,
+                confirm: false,
                 action: r#"
 [Task]
 Combine all summaries below into ONE conventional commit message.
@@ -79,14 +75,21 @@ Write strictly in English and in ONE short sentence (max 15 words).
 Allowed types: feat, fix, docs, refactor, test, chore.
 
 [Summaries]
-{file_summary}
+{tag_file_summary}
 
 [Result]
 <type>: <commit>
-
                 "#
                 .trim()
                 .into(),
+            },
+            ActionModel {
+                tag: "tag_commit".into(),
+                r#type: ActionMode::Cmd,
+                expect: ExpectMode::String,
+                r#match: None,
+                confirm: true,
+                action: "cd {path} && git add . && git commit -m '{tag_commit_message}'".into(),
             },
         ],
     }
