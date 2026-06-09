@@ -70,9 +70,9 @@ Write strictly in English.
                 confirm: false,
                 action: r#"
 [Task]
-Combine all summaries below into ONE conventional commit message.
-Write strictly in English and in ONE short sentence (max 15 words).
+Summarize all summaries below into ONE short conventional commit message (max 10 words).
 Allowed types: feat, fix, docs, refactor, test, chore.
+Format strictly: <type>: <commit> (NO parentheses or scopes).
 
 [Summaries]
 {tag_file_summary|join}

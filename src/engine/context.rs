@@ -138,7 +138,6 @@ impl Context {
             "upper" => text.to_uppercase(),
             "lower" => text.to_lowercase(),
             "trim" => text.trim().to_string(),
-            "length" => text.chars().count().to_string(),
             _ => text.to_string(),
         }
     }

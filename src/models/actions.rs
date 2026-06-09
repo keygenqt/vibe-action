@@ -84,11 +84,20 @@ impl ActionsModel {
 # {}
 #
 # Fields:
-#   name    - Action name (CLI subcommand)
-#   about   - Short description
-#   args    - CLI arguments (optional)
-#   trigger - Main action (executed last)
-#   actions - Preparation steps (optional)
+#   name      - Action name (CLI subcommand)
+#   output    - Tag name for the final result
+#   format    - Output style: compact (default) or rich
+#   about     - Short description
+#   match     - Optional regex validation for the result
+#   clipboard - Copy result to clipboard (default: false)
+#   args      - CLI arguments (optional)
+#   actions   - Preparation steps
+#
+# Tags:
+#   Use {{tag}} to reference values from other actions.
+#   Pipe modifiers: {{tag|upper}}, {{tag|lower}}, {{tag|trim}}
+#   List modifier: {{tag|join}} — collapses a list into a single string.
+#   Pure {{tag}} with a list value triggers a file-by-file loop.
 "#,
                 flow.name, flow.about
             );
