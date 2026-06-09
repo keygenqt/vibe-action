@@ -8,7 +8,7 @@ use crate::engine::context::Context;
 use crate::engine::resolve::Resolve;
 use crate::engine::shell::Shell;
 use crate::engine::sort::TopologicalSort;
-use crate::models::action::{ActionMode, ActionModel, ExpectMode};
+use crate::models::action::{ActionMode, ActionModel};
 use crate::models::flow::FlowModel;
 
 /// Pipeline execution engine — resolves dependencies, executes actions, manages context.
@@ -89,11 +89,11 @@ impl Engine {
     async fn execute_action(action: &ActionModel, ctx: &Context) -> Result<Vec<String>> {
         let escape = action.r#type == ActionMode::Cmd;
 
-        // If the action expects a List return type, use cartesian expansion.
-        // Otherwise, compress list tags into a single scalar block inline.
-        let expanded = match &action.expect {
-            ExpectMode::List(_) => ctx.fill(&action.action, escape),
-            _ => vec![ctx.fill_join(&action.action, escape)],
+        // Use has_loop_tags to decide: expand or join.
+        let expanded = if ctx.has_loop_tags(&action.action) {
+            ctx.fill(&action.action, escape)
+        } else {
+            vec![ctx.fill_join(&action.action, escape)]
         };
 
         let mut results = Vec::with_capacity(expanded.len());

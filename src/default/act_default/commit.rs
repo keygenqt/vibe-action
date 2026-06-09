@@ -67,7 +67,7 @@ Write strictly in English.
                 r#type: ActionMode::Llm,
                 expect: ExpectMode::String,
                 r#match: None,
-                confirm: true,
+                confirm: false,
                 action: r#"
 [Task]
 Combine all summaries below into ONE conventional commit message.
@@ -75,7 +75,7 @@ Write strictly in English and in ONE short sentence (max 15 words).
 Allowed types: feat, fix, docs, refactor, test, chore.
 
 [Summaries]
-{tag_file_summary}
+{tag_file_summary|join}
 
 [Result]
 <type>: <commit>

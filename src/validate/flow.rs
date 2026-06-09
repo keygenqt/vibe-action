@@ -1,5 +1,6 @@
 //! FlowModel validation.
 //! Checks name, tags, references, and circular dependencies.
+//! Supports {tag|modifier} syntax.
 
 use std::collections::{HashMap, HashSet};
 
@@ -50,7 +51,7 @@ impl ValidateTrait for FlowModel {
             );
         }
         // Check all {tag} references in actions exist.
-        let re = Regex::new(r"\{(\w+)\}").unwrap();
+        let re = Regex::new(r"\{(\w+)(?:\|(\w+))?\}").unwrap();
         for action in &self.actions {
             validate_tag_references(&action.action, &tags, &re)?;
         }
@@ -96,7 +97,7 @@ fn validate_no_cycles(flow: &FlowModel, tags: &HashSet<&str>, re: &Regex) -> Res
     Ok(())
 }
 
-/// Extract {tag} references from a string.
+/// Extract {tag} references from a string (ignores modifiers).
 fn extract_tag_refs<'a>(text: &'a str, re: &Regex) -> Vec<&'a str> {
     re.captures_iter(text)
         .map(|c| c.get(1).unwrap().as_str())
