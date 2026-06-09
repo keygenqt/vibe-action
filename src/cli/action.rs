@@ -26,6 +26,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
     // Execute all actions.
     for (i, action) in actions.iter().enumerate() {
         tracing::debug!("[{}/{}] Running: {}", i + 1, total, action.tag);
+
         print_progress!(
             "{} ({})... {:.0}% ({}/{})",
             action.tag,
@@ -34,6 +35,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             i + 1,
             total
         );
+
         if action.confirm {
             print_newline!();
             let ans = Confirm::new(&format!("Execute '{}'?", action.tag))
@@ -42,26 +44,25 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
                 .prompt();
             match ans {
                 Ok(true) => {
-                    engine.exec_action(action).await.unwrap_or_else(|e| {
-                        print_newline!();
-                        exit_error!("{}", e)
-                    });
+                    print_newline!();
+                    engine
+                        .exec_action(action)
+                        .await
+                        .unwrap_or_else(|e| exit_error!("{}", e));
                 }
-                Ok(false) => {
-                    return;
-                }
-                Err(_) => {
-                    return;
-                }
+                Ok(false) => return,
+                Err(_) => return,
             }
         } else {
             engine.exec_action(action).await.unwrap_or_else(|e| {
                 print_newline!();
                 exit_error!("{}", e)
             });
+            if i + 1 == total {
+                print_newline!();
+            }
         }
     }
-    print_newline!();
 
     tracing::info!("Flow completed: {}", flow.name);
 
