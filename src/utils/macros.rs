@@ -7,6 +7,16 @@ pub fn strip_ansi(s: &str) -> String {
     re.replace_all(s, "").to_string()
 }
 
+/// Format a message for display: lowercase first character, remove trailing period.
+pub fn format_msg(s: &str) -> String {
+    let s = s.strip_suffix('.').unwrap_or(s);
+    let mut chars = s.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(c) => c.to_lowercase().to_string() + chars.as_str(),
+    }
+}
+
 /// Print a blank line (CLI only, skipped in debug mode).
 #[macro_export]
 macro_rules! print_newline {
@@ -25,7 +35,9 @@ macro_rules! print_error {
             let msg = format!($($arg)*);
             tracing::error!("{}", $crate::utils::macros::strip_ansi(&msg));
         } else {
-            println!("{}", format!("\x1b[1m\x1b[91merror\x1b[0m: {}", format!($($arg)*)));
+            let msg = format!($($arg)*);
+            let formatted = $crate::utils::macros::lower_first_char(&msg);
+            println!("{}", format!("\x1b[1m\x1b[91merror\x1b[0m: {}", formatted));
         }
     }};
 }
@@ -38,7 +50,9 @@ macro_rules! print_info {
             let msg = format!($($arg)*);
             tracing::info!("{}", $crate::utils::macros::strip_ansi(&msg));
         } else {
-            println!("{}", format!("\x1b[1m\x1b[94minfo\x1b[0m: {}", format!($($arg)*)));
+            let msg = format!($($arg)*);
+            let formatted = $crate::utils::macros::format_msg(&msg);
+            println!("{}", format!("\x1b[1m\x1b[94minfo\x1b[0m: {}", formatted));
         }
     }};
 }
@@ -51,7 +65,9 @@ macro_rules! print_warning {
             let msg = format!($($arg)*);
             tracing::warn!("{}", $crate::utils::macros::strip_ansi(&msg));
         } else {
-            println!("{}", format!("\x1b[1m\x1b[93mwarning\x1b[0m: {}", format!($($arg)*)));
+            let msg = format!($($arg)*);
+            let formatted = $crate::utils::macros::format_msg(&msg);
+            println!("{}", format!("\x1b[1m\x1b[93mwarning\x1b[0m: {}", formatted));
         }
     }};
 }
@@ -64,7 +80,9 @@ macro_rules! print_success {
             let msg = format!($($arg)*);
             tracing::info!("{}", $crate::utils::macros::strip_ansi(&msg));
         } else {
-            println!("{}", format!("\x1b[1m\x1b[32msuccess\x1b[0m: {}", format!($($arg)*)));
+            let msg = format!($($arg)*);
+            let formatted = $crate::utils::macros::format_msg(&msg);
+            println!("{}", format!("\x1b[1m\x1b[32msuccess\x1b[0m: {}", formatted));
         }
     }};
 }
@@ -77,7 +95,9 @@ macro_rules! print_state {
             let msg = format!($($arg)*);
             tracing::debug!("{}", $crate::utils::macros::strip_ansi(&msg));
         } else {
-            println!("{}", format!("\x1b[1m\x1b[36mstate\x1b[0m: {}", format!($($arg)*)));
+            let msg = format!($($arg)*);
+            let formatted = $crate::utils::macros::format_msg(&msg);
+            println!("{}", format!("\x1b[1m\x1b[36mstate\x1b[0m: {}", formatted));
         }
     }};
 }
@@ -88,8 +108,8 @@ macro_rules! print_progress {
     ($($arg:tt)*) => {{
         if !$crate::configs::app::AppConfig::is_debug() {
             let msg = format!($($arg)*);
-            // Clear to end of line before printing.
-            print!("\r\x1b[1m\x1b[36mprogress\x1b[0m: {}\x1b[K", msg);
+            let formatted = $crate::utils::macros::format_msg(&msg);
+            print!("\r\x1b[1m\x1b[36mprogress\x1b[0m: {}\x1b[K", formatted);
             std::io::Write::flush(&mut std::io::stdout()).unwrap();
         }
     }};
@@ -103,7 +123,9 @@ macro_rules! exit_error {
             let msg = format!($($arg)*);
             tracing::error!("{}", $crate::utils::macros::strip_ansi(&msg));
         } else {
-            println!("{}", format!("\x1b[1m\x1b[91merror\x1b[0m: {}", format!($($arg)*)));
+            let msg = format!($($arg)*);
+            let formatted = $crate::utils::macros::format_msg(&msg);
+            println!("{}", format!("\x1b[1m\x1b[91merror\x1b[0m: {}", formatted));
         }
         std::process::exit(1);
     }};

@@ -3,7 +3,7 @@
 
 use anyhow::Result;
 use regex::Regex;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt::Write;
 
 use crate::models::context::ContextModel;
@@ -44,12 +44,17 @@ impl Context {
         let re = Regex::new(r"\{(\w+)(?:\|(\w+))?\}").unwrap();
 
         let clean_text = Self::strip_all_template_quotes(text, escape);
+        let mut processed_tags = HashSet::new();
         let mut results = vec![clean_text.clone()];
         let mut is_list = false;
 
         for cap in re.captures_iter(&clean_text) {
             let placeholder = cap.get(0).unwrap().as_str();
             let tag_name = cap.get(1).unwrap().as_str();
+
+            if processed_tags.contains(tag_name) {
+                continue;
+            }
 
             if let Some(context_value) = self.values.get(tag_name) {
                 let modifier = cap.get(2).map(|m| m.as_str()).unwrap_or_default();
@@ -64,22 +69,23 @@ impl Context {
                         for current in results.iter_mut() {
                             *current = current.replace(placeholder, &final_string);
                         }
+                        processed_tags.insert(tag_name.to_string());
                     }
                     ContextModel::List(items) => {
                         is_list = true;
                         let mut next = Vec::new();
                         for item in items {
-                            let mut final_string = item.to_string();
+                            let mut s = item.to_string();
                             if escape {
-                                final_string = shell_words::quote(&final_string).to_string();
+                                s = shell_words::quote(&s).to_string();
                             }
                             for current in &results {
-                                next.push(current.replace(placeholder, &final_string));
+                                next.push(current.replace(placeholder, &s));
                             }
                         }
                         results = next;
+                        processed_tags.insert(tag_name.to_string());
                     }
-
                     _ => {}
                 }
             }
@@ -102,11 +108,14 @@ impl Context {
             "join" => {
                 if let ContextModel::List(items) = value {
                     let mut buffer = String::new();
-                    for (idx, item) in items.iter().enumerate() {
-                        if idx > 0 {
+                    for item in items {
+                        let s = item.to_string();
+                        if s.is_empty() {
+                            continue;
+                        }
+                        if !buffer.is_empty() {
                             buffer.push('\n');
                         }
-                        let s = item.to_string();
                         if escape {
                             write!(buffer, "{}", shell_words::quote(&s))?;
                         } else {
@@ -118,6 +127,7 @@ impl Context {
                     anyhow::bail!("Modifier 'join' expects a list, but got a scalar value")
                 }
             }
+
             "upper" | "lower" | "trim" => {
                 if let ContextModel::String(s) = value {
                     let mutated = match modifier {

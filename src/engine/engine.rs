@@ -47,7 +47,9 @@ impl Engine {
     pub fn action_display(&self, action: &ActionModel) -> String {
         let is_encode = action.r#type == ActionMode::Cmd;
         let filled = match self.ctx.fill(&action.action, is_encode) {
-            Ok(expanded) => expanded.items.join("\n"),
+            Ok(expanded) => expanded.items.join(
+                "\n\n---------------------------------------------------------------------------\n\n",
+            ),
             Err(_) => action.action.clone(),
         };
         match action.r#type {

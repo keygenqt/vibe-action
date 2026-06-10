@@ -76,8 +76,12 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         }
     }
 
-    match flow.format {
-        FlowFormat::Compact => print_success!("{}", &result),
-        FlowFormat::Rich => print_rich_block!("{}", &result),
+    if result.is_empty() {
+        print_info!("No matches found.")
+    } else {
+        match flow.format {
+            FlowFormat::Compact => print_success!("{}", &result),
+            FlowFormat::Rich => print_rich_block!("{}", &result),
+        }
     }
 }
