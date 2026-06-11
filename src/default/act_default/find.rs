@@ -82,15 +82,11 @@ EOF
             },
             ActionModel {
                 tag: "tag_filtered".into(),
-                r#type: ActionMode::Cmd,
-                expect: ExpectMode::List(Box::new(ExpectMode::String)),
+                r#type: ActionMode::Value,
+                expect: ExpectMode::String,
                 r#match: None,
                 confirm: false,
-                action: r#"
-echo '{tag_matches|join}' | sed -n 's/.*<\(.*\)>.*/\1/p' | sed '/^-$/d'
-                "#
-                .trim()
-                .into(),
+                action: "{tag_matches|trim:<->}".into(),
             },
             ActionModel {
                 tag: "tag_find".into(),
@@ -98,7 +94,7 @@ echo '{tag_matches|join}' | sed -n 's/.*<\(.*\)>.*/\1/p' | sed '/^-$/d'
                 expect: ExpectMode::String,
                 r#match: None,
                 confirm: false,
-                action: "{tag_filtered}".into(),
+                action: "{tag_filtered|join}".into(),
             },
         ],
     }

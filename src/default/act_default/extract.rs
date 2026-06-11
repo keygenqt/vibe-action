@@ -59,7 +59,7 @@ You are a log filter. Your task:
 
 Query: {query}
 Line: {tag_lines}
-"#
+                "#
                 .trim()
                 .into(),
             },
@@ -68,7 +68,7 @@ Line: {tag_lines}
                 r#type: ActionMode::Value,
                 expect: ExpectMode::String,
                 r#match: None,
-                confirm: false,
+                confirm: true,
                 action: "{tag_content|trim:-}".into(),
             },
             ActionModel {

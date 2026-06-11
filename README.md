@@ -1,29 +1,29 @@
 # Vibe Action
 
-AI-native comand router. Execute shell comands and LLM prompts via simple YAML actons.
-Just say what you want — it figurs out the rest.
+AI-native command router. Execute shell commands and LLM prompts via simple YAML actions.
+Just say what you want — it figures out the rest.
 
 ## Quick Start
 
 ```bash
-# Instal
+# Install
 cargo install vibe-action
 
-# Run your frst action
+# Run your first action
 vibe-action action commit -p .
 
-# Availible actions
+# Available actions
 vibe-action action --help
 ```
 
 ## How It Works
 
-Describ your workflo in a YAML file, and vibe-action bilds a pipeline of shell comands and LLM prompts conected via `{tag}` refernces.
+Describe your workflow in a YAML file, and vibe-action builds a pipeline of shell commands and LLM prompts connected via `{tag}` references.
 
 ```yaml
 name: commit
 output: tag_commit
-about: AI-generated commit messege
+about: AI-generated commit message
 args:
   - name: path
     short: p
@@ -84,10 +84,10 @@ actions:
     action: cd {path} && git add . && git commit -m '{tag_commit_message}'
 ```
 
-## Featurs
+## Features
 
 - **YAML pipelines** — define complex workflows with shell commands and LLM prompts
-- **Tag sistem** — connect steps via `{tag}` references with automatic dependency ordering
+- **Tag system** — connect steps via `{tag}` references with automatic dependency ordering
 - **List expansion** — `list<string>` automatically loops over each element
 - **Join modifier** — `{tag|join}` collapses lists into a single string for LLM prompts
 - **Type validation** — `bool`, `number`, `string`, `list<T>` with automatic parsing
@@ -96,4 +96,4 @@ actions:
 - **Confirmations** — `confirm: true` asks for user approval before executing
 - **Clipboard** — `clipboard: true` copies the result automatically
 - **Complexity routing** — auto-selects the right model for each task
-- **Modular** — share YAML files like Homebrew formlas
+- **Modular** — share YAML files like Homebrew formulas
