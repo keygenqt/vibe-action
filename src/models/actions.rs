@@ -93,9 +93,24 @@ impl ActionsModel {
 #   args      - CLI arguments (optional)
 #   actions   - Preparation steps
 #
+# Args:
+#   name      - Argument name (used as --name and {{name}} tag)
+#   short     - Short flag, e.g. -p (optional)
+#   expect    - Expected type: string, number, bool
+#   help      - Description for help text (optional)
+#   default   - Default value if not provided (optional, makes argument non-required)
+#
+# Actions:
+#   tag       - Tag name for {{tag}} references
+#   type      - cmd (shell), llm (AI model), value (static string)
+#   expect    - Expected output type: void, bool, number, string, list<T>
+#   match     - Optional regex validation for the result
+#   confirm   - Ask for confirmation before executing (default: false)
+#   action    - Shell command, LLM prompt, or static string
+#
 # Tags:
 #   Use {{tag}} to reference values from other actions.
-#   Pipe modifiers: {{tag|upper}}, {{tag|lower}}, {{tag|trim}}
+#   Pipe modifiers: {{tag|upper}}, {{tag|lower}}, {{tag|trim}}, {{tag|trim:-}}
 #   List modifier: {{tag|join}} — collapses a list into a single string.
 #   Pure {{tag}} with a list value triggers a file-by-file loop.
 "#,

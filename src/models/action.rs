@@ -12,6 +12,8 @@ pub enum ActionMode {
     Cmd,
     /// Send prompt to LLM.
     Llm,
+    /// Return the action string directly (no shell, no LLM).
+    Value,
 }
 
 /// Expected result type.
@@ -105,6 +107,7 @@ impl std::fmt::Display for ActionMode {
         match self {
             ActionMode::Cmd => write!(f, "cmd"),
             ActionMode::Llm => write!(f, "llm"),
+            ActionMode::Value => write!(f, "val"),
         }
     }
 }

@@ -39,9 +39,10 @@ impl Context {
         self.values.get(tag)
     }
 
-    /// Fill {tag} placeholders and always return an ExpandedTemplate structure.
+    /// Fill {tag} placeholders and return ExpandedTemplate.
     pub fn fill(&self, text: &str, escape: bool) -> Result<ExpandedTemplate> {
-        let re = Regex::new(r"\{(\w+)(?:\|(\w+))?\}").unwrap();
+        // Supports modifiers with special chars: {tag|trim:-}, {tag|join}, {tag|upper}
+        let re = Regex::new(r"\{(\w+)(?:\|([^}]+))?\}").unwrap();
 
         let clean_text = Self::strip_all_template_quotes(text, escape);
         let mut processed_tags = HashSet::new();
@@ -58,7 +59,7 @@ impl Context {
 
             if let Some(context_value) = self.values.get(tag_name) {
                 let modifier = cap.get(2).map(|m| m.as_str()).unwrap_or_default();
-                let processed_value = self.apply_modifier(&modifier, context_value, escape)?;
+                let processed_value = self.apply_modifier(modifier, context_value, escape)?;
 
                 match processed_value {
                     ContextModel::String(s) => {
@@ -104,7 +105,8 @@ impl Context {
         value: &ContextModel,
         escape: bool,
     ) -> Result<ContextModel> {
-        match modifier {
+        let (name, arg) = modifier.split_once(':').unwrap_or((modifier, ""));
+        match name {
             "join" => {
                 if let ContextModel::List(items) = value {
                     let mut buffer = String::new();
@@ -127,22 +129,39 @@ impl Context {
                     anyhow::bail!("Modifier 'join' expects a list, but got a scalar value")
                 }
             }
-
-            "upper" | "lower" | "trim" => {
+            "upper" => {
                 if let ContextModel::String(s) = value {
-                    let mutated = match modifier {
-                        "upper" => s.to_uppercase(),
-                        "lower" => s.to_lowercase(),
-                        "trim" => s.trim().to_string(),
-                        _ => unreachable!(),
-                    };
-                    Ok(ContextModel::String(if escape {
-                        shell_words::quote(&mutated).to_string()
-                    } else {
-                        mutated
-                    }))
+                    Ok(ContextModel::String(s.to_uppercase()))
                 } else {
-                    anyhow::bail!("Modifier '{}' expects a string, but got a list", modifier)
+                    anyhow::bail!("Modifier 'upper' expects a string")
+                }
+            }
+            "lower" => {
+                if let ContextModel::String(s) = value {
+                    Ok(ContextModel::String(s.to_lowercase()))
+                } else {
+                    anyhow::bail!("Modifier 'lower' expects a string")
+                }
+            }
+            "trim" => {
+                if let ContextModel::String(s) = value {
+                    Ok(ContextModel::String(s.trim().to_string()))
+                } else if let ContextModel::List(items) = value {
+                    let filtered: Vec<ContextModel> = items
+                        .iter()
+                        .filter(|i| {
+                            let s = i.to_string().trim().to_string();
+                            if arg.is_empty() {
+                                !s.is_empty()
+                            } else {
+                                s != arg
+                            }
+                        })
+                        .map(|i| ContextModel::String(i.to_string().trim().to_string()))
+                        .collect();
+                    Ok(ContextModel::List(filtered))
+                } else {
+                    anyhow::bail!("Modifier 'trim' expects a string or list")
                 }
             }
             _ => Ok(value.clone()),
@@ -154,7 +173,7 @@ impl Context {
         if !escape {
             return text.to_string();
         }
-        let re_clean = regex::Regex::new(r#"(['"])\{(\w+)(?:\|(\w+))?\}(['"])"#).unwrap();
+        let re_clean = regex::Regex::new(r#"(['"])\{(\w+)(?:\|([^}]+))?\}(['"])"#).unwrap();
         re_clean
             .replace_all(text, |caps: &regex::Captures| {
                 let left = caps.get(1).unwrap().as_str();

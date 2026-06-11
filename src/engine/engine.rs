@@ -57,7 +57,7 @@ impl Engine {
                 .replace(" && ", " \\\n  && ")
                 .replace(" | ", " \\\n  | ")
                 .replace(" ; ", " \\\n  ; "),
-            ActionMode::Llm => filled.trim().to_string(),
+            _ => filled.trim().to_string(),
         }
     }
 
@@ -115,7 +115,8 @@ impl Engine {
             if let Some(re) = &compiled_match {
                 if !re.is_match(raw.trim()) {
                     anyhow::bail!(
-                        "Value does not match pattern '{}': '{}'",
+                        "Result for '{}' does not match pattern '{}': '{}'",
+                        action.tag,
                         re.as_str(),
                         raw.trim()
                     );
@@ -139,6 +140,7 @@ impl Engine {
         match action.r#type {
             ActionMode::Cmd => Shell::exec(resolved).await,
             ActionMode::Llm => Cluster::exec(resolved).await,
+            ActionMode::Value => Ok(resolved.to_string()),
         }
     }
 
@@ -167,6 +169,7 @@ impl Engine {
             match r#type {
                 ActionMode::Cmd => "cmd",
                 ActionMode::Llm => "llm",
+                ActionMode::Value => "val",
             },
             original.len(),
             preview_original,

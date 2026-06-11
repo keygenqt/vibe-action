@@ -1,0 +1,20 @@
+2026-06-11T12:00:01Z [INFO] system: Booting up vibe-action core engine...
+2026-06-11T12:00:02Z [DEBUG] cache: SQLite connection initialized successfully.
+2026-06-11T12:00:05Z [INFO] http: GET /api/v1/health - Status 200 (OK) from 127.0.0.1
+2026-06-11T12:01:10Z [WARN] auth: Failed login attempt for user 'admin' (Invalid credentials).
+2026-06-11T12:02:15Z [INFO] http: POST /api/v1/auth/login - Status 401 (Unauthorized)
+2026-06-11T12:03:22Z [ERROR] database: Connection pool exhausted. Timeout waiting for slot.
+2026-06-11T12:03:23Z [ERROR] database: Failed to execute query: "SELECT * FROM users WHERE id = 42".
+2026-06-11T12:04:00Z [INFO] system: Triggering automatic cache cleanup.
+2026-06-11T12:04:02Z [DEBUG] cache: Removed 14 expired action templates from SQLite.
+2026-06-11T12:05:45Z [WARN] security: Rate limit exceeded for IP 192.168.1.105 on /api/v1/prompt.
+2026-06-11T12:06:12Z [INFO] http: GET /api/v1/actions - Status 200 (OK)
+2026-06-11T12:07:30Z [CRITICAL] system: Out of memory! Kernel is killer-ready.
+2026-06-11T12:08:01Z [INFO] system: Graceful shutdown initiated by SIGTERM signal.
+2026-06-11T12:08:02Z [DEBUG] engine: Dumping runtime context states to context.json...
+2026-06-11T12:08:03Z [ERROR] system: Failed to write context dump: Permission denied (os error 13).
+2026-06-11T12:08:05Z [INFO] http: GET /metrics - Status 503 (Service Unavailable)
+2026-06-11T12:09:14Z [WARN] config: Action modifier 'normalize' uses deprecated syntax.
+2026-06-11T12:10:00Z [INFO] system: Shutdown complete. Core engine offline.
+2026-06-11T12:11:15Z [DEBUG] telemetry: Flushing metrics to vibe-cluster endpoint...
+2026-06-11T12:11:17Z [ERROR] telemetry: Network unreachable. Retrying in 30s.

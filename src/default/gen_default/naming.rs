@@ -21,7 +21,7 @@ pub fn default() -> FlowModel {
             short: Some('d'),
             expect: ExpectMode::String,
             help: Some("Description of what you need to name (variable, function, etc.)".into()),
-            required: true,
+            default: None,
             values: Vec::new(),
         }],
         actions: vec![
@@ -49,11 +49,11 @@ Do not add introductory text, quotes, or explanations.
             },
             ActionModel {
                 tag: "tag_naming".into(),
-                r#type: ActionMode::Cmd,
+                r#type: ActionMode::Value,
                 expect: ExpectMode::String,
                 r#match: None,
                 confirm: false,
-                action: "echo '{tag_name_suggestions}'".into(),
+                action: "{tag_name_suggestions}".into(),
             },
         ],
     }

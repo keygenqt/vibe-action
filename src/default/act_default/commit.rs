@@ -21,7 +21,7 @@ pub fn default() -> FlowModel {
             short: Some('p'),
             expect: ExpectMode::String,
             help: Some("Path to git repository (default: current directory)".into()),
-            required: true,
+            default: Some(".".into()),
             values: Vec::new(),
         }],
         actions: vec![

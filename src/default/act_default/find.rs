@@ -22,7 +22,7 @@ pub fn default() -> FlowModel {
                 short: Some('p'),
                 expect: ExpectMode::String,
                 help: Some("Directory to search in (default: current)".into()),
-                required: true,
+                default: Some(".".into()),
                 values: Vec::new(),
             },
             ArgActionModel {
@@ -30,7 +30,7 @@ pub fn default() -> FlowModel {
                 short: Some('q'),
                 expect: ExpectMode::String,
                 help: Some("What to find — describe in natural language".into()),
-                required: true,
+                default: None,
                 values: Vec::new(),
             },
         ],
@@ -94,11 +94,11 @@ echo '{tag_matches|join}' | sed -n 's/.*<\(.*\)>.*/\1/p' | sed '/^-$/d'
             },
             ActionModel {
                 tag: "tag_find".into(),
-                r#type: ActionMode::Cmd,
+                r#type: ActionMode::Value,
                 expect: ExpectMode::String,
                 r#match: None,
                 confirm: false,
-                action: "echo '{tag_filtered}'".into(),
+                action: "{tag_filtered}".into(),
             },
         ],
     }

@@ -19,7 +19,7 @@ impl Cluster {
             .await?
             .text
             .ok_or_else(|| anyhow::anyhow!("Empty response from cluster"))?;
-        Ok(response.trim().to_string())
+        Ok(vibe_cluster::normalize_text(&response))
     }
 
     /// Estimate complexity for a prompt.

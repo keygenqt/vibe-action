@@ -18,21 +18,23 @@ pub struct ArgActionModel {
     /// Help text.
     #[serde(default)]
     pub help: Option<String>,
-    /// Whether the argument is required (default: false).
+    /// Default value. If set, the argument is optional and uses this value when not provided.
     #[serde(default)]
-    pub required: bool,
+    pub default: Option<String>,
     /// Resolved values from CLI input (not serialized).
     #[serde(skip, default)]
     pub values: Vec<ArgActionValue>,
 }
 
 impl ArgActionModel {
-    /// Fill values from CLI matches. Handles multiple values (e.g., for list types).
+    /// Fill values from CLI matches. Handles multiple values and default fallback.
     pub fn resolve_values(&mut self, matches: &clap::ArgMatches) {
         if let Some(values) = matches.get_many::<String>(&self.name) {
             self.values = values
                 .map(|v| ArgActionValue::new_with_check(&self.name, v))
                 .collect();
+        } else if let Some(default) = &self.default {
+            self.values = vec![ArgActionValue::new_with_check(&self.name, default)];
         }
     }
 }
@@ -43,7 +45,7 @@ impl From<&ArgActionModel> for clap::Arg {
         let leaked_name: &'static str = &*Box::leak(model.name.clone().into_boxed_str());
         let mut arg = clap::Arg::new(leaked_name)
             .long(leaked_name)
-            .required(model.required);
+            .required(model.default.is_none());
         if let Some(help) = &model.help {
             let leaked_help: &'static str = &*Box::leak(help.clone().into_boxed_str());
             arg = arg.help(leaked_help);

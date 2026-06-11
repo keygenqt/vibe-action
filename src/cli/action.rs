@@ -8,6 +8,7 @@ use inquire::Confirm;
 use crate::{
     configs::app::AppConfig, engine::engine::Engine, exit_error, models::flow::FlowFormat,
     print_info, print_newline, print_progress, print_rich_block, print_success, print_warning,
+    utils::macros::format_msg,
 };
 
 /// Execute a dynamic action command.
@@ -38,7 +39,8 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
 
         if action.confirm {
             print_newline!();
-            let ans = Confirm::new(&format!("Execute '{}'?", action.tag))
+            let query = format!("Execute '{}'?", format_msg(&action.tag));
+            let ans = Confirm::new(&query)
                 .with_default(false)
                 .with_placeholder(&format!("\n{}", engine.action_display(&action)))
                 .prompt();

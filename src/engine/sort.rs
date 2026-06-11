@@ -14,7 +14,8 @@ impl TopologicalSort {
     /// Sort actions by {tag} dependencies using Kahn's algorithm.
     /// Returns actions in execution order (dependencies first).
     pub fn sort(flow: &FlowModel) -> Result<Vec<ActionModel>> {
-        let re = Regex::new(r"\{(\w+)(?:\|(\w+))?\}").unwrap();
+        // Supports modifiers with special chars: {tag|trim:-}, {tag|join}, {tag|upper}
+        let re = Regex::new(r"\{(\w+)(?:\|([^}]+))?\}").unwrap();
 
         // Map tag -> action for quick lookup.
         let mut tag_to_action: HashMap<&str, ActionModel> = HashMap::new();

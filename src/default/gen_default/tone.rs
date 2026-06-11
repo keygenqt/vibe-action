@@ -21,7 +21,7 @@ pub fn default() -> FlowModel {
             short: Some('t'),
             expect: ExpectMode::String,
             help: Some("The text to rewrite along with tone instructions (e.g., 'make it formal: hi friend')".into()),
-            required: true,
+            default: None,
             values: Vec::new(),
         }],
         actions: vec![
@@ -53,11 +53,11 @@ Input: Это что за говнокод? Перепиши нормально!
             },
             ActionModel {
                 tag: "tag_tone".into(),
-                r#type: ActionMode::Cmd,
+                r#type: ActionMode::Value,
                 expect: ExpectMode::String,
                 r#match: None,
                 confirm: false,
-                action: "echo '{tag_rewritten_text}'".into(),
+                action: "{tag_rewritten_text}".into(),
             },
         ],
     }

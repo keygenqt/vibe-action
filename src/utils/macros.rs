@@ -7,9 +7,13 @@ pub fn strip_ansi(s: &str) -> String {
     re.replace_all(s, "").to_string()
 }
 
-/// Format a message for display: lowercase first character, remove trailing period.
+/// Format a message for display.
 pub fn format_msg(s: &str) -> String {
     let s = s.strip_suffix('.').unwrap_or(s);
+    let s = s
+        .strip_prefix("tag_")
+        .or_else(|| s.strip_prefix("tag-"))
+        .unwrap_or(s);
     let mut chars = s.chars();
     match chars.next() {
         None => String::new(),
