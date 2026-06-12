@@ -1,20 +1,15 @@
 //! Default find action template.
 
-use std::path::PathBuf;
-
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
 use crate::models::arg::ArgActionModel;
-use crate::models::flow::{FlowFormat, FlowModel};
+use crate::models::flow::FlowModel;
 
 /// Returns the default find FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "find".into(),
-        output: "tag_find".into(),
-        format: FlowFormat::Rich,
         about: "Semantic file finder — finds files by meaning, not just name".into(),
-        path: PathBuf::from("act/find.yaml"),
-        r#match: None,
+        check: None,
         clipboard: false,
         args: vec![
             ArgActionModel {
@@ -39,7 +34,7 @@ pub fn default() -> FlowModel {
                 tag: "tag_files".into(),
                 r#type: ActionMode::Cmd,
                 expect: ExpectMode::List(Box::new(ExpectMode::String)),
-                r#match: None,
+                check: None,
                 confirm: false,
                 action: "find {path} -type f -exec grep -Iq . {} \\; -print".into(),
             },
@@ -47,15 +42,15 @@ pub fn default() -> FlowModel {
                 tag: "tag_content".into(),
                 r#type: ActionMode::Cmd,
                 expect: ExpectMode::String,
-                r#match: None,
+                check: None,
                 confirm: false,
                 action: r#"
 cat << 'EOF'
-[Instruction]
+[Task]
 Check if the [Content] code/comments contain the technical [Query] word, function name, or meaning.
 If YES — print ONLY the [File] path inside brackets: <{tag_files}>
 If NO — print ONLY: <->
-Strict rule: Output ONLY the bracketed value. No descriptions, no comments.
+Strict rule: Output ONLY the bracketed value. Do not guess or imply from module imports. No descriptions, no comments.
 
 [Query]
 {query}
@@ -76,7 +71,7 @@ EOF
                 tag: "tag_matches".into(),
                 r#type: ActionMode::Llm,
                 expect: ExpectMode::List(Box::new(ExpectMode::String)),
-                r#match: None,
+                check: None,
                 confirm: false,
                 action: "{tag_content}".into(),
             },
@@ -84,7 +79,7 @@ EOF
                 tag: "tag_filtered".into(),
                 r#type: ActionMode::Value,
                 expect: ExpectMode::String,
-                r#match: None,
+                check: None,
                 confirm: false,
                 action: "{tag_matches|trim:<->}".into(),
             },
@@ -92,9 +87,9 @@ EOF
                 tag: "tag_find".into(),
                 r#type: ActionMode::Value,
                 expect: ExpectMode::String,
-                r#match: None,
+                check: None,
                 confirm: false,
-                action: "{tag_filtered|join}".into(),
+                action: "{tag_filtered|join:uniq}".into(),
             },
         ],
     }

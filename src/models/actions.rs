@@ -22,15 +22,16 @@ impl Default for ActionsModel {
     fn default() -> Self {
         Self {
             flows: vec![
-                default::act_default::commit::default(),
-                default::act_default::extract::default(),
-                default::act_default::find::default(),
-                default::gen_default::naming::default(),
-                default::gen_default::synonyms::default(),
-                default::gen_default::tone::default(),
-                default::mod_default::spellcheck::default(),
-                default::mod_default::todo::default(),
-                default::mod_default::translate::default(),
+                default::commit::default(),
+                default::extract::default(),
+                default::find::default(),
+                default::mock::default(),
+                default::naming::default(),
+                default::regex::default(),
+                default::spellcheck::default(),
+                default::synonyms::default(),
+                default::tone::default(),
+                default::translate::default(),
             ],
         }
     }
@@ -69,7 +70,7 @@ impl ActionsModel {
     /// Save all flows to their respective YAML files (only if file doesn't exist).
     pub fn save(&self, path: &PathBuf) -> Result<()> {
         for flow in &self.flows {
-            let file_path = path.join(flow.path.clone());
+            let file_path = path.join(format!("{}.yaml", flow.name));
             if file_path.exists() {
                 continue;
             }
@@ -85,34 +86,34 @@ impl ActionsModel {
 #
 # Fields:
 #   name      - Action name (CLI subcommand)
-#   output    - Tag name for the final result
-#   format    - Output style: compact (default) or rich
 #   about     - Short description
-#   match     - Optional regex validation for the result
-#   clipboard - Copy result to clipboard (default: false)
+#   check     - Optional regex validation for the final flow result
+#   clipboard - Copy final result to clipboard
 #   args      - CLI arguments (optional)
-#   actions   - Preparation steps
+#   actions   - Pipeline execution steps (Directed Acyclic Graph)
 #
 # Args:
 #   name      - Argument name (used as --name and {{name}} tag)
 #   short     - Short flag, e.g. -p (optional)
 #   expect    - Expected type: string, number, bool
 #   help      - Description for help text (optional)
-#   default   - Default value if not provided (optional, makes argument non-required)
+#   default   - Default value (optional, makes argument non-required)
 #
 # Actions:
-#   tag       - Tag name for {{tag}} references
+#   tag       - Tag name for {{tag}} references with automatic dependency ordering
 #   type      - cmd (shell), llm (AI model), value (static string)
 #   expect    - Expected output type: void, bool, number, string, list<T>
-#   match     - Optional regex validation for the result
-#   confirm   - Ask for confirmation before executing (default: false)
+#   check     - Optional regex pre-validation for the result
+#   confirm   - Ask for user confirmation before executing
 #   action    - Shell command, LLM prompt, or static string
 #
-# Tags:
-#   Use {{tag}} to reference values from other actions.
-#   Pipe modifiers: {{tag|upper}}, {{tag|lower}}, {{tag|trim}}, {{tag|trim:-}}
-#   List modifier: {{tag|join}} — collapses a list into a single string.
-#   Pure {{tag}} with a list value triggers a file-by-file loop.
+# Modifiers:
+#   {{tag|upper}}      - String: Transforms text to UPPERCASE
+#   {{tag|lower}}      - String: Transforms text to lowercase
+#   {{tag|join}}       - List  : Collapses list into a single string via newline (\n)
+#   {{tag|join:uniq}}  - List  : Collapses list via newline and removes all duplicates
+#   {{tag|trim}}       - Any   : Strips whitespace from string or filters empty list elements
+#   {{tag|trim:chars}} - Any   : Strips custom chars/whitespace. If string equals chars, returns empty
 "#,
                 flow.name, flow.about
             );

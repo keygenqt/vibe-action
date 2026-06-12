@@ -24,16 +24,16 @@ impl ValidateTrait for ActionModel {
             );
         }
         // Validate match regex if present.
-        if let Some(pattern) = &self.r#match {
+        if let Some(pattern) = &self.check {
             regex::Regex::new(pattern).map_err(|e| {
-                anyhow::anyhow!("Action '{}' has invalid match regex: {}", self.tag, e)
+                anyhow::anyhow!("Action '{}' has invalid check regex: {}", self.tag, e)
             })?;
         }
 
         // Compile match regex if present.
-        if let Some(pattern) = &self.r#match {
+        if let Some(pattern) = &self.check {
             Regex::new(pattern).map_err(|e| {
-                anyhow::anyhow!("Action '{}' has invalid match regex: {}", self.tag, e)
+                anyhow::anyhow!("Action '{}' has invalid check regex: {}", self.tag, e)
             })?;
         }
 

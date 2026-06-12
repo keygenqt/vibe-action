@@ -110,9 +110,14 @@ impl Context {
             "join" => {
                 if let ContextModel::List(items) = value {
                     let mut buffer = String::new();
+                    let mut seen = std::collections::HashSet::new();
+                    let is_uniq = arg == "uniq";
                     for item in items {
                         let s = item.to_string();
                         if s.is_empty() {
+                            continue;
+                        }
+                        if is_uniq && !seen.insert(s.clone()) {
                             continue;
                         }
                         if !buffer.is_empty() {

@@ -1,20 +1,15 @@
 //! Default spellcheck action template.
 
-use std::path::PathBuf;
-
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
 use crate::models::arg::ArgActionModel;
-use crate::models::flow::{FlowFormat, FlowModel};
+use crate::models::flow::FlowModel;
 
 /// Returns the default spellcheck FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "spellcheck".into(),
-        output: "tag_spellcheck".into(),
-        format: FlowFormat::Rich,
         about: "Check and fix spelling in text or files".into(),
-        path: PathBuf::from("mod/spellcheck.yaml"),
-        r#match: None,
+        check: None,
         clipboard: true,
         args: vec![
             ArgActionModel {
@@ -39,7 +34,7 @@ pub fn default() -> FlowModel {
                 tag: "tag_content".into(),
                 r#type: ActionMode::Cmd,
                 expect: ExpectMode::String,
-                r#match: Some(".+".into()),
+                check: Some(".+".into()),
                 confirm: false,
                 action: r#"
 if [ -n "{file}" ]; then
@@ -52,21 +47,51 @@ fi
                 .into(),
             },
             ActionModel {
-                tag: "tag_checked".into(),
+                tag: "tag_check_errors".into(),
                 r#type: ActionMode::Llm,
                 expect: ExpectMode::String,
-                r#match: None,
+                check: None,
                 confirm: false,
                 action: r#"
 [Task]
-Check the text inside <text></text> for spelling and grammar errors.
-Fix all errors. Preserve formatting, code blocks, and proper names.
-If there are no errors, reply with "No errors found."
-Otherwise, reply with the corrected text.
+Analyze the text below for typos, spelling mistakes, and grammar errors.
+If errors exist, reply strictly with "DIRTY". If no errors exist, reply strictly with "CLEAR"
 
-<text>
+[Text]
 {tag_content}
-</text>
+                "#
+                .trim()
+                .into(),
+            },
+            ActionModel {
+                tag: "tag_check_errors_filter".into(),
+                r#type: ActionMode::Cmd,
+                expect: ExpectMode::String,
+                check: None,
+                confirm: false,
+                action: r#"
+if [ "{tag_check_errors}" = "DIRTY" ]; then
+  echo "{tag_content}"
+else
+  echo "No errors found."
+fi
+                "#
+                .trim()
+                .into(),
+            },
+            ActionModel {
+                tag: "tag_checked".into(),
+                r#type: ActionMode::Llm,
+                expect: ExpectMode::String,
+                check: None,
+                confirm: false,
+                action: r#"
+[Task]
+Fix all spelling mistakes, typos, and grammar errors in the text below.
+Strict rules: Output ONLY the corrected text. Preserve all code syntax, markdown tags, and formatting exactly as-is.
+
+[Text]
+{tag_check_errors_filter}
                 "#
                 .trim()
                 .into(),
@@ -75,9 +100,9 @@ Otherwise, reply with the corrected text.
                 tag: "tag_spellcheck".into(),
                 r#type: ActionMode::Value,
                 expect: ExpectMode::String,
-                r#match: None,
+                check: None,
                 confirm: false,
-                action: "{tag_checked|normalize}".into(),
+                action: "{tag_checked}".into(),
             },
         ],
     }

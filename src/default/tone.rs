@@ -1,24 +1,19 @@
 //! Default tone action template.
 
-use std::path::PathBuf;
-
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
 use crate::models::arg::ArgActionModel;
-use crate::models::flow::{FlowFormat, FlowModel};
+use crate::models::flow::FlowModel;
 
 /// Returns the default tone FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "tone".into(),
-        output: "tag_tone".into(),
-        format: FlowFormat::Rich,
         about: "Change the tone of a text based on your instructions".into(),
-        path: PathBuf::from("gen/tone.yaml"),
-        r#match: None,
+        check: None,
         clipboard: true,
         args: vec![ArgActionModel {
-            name: "text".into(),
-            short: Some('t'),
+            name: "query".into(),
+            short: Some('q'),
             expect: ExpectMode::String,
             help: Some("The text to rewrite along with tone instructions (e.g., 'make it formal: hi friend')".into()),
             default: None,
@@ -29,7 +24,7 @@ pub fn default() -> FlowModel {
                 tag: "tag_rewritten_text".into(),
                 r#type: ActionMode::Llm,
                 expect: ExpectMode::String,
-                r#match: None,
+                check: None,
                 confirm: false,
                 action: r#"
 [Task]
@@ -43,10 +38,7 @@ Input: 你真笨，快点做！ -> Result: 请集中精力，加快工作进度�
 Input: Это что за говнокод? Перепиши нормально! -> Result: Пожалуйста, проведите рефакторинг данного участка кода.
 
 [Input]
-{text}
-
-[Result]
-<rewritten_text>
+{query}
                 "#
                 .trim()
                 .into(),
@@ -55,7 +47,7 @@ Input: Это что за говнокод? Перепиши нормально!
                 tag: "tag_tone".into(),
                 r#type: ActionMode::Value,
                 expect: ExpectMode::String,
-                r#match: None,
+                check: None,
                 confirm: false,
                 action: "{tag_rewritten_text}".into(),
             },

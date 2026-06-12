@@ -11,37 +11,16 @@ use crate::{
     validate::ValidateTrait,
 };
 
-/// Visual style density for rendering the final result in the terminal.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "lowercase")]
-pub enum FlowFormat {
-    /// Minimum overhead. Just a standard status line: 'success: <result>'.
-    Compact,
-    /// High visibility. Wrapped inside a beautifully formatted UI block.
-    Rich,
-}
-
-impl Default for FlowFormat {
-    fn default() -> Self {
-        FlowFormat::Compact
-    }
-}
-
 /// One action flow: name, mode, steps, result source.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FlowModel {
     /// Action name (used as CLI subcommand).
     pub name: String,
-    /// Tag name in context to use as final result.
-    pub output: String,
-    /// How to handle the final result (Output, Exec, Ask, Clip).
-    #[serde(default)]
-    pub format: FlowFormat,
     /// Short description for help.
     pub about: String,
     /// Optional regex validation for the result.
     #[serde(default)]
-    pub r#match: Option<String>,
+    pub check: Option<String>,
     /// Automatically copy the final terminal output to the clipboard.
     #[serde(default)]
     pub clipboard: bool,
@@ -51,18 +30,14 @@ pub struct FlowModel {
     /// Preparation steps.
     #[serde(default)]
     pub actions: Vec<ActionModel>,
-    /// File path this flow was loaded from (for save/reload).
-    #[serde(skip)]
-    pub path: PathBuf,
 }
 
 impl FlowModel {
     /// Load and validate a FlowModel from a YAML file.
     pub fn load(path: &PathBuf) -> Result<Self> {
         let content = fs::read_to_string(path)?;
-        let mut flow: Self = yaml_serde::from_str(&content)
+        let flow: Self = yaml_serde::from_str(&content)
             .map_err(|e| anyhow::anyhow!("Failed to parse {}: {}", path.display(), e))?;
-        flow.path = path.clone();
         flow.validate()?;
         Ok(flow)
     }

@@ -1,0 +1,77 @@
+# vibe-action — Global CLI Workflow Benchmarks
+# Use these exact commands to verify prompt stability across different models.
+
+benchmarks:
+  commit:
+    # Basic execution test without path arguments
+    - cargo run -- action commit
+    # Fails if there are no changes in the repository
+    - cargo run -- action commit -p .
+    # Generates a commit message if changes exist in a specific directory
+    - cargo run -- action commit -p ./src
+
+  extract:
+    # Extracts semantic errors and critical system failures
+    - cargo run -- action extract -f fixtures/app.log -q 'show all error and critical lines'
+    # Finds security-related logs using Russian slang/context
+    - cargo run -- action extract -f fixtures/app.log -q 'покажи проблемы с безопасностью или правами доступа'
+    # Edge case: searches for non-existent log entities (tests empty block output)
+    - cargo run -- action extract -f fixtures/app.log -q 'find all wordpress plugin updates'
+
+  find:
+    # Discovers a specific technical macro across the codebase
+    - cargo run -- action find -p ./src/utils -q 'где объявлен макрос print_rich_block?'
+    # Searches by logic meaning (topological dependency sorting modules)
+    - cargo run -- action find -p ./src/engine -q 'найди файлы, которые занимаются топологической сортировкой экшенов'
+    # Edge case: searches for missing architectural components
+    - cargo run -- action find -p ./src/engine -q 'where is the docker-compose orchestrator configuration?'
+
+  mock:
+    # Generates a massive product catalog in YAML format based on a Russian prompt
+    - cargo run -- action mock -f yaml -q '20 товаров с id, ценой и hex цветом'
+    # Synthesizes a valid relational user dataset in JSON format with UUIDs
+    - cargo run -- action mock -f json -q '5 users with unique uuid, email, and localized full name'
+    # Outputs a flat CSV structure for financial auditing tests
+    - cargo run -- action mock -f csv -q '10 bank transactions with date, amount, and category'
+
+  naming:
+    # Recommends snake_case naming options for Rust functions
+    - cargo run -- action naming -q 'функция сортировки данных для Rust'
+    # Recommends clean-code naming options for a complex graph engine description
+    - cargo run -- action naming -q 'сервис для динамической сборки направленного ациклического графа зависимостей'
+    # Suggests a concise boolean variable name matching a specific codebase function
+    - cargo run -- action naming -q 'boolean variable that checks if markdown code block token exists'
+
+  regex:
+    # Classic regex pattern synthesis for IPv4 validation with a strict string example
+    - cargo run -- action regex -q 'IPv4 address' -e '192.168.1.1'
+    # Generates a token extractor regex pattern without a sample string provided
+    - cargo run -- action regex -q 'extract Bearer token from HTTP Authorization header'
+    # Validates standard email address syntax using a Russian description
+    - cargo run -- action regex -q 'регулярка для валидации email адреса'
+
+  spellcheck:
+    # Validates grammar while strictly preserving Markdown layout and styles
+    - cargo run -- action spellcheck -f ./README.md
+    # Audits Rust code file to fix typos within documentation strings and comments
+    - cargo run -- action spellcheck -f ./src/cli/action.rs
+
+  synonyms:
+    # Identifies technical architectural alternatives for a core concept
+    - cargo run -- action synonyms -q 'middleware'
+    # Discovers system-level synonyms for a notification delivery design pattern
+    - cargo run -- action synonyms -q 'event emitter notification broadcast'
+
+  tone:
+    # Analyzes aggressive Russian phrases to gauge emotional and passive toxicity levels
+    - cargo run -- action tone -q 'Какого хера ты до сих пор не на работе?'
+    # Evaluates explicit, high-anger English developer communication profiles
+    - cargo run -- action tone -q 'How fucking long do I have to wait for your code?'
+    # Detects harsh cultural slang and raw frustration within Chinese coding comments
+    - cargo run -- action tone -q '你写代码写得像个该死的老外！'
+
+  translate:
+    # Translates comprehensive project README documentation into Russian
+    - cargo run -- action translate -f ./README.md -l 'Russian'
+    # Converts a technical text manifest file layout into Chinese
+    - cargo run -- action translate -f ./README.md -l 'Chinese'

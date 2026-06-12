@@ -16,10 +16,6 @@ impl ValidateTrait for FlowModel {
         if self.name.trim().is_empty() {
             anyhow::bail!("Flow has no name. Add a name for the CLI command.");
         }
-        // Check source is not empty.
-        if self.output.trim().is_empty() {
-            anyhow::bail!("Flow has no source. Specify which tag to use as result.");
-        }
         // Validate args.
         for arg in &self.args {
             arg.validate()?;
@@ -43,21 +39,14 @@ impl ValidateTrait for FlowModel {
                 anyhow::bail!("Duplicate tag: '{}'", action.tag);
             }
         }
-        // Check source references an existing tag.
-        if !tags.contains(self.output.as_str()) {
-            anyhow::bail!(
-                "Output '{}' must reference an existing action tag.",
-                self.output
-            );
-        }
         // Supports modifiers with special chars: {tag|trim:-}, {tag|join}, {tag|upper}
         let re = Regex::new(r"\{(\w+)(?:\|([^}]+))?\}").unwrap();
         for action in &self.actions {
             validate_tag_references(&action.action, &tags, &re)?;
         }
         // Validate match regex if present.
-        if let Some(pattern) = &self.r#match {
-            Regex::new(pattern).map_err(|e| anyhow::anyhow!("Invalid match regex: {}", e))?;
+        if let Some(pattern) = &self.check {
+            Regex::new(pattern).map_err(|e| anyhow::anyhow!("Invalid check regex: {}", e))?;
         }
         // Check for circular dependencies via {tag}.
         validate_no_cycles(self, &tags, &re)?;

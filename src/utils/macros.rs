@@ -144,13 +144,13 @@ macro_rules! print_rich_block {
             .map(|l| l.chars().count())
             .max()
             .unwrap_or(0);
-        let width = max_line_width + 2;
+        let width = max_line_width;
         let top_padding = width.saturating_sub(13);
         let top = format!("── success ──{}", "─".repeat(top_padding));
         let bottom = "─".repeat(width);
         println!("\x1b[1m\x1b[32m{}\x1b[0m", top);
         for line in msg.lines() {
-            println!(" \x1b[37m{}\x1b[0m", line);
+            println!("\x1b[37m{}\x1b[0m", line);
         }
         println!("\x1b[1m\x1b[32m{}\x1b[0m", bottom);
     }};

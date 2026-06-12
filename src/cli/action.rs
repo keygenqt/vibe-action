@@ -1,18 +1,21 @@
 //! Dynamic action command handler.
 //! Looks up a YAML-defined action by name and runs it with the given arguments.
+//!
+//! Here is a speccial eror that the projecct can find and fix automatically...
 
 use arboard::Clipboard;
 use clap::ArgMatches;
 use inquire::Confirm;
 
 use crate::{
-    configs::app::AppConfig, engine::engine::Engine, exit_error, models::flow::FlowFormat,
-    print_info, print_newline, print_progress, print_rich_block, print_success, print_warning,
-    utils::macros::format_msg,
+    configs::app::AppConfig, engine::engine::Engine, exit_error, print_info, print_newline,
+    print_progress, print_rich_block, print_warning, utils::macros::format_msg,
 };
 
 /// Execute a dynamic action command.
 pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig) {
+    let start_time = std::time::Instant::now();
+
     let flow = config
         .find_flow(name)
         .unwrap_or_else(|e| exit_error!("{}", e))
@@ -42,7 +45,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             let query = format!("Execute '{}'?", format_msg(&action.tag));
             let ans = Confirm::new(&query)
                 .with_default(false)
-                .with_placeholder(&format!("\n{}", engine.action_display(&action)))
+                .with_placeholder(&format!("\n{}\n", engine.action_display(&action)))
                 .prompt();
             match ans {
                 Ok(true) => {
@@ -66,7 +69,6 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
     }
 
     tracing::info!("Flow completed: {}", flow.name);
-
     let result = engine.result().unwrap_or_else(|e| exit_error!("{}", e));
 
     if flow.clipboard {
@@ -78,12 +80,11 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         }
     }
 
+    print_info!("completed in {:.2?}", start_time.elapsed());
+
     if result.is_empty() {
         print_info!("No matches found.")
     } else {
-        match flow.format {
-            FlowFormat::Compact => print_success!("{}", &result),
-            FlowFormat::Rich => print_rich_block!("{}", &result),
-        }
+        print_rich_block!("{}", &result)
     }
 }

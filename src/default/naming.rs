@@ -1,26 +1,21 @@
 //! Default naming action template.
 
-use std::path::PathBuf;
-
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
 use crate::models::arg::ArgActionModel;
-use crate::models::flow::{FlowFormat, FlowModel};
+use crate::models::flow::FlowModel;
 
 /// Returns the default naming FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "naming".into(),
-        output: "tag_naming".into(),
-        format: FlowFormat::Compact,
         about: "Generate code naming suggestions based on a description".into(),
-        path: PathBuf::from("gen/naming.yaml"),
-        r#match: None,
+        check: None,
         clipboard: false,
         args: vec![ArgActionModel {
-            name: "description".into(),
-            short: Some('d'),
+            name: "query".into(),
+            short: Some('q'),
             expect: ExpectMode::String,
-            help: Some("Description of what you need to name (variable, function, etc.)".into()),
+            help: Some("Code component description (e.g., 'function to sort actions by dependency')".into()),
             default: None,
             values: Vec::new(),
         }],
@@ -28,21 +23,20 @@ pub fn default() -> FlowModel {
             ActionModel {
                 tag: "tag_name_suggestions".into(),
                 r#type: ActionMode::Llm,
-                expect: ExpectMode::String,
-                r#match: None,
+                expect: ExpectMode::List(Box::new(ExpectMode::String)),
+                check: None,
                 confirm: false,
                 action: r#"
 [Task]
 Generate 5-10 high-quality, professional programming naming suggestions based on the description.
 Strictly follow the programming language or style constraints requested in the description if specified.
-Write strictly in English. Separate suggestions with commas.
-Do not add introductory text, quotes, or explanations.
+Write strictly in English.
+Output each suggestion on a new line.
+Do not use numbers, bullets, commas, or quotes.
+Absolutely NO introductory text, NO markdown formatting, NO explanations.
 
-[Description]
-{description}
-
-[Result]
-<names>
+[Query]
+{query}
                 "#
                 .trim()
                 .into(),
@@ -51,9 +45,9 @@ Do not add introductory text, quotes, or explanations.
                 tag: "tag_naming".into(),
                 r#type: ActionMode::Value,
                 expect: ExpectMode::String,
-                r#match: None,
+                check: None,
                 confirm: false,
-                action: "{tag_name_suggestions}".into(),
+                action: "{tag_name_suggestions|join:uniq}".into(),
             },
         ],
     }

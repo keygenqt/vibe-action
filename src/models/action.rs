@@ -40,9 +40,9 @@ pub struct ActionModel {
     pub r#type: ActionMode,
     /// Expected result type.
     pub expect: ExpectMode,
-    /// Optional regex pattern for validation.
+    /// Optional regex validation for the result.
     #[serde(default)]
-    pub r#match: Option<String>,
+    pub check: Option<String>,
     /// Ask for confirmation before executing.
     #[serde(default)]
     pub confirm: bool,

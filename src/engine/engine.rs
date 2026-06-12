@@ -21,17 +21,23 @@ pub struct Engine {
     /// Tag name for the final result.
     output: String,
     /// Optional regex validation for the result.
-    match_regex: Option<Regex>,
+    check_regex: Option<Regex>,
 }
 
 impl Engine {
     /// Create a new engine from a flow, sorting actions by dependencies.
     pub fn new(flow: &FlowModel) -> Result<Self> {
+        let sorted_actions = TopologicalSort::sort(flow)?;
+        let resolved_output = sorted_actions
+            .last()
+            .map(|a| a.tag.clone())
+            .unwrap_or_default();
+
         Ok(Self {
             ctx: Context::new(),
-            actions: TopologicalSort::sort(flow)?,
-            output: flow.output.clone(),
-            match_regex: match &flow.r#match {
+            actions: sorted_actions,
+            output: resolved_output,
+            check_regex: match &flow.check {
                 Some(pattern) => Some(Regex::new(pattern)?),
                 None => None,
             },
@@ -69,7 +75,7 @@ impl Engine {
             .map(|v| v.to_string())
             .unwrap_or_default();
 
-        if let Some(re) = &self.match_regex {
+        if let Some(re) = &self.check_regex {
             if !re.is_match(&value) {
                 anyhow::bail!("Result does not match pattern '{}': {}", re.as_str(), value);
             }
@@ -105,14 +111,14 @@ impl Engine {
     /// Fill template, execute shell/LLM, validate each output against regex.
     async fn execute_action(action: &ActionModel, ctx: &Context) -> Result<(Vec<String>, bool)> {
         let escape = action.r#type == ActionMode::Cmd;
-        let compiled_match = action.r#match.as_ref().map(|p| Regex::new(p)).transpose()?;
+        let compiled_check = action.check.as_ref().map(|p| Regex::new(p)).transpose()?;
         let expanded = ctx.fill(&action.action, escape)?;
         let mut results = Vec::with_capacity(expanded.items.len());
 
         // Execute and validate each expanded action.
         for single_action in &expanded.items {
             let raw = Self::exec_raw(action, single_action).await?;
-            if let Some(re) = &compiled_match {
+            if let Some(re) = &compiled_check {
                 if !re.is_match(raw.trim()) {
                     anyhow::bail!(
                         "Result for '{}' does not match pattern '{}': '{}'",

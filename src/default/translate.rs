@@ -1,20 +1,15 @@
 //! Default translate action template.
 
-use std::path::PathBuf;
-
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
 use crate::models::arg::ArgActionModel;
-use crate::models::flow::{FlowFormat, FlowModel};
+use crate::models::flow::FlowModel;
 
 /// Returns the default translate FlowModel.
 pub fn default() -> FlowModel {
     FlowModel {
         name: "translate".into(),
-        output: "tag_translate".into(),
-        format: FlowFormat::Rich,
         about: "Translate text or files to another language".into(),
-        path: PathBuf::from("mod/translate.yaml"),
-        r#match: None,
+        check: None,
         clipboard: true,
         args: vec![
             ArgActionModel {
@@ -47,7 +42,7 @@ pub fn default() -> FlowModel {
                 tag: "tag_content".into(),
                 r#type: ActionMode::Cmd,
                 expect: ExpectMode::String,
-                r#match: Some(".+".into()),
+                check: Some(".+".into()),
                 confirm: false,
                 action: r#"
 if [ -n "{file}" ]; then
@@ -63,20 +58,19 @@ fi
                 tag: "tag_translated".into(),
                 r#type: ActionMode::Llm,
                 expect: ExpectMode::String,
-                r#match: None,
+                check: None,
                 confirm: false,
                 action: r#"
 [Task]
-Translate the entire text inside <text></text> to the language specified in [User].
+Translate the entire [Text] to the language specified in [User].
 Do not translate proper names, code, or comments inside code blocks.
 Reply with the full translated text.
 
 [User]
 {to}
 
-<text>
+[Text]
 {tag_content}
-</text>
                 "#
                 .trim()
                 .into(),
@@ -85,7 +79,7 @@ Reply with the full translated text.
                 tag: "tag_translate".into(),
                 r#type: ActionMode::Value,
                 expect: ExpectMode::String,
-                r#match: None,
+                check: None,
                 confirm: false,
                 action: "{tag_translated}".into(),
             },
