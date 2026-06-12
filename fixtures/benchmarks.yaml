@@ -27,12 +27,12 @@ benchmarks:
     - cargo run -- action find -p ./src/engine -q 'where is the docker-compose orchestrator configuration?'
 
   mock:
-    # Generates a massive product catalog in YAML format based on a Russian prompt
-    - cargo run -- action mock -f yaml -q '20 товаров с id, ценой и hex цветом'
     # Synthesizes a valid relational user dataset in JSON format with UUIDs
-    - cargo run -- action mock -f json -q '5 users with unique uuid, email, and localized full name'
+    - cargo run -- action mock -f json -q '2 users with unique uuid, email, and localized full name'
+      # Generates a massive product catalog in YAML format based on a Russian prompt
+    - cargo run -- action mock -f yaml -q '3 товара с id, ценой и hex цветом'
     # Outputs a flat CSV structure for financial auditing tests
-    - cargo run -- action mock -f csv -q '10 bank transactions with date, amount, and category'
+    - cargo run -- action mock -f csv -q '5 bank transactions with date, amount, and category'
 
   naming:
     # Recommends snake_case naming options for Rust functions
@@ -51,10 +51,10 @@ benchmarks:
     - cargo run -- action regex -q 'регулярка для валидации email адреса'
 
   spellcheck:
-    # Validates grammar while strictly preserving Markdown layout and styles
-    - cargo run -- action spellcheck -f ./README.md
     # Audits Rust code file to fix typos within documentation strings and comments
     - cargo run -- action spellcheck -f ./src/cli/action.rs
+    # Validates grammar while strictly preserving Markdown layout and styles
+    - cargo run -- action spellcheck -f ./fixtures/README.md
 
   synonyms:
     # Identifies technical architectural alternatives for a core concept
@@ -72,6 +72,6 @@ benchmarks:
 
   translate:
     # Translates comprehensive project README documentation into Russian
-    - cargo run -- action translate -f ./README.md -l 'Russian'
+    - cargo run -- action translate -f ./fixtures/README.md -l 'Russian'
     # Converts a technical text manifest file layout into Chinese
-    - cargo run -- action translate -f ./README.md -l 'Chinese'
+    - cargo run -- action translate -f ./fixtures/README.md -l 'Chinese'

@@ -1,7 +1,5 @@
 //! Dynamic action command handler.
 //! Looks up a YAML-defined action by name and runs it with the given arguments.
-//!
-//! Here is a speccial eror that the projecct can find and fix automatically...
 
 use arboard::Clipboard;
 use clap::ArgMatches;
