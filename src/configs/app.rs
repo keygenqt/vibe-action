@@ -14,7 +14,6 @@ use vibe_cluster::ConnectionParams;
 use vibe_cluster::Provider;
 
 use crate::configs::cluster::ClusterConfig;
-use crate::configs::estimator::EstimatorConfig;
 use crate::models::actions::ActionsModel;
 use crate::models::flow::FlowModel;
 use crate::utils;
@@ -34,8 +33,6 @@ static GLOBAL_CONFIG: OnceLock<AppConfig> = OnceLock::new();
 pub struct AppConfig {
     /// Configuration version.
     pub version: String,
-    /// Complexity estimator configuration.
-    pub estimator: EstimatorConfig,
     /// LLM cluster nodes (local and cloud models).
     pub cluster: Vec<ClusterConfig>,
     /// Loaded actions model (not serialized).
@@ -48,8 +45,14 @@ impl Default for AppConfig {
     fn default() -> Self {
         Self {
             version: constants::CONFIG_VERSION.to_string(),
-            estimator: EstimatorConfig::default(),
-            cluster: vec![ClusterConfig::default()],
+            cluster: vec![
+                ClusterConfig::default(),
+                // @todo
+                // ClusterConfig {
+                //     host: "http://192.168.1.10:11434".to_string(),
+                //     ..ClusterConfig::default()
+                // },
+            ],
             actions_model: None,
         }
     }
@@ -192,42 +195,11 @@ impl AppConfig {
             .ok_or_else(|| anyhow::anyhow!("Unknown action: {}", name))
     }
 
-    /// Create estimator cluster from config.
-    pub fn create_estimator(&self) -> Result<Cluster> {
-        let provider = match self.estimator.provider.as_str() {
-            "ollama" => Provider::Ollama,
-            "deepseek" => Provider::DeepSeek,
-            "qwen" => Provider::Qwen,
-            other => anyhow::bail!("Unknown provider: {}", other),
-        };
-
-        let connection = ConnectionParams {
-            provider,
-            host: self.estimator.host.clone(),
-            model: self.estimator.model.clone(),
-            temperature: Some(0.0),
-            seed: Some(42),
-            num_ctx: Some(2048),
-            num_predict: Some(10),
-            timeout_secs: Some(30),
-            api_key: None,
-            parallel: self.estimator.parallel,
-        };
-
-        Cluster::new(vec![connection]).map_err(|e| anyhow::anyhow!(e.to_string()))
-    }
-
-    /// Create vibe-cluster from config filtered by complexity score.
-    pub fn create_cluster(&self, complexity: f32) -> Result<Cluster> {
-        let comp_step = (complexity * 100.0).round() as usize;
+    /// Create vibe-cluster from all configured nodes.
+    pub fn create_cluster(&self) -> Result<Cluster> {
         let connections: Vec<ConnectionParams> = self
             .cluster
             .iter()
-            .filter(|c| {
-                let from_step = (c.complexity_from * 100.0).round() as usize;
-                let to_step = (c.complexity_to * 100.0).round() as usize;
-                comp_step >= from_step && comp_step <= to_step
-            })
             .map(|c| {
                 let provider = match c.provider.as_str() {
                     "ollama" => Provider::Ollama,
@@ -249,9 +221,11 @@ impl AppConfig {
                 })
             })
             .collect::<Result<Vec<_>>>()?;
+
         if connections.is_empty() {
-            anyhow::bail!("No nodes found for complexity: {:.2}", complexity);
+            anyhow::bail!("No cluster nodes found in configuration.");
         }
+
         Cluster::new(connections).map_err(|e| anyhow::anyhow!(e.to_string()))
     }
 }

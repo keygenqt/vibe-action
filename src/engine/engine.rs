@@ -115,39 +115,61 @@ impl Engine {
         let expanded = ctx.fill(&action.action, escape)?;
         let mut results = Vec::with_capacity(expanded.items.len());
 
-        // Execute and validate each expanded action.
-        for single_action in &expanded.items {
-            let raw = Self::exec_raw(action, single_action).await?;
-            if let Some(re) = &compiled_check {
-                if !re.is_match(raw.trim()) {
-                    anyhow::bail!(
-                        "Result for '{}' does not match pattern '{}': '{}'",
-                        action.tag,
-                        re.as_str(),
-                        raw.trim()
+        match action.r#type {
+            ActionMode::Cmd => {
+                for single_action in &expanded.items {
+                    let raw = Shell::exec(single_action).await?;
+                    if let Some(re) = &compiled_check {
+                        if !re.is_match(raw.trim()) {
+                            anyhow::bail!(
+                                "Result for '{}' does not match pattern '{}': '{}'",
+                                action.tag,
+                                re.as_str(),
+                                raw.trim()
+                            );
+                        }
+                    }
+                    Self::log_action(
+                        &action.tag,
+                        &action.r#type,
+                        &action.action,
+                        single_action,
+                        &raw,
                     );
+                    results.push(raw);
                 }
             }
-            Self::log_action(
-                &action.tag,
-                &action.r#type,
-                &action.action,
-                single_action,
-                &raw,
-            );
-            results.push(raw);
+            ActionMode::Llm => {
+                let cluster_outputs = Cluster::exec(&expanded.items).await?;
+                for cluster_res in cluster_outputs {
+                    let result = cluster_res.result;
+                    if let Some(re) = &compiled_check {
+                        if !re.is_match(&result) {
+                            anyhow::bail!(
+                                "Result for '{}' does not match pattern '{}': '{}'",
+                                action.tag,
+                                re.as_str(),
+                                &result
+                            );
+                        }
+                    }
+                    Self::log_action(
+                        &action.tag,
+                        &action.r#type,
+                        &action.action,
+                        &cluster_res.prompt,
+                        &result,
+                    );
+                    results.push(result);
+                }
+            }
+            ActionMode::Value => {
+                for single_action in &expanded.items {
+                    results.push(single_action.to_string());
+                }
+            }
         }
-
         Ok((results, expanded.is_list))
-    }
-
-    /// Execute raw command or LLM prompt.
-    async fn exec_raw(action: &ActionModel, resolved: &str) -> Result<String> {
-        match action.r#type {
-            ActionMode::Cmd => Shell::exec(resolved).await,
-            ActionMode::Llm => Cluster::exec(resolved).await,
-            ActionMode::Value => Ok(resolved.to_string()),
-        }
     }
 
     /// Log action execution details.

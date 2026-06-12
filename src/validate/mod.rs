@@ -7,7 +7,6 @@ pub mod actions;
 pub mod app;
 pub mod arg;
 pub mod cluster;
-pub mod estimator;
 pub mod flow;
 
 /// Trait for types that can be validated.

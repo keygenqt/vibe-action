@@ -42,6 +42,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
 
         if action.confirm {
             print_newline!();
+            print_info!("completed in {:.2?}", start_time.elapsed());
             let query = format!("Execute '{}'?", format_msg(&action.tag));
             let ans = Confirm::new(&query)
                 .with_default(false)
