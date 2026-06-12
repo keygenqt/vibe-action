@@ -46,7 +46,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             let query = format!("Execute '{}'?", format_msg(&action.tag));
             let ans = Confirm::new(&query)
                 .with_default(false)
-                .with_placeholder(&format!("\n{}\n", engine.action_display(&action)))
+                .with_placeholder(&format!("\n{}", engine.action_display(&action)))
                 .prompt();
             match ans {
                 Ok(true) => {
