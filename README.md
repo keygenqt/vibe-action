@@ -5,15 +5,15 @@ Just say what you want — it figures out the rest.
 
 ## Why Vibe Action
 
-- ⚡ **One command = complex pipeline** — chain shell scripts and LLM calls into a single action
-- 🔗 **Tag system** — connect steps via `{tag}` references with automatic dependency graph
-- 🤖 **Batch LLM** — parallel execution across all cluster nodes
-- ✅ **Type-safe** — validate outputs with types and regex
-- 🔐 **Confirmations** — ask before executing dangerous commands
-- 🎯 **CLI-first** — no browser, no context switching. Everything in the terminal
-- 🔒 **Secure** — runs locally on your hardware
-- 🆓 **Free** — open source, local models via Ollama. No subscriptions
-- 📦 **Modular** — share YAML files like Homebrew formulas
+- ⚡ **Complex pipelines** — chain shell and LLM into one command
+- 🔗 **Tag system** — auto-dependency graph via `{tag}`
+- 🤖 **Batch LLM** — parallel execution across cluster nodes
+- ✅ **Type-safe** — validate with types and regex
+- 🔐 **Confirmations** — approve before executing
+- 🎯 **CLI-first** — no browser, just terminal
+- 🔒 **Secure** — runs locally
+- 🆓 **Free** — open source, local models
+- 📦 **Modular** — share YAML like Homebrew formulas
 - 🦀 **Fast** — built in Rust
 
 ## Quick Start
