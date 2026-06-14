@@ -3,8 +3,9 @@ name = "vibe-action"
 version = "0.0.1"
 edition = "2024"
 license = "Apache-2.0"
-description = "AI-native command router — execute shell commands and LLM prompts via simple YAML actions"
+description = "Command router — execute shell commands and LLM prompts via simple YAML actions"
 repository = "https://gitcode.com/keygenqt_vz/vibe-action"
+documentation = "https://vibe-action.keygenqt.com"
 authors = ["Vitaliy Zarubin <keygenqt@yandex.ru>"]
 readme = "README.md"
 
