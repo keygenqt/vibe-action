@@ -9,11 +9,18 @@ pub fn strip_ansi(s: &str) -> String {
 
 /// Format a message for display.
 pub fn format_msg(s: &str) -> String {
-    let s = s.strip_suffix('.').unwrap_or(s);
+    // Strip tag_ or tag- prefix if present.
     let s = s
         .strip_prefix("tag_")
         .or_else(|| s.strip_prefix("tag-"))
         .unwrap_or(s);
+    // Strip trailing dot only if it's a single dot (not part of "..." or "..").
+    let s = if s.ends_with('.') && !s.ends_with("..") {
+        s.strip_suffix('.').unwrap_or(s)
+    } else {
+        s
+    };
+    // Lowercase the first character.
     let mut chars = s.chars();
     match chars.next() {
         None => String::new(),
@@ -40,7 +47,7 @@ macro_rules! print_error {
             tracing::error!("{}", $crate::utils::macros::strip_ansi(&msg));
         } else {
             let msg = format!($($arg)*);
-            let formatted = $crate::utils::macros::lower_first_char(&msg);
+            let formatted = $crate::utils::macros::format_msg(&msg);
             println!("{}", format!("\x1b[1m\x1b[91merror\x1b[0m: {}", formatted));
         }
     }};
@@ -135,21 +142,58 @@ macro_rules! exit_error {
     }};
 }
 
-/// Print a success message framed by top and bottom lines matching the text length.
+/// Print a success message with automatic line wrapping and framed borders.
 #[macro_export]
 macro_rules! print_rich_block {
     ($($arg:tt)*) => {{
         let msg = format!($($arg)*);
-        let max_line_width = msg.lines()
+        let max_width = 120usize;
+        let wrapped: Vec<String> = msg
+            .lines()
+            .flat_map(|line| {
+                let chars: Vec<char> = line.chars().collect();
+                if chars.len() <= max_width {
+                    vec![line.to_string()]
+                } else {
+                    let mut result = Vec::new();
+                    let mut start = 0;
+                    while start < chars.len() {
+                        let mut end = (start + max_width).min(chars.len());
+
+                        if end < chars.len() && !chars[end].is_whitespace() && !chars[end - 1].is_whitespace() {
+                            let mut space_idx = end;
+                            while space_idx > start && !chars[space_idx].is_whitespace() {
+                                space_idx -= 1;
+                            }
+                            if space_idx > start {
+                                end = space_idx;
+                            }
+                        }
+                        let sub_str: String = chars[start..end].iter().collect();
+                        if start == 0 || !sub_str.trim().is_empty() || sub_str.len() == max_width {
+                            result.push(sub_str.to_string());
+                        }
+                        start = end;
+                        if start < chars.len() && chars[start].is_whitespace() {
+                            start += 1;
+                        }
+                    }
+                    result
+                }
+            })
+            .collect();
+
+        let width = wrapped.iter()
             .map(|l| l.chars().count())
             .max()
-            .unwrap_or(0);
-        let width = max_line_width;
-        let top_padding = width.saturating_sub(13);
-        let top = format!("── success ──{}", "─".repeat(top_padding));
+            .unwrap_or(0)
+            .max(13);
+
+        let top = format!("── success ──{}", "─".repeat(width.saturating_sub(13)));
         let bottom = "─".repeat(width);
+
         println!("\x1b[1m\x1b[32m{}\x1b[0m", top);
-        for line in msg.lines() {
+        for line in &wrapped {
             println!("\x1b[37m{}\x1b[0m", line);
         }
         println!("\x1b[1m\x1b[32m{}\x1b[0m", bottom);

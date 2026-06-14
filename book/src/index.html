@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="assets/css/index/styles.css" />
+    <link rel="stylesheet" href="assets/css/index/animation.css" />
+    <link rel="stylesheet" href="assets/css/index/header.css" />
+    <link rel="stylesheet" href="assets/css/index/body.css" />
+    <link rel="stylesheet" href="assets/css/index/footer.css" />
+
+    <title>Vibe Action</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="Vibe Action" />
+    <meta
+      property="og:description"
+      content="AI-native command router — YAML pipelines for shell and LLM automation"
+    />
+
+    <link rel="icon" href="assets/images/favicon.png" />
+  </head>
+  <body>
+    <div class="PageIndex">
+      <div class="Header">
+        <div class="Content">
+          <div class="block">
+            <div>
+              <a href="/" class="title"> Vibe Action </a>
+            </div>
+            <div>
+              <a class="Btn" href="docs/introduction.html">Documentation</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="Body">
+        <div class="Content">
+          <div class="block1">
+            <div class="block">
+              <div class="title">
+                Vibe
+                <br />
+                Action
+              </div>
+              <div class="version">v0.0.1</div>
+              <div class="subtitle">AI-native command router</div>
+              <div class="text">
+                Execute shell commands and LLM prompts via simple YAML actions. Just say what you
+                want — it figures out the rest. Define workflows in YAML, connect steps via tags,
+                run batch LLM across your cluster.
+              </div>
+              <a class="Btn BtnBlack" href="docs/getting-started.html"> Get Started </a>
+            </div>
+            <div class="block">
+              <pre class="preview">
+
+<span class="comment"># Quick Start</span>
+
+<span class="comment">## 1. Install Ollama (or DeepSeek)</span>
+
+<span class="comment">## 2. Install Vibe Action</span>
+<span class="command"><span class="app">cargo</span> install vibe-action</span>
+
+<span class="comment">## 3. AI-powered commit</span>
+<span class="command"><span class="app">vibe-action</span> action commit</span> <span class="path">-p .</span>
+
+<span class="comment">## 4. Translate files</span>
+<span class="command"><span class="app">vibe-action</span> action translate</span> <span class="path">-f README.md -l Russian</span>
+
+<span class="comment">## 5. Extract errors from logs</span>
+<span class="command"><span class="app">vibe-action</span> action extract</span> <span class="path">-f app.log -q 'find all errors'</span>
+
+<span class="comment">## 6. Direct prompt to cluster</span>
+<span class="command"><span class="app">vibe-action</span> prompt</span> <span class="path">'Explain Rust lifetimes'</span></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="Footer">
+        <div class="Content">
+          <div class="block">
+            <div>
+              <div class="title">© 2026 Vibe Action</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

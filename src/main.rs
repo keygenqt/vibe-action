@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 
-use crate::{cli::system::SystemSubcommands, configs::app::AppConfig};
+use crate::configs::app::AppConfig;
 
 mod cli;
 mod configs;
@@ -44,12 +44,6 @@ enum Commands {
         #[arg(required = true, num_args = 1..)]
         text: Vec<String>,
     },
-
-    /// System utilities, maintenance, and validation
-    System {
-        #[command(subcommand)]
-        subcommand: SystemSubcommands,
-    },
 }
 
 #[tokio::main]
@@ -84,9 +78,6 @@ async fn main() {
         }
         Some(("prompt", sub_matches)) => {
             cli::prompt::execute(sub_matches).await;
-        }
-        Some(("system", sub_matches)) => {
-            cli::system::execute(sub_matches).await;
         }
         _ => {
             let _ = app_builder.print_help();

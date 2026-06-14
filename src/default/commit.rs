@@ -57,8 +57,6 @@ Write strictly in English.
 
 [Diff]
 {tag_file_diff}
-
-[Result]
                 "#
                 .trim()
                 .into(),

@@ -115,7 +115,7 @@ impl AppConfig {
         // Load actions from configured sources.
         let path_actions = &path::actions_dir();
         let actions = ActionsModel::load(&path_actions)?;
-        actions.save(&path_actions)?;
+        ActionsModel::save_defaults(&path::actions_dir())?;
         config.actions_model = Some(actions);
         // Cache globally.
         GLOBAL_CONFIG.set(config).ok();
@@ -141,23 +141,6 @@ impl AppConfig {
                 ],
             ),
             YamlComment::Field(
-                "estimator",
-                vec![
-                    "Complexity estimator configuration.",
-                    "",
-                    "  CRITICAL ROLE: This model judges prompt difficulty (0.0-1.0) to route",
-                    "  requests to the right model. A smarter estimator gives more accurate",
-                    "  complexity scores, so use the most capable model you can afford.",
-                    "  Results are cached via semantic search — the estimator runs only when",
-                    "  a genuinely new prompt pattern is detected.",
-                    "",
-                    "provider - Provider type: ollama, deepseek, qwen",
-                    "host - API endpoint",
-                    "model - LLM model name",
-                    "parallel - Number of parallel connections (default 1)",
-                ],
-            ),
-            YamlComment::Field(
                 "cluster",
                 vec![
                     "LLM cluster nodes (local and cloud models).",
@@ -166,8 +149,6 @@ impl AppConfig {
                     "host - API endpoint",
                     "model - LLM model name",
                     "timeout_secs - Request timeout in seconds",
-                    "complexity_from - Lower bound of complexity range (0.0-1.0)",
-                    "complexity_to - Upper bound of complexity range (0.0-1.0)",
                     "temperature - Sampling temperature (0.0 - 1.0)",
                     "seed - Random seed for reproducibility",
                     "num_ctx - Context window size",

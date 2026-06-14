@@ -64,7 +64,7 @@ benchmarks:
 
   tone:
     # Analyzes aggressive Russian phrases to gauge emotional and passive toxicity levels
-    - cargo run -- action tone -q 'Какого хера ты до сих пор не на работе?'
+    - cargo run -- action tone -q 'Какого хрена ты до сих пор не на работе?'
     # Evaluates explicit, high-anger English developer communication profiles
     - cargo run -- action tone -q 'How fucking long do I have to wait for your code?'
     # Detects harsh cultural slang and raw frustration within Chinese coding comments

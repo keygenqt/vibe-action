@@ -67,17 +67,18 @@ impl ActionsModel {
         Ok(actions)
     }
 
-    /// Save all flows to their respective YAML files (only if file doesn't exist).
-    pub fn save(&self, path: &PathBuf) -> Result<()> {
-        for flow in &self.flows {
+    /// Save default actions to a directory. Only creates files that don't already exist.
+    pub fn save_defaults(path: &PathBuf) -> Result<()> {
+        let defaults = ActionsModel::default();
+
+        if !path.exists() {
+            fs::create_dir_all(path)?;
+        }
+
+        for flow in &defaults.flows {
             let file_path = path.join(format!("{}.yaml", flow.name));
             if file_path.exists() {
                 continue;
-            }
-            if let Some(parent) = file_path.parent() {
-                if !parent.exists() {
-                    fs::create_dir_all(parent)?;
-                }
             }
 
             let header = format!(
@@ -90,7 +91,7 @@ impl ActionsModel {
 #   check     - Optional regex validation for the final flow result
 #   clipboard - Copy final result to clipboard
 #   args      - CLI arguments (optional)
-#   actions   - Pipeline execution steps (Directed Acyclic Graph)
+#   actions   - Pipeline execution steps (execution order resolved automatically by tags)
 #
 # Args:
 #   name      - Argument name (used as --name and {{name}} tag)
@@ -120,8 +121,9 @@ impl ActionsModel {
 
             let yaml = yaml_serde::to_string(flow)?;
             let content = format!("{}\n{}", header, yaml);
-            fs::write(file_path, &content)?;
+            fs::write(&file_path, &content)?;
         }
+
         Ok(())
     }
 }

@@ -1,0 +1,23 @@
+[book]
+authors = ["Vitaliy Zarubin"]
+language = "en"
+src = "src"
+title = "Vibe Action"
+description = "AI-native command router — YAML pipelines for shell and LLM automation"
+
+[build]
+build-dir = "public"
+create-missing = false
+
+[output.html.fold]
+enable = true
+
+[output.html.playground]
+runnable = false
+
+[output.html]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+smart-punctuation = true
+mathjax-support = true
+additional-css = ["src/assets/css/book/styles.css"]
