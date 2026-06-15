@@ -1,11 +1,10 @@
 //! Application configuration.
-//! YAML-based config for estimator and cluster settings.
+//! YAML-based config for cluster settings and action runtime.
 
 use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fs;
-use std::path::PathBuf;
 use std::sync::OnceLock;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
@@ -70,11 +69,15 @@ impl AppConfig {
 
     /// Get the global config instance (loads if not cached).
     pub fn instance() -> Result<&'static Self> {
-        Self::load_with_path(None)
+        // Return cached config if already loaded.
+        if let Some(config) = GLOBAL_CONFIG.get() {
+            return Ok(config);
+        }
+        anyhow::bail!("Config not initialized. Call AppConfig::init() first.")
     }
 
     /// Initialize configuration, creating default files if missing.
-    pub fn init(path: Option<PathBuf>, debug: bool) -> Result<()> {
+    pub fn init(debug: bool) -> Result<()> {
         // Set debug mode before any logs.
         DEBUG_MODE.store(debug, Ordering::Relaxed);
 
@@ -84,49 +87,34 @@ impl AppConfig {
             let _ = tracing_subscriber::fmt().with_env_filter(filter).try_init();
         }
 
-        // Initialize config.
-        let config = Self::load_with_path(path)?;
+        // Load config from file or create default.
+        let config_path = path::config_path();
+        let mut config: AppConfig = if config_path.exists() && config_path.is_file() {
+            yaml_serde::from_str(&fs::read_to_string(&config_path)?)
+                .map_err(|e| anyhow::anyhow!("Failed to parse config: {}", e))?
+        } else {
+            let config = AppConfig::default();
+            config.save()?;
+            config
+        };
+
         config.validate()?;
 
+        // Load actions from the configured path.
+        let actions_path = &path::actions_dir();
+        config.actions_model = Some(ActionsModel::load(&actions_path)?);
+
+        // Save default actions only if using default actions path (not overridden by env).
+        if std::env::var("VIBE_ACTION_PATH").is_err() {
+            ActionsModel::save_defaults(actions_path)?;
+        }
+
+        // Cache globally.
+        GLOBAL_CONFIG.set(config).ok();
         Ok(())
     }
 
-    /// Load config from specified path or default, caching globally.
-    pub fn load_with_path(path: Option<PathBuf>) -> Result<&'static Self> {
-        // Return cached config if already loaded.
-        if let Some(config) = GLOBAL_CONFIG.get() {
-            return Ok(config);
-        }
-        // Load config from file or create default.
-        let mut config: AppConfig = if let Some(path) = path {
-            if path.exists() && path.is_file() {
-                yaml_serde::from_str(&fs::read_to_string(&path)?)
-                    .map_err(|e| anyhow::anyhow!("Failed to parse config: {}", e))?
-            } else {
-                anyhow::bail!("Config file not found: {}", path.display())
-            }
-        } else {
-            let path = path::config_default_path();
-            if path.exists() && path.is_file() {
-                yaml_serde::from_str(&fs::read_to_string(&path)?)
-                    .map_err(|e| anyhow::anyhow!("Failed to parse config: {}", e))?
-            } else {
-                let config = AppConfig::default();
-                config.save()?;
-                config
-            }
-        };
-        // Load actions from configured sources.
-        let path_actions = &path::actions_dir();
-        let actions = ActionsModel::load(&path_actions)?;
-        ActionsModel::save_defaults(&path::actions_dir())?;
-        config.actions_model = Some(actions);
-        // Cache globally.
-        GLOBAL_CONFIG.set(config).ok();
-        Ok(GLOBAL_CONFIG.get().unwrap())
-    }
-
-    /// Save config to file in JSON5 format.
+    /// Save config to file with comments.
     pub fn save(&self) -> Result<()> {
         let dir = path::config_dir();
         if !dir.exists() {
@@ -134,16 +122,6 @@ impl AppConfig {
         }
         let commits = vec![
             YamlComment::Field("version", vec!["Configuration version (do not modify)"]),
-            YamlComment::Field(
-                "actions",
-                vec![
-                    "Action sources — directories with .yaml action files.",
-                    "",
-                    "Example:",
-                    "  - ~/.vibe-action/actions",
-                    "  - /usr/share/vibe-actions",
-                ],
-            ),
             YamlComment::Field(
                 "action",
                 vec![
@@ -173,7 +151,7 @@ impl AppConfig {
         ];
         let yaml = yaml_serde::to_string(self)?;
         let content = utils::yaml::add_comments(yaml, commits);
-        fs::write(path::config_default_path(), content)?;
+        fs::write(path::config_path(), content)?;
         Ok(())
     }
 

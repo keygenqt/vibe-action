@@ -1,10 +1,3 @@
-//! CLI command dispatch and action execution.
-//! Routes parsed matches to the appropriate handler: built-in commands or dynamic YAML actions.
-
-use std::path::PathBuf;
-
-use clap::{Arg, Command};
-
 /// Builds the full hierarchical CLI command tree including dynamic YAML actions.
 ///
 /// This macro dynamically extends the `action` subcommand with commands
@@ -26,26 +19,4 @@ macro_rules! build_app {
         }
         app
     }};
-}
-
-/// Parse global flags (--config, --debug) before full CLI init.
-pub fn parse_global_flags() -> (Option<PathBuf>, bool) {
-    let raw_args: Vec<String> = std::env::args().collect();
-    let global_matches = Command::new("vibe-action")
-        .ignore_errors(true)
-        .arg(
-            Arg::new("config")
-                .long("config")
-                .value_parser(clap::value_parser!(PathBuf)),
-        )
-        .arg(
-            Arg::new("debug")
-                .long("debug")
-                .action(clap::ArgAction::SetTrue),
-        )
-        .get_matches_from(&raw_args);
-
-    let config_path = global_matches.get_one::<PathBuf>("config").cloned();
-    let debug = global_matches.get_flag("debug");
-    (config_path, debug)
 }

@@ -17,14 +17,20 @@ pub fn config_dir() -> PathBuf {
     home.join(CONFIG_DIR_NAME)
 }
 
-/// Get default actions directory path
+/// Get actions directory path (env VIBE_ACTION_PATH or default).
 pub fn actions_dir() -> PathBuf {
-    config_dir().join(ACTIONS_DIR_NAME)
+    std::env::var("VIBE_ACTION_PATH")
+        .ok()
+        .and_then(|p| resolve(p).ok())
+        .unwrap_or_else(|| config_dir().join(ACTIONS_DIR_NAME))
 }
 
-/// Get default config file path
-pub fn config_default_path() -> PathBuf {
-    config_dir().join(CONFIG_FILE_NAME)
+/// Get config file path (env VIBE_CONFIG or default).
+pub fn config_path() -> PathBuf {
+    std::env::var("VIBE_CONFIG")
+        .ok()
+        .and_then(|p| resolve(p).ok())
+        .unwrap_or_else(|| config_dir().join(CONFIG_FILE_NAME))
 }
 
 /// Resolve path to absolute form, expanding ~, . and ..
