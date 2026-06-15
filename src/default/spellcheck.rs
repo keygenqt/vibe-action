@@ -88,7 +88,7 @@ fi
                 action: r#"
 [Task]
 Fix all spelling mistakes, typos, and grammar errors in the text below.
-Strict rules: Output ONLY the corrected text. Preserve all code syntax, markdown tags, and formatting exactly as-is.
+Strict rules: Preserve all code syntax, markdown tags, and formatting exactly as-is.
 
 [Text]
 {tag_check_errors_filter}

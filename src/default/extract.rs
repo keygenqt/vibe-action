@@ -49,7 +49,6 @@ pub fn default() -> FlowModel {
 Read the log line and the search query.
 If the line matches the query — output the EXACT line unchanged.
 If the line does not match — output only a single dash: "-"
-Do NOT add any comments, explanations, or extra text.
 Do NOT skip lines. Process every line.
 
 [Query]

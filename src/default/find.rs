@@ -50,7 +50,6 @@ cat << 'EOF'
 Check if the [Content] code/comments contain the technical [Query] word, function name, or meaning.
 If YES — print ONLY the [File] path inside brackets: <{tag_files}>
 If NO — print ONLY: <->
-Strict rule: Output ONLY the bracketed value. Do not guess or imply from module imports. No descriptions, no comments.
 
 [Query]
 {query}

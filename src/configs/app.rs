@@ -13,6 +13,7 @@ use vibe_cluster::Cluster;
 use vibe_cluster::ConnectionParams;
 use vibe_cluster::Provider;
 
+use crate::configs::action::ActionConfig;
 use crate::configs::cluster::ClusterConfig;
 use crate::models::actions::ActionsModel;
 use crate::models::flow::FlowModel;
@@ -33,6 +34,8 @@ static GLOBAL_CONFIG: OnceLock<AppConfig> = OnceLock::new();
 pub struct AppConfig {
     /// Configuration version.
     pub version: String,
+    /// Action runtime configuration.
+    pub action: ActionConfig,
     /// LLM cluster nodes (local and cloud models).
     pub cluster: Vec<ClusterConfig>,
     /// Loaded actions model (not serialized).
@@ -45,13 +48,14 @@ impl Default for AppConfig {
     fn default() -> Self {
         Self {
             version: constants::CONFIG_VERSION.to_string(),
+            action: ActionConfig::default(),
             cluster: vec![
                 ClusterConfig::default(),
                 // @todo
-                // ClusterConfig {
-                //     host: "http://192.168.1.10:11434".to_string(),
-                //     ..ClusterConfig::default()
-                // },
+                ClusterConfig {
+                    host: "http://192.168.1.10:11434".to_string(),
+                    ..ClusterConfig::default()
+                },
             ],
             actions_model: None,
         }
@@ -138,6 +142,15 @@ impl AppConfig {
                     "Example:",
                     "  - ~/.vibe-action/actions",
                     "  - /usr/share/vibe-actions",
+                ],
+            ),
+            YamlComment::Field(
+                "action",
+                vec![
+                    "Action runtime configuration.",
+                    "",
+                    "system  - Global system prompt applied to all LLM requests",
+                    "retries - Number of retries for failed LLM steps (0 = no retries)",
                 ],
             ),
             YamlComment::Field(

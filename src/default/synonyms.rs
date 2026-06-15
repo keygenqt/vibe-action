@@ -29,8 +29,7 @@ pub fn default() -> FlowModel {
                 action: r#"
 [Task]
 Give me 5 professional programming terms or alternatives for the concept below.
-Write each option strictly on a new line.
-No numbers, no bullets, no introduction, no chat, no formatting. Just the options.
+Write each option strictly on a new line without numbering.
 
 [Concept]
 {query}

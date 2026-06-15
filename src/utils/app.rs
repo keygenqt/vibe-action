@@ -14,11 +14,12 @@ pub fn app_name() -> &'static str {
     "vibe-action"
 }
 
+/// Returns the application about text with styling.
 pub fn app_about() -> String {
     format!(
         r#"
 
-{} - AI-native command router
+{} - YAML shell/llm pipeline runner
 
 {}"#,
         "Vibe Action".bright_green().bold(),

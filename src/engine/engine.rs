@@ -22,11 +22,15 @@ pub struct Engine {
     output: String,
     /// Optional regex validation for the result.
     check_regex: Option<Regex>,
+    /// Default system prompt for all LLM requests.
+    pub system: String,
+    /// Number of retries for failed LLM steps (default: 0).
+    pub retries: u32,
 }
 
 impl Engine {
     /// Create a new engine from a flow, sorting actions by dependencies.
-    pub fn new(flow: &FlowModel) -> Result<Self> {
+    pub fn new(system: &str, retries: u32, flow: &FlowModel) -> Result<Self> {
         let sorted_actions = TopologicalSort::sort(flow)?;
         let resolved_output = sorted_actions
             .last()
@@ -41,6 +45,8 @@ impl Engine {
                 Some(pattern) => Some(Regex::new(pattern)?),
                 None => None,
             },
+            system: system.to_string(),
+            retries,
         })
     }
 
@@ -86,7 +92,7 @@ impl Engine {
     /// Execute action: fill tags, run shell/LLM, validate with regex, resolve types, store in context.
     pub async fn exec_action(&mut self, action: &ActionModel) -> Result<()> {
         // Execute action and get raw outputs with list metadata.
-        let (outputs, is_list) = Self::execute_action(action, &self.ctx).await?;
+        let (outputs, is_list) = self.execute_action(action, &self.ctx).await?;
         // Build the final ContextModel: list of items or single value.
         let data = if is_list {
             let inner_expect = match &action.expect {
@@ -109,7 +115,11 @@ impl Engine {
     }
 
     /// Fill template, execute shell/LLM, validate each output against regex.
-    async fn execute_action(action: &ActionModel, ctx: &Context) -> Result<(Vec<String>, bool)> {
+    async fn execute_action(
+        &self,
+        action: &ActionModel,
+        ctx: &Context,
+    ) -> Result<(Vec<String>, bool)> {
         let escape = action.r#type == ActionMode::Cmd;
         let compiled_check = action.check.as_ref().map(|p| Regex::new(p)).transpose()?;
         let expanded = ctx.fill(&action.action, escape)?;
@@ -140,7 +150,8 @@ impl Engine {
                 }
             }
             ActionMode::Llm => {
-                let cluster_outputs = Cluster::exec(&expanded.items).await?;
+                let cluster_outputs =
+                    Cluster::exec(&self.system, self.retries, &expanded.items).await?;
                 for cluster_res in cluster_outputs {
                     let result = cluster_res.result;
                     if let Some(re) = &compiled_check {

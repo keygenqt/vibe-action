@@ -19,7 +19,8 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         .unwrap_or_else(|e| exit_error!("{}", e))
         .apply_args(action_matches);
 
-    let mut engine = Engine::new(&flow).unwrap_or_else(|e| exit_error!("{}", e));
+    let mut engine = Engine::new(&config.action.system, config.action.retries, &flow)
+        .unwrap_or_else(|e| exit_error!("{}", e));
     let actions = engine.actions().to_vec();
     let total = actions.len();
 

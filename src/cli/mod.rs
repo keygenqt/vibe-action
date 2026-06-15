@@ -2,4 +2,3 @@
 //! Run and serve subcommands.
 
 pub mod action;
-pub mod prompt;

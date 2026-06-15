@@ -3,7 +3,7 @@
 
 use std::path::PathBuf;
 
-use clap::{Parser, Subcommand};
+use clap::Parser;
 
 use crate::configs::app::AppConfig;
 
@@ -28,22 +28,6 @@ struct App {
     /// Enable debug output (verbose logging).
     #[arg(long, global = true)]
     debug: bool,
-
-    #[command(subcommand)]
-    command: Option<Commands>,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    /// Execute a dynamic YAML action
-    Action,
-
-    /// Direct prompt to the LLM cluster
-    Prompt {
-        /// The prompt text
-        #[arg(required = true, num_args = 1..)]
-        text: Vec<String>,
-    },
 }
 
 #[tokio::main]
@@ -69,15 +53,8 @@ async fn main() {
 
     // Dispatch to the appropriate handler (built-in commands or dynamic actions)
     match matches.subcommand() {
-        Some(("action", sub_matches)) => {
-            if let Some((cmd_name, action_matches)) = sub_matches.subcommand() {
-                cli::action::execute(cmd_name, action_matches, config).await;
-            } else {
-                utils::clap::print_subcommand_help(&mut app_builder, "action");
-            }
-        }
-        Some(("prompt", sub_matches)) => {
-            cli::prompt::execute(sub_matches).await;
+        Some((cmd_name, action_matches)) => {
+            cli::action::execute(cmd_name, action_matches, config).await;
         }
         _ => {
             let _ = app_builder.print_help();

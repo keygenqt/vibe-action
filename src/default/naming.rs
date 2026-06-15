@@ -32,8 +32,6 @@ Generate 5-10 high-quality, professional programming naming suggestions based on
 Strictly follow the programming language or style constraints requested in the description if specified.
 Write strictly in English.
 Output each suggestion on a new line.
-Do not use numbers, bullets, commas, or quotes.
-Absolutely NO introductory text, NO markdown formatting, NO explanations.
 
 [Query]
 {query}

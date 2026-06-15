@@ -16,7 +16,9 @@ pub fn default() -> FlowModel {
                 name: "query".into(),
                 short: Some('q'),
                 expect: ExpectMode::String,
-                help: Some("What the regex should match (e.g., 'extract domain from email')".into()),
+                help: Some(
+                    "What the regex should match (e.g., 'extract domain from email')".into(),
+                ),
                 default: None,
                 values: Vec::new(),
             },
@@ -29,19 +31,17 @@ pub fn default() -> FlowModel {
                 values: Vec::new(),
             },
         ],
-        actions: vec![
-            ActionModel {
-                tag: "tag_regex".into(),
-                r#type: ActionMode::Llm,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: false,
-                action: r#"
+        actions: vec![ActionModel {
+            tag: "tag_regex".into(),
+            r#type: ActionMode::Llm,
+            expect: ExpectMode::String,
+            check: None,
+            confirm: false,
+            action: r#"
 [Task]
 Generate a valid regular expression pattern based on the user's [Query].
 If an [Example] string is provided, ensure the generated regex matches it correctly.
-Output ONLY the raw regular expression string.
-Strict rule: Absolutely NO explanations, NO markdown formatting, NO backticks (```). Output exactly 1 line.
+Output exactly 1 line.
 
 [Query]
 {query}
@@ -49,9 +49,8 @@ Strict rule: Absolutely NO explanations, NO markdown formatting, NO backticks (`
 [Example]
 {example}
                 "#
-                .trim()
-                .into(),
-            },
-        ],
+            .trim()
+            .into(),
+        }],
     }
 }

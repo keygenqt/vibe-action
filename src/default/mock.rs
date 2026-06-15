@@ -16,7 +16,10 @@ pub fn default() -> FlowModel {
                 name: "query".into(),
                 short: Some('q'),
                 expect: ExpectMode::String,
-                help: Some("Describe the data you need (e.g., '5 users with id, name, and unique uuid')".into()),
+                help: Some(
+                    "Describe the data you need (e.g., '5 users with id, name, and unique uuid')"
+                        .into(),
+                ),
                 default: None,
                 values: Vec::new(),
             },
@@ -29,25 +32,22 @@ pub fn default() -> FlowModel {
                 values: Vec::new(),
             },
         ],
-        actions: vec![
-            ActionModel {
-                tag: "tag_mock".into(),
-                r#type: ActionMode::Llm,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: false,
-                action: r#"
+        actions: vec![ActionModel {
+            tag: "tag_mock".into(),
+            r#type: ActionMode::Llm,
+            expect: ExpectMode::String,
+            check: None,
+            confirm: false,
+            action: r#"
 [Task]
 Generate a realistic mock data array based on the user's [Query].
 Format the output strictly as valid raw {format} data.
-Strict rule: Absolutely NO explanations, NO markdown formatting, NO backticks (```). Output ONLY the raw data structure.
 
 [Query]
 {query}
                 "#
-                .trim()
-                .into(),
-            },
-        ],
+            .trim()
+            .into(),
+        }],
     }
 }

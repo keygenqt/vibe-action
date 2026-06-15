@@ -2,7 +2,7 @@
 //! Sends prompts to vibe-cluster and returns model responses.
 
 use anyhow::Result;
-use vibe_cluster::Prompt;
+use vibe_cluster::{BatchOptions, Prompt};
 
 use crate::configs::app::AppConfig;
 
@@ -18,21 +18,30 @@ pub struct Cluster;
 
 impl Cluster {
     /// Execute an LLM prompt batch concurrently across the distributed cluster.
-    pub async fn exec(prompts: &[String]) -> Result<Vec<ClusterResult>> {
+    pub async fn exec(
+        system: &str,
+        retries: u32,
+        prompts: &[String],
+    ) -> Result<Vec<ClusterResult>> {
         let config = AppConfig::instance()?;
         let cluster = config.create_cluster()?;
+
+        let options = BatchOptions {
+            retries: Some(retries as usize),
+            ..BatchOptions::default()
+        };
 
         let cluster_prompts: Vec<Prompt> = prompts
             .iter()
             .map(|p| Prompt {
                 key: None,
-                system: None,
+                system: Some(system.to_string()),
                 user: p.clone(),
             })
             .collect();
 
         let cluster_results = cluster
-            .batch_call(&cluster_prompts, |_, _, _| {})
+            .batch_call_with_options(&cluster_prompts, &options, |_, _, _| {})
             .await
             .map_err(|e| anyhow::anyhow!("Cluster batch call failed: {}", e))?;
 

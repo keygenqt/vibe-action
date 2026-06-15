@@ -28,14 +28,15 @@ pub fn default() -> FlowModel {
                 confirm: false,
                 action: r#"
 [Task]
-Rewrite the input text to make its tone professional, calm, and polite.
-NEVER repeat rude, obscene, or aggressive words.
-CRITICAL: Reply strictly in the EXACT SAME LANGUAGE as the input text.
+You receive a text that may contain rude or aggressive language.
+Transform it into a professional, calm, and polite equivalent.
+Keep the original meaning. Keep the same language.
+Output the transformed text.
 
 [Examples]
-Input: You are an idiot, do it faster. -> Result: Please focus and speed up the process.
-Input: 你真笨，快点做！ -> Result: 请集中精力，加快工作进度。
-Input: Это что за говнокод? Перепиши нормально! -> Result: Пожалуйста, проведите рефакторинг данного участка кода.
+Input: You are an idiot, do it faster. -> Please focus and speed up the process.
+Input: 你真笨，快点做！ -> 请集中精力，加快工作进度。
+Input: Меня заебал этот код. -> Меня расстраивает этот код, нужно его улучшить.
 
 [Input]
 {query}
