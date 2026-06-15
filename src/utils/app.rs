@@ -19,7 +19,7 @@ pub fn app_about() -> String {
     format!(
         r#"
 
-{} - YAML shell/llm pipeline runner
+{} - command router for shell and LLM tasks via YAML pipelines
 
 {}"#,
         "Vibe Action".bright_green().bold(),

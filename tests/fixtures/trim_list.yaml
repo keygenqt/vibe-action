@@ -1,0 +1,16 @@
+name: trim-list
+about: Test trim modifier filtering list
+args: []
+actions:
+  - tag: tag_input
+    type: cmd
+    expect: list<string>
+    action: |
+      echo "="
+      echo "keep"
+      echo "="
+
+  - tag: tag_trimmed
+    type: value
+    expect: string
+    action: '{tag_input|trim:=|join}'

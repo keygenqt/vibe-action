@@ -83,7 +83,18 @@ impl AppConfig {
 
         // Initialize tracing if debug enabled.
         if debug {
-            let filter = "vibe_action=debug";
+            let level = std::env::var("VIBE_LOG_LEVEL").unwrap_or_else(|_| "debug".to_string());
+            let level = match level.as_str() {
+                "trace" | "debug" | "info" | "warn" | "error" => level,
+                _ => {
+                    eprintln!(
+                        "Invalid VIBE_LOG_LEVEL '{}', falling back to 'debug'",
+                        level
+                    );
+                    "debug".to_string()
+                }
+            };
+            let filter = format!("vibe_action={}", level);
             let _ = tracing_subscriber::fmt().with_env_filter(filter).try_init();
         }
 

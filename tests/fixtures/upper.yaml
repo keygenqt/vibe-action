@@ -1,0 +1,13 @@
+name: upper
+about: Test upper modifier
+args: []
+actions:
+  - tag: tag_input
+    type: value
+    expect: string
+    action: hello
+
+  - tag: tag_upper
+    type: value
+    expect: string
+    action: '{tag_input|upper}'

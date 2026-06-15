@@ -1,0 +1,16 @@
+name: join-uniq
+about: Test join modifier with uniq
+args: []
+actions:
+  - tag: tag_input
+    type: cmd
+    expect: list<string>
+    action: |
+      echo "a"
+      echo "b"
+      echo "a"
+
+  - tag: tag_joined
+    type: value
+    expect: string
+    action: '{tag_input|join:uniq}'

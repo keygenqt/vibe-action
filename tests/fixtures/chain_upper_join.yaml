@@ -1,0 +1,15 @@
+name: chain-upper-join
+about: Test modifier chain upper and join
+args: []
+actions:
+  - tag: tag_input
+    type: cmd
+    expect: list<string>
+    action: |
+      echo "hello"
+      echo "world"
+
+  - tag: tag_result
+    type: value
+    expect: string
+    action: '{tag_input|upper|join}'

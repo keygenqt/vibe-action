@@ -1,0 +1,13 @@
+name: empty-modifier
+about: Test empty modifier passes through
+args: []
+actions:
+  - tag: tag_input
+    type: value
+    expect: string
+    action: hello
+
+  - tag: tag_result
+    type: value
+    expect: string
+    action: '{tag_input|}'

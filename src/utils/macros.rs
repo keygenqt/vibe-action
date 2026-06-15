@@ -147,55 +147,59 @@ macro_rules! exit_error {
 macro_rules! print_rich_block {
     ($($arg:tt)*) => {{
         let msg = format!($($arg)*);
-        let max_width = 120usize;
-        let wrapped: Vec<String> = msg
-            .lines()
-            .flat_map(|line| {
-                let chars: Vec<char> = line.chars().collect();
-                if chars.len() <= max_width {
-                    vec![line.to_string()]
-                } else {
-                    let mut result = Vec::new();
-                    let mut start = 0;
-                    while start < chars.len() {
-                        let mut end = (start + max_width).min(chars.len());
+        if $crate::configs::app::AppConfig::is_debug() {
+            tracing::info!("{}", $crate::utils::macros::strip_ansi(&msg));
+        } else {
+            let max_width = 120usize;
+            let wrapped: Vec<String> = msg
+                .lines()
+                .flat_map(|line| {
+                    let chars: Vec<char> = line.chars().collect();
+                    if chars.len() <= max_width {
+                        vec![line.to_string()]
+                    } else {
+                        let mut result = Vec::new();
+                        let mut start = 0;
+                        while start < chars.len() {
+                            let mut end = (start + max_width).min(chars.len());
 
-                        if end < chars.len() && !chars[end].is_whitespace() && !chars[end - 1].is_whitespace() {
-                            let mut space_idx = end;
-                            while space_idx > start && !chars[space_idx].is_whitespace() {
-                                space_idx -= 1;
+                            if end < chars.len() && !chars[end].is_whitespace() && !chars[end - 1].is_whitespace() {
+                                let mut space_idx = end;
+                                while space_idx > start && !chars[space_idx].is_whitespace() {
+                                    space_idx -= 1;
+                                }
+                                if space_idx > start {
+                                    end = space_idx;
+                                }
                             }
-                            if space_idx > start {
-                                end = space_idx;
+                            let sub_str: String = chars[start..end].iter().collect();
+                            if start == 0 || !sub_str.trim().is_empty() || sub_str.len() == max_width {
+                                result.push(sub_str.to_string());
+                            }
+                            start = end;
+                            if start < chars.len() && chars[start].is_whitespace() {
+                                start += 1;
                             }
                         }
-                        let sub_str: String = chars[start..end].iter().collect();
-                        if start == 0 || !sub_str.trim().is_empty() || sub_str.len() == max_width {
-                            result.push(sub_str.to_string());
-                        }
-                        start = end;
-                        if start < chars.len() && chars[start].is_whitespace() {
-                            start += 1;
-                        }
+                        result
                     }
-                    result
-                }
-            })
-            .collect();
+                })
+                .collect();
 
-        let width = wrapped.iter()
-            .map(|l| l.chars().count())
-            .max()
-            .unwrap_or(0)
-            .max(13);
+            let width = wrapped.iter()
+                .map(|l| l.chars().count())
+                .max()
+                .unwrap_or(0)
+                .max(13);
 
-        let top = format!("── success ──{}", "─".repeat(width.saturating_sub(13)));
-        let bottom = "─".repeat(width);
+            let top = format!("── success ──{}", "─".repeat(width.saturating_sub(13)));
+            let bottom = "─".repeat(width);
 
-        println!("\x1b[1m\x1b[32m{}\x1b[0m", top);
-        for line in &wrapped {
-            println!("\x1b[37m{}\x1b[0m", line);
+            println!("\x1b[1m\x1b[32m{}\x1b[0m", top);
+            for line in &wrapped {
+                println!("\x1b[37m{}\x1b[0m", line);
+            }
+            println!("\x1b[1m\x1b[32m{}\x1b[0m", bottom);
         }
-        println!("\x1b[1m\x1b[32m{}\x1b[0m", bottom);
     }};
 }

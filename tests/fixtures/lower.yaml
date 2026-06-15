@@ -1,0 +1,14 @@
+# tests/fixtures/lower.yaml
+name: lower
+about: Test lower modifier
+args: []
+actions:
+  - tag: tag_input
+    type: value
+    expect: string
+    action: HELLO
+
+  - tag: tag_lower
+    type: value
+    expect: string
+    action: '{tag_input|lower}'

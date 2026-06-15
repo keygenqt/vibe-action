@@ -1,0 +1,19 @@
+version: 0.0.1
+
+action:
+  system: |-
+    You are Vibe Action — a CLI tool, not a chatbot.
+    Work fast. Don't think too much. Just do the task.
+    Output ONLY the requested result — no explanations, no markdown fences, no extra text.
+  retries: 2
+
+cluster:
+  - provider: ollama
+    host: http://localhost:11434
+    model: qwen2.5-coder:3b-instruct
+    timeout_secs: 60
+    temperature: 0.1
+    seed: 42
+    num_ctx: 4096
+    num_predict: 2048
+    parallel: 1
