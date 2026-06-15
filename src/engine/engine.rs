@@ -11,11 +11,14 @@ use crate::engine::sort::TopologicalSort;
 use crate::models::action::{ActionMode, ActionModel, ExpectMode};
 use crate::models::context::ContextModel;
 use crate::models::flow::FlowModel;
+use crate::modifier::modifier::ModifierRegistry;
 
 /// Pipeline execution engine — resolves dependencies, executes actions, manages context.
 pub struct Engine {
     /// Runtime context holding resolved tag values.
     ctx: Context,
+    /// Registry of pipe modifiers for transforming tag values.
+    modifier: ModifierRegistry,
     /// Actions in topological order (dependencies first).
     actions: Vec<ActionModel>,
     /// Tag name for the final result.
@@ -39,6 +42,7 @@ impl Engine {
 
         Ok(Self {
             ctx: Context::new(),
+            modifier: ModifierRegistry::new(),
             actions: sorted_actions,
             output: resolved_output,
             check_regex: match &flow.check {
@@ -57,8 +61,7 @@ impl Engine {
 
     /// Get the enriched action text with all tags filled, formatted for display.
     pub fn action_display(&self, action: &ActionModel) -> String {
-        let is_encode = action.r#type == ActionMode::Cmd;
-        let filled = match self.ctx.fill(&action.action, is_encode) {
+        let filled = match self.ctx.fill(&action, &self.modifier) {
             Ok(expanded) => expanded.items.join(
                 "\n\n---------------------------------------------------------------------------\n\n",
             ),
@@ -120,9 +123,8 @@ impl Engine {
         action: &ActionModel,
         ctx: &Context,
     ) -> Result<(Vec<String>, bool)> {
-        let escape = action.r#type == ActionMode::Cmd;
         let compiled_check = action.check.as_ref().map(|p| Regex::new(p)).transpose()?;
-        let expanded = ctx.fill(&action.action, escape)?;
+        let expanded = ctx.fill(&action, &self.modifier)?;
         let mut results = Vec::with_capacity(expanded.items.len());
 
         match action.r#type {

@@ -12,6 +12,7 @@ mod configs;
 mod default;
 mod engine;
 mod models;
+mod modifier;
 mod utils;
 mod validate;
 

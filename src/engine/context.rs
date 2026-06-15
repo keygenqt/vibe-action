@@ -4,9 +4,10 @@
 use anyhow::Result;
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
-use std::fmt::Write;
 
+use crate::models::action::{ActionMode, ActionModel};
 use crate::models::context::ContextModel;
+use crate::modifier::modifier::ModifierRegistry;
 
 /// Result of expanding a template with context values.
 pub struct ExpandedTemplate {
@@ -40,11 +41,15 @@ impl Context {
     }
 
     /// Fill {tag} placeholders and return ExpandedTemplate.
-    pub fn fill(&self, text: &str, escape: bool) -> Result<ExpandedTemplate> {
-        // Supports modifiers with special chars: {tag|trim:-}, {tag|join}, {tag|upper}
+    pub fn fill(
+        &self,
+        action: &ActionModel,
+        modifier: &ModifierRegistry,
+    ) -> Result<ExpandedTemplate> {
+        let is_encode = action.r#type == ActionMode::Cmd;
         let re = Regex::new(r"\{(\w+)(?:\|([^}]+))?\}").unwrap();
 
-        let clean_text = Self::strip_all_template_quotes(text, escape);
+        let clean_text = Self::strip_all_template_quotes(&action.action, is_encode);
         let mut processed_tags = HashSet::new();
         let mut results = vec![clean_text.clone()];
         let mut is_list = false;
@@ -58,13 +63,13 @@ impl Context {
             }
 
             if let Some(context_value) = self.values.get(tag_name) {
-                let modifier = cap.get(2).map(|m| m.as_str()).unwrap_or_default();
-                let processed_value = self.apply_modifier(modifier, context_value, escape)?;
+                let modifier_value = cap.get(2).map(|m| m.as_str()).unwrap_or_default();
+                let processed_value = modifier.apply_modifier(modifier_value, context_value)?;
 
                 match processed_value {
                     ContextModel::String(s) => {
                         let mut final_string = s;
-                        if escape {
+                        if is_encode {
                             final_string = shell_words::quote(&final_string).to_string();
                         }
                         for current in results.iter_mut() {
@@ -77,7 +82,7 @@ impl Context {
                         let mut next = Vec::new();
                         for item in items {
                             let mut s = item.to_string();
-                            if escape {
+                            if is_encode {
                                 s = shell_words::quote(&s).to_string();
                             }
                             for current in &results {
@@ -96,102 +101,6 @@ impl Context {
             items: results,
             is_list,
         })
-    }
-
-    /// Apply pipe modifier to a resolved ContextModel value.
-    fn apply_modifier(
-        &self,
-        modifier: &str,
-        value: &ContextModel,
-        escape: bool,
-    ) -> Result<ContextModel> {
-        let (name, arg) = modifier.split_once(':').unwrap_or((modifier, ""));
-        match name {
-            "join" => {
-                if let ContextModel::List(items) = value {
-                    let mut buffer = String::new();
-                    let mut seen = std::collections::HashSet::new();
-                    let is_uniq = arg == "uniq";
-                    for item in items {
-                        let s = item.to_string();
-                        if s.is_empty() {
-                            continue;
-                        }
-                        if is_uniq && !seen.insert(s.clone()) {
-                            continue;
-                        }
-                        if !buffer.is_empty() {
-                            buffer.push('\n');
-                        }
-                        if escape {
-                            write!(buffer, "{}", shell_words::quote(&s))?;
-                        } else {
-                            buffer.push_str(&s);
-                        }
-                    }
-                    Ok(ContextModel::String(buffer))
-                } else {
-                    anyhow::bail!("Modifier 'join' expects a list, but got a scalar value")
-                }
-            }
-            "upper" => {
-                if let ContextModel::String(s) = value {
-                    Ok(ContextModel::String(s.to_uppercase()))
-                } else {
-                    anyhow::bail!("Modifier 'upper' expects a string")
-                }
-            }
-            "lower" => {
-                if let ContextModel::String(s) = value {
-                    Ok(ContextModel::String(s.to_lowercase()))
-                } else {
-                    anyhow::bail!("Modifier 'lower' expects a string")
-                }
-            }
-            "trim" => {
-                let chars: Vec<char> = arg.chars().collect();
-                match value {
-                    ContextModel::String(s) => {
-                        let trimmed = s
-                            .trim_matches(|c: char| c.is_whitespace() || chars.contains(&c))
-                            .to_string();
-                        if arg.is_empty() {
-                            Ok(ContextModel::String(trimmed))
-                        } else if trimmed == arg {
-                            Ok(ContextModel::String(String::new()))
-                        } else {
-                            Ok(ContextModel::String(trimmed))
-                        }
-                    }
-                    ContextModel::List(items) => {
-                        let filtered: Vec<ContextModel> = items
-                            .iter()
-                            .filter(|i| {
-                                let s = i
-                                    .to_string()
-                                    .trim_matches(|c: char| c.is_whitespace() || chars.contains(&c))
-                                    .to_string();
-                                if arg.is_empty() {
-                                    !s.is_empty()
-                                } else {
-                                    s != arg
-                                }
-                            })
-                            .map(|i| {
-                                let s = i
-                                    .to_string()
-                                    .trim_matches(|c: char| c.is_whitespace() || chars.contains(&c))
-                                    .to_string();
-                                ContextModel::String(s)
-                            })
-                            .collect();
-                        Ok(ContextModel::List(filtered))
-                    }
-                    _ => anyhow::bail!("Modifier 'trim' expects a string or list"),
-                }
-            }
-            _ => Ok(value.clone()),
-        }
     }
 
     /// Removes surrounding single or double quotes from any {tag} placeholder.
