@@ -1,0 +1,8 @@
+name: expect-string
+about: Test expect string
+args: []
+actions:
+  - tag: tag_val
+    type: value
+    expect: string
+    action: hello

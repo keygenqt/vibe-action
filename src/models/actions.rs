@@ -53,8 +53,11 @@ impl ActionsModel {
                     .extension()
                     .map_or(false, |e| e == "yaml" || e == "yml")
                 {
-                    let flow = FlowModel::load(&file_path.to_path_buf())?;
-                    actions.flows.push(flow);
+                    if let Ok(flow) = FlowModel::load(&file_path.to_path_buf()) {
+                        actions.flows.push(flow);
+                    } else {
+                        tracing::warn!("Failed to load action file: {}", file_path.display());
+                    }
                 }
             }
         } else if path.is_file() {

@@ -20,7 +20,7 @@ actions:
 ```
 
 ```bash
-$ vibe-action action hello
+$ vibe-action hello
 info: completed in 0.01s
 ── success ──
 Hello, World!

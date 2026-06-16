@@ -36,12 +36,12 @@ cargo build --release
 On first run, Vibe Action creates the config and default actions:
 
 ```bash
-$ vibe-action action --help
+$ vibe-action --help
 ```
 
 This creates:
 
-- `~/.vibe-action/config.yaml` — cluster configuration
+- `~/.vibe-action/config.yaml` — configuration
 - `~/.vibe-action/actions/` — 10 built-in actions
 
 ## Configure Cluster
@@ -49,7 +49,11 @@ This creates:
 Edit `~/.vibe-action/config.yaml` to point to your Ollama instance:
 
 ```yaml
-version: 0.0.1
+version: '0.0.2'
+
+action:
+  system: 'You are Vibe Action — a CLI tool. Output ONLY the result.'
+  retries: 2
 
 cluster:
   - provider: ollama
@@ -67,27 +71,24 @@ cluster:
 
 ```bash
 # AI-powered commit
-vibe-action action commit -p .
+vibe-action commit -p .
 
 # Translate a file
-vibe-action action translate -f README.md -l Russian
+vibe-action translate -f README.md -l Russian
 
 # Extract errors from logs
-vibe-action action extract -f app.log -q "find all errors"
-
-# Direct prompt to cluster
-vibe-action prompt "Explain Rust lifetimes"
+vibe-action extract -f app.log -q "find all errors"
 
 # See all available actions
-vibe-action action --help
+vibe-action --help
 ```
 
 ## Debug Mode
 
-Use `--debug` to see what's happening under the hood:
+Set `VIBE_DEBUG=1` to see what's happening under the hood:
 
 ```bash
-vibe-action --debug action commit -p .
+VIBE_DEBUG=1 vibe-action commit -p .
 ```
 
 Shows each pipeline step: original command, resolved template, and result.

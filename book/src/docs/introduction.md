@@ -1,19 +1,18 @@
 # Introduction
 
 Vibe Action is a command router that executes shell commands and LLM prompts via simple YAML pipelines.
-Just say what you want — it figures out the rest.
 
 ## Why Vibe Action
 
 - ⚡ **One command = complex pipeline** — chain shell scripts and LLM calls into a single action
 - 🔗 **Tag system** — connect steps via `{tag}` references with automatic dependency graph
+- 🔧 **Modifiers** — `{tag|upper|trim|join}` transform values inline
+- 🌳 **AST parsing** — `{tag|ast:rs}` extract code structure for smarter prompts
 - 🤖 **Batch LLM** — parallel execution across all cluster nodes
 - ✅ **Type-safe** — validate outputs with types and regex
 - 🔐 **Confirmations** — ask before executing dangerous commands
 - 🎯 **CLI-first** — no browser, no context switching. Everything in the terminal
-- 🔒 **Secure** — runs locally on your hardware
-- 🆓 **Free** — open source, local models via Ollama. No subscriptions
-- 📦 **Modular** — share YAML files like Homebrew formulas
+- 🔒 **Local & free** — open source, local models via Ollama. No subscriptions
 - 🦀 **Fast** — built in Rust
 
 ## Key Concepts

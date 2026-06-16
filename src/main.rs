@@ -23,12 +23,11 @@ struct App;
 
 #[tokio::main]
 async fn main() {
-    let debug = std::env::var("VIBE_DEBUG")
-        .map(|v| v == "1")
-        .unwrap_or(false);
+    let debug = std::env::var("VIBE_DEBUG").unwrap_or("0".into());
+    let level = std::env::var("VIBE_LOG_LEVEL").unwrap_or("0".into());
 
     // Initialize configuration.
-    if let Err(e) = AppConfig::init(debug) {
+    if let Err(e) = AppConfig::init(debug, level) {
         exit_error!("{}", e);
     }
 

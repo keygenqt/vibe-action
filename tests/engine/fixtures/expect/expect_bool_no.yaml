@@ -1,0 +1,8 @@
+name: expect-bool-no
+about: Test expect bool no
+args: []
+actions:
+  - tag: tag_val
+    type: value
+    expect: bool
+    action: 'no'

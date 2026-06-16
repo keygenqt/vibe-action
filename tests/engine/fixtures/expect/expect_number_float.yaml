@@ -1,0 +1,8 @@
+name: expect-number-float
+about: Test expect number float
+args: []
+actions:
+  - tag: tag_val
+    type: value
+    expect: number
+    action: '3.14'

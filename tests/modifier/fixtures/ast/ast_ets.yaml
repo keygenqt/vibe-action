@@ -1,0 +1,36 @@
+name: ast-ets
+about: Test AST modifier for ArkTS
+args: []
+actions:
+  - tag: tag_code
+    type: value
+    expect: string
+    action: |
+      /**
+       * Adds two numbers
+       */
+      function add(a: number, b: number): number {
+          return a + b;
+      }
+
+      /**
+       * User interface
+       */
+      export interface User {
+          name: string;
+          age: number;
+      }
+
+      /**
+       * Color enum
+       */
+      export enum Color {
+          Red,
+          Green,
+          Blue
+      }
+
+  - tag: tag_ast
+    type: value
+    expect: string
+    action: '{tag_code|ast:ets}'

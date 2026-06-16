@@ -4,74 +4,74 @@
 benchmarks:
   commit:
     # Basic execution test without path arguments
-    - cargo run -- action commit
+    - cargo run -- commit
     # Fails if there are no changes in the repository
-    - cargo run -- action commit -p .
+    - cargo run -- commit -p .
     # Generates a commit message if changes exist in a specific directory
-    - cargo run -- action commit -p ./src
+    - cargo run -- commit -p ./src
 
   extract:
     # Extracts semantic errors and critical system failures
-    - cargo run -- action extract -f fixtures/app.log -q 'show all error and critical lines'
+    - cargo run -- extract -f fixtures/app.log -q 'show all error and critical lines'
     # Finds security-related logs using Russian slang/context
-    - cargo run -- action extract -f fixtures/app.log -q 'покажи проблемы с безопасностью или правами доступа'
+    - cargo run -- extract -f fixtures/app.log -q 'покажи проблемы с безопасностью или правами доступа'
     # Edge case: searches for non-existent log entities (tests empty block output)
-    - cargo run -- action extract -f fixtures/app.log -q 'find all wordpress plugin updates'
+    - cargo run -- extract -f fixtures/app.log -q 'find all wordpress plugin updates'
 
   find:
     # Discovers a specific technical macro across the codebase
-    - cargo run -- action find -p ./src/utils -q 'где объявлен макрос print_rich_block?'
+    - cargo run -- find -p ./src/utils -q 'где объявлен макрос print_rich_block?'
     # Searches by logic meaning (topological dependency sorting modules)
-    - cargo run -- action find -p ./src/engine -q 'найди файлы, которые занимаются топологической сортировкой экшенов'
+    - cargo run -- find -p ./src/engine -q 'найди файлы, которые занимаются топологической сортировкой экшенов'
     # Edge case: searches for missing architectural components
-    - cargo run -- action find -p ./src/engine -q 'where is the docker-compose orchestrator configuration?'
+    - cargo run -- find -p ./src/engine -q 'where is the docker-compose orchestrator configuration?'
 
   mock:
     # Synthesizes a valid relational user dataset in JSON format with UUIDs
-    - cargo run -- action mock -f json -q '2 users with unique uuid, email, and localized full name'
-      # Generates a massive product catalog in YAML format based on a Russian prompt
-    - cargo run -- action mock -f yaml -q '3 товара с id, ценой и hex цветом'
+    - cargo run -- mock -f json -q '2 users with unique uuid, email, and localized full name'
+    # Generates a massive product catalog in YAML format based on a Russian prompt
+    - cargo run -- mock -f yaml -q '3 товара с id, ценой и hex цветом'
     # Outputs a flat CSV structure for financial auditing tests
-    - cargo run -- action mock -f csv -q '5 bank transactions with date, amount, and category'
+    - cargo run -- mock -f csv -q '5 bank transactions with date, amount, and category'
 
   naming:
     # Recommends snake_case naming options for Rust functions
-    - cargo run -- action naming -q 'функция сортировки данных для Rust'
+    - cargo run -- naming -q 'функция сортировки данных для Rust'
     # Recommends clean-code naming options for a complex graph engine description
-    - cargo run -- action naming -q 'сервис для динамической сборки направленного ациклического графа зависимостей'
+    - cargo run -- naming -q 'сервис для динамической сборки направленного ациклического графа зависимостей'
     # Suggests a concise boolean variable name matching a specific codebase function
-    - cargo run -- action naming -q 'boolean variable that checks if markdown code block token exists'
+    - cargo run -- naming -q 'boolean variable that checks if markdown code block token exists'
 
   regex:
     # Classic regex pattern synthesis for IPv4 validation with a strict string example
-    - cargo run -- action regex -q 'IPv4 address' -e '192.168.1.1'
+    - cargo run -- regex -q 'IPv4 address' -e '192.168.1.1'
     # Generates a token extractor regex pattern without a sample string provided
-    - cargo run -- action regex -q 'extract Bearer token from HTTP Authorization header'
+    - cargo run -- regex -q 'extract Bearer token from HTTP Authorization header'
     # Validates standard email address syntax using a Russian description
-    - cargo run -- action regex -q 'регулярка для валидации email адреса'
+    - cargo run -- regex -q 'регулярка для валидации email адреса'
 
   spellcheck:
     # Audits Rust code file to fix typos within documentation strings and comments
-    - cargo run -- action spellcheck -f ./src/cli/action.rs
+    - cargo run -- spellcheck -f ./src/cli/action.rs
     # Validates grammar while strictly preserving Markdown layout and styles
-    - cargo run -- action spellcheck -f ./fixtures/README.md
+    - cargo run -- spellcheck -f ./fixtures/README.md
 
   synonyms:
     # Identifies technical architectural alternatives for a core concept
-    - cargo run -- action synonyms -q 'middleware'
+    - cargo run -- synonyms -q 'middleware'
     # Discovers system-level synonyms for a notification delivery design pattern
-    - cargo run -- action synonyms -q 'event emitter notification broadcast'
+    - cargo run -- synonyms -q 'event emitter notification broadcast'
 
   tone:
     # Analyzes aggressive Russian phrases to gauge emotional and passive toxicity levels
-    - cargo run -- action tone -q 'Какого хрена ты до сих пор не на работе?'
+    - cargo run -- tone -q 'Какого хрена ты до сих пор не на работе?'
     # Evaluates explicit, high-anger English developer communication profiles
-    - cargo run -- action tone -q 'How fucking long do I have to wait for your code?'
+    - cargo run -- tone -q 'How fucking long do I have to wait for your code?'
     # Detects harsh cultural slang and raw frustration within Chinese coding comments
-    - cargo run -- action tone -q '你写代码写得像个该死的老外！'
+    - cargo run -- tone -q '你写代码写得像个该死的老外！'
 
   translate:
     # Translates comprehensive project README documentation into Russian
-    - cargo run -- action translate -f ./fixtures/README.md -l 'Russian'
+    - cargo run -- translate -f ./fixtures/README.md -l 'Russian'
     # Converts a technical text manifest file layout into Chinese
-    - cargo run -- action translate -f ./fixtures/README.md -l 'Chinese'
+    - cargo run -- translate -f ./fixtures/README.md -l 'Chinese'

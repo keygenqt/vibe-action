@@ -1,0 +1,16 @@
+name: split
+about: Test split modifier
+args: []
+actions:
+  - tag: tag_input
+    type: value
+    expect: string
+    action: |
+      a
+      b
+      c
+
+  - tag: tag_split
+    type: value
+    expect: string
+    action: '{tag_input|split|join}'

@@ -1,0 +1,13 @@
+name: circular
+about: Test circular dependency detection
+args: []
+actions:
+  - tag: tag_a
+    type: value
+    expect: string
+    action: '{tag_b}'
+
+  - tag: tag_b
+    type: value
+    expect: string
+    action: '{tag_a}'

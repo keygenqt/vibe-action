@@ -31,13 +31,14 @@ pub fn default() -> FlowModel {
                 values: Vec::new(),
             },
         ],
-        actions: vec![ActionModel {
-            tag: "tag_regex".into(),
-            r#type: ActionMode::Llm,
-            expect: ExpectMode::String,
-            check: None,
-            confirm: false,
-            action: r#"
+        actions: vec![
+            ActionModel {
+                tag: "tag_regex".into(),
+                r#type: ActionMode::Llm,
+                expect: ExpectMode::String,
+                check: None,
+                confirm: false,
+                action: r#"
 [Task]
 Generate a valid regular expression pattern based on the user's [Query].
 If an [Example] string is provided, ensure the generated regex matches it correctly.
@@ -49,8 +50,17 @@ Output exactly 1 line.
 [Example]
 {example}
                 "#
-            .trim()
-            .into(),
-        }],
+                .trim()
+                .into(),
+            },
+            ActionModel {
+                tag: "tag_value".into(),
+                r#type: ActionMode::Value,
+                expect: ExpectMode::String,
+                check: None,
+                confirm: false,
+                action: "{tag_regex|trim:`}".into(),
+            },
+        ],
     }
 }

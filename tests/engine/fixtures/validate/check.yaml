@@ -1,0 +1,9 @@
+name: check
+about: Test regex check validation
+args: []
+check: '^\d+$'
+actions:
+  - tag: tag_val
+    type: value
+    expect: string
+    action: '42'

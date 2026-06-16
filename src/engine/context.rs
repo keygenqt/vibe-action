@@ -8,6 +8,7 @@ use std::collections::{HashMap, HashSet};
 use crate::models::action::{ActionMode, ActionModel};
 use crate::models::context::ContextModel;
 use crate::modifier::modifier::ModifierRegistry;
+use crate::utils::constants;
 
 /// Result of expanding a template with context values.
 pub struct ExpandedTemplate {
@@ -47,7 +48,7 @@ impl Context {
         modifier: &ModifierRegistry,
     ) -> Result<ExpandedTemplate> {
         let is_encode = action.r#type == ActionMode::Cmd;
-        let re = Regex::new(r"\{(\w+)(?:\|([^}]+))?\}").unwrap();
+        let re = Regex::new(constants::TAG_PLACEHOLDER_PATTERN).unwrap();
 
         let clean_text = Self::strip_all_template_quotes(&action.action, is_encode);
         let mut processed_tags = HashSet::new();
@@ -64,6 +65,9 @@ impl Context {
 
             if let Some(context_value) = self.values.get(tag_name) {
                 let modifier_value = cap.get(2).map(|m| m.as_str()).unwrap_or_default();
+                if modifier_value.is_empty() && placeholder.contains('|') {
+                    anyhow::bail!("Empty modifier not allowed in '{}'", placeholder);
+                }
                 let processed_value = modifier.apply_modifier(modifier_value, context_value)?;
 
                 match processed_value {
@@ -108,23 +112,17 @@ impl Context {
         if !escape {
             return text.to_string();
         }
-        let re_clean = regex::Regex::new(r#"(['"])\{(\w+)(?:\|([^}]+))?\}(['"])"#).unwrap();
-        re_clean
-            .replace_all(text, |caps: &regex::Captures| {
-                let left = caps.get(1).unwrap().as_str();
-                let tag = caps.get(2).unwrap().as_str();
-                let modifier = caps
-                    .get(3)
-                    .map(|m| format!("|{}", m.as_str()))
-                    .unwrap_or_default();
-                let right = caps.get(4).unwrap().as_str();
-
-                if left == right {
-                    format!("{{{}{}}}", tag, modifier)
-                } else {
-                    caps.get(0).unwrap().as_str().to_string()
+        let re = regex::Regex::new(constants::TAG_PLACEHOLDER_PATTERN).unwrap();
+        let mut result = text.to_string();
+        for cap in re.captures_iter(text) {
+            let placeholder = cap.get(0).unwrap().as_str();
+            for quote in &["'", "\""] {
+                let quoted = format!("{}{}{}", quote, placeholder, quote);
+                if result.contains(&quoted) {
+                    result = result.replace(&quoted, placeholder);
                 }
-            })
-            .to_string()
+            }
+        }
+        result
     }
 }

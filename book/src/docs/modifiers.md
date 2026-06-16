@@ -48,16 +48,60 @@ Transforms text to lowercase.
 | --------- | --------- |
 | `"HELLO"` | `"hello"` |
 
+## `take`
+
+Returns first N characters of a string or first N elements of a list.
+
+| Syntax          | Description                    |
+| --------------- | ------------------------------ |
+| `{tag\|take:N}` | Take first N chars or elements |
+
+| Input             | `{tag\|take:1}` | `{tag\|take:2}` |
+| ----------------- | --------------- | --------------- |
+| `"hello"`         | `"h"`           | `"he"`          |
+| `["a", "b", "c"]` | `["a"]`         | `["a", "b"]`    |
+
+## `split`
+
+Splits a string into a list by newlines.
+
+| Syntax         | Description                  |
+| -------------- | ---------------------------- |
+| `{tag\|split}` | Split string to list by `\n` |
+
+| Input       | `{tag\|split}`    |
+| ----------- | ----------------- |
+| `"a\nb\nc"` | `["a", "b", "c"]` |
+
+## `ast`
+
+Parses source code into structured JSON via [vibe-ast](https://crates.io/crates/vibe-ast).
+
+| Syntax             | Description         |
+| ------------------ | ------------------- |
+| `{tag\|ast:rs}`    | Parse as Rust       |
+| `{tag\|ast:py}`    | Parse as Python     |
+| `{tag\|ast:ts}`    | Parse as TypeScript |
+| `{tag\|ast:js}`    | Parse as JavaScript |
+| `{tag\|ast:java}`  | Parse as Java       |
+| `{tag\|ast:go}`    | Parse as Go         |
+| `{tag\|ast:cs}`    | Parse as C#         |
+| `{tag\|ast:kt}`    | Parse as Kotlin     |
+| `{tag\|ast:swift}` | Parse as Swift      |
+| `{tag\|ast:dart}`  | Parse as Dart       |
+| `{tag\|ast:sh}`    | Parse as Bash       |
+| `{tag\|ast:bat}`   | Parse as Batch      |
+| `{tag\|ast:ets}`   | Parse as ArkTS      |
+| `{tag\|ast:md}`    | Parse as Markdown   |
+
 ## Chaining
 
-Modifiers are applied once per tag reference. For multiple transformations, chain through separate steps:
+Modifiers can be chained in a single expression:
 
 ```yaml
-- tag: tag_cleaned
-  type: value
-  action: '{tag_raw|trim:<>}'
+# Trim, uppercase, then join with deduplication
+{tag_input|trim|upper|join:uniq}
 
-- tag: tag_final
-  type: value
-  action: '{tag_cleaned|join:uniq}'
+# Split, take first 3, then join back
+{tag_text|split|take:3|join}
 ```

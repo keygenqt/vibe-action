@@ -1,0 +1,19 @@
+name: ast-md
+about: Test AST modifier for Markdown
+args: []
+actions:
+  - tag: tag_code
+    type: value
+    expect: string
+    action: |
+      # Hello World
+
+      This is a **test**.
+
+      - item 1
+      - item 2
+
+  - tag: tag_ast
+    type: value
+    expect: string
+    action: '{tag_code|ast:md}'

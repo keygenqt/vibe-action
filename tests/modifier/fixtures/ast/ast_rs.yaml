@@ -1,0 +1,32 @@
+name: ast-rs
+about: Test AST modifier for Rust
+args: []
+actions:
+  - tag: tag_code
+    type: value
+    expect: string
+    action: |
+      /// Adds two numbers
+      fn add(a: i32, b: i32) -> i32 {
+          a + b
+      }
+
+      /// User structure
+      pub struct User {
+          pub name: String,
+          age: u32,
+      }
+
+      /// Color enum
+      pub enum Color {
+          Red,
+          Green,
+          Blue,
+      }
+
+      pub const MAX_SIZE: usize = 1024;
+
+  - tag: tag_ast
+    type: value
+    expect: string
+    action: '{tag_code|ast:rs}'

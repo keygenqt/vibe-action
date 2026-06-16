@@ -1,0 +1,9 @@
+name: check-step-fail
+about: Test regex check on step fails
+args: []
+actions:
+  - tag: tag_val
+    type: value
+    expect: string
+    check: '^\d+$'
+    action: 'hello'

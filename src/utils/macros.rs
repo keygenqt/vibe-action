@@ -28,7 +28,7 @@ pub fn format_msg(s: &str) -> String {
     }
 }
 
-/// Print a blank line (CLI only, skipped in debug mode).
+/// Print a blank line.
 #[macro_export]
 macro_rules! print_newline {
     () => {{
@@ -38,82 +38,7 @@ macro_rules! print_newline {
     }};
 }
 
-/// Print an error message. CLI: red. Debug: tracing::error.
-#[macro_export]
-macro_rules! print_error {
-    ($($arg:tt)*) => {{
-        if $crate::configs::app::AppConfig::is_debug() {
-            let msg = format!($($arg)*);
-            tracing::error!("{}", $crate::utils::macros::strip_ansi(&msg));
-        } else {
-            let msg = format!($($arg)*);
-            let formatted = $crate::utils::macros::format_msg(&msg);
-            println!("{}", format!("\x1b[1m\x1b[91merror\x1b[0m: {}", formatted));
-        }
-    }};
-}
-
-/// Print an info message. CLI: blue. Debug: tracing::info.
-#[macro_export]
-macro_rules! print_info {
-    ($($arg:tt)*) => {{
-        if $crate::configs::app::AppConfig::is_debug() {
-            let msg = format!($($arg)*);
-            tracing::info!("{}", $crate::utils::macros::strip_ansi(&msg));
-        } else {
-            let msg = format!($($arg)*);
-            let formatted = $crate::utils::macros::format_msg(&msg);
-            println!("{}", format!("\x1b[1m\x1b[94minfo\x1b[0m: {}", formatted));
-        }
-    }};
-}
-
-/// Print a warning message. CLI: yellow. Debug: tracing::warn.
-#[macro_export]
-macro_rules! print_warning {
-    ($($arg:tt)*) => {{
-        if $crate::configs::app::AppConfig::is_debug() {
-            let msg = format!($($arg)*);
-            tracing::warn!("{}", $crate::utils::macros::strip_ansi(&msg));
-        } else {
-            let msg = format!($($arg)*);
-            let formatted = $crate::utils::macros::format_msg(&msg);
-            println!("{}", format!("\x1b[1m\x1b[93mwarning\x1b[0m: {}", formatted));
-        }
-    }};
-}
-
-/// Print a success message. CLI: green. Debug: tracing::info.
-#[macro_export]
-macro_rules! print_success {
-    ($($arg:tt)*) => {{
-        if $crate::configs::app::AppConfig::is_debug() {
-            let msg = format!($($arg)*);
-            tracing::info!("{}", $crate::utils::macros::strip_ansi(&msg));
-        } else {
-            let msg = format!($($arg)*);
-            let formatted = $crate::utils::macros::format_msg(&msg);
-            println!("{}", format!("\x1b[1m\x1b[32msuccess\x1b[0m: {}", formatted));
-        }
-    }};
-}
-
-/// Print a state message. CLI: cyan. Debug: tracing::debug.
-#[macro_export]
-macro_rules! print_state {
-    ($($arg:tt)*) => {{
-        if $crate::configs::app::AppConfig::is_debug() {
-            let msg = format!($($arg)*);
-            tracing::debug!("{}", $crate::utils::macros::strip_ansi(&msg));
-        } else {
-            let msg = format!($($arg)*);
-            let formatted = $crate::utils::macros::format_msg(&msg);
-            println!("{}", format!("\x1b[1m\x1b[36mstate\x1b[0m: {}", formatted));
-        }
-    }};
-}
-
-/// Print a progress message (CLI only, skipped in debug mode).
+/// Print a progress message.
 #[macro_export]
 macro_rules! print_progress {
     ($($arg:tt)*) => {{
@@ -126,19 +51,106 @@ macro_rules! print_progress {
     }};
 }
 
+/// Print an info message.
+#[macro_export]
+macro_rules! print_info {
+    ($($arg:tt)*) => {{
+        if !$crate::configs::app::AppConfig::is_test() {
+            let msg = format!($($arg)*);
+            if $crate::configs::app::AppConfig::is_debug() {
+                tracing::info!("{}", $crate::utils::macros::strip_ansi(&msg));
+            } else {
+                let formatted = $crate::utils::macros::format_msg(&msg);
+                println!("{}", format!("\x1b[1m\x1b[94minfo\x1b[0m: {}", formatted));
+            }
+        }
+    }};
+}
+
+/// Print a state message.
+#[macro_export]
+macro_rules! print_state {
+    ($($arg:tt)*) => {{
+        if !$crate::configs::app::AppConfig::is_test() {
+            let msg = format!($($arg)*);
+            if $crate::configs::app::AppConfig::is_debug() {
+                tracing::debug!("{}", $crate::utils::macros::strip_ansi(&msg));
+            } else {
+                let formatted = $crate::utils::macros::format_msg(&msg);
+                println!("{}", format!("\x1b[1m\x1b[36mstate\x1b[0m: {}", formatted));
+            }
+        }
+    }};
+}
+
+/// Print a warning message.
+#[macro_export]
+macro_rules! print_warning {
+    ($($arg:tt)*) => {{
+        if !$crate::configs::app::AppConfig::is_test() {
+            let msg = format!($($arg)*);
+            if $crate::configs::app::AppConfig::is_debug() {
+                tracing::warn!("{}", $crate::utils::macros::strip_ansi(&msg));
+            } else {
+                let formatted = $crate::utils::macros::format_msg(&msg);
+                println!("{}", format!("\x1b[1m\x1b[93mwarning\x1b[0m: {}", formatted));
+            }
+        }
+    }};
+}
+
+/// Print an error message.
+#[macro_export]
+macro_rules! print_error {
+    ($($arg:tt)*) => {{
+        let msg = format!($($arg)*);
+        if $crate::configs::app::AppConfig::is_test() {
+            println!("{}", msg);
+        } else {
+            if $crate::configs::app::AppConfig::is_debug() {
+                tracing::error!("{}", $crate::utils::macros::strip_ansi(&msg));
+            } else {
+                let formatted = $crate::utils::macros::format_msg(&msg);
+                println!("{}", format!("\x1b[1m\x1b[91merror\x1b[0m: {}", formatted));
+            }
+        }
+    }};
+}
+
 /// Print an error message and exit with code 1.
 #[macro_export]
 macro_rules! exit_error {
     ($($arg:tt)*) => {{
-        if $crate::configs::app::AppConfig::is_debug() {
-            let msg = format!($($arg)*);
-            tracing::error!("{}", $crate::utils::macros::strip_ansi(&msg));
+        let msg = format!($($arg)*);
+        if $crate::configs::app::AppConfig::is_test() {
+            panic!("{}", msg);
         } else {
-            let msg = format!($($arg)*);
-            let formatted = $crate::utils::macros::format_msg(&msg);
-            println!("{}", format!("\x1b[1m\x1b[91merror\x1b[0m: {}", formatted));
+            if $crate::configs::app::AppConfig::is_debug() {
+                tracing::error!("{}", $crate::utils::macros::strip_ansi(&msg));
+            } else {
+                let formatted = $crate::utils::macros::format_msg(&msg);
+                println!("{}", format!("\x1b[1m\x1b[91merror\x1b[0m: {}", formatted));
+            }
+            std::process::exit(1);
         }
-        std::process::exit(1);
+    }};
+}
+
+/// Print a success message.
+#[macro_export]
+macro_rules! print_success {
+    ($($arg:tt)*) => {{
+        let msg = format!($($arg)*);
+        if $crate::configs::app::AppConfig::is_test() {
+            println!("{}", msg);
+        } else {
+            if $crate::configs::app::AppConfig::is_debug() {
+                tracing::info!("{}", $crate::utils::macros::strip_ansi(&msg));
+            } else {
+                let formatted = $crate::utils::macros::format_msg(&msg);
+                println!("{}", format!("\x1b[1m\x1b[32msuccess\x1b[0m: {}", formatted));
+            }
+        }
     }};
 }
 
@@ -147,59 +159,63 @@ macro_rules! exit_error {
 macro_rules! print_rich_block {
     ($($arg:tt)*) => {{
         let msg = format!($($arg)*);
-        if $crate::configs::app::AppConfig::is_debug() {
-            tracing::info!("{}", $crate::utils::macros::strip_ansi(&msg));
+        if $crate::configs::app::AppConfig::is_test() {
+            println!("{}", msg);
         } else {
-            let max_width = 120usize;
-            let wrapped: Vec<String> = msg
-                .lines()
-                .flat_map(|line| {
-                    let chars: Vec<char> = line.chars().collect();
-                    if chars.len() <= max_width {
-                        vec![line.to_string()]
-                    } else {
-                        let mut result = Vec::new();
-                        let mut start = 0;
-                        while start < chars.len() {
-                            let mut end = (start + max_width).min(chars.len());
+            if $crate::configs::app::AppConfig::is_debug() {
+                tracing::info!("{}", $crate::utils::macros::strip_ansi(&msg));
+            } else {
+                let max_width = 120usize;
+                let wrapped: Vec<String> = msg
+                    .lines()
+                    .flat_map(|line| {
+                        let chars: Vec<char> = line.chars().collect();
+                        if chars.len() <= max_width {
+                            vec![line.to_string()]
+                        } else {
+                            let mut result = Vec::new();
+                            let mut start = 0;
+                            while start < chars.len() {
+                                let mut end = (start + max_width).min(chars.len());
 
-                            if end < chars.len() && !chars[end].is_whitespace() && !chars[end - 1].is_whitespace() {
-                                let mut space_idx = end;
-                                while space_idx > start && !chars[space_idx].is_whitespace() {
-                                    space_idx -= 1;
+                                if end < chars.len() && !chars[end].is_whitespace() && !chars[end - 1].is_whitespace() {
+                                    let mut space_idx = end;
+                                    while space_idx > start && !chars[space_idx].is_whitespace() {
+                                        space_idx -= 1;
+                                    }
+                                    if space_idx > start {
+                                        end = space_idx;
+                                    }
                                 }
-                                if space_idx > start {
-                                    end = space_idx;
+                                let sub_str: String = chars[start..end].iter().collect();
+                                if start == 0 || !sub_str.trim().is_empty() || sub_str.len() == max_width {
+                                    result.push(sub_str.to_string());
+                                }
+                                start = end;
+                                if start < chars.len() && chars[start].is_whitespace() {
+                                    start += 1;
                                 }
                             }
-                            let sub_str: String = chars[start..end].iter().collect();
-                            if start == 0 || !sub_str.trim().is_empty() || sub_str.len() == max_width {
-                                result.push(sub_str.to_string());
-                            }
-                            start = end;
-                            if start < chars.len() && chars[start].is_whitespace() {
-                                start += 1;
-                            }
+                            result
                         }
-                        result
-                    }
-                })
-                .collect();
+                    })
+                    .collect();
 
-            let width = wrapped.iter()
-                .map(|l| l.chars().count())
-                .max()
-                .unwrap_or(0)
-                .max(13);
+                let width = wrapped.iter()
+                    .map(|l| l.chars().count())
+                    .max()
+                    .unwrap_or(0)
+                    .max(13);
 
-            let top = format!("── success ──{}", "─".repeat(width.saturating_sub(13)));
-            let bottom = "─".repeat(width);
+                let top = format!("── success ──{}", "─".repeat(width.saturating_sub(13)));
+                let bottom = "─".repeat(width);
 
-            println!("\x1b[1m\x1b[32m{}\x1b[0m", top);
-            for line in &wrapped {
-                println!("\x1b[37m{}\x1b[0m", line);
+                println!("\x1b[1m\x1b[32m{}\x1b[0m", top);
+                for line in &wrapped {
+                    println!("\x1b[37m{}\x1b[0m", line);
+                }
+                println!("\x1b[1m\x1b[32m{}\x1b[0m", bottom);
             }
-            println!("\x1b[1m\x1b[32m{}\x1b[0m", bottom);
         }
     }};
 }

@@ -1,0 +1,16 @@
+name: take-list
+about: Test take modifier on list
+args: []
+actions:
+  - tag: tag_input
+    type: cmd
+    expect: list<string>
+    action: |
+      echo "a"
+      echo "b"
+      echo "c"
+
+  - tag: tag_take
+    type: value
+    expect: string
+    action: '{tag_input|take:2|join}'

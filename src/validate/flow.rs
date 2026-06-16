@@ -7,7 +7,7 @@ use std::collections::{HashMap, HashSet};
 use anyhow::Result;
 use regex::Regex;
 
-use crate::{models::flow::FlowModel, validate::ValidateTrait};
+use crate::{models::flow::FlowModel, utils::constants, validate::ValidateTrait};
 
 impl ValidateTrait for FlowModel {
     /// Validate the flow: name, tags, references, dependencies.
@@ -40,7 +40,7 @@ impl ValidateTrait for FlowModel {
             }
         }
         // Supports modifiers with special chars: {tag|trim:-}, {tag|join}, {tag|upper}
-        let re = Regex::new(r"\{(\w+)(?:\|([^}]+))?\}").unwrap();
+        let re = Regex::new(constants::TAG_PLACEHOLDER_PATTERN).unwrap();
         for action in &self.actions {
             validate_tag_references(&action.action, &tags, &re)?;
         }

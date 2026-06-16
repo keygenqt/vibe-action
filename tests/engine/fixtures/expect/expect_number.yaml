@@ -1,0 +1,8 @@
+name: expect-number
+about: Test expect number
+args: []
+actions:
+  - tag: tag_val
+    type: value
+    expect: number
+    action: '42'

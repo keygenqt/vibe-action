@@ -178,6 +178,16 @@ impl Engine {
             }
             ActionMode::Value => {
                 for single_action in &expanded.items {
+                    if let Some(re) = &compiled_check {
+                        if !re.is_match(single_action.trim()) {
+                            anyhow::bail!(
+                                "Result for '{}' does not match pattern '{}': '{}'",
+                                action.tag,
+                                re.as_str(),
+                                single_action.trim()
+                            );
+                        }
+                    }
                     results.push(single_action.to_string());
                 }
             }

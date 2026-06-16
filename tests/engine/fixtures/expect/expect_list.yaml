@@ -1,0 +1,16 @@
+name: expect-list
+about: Test expect list
+args: []
+actions:
+  - tag: tag_files
+    type: cmd
+    expect: list<string>
+    action: |
+      echo "a"
+      echo "b"
+      echo "c"
+
+  - tag: tag_result
+    type: value
+    expect: string
+    action: '{tag_files|join}'

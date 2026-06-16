@@ -6,7 +6,10 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use anyhow::Result;
 use regex::Regex;
 
-use crate::models::{action::ActionModel, flow::FlowModel};
+use crate::{
+    models::{action::ActionModel, flow::FlowModel},
+    utils::constants,
+};
 
 pub struct TopologicalSort;
 
@@ -15,7 +18,7 @@ impl TopologicalSort {
     /// Returns actions in execution order (dependencies first).
     pub fn sort(flow: &FlowModel) -> Result<Vec<ActionModel>> {
         // Supports modifiers with special chars: {tag|trim:-}, {tag|join}, {tag|upper}
-        let re = Regex::new(r"\{(\w+)(?:\|([^}]+))?\}").unwrap();
+        let re = Regex::new(constants::TAG_PLACEHOLDER_PATTERN).unwrap();
 
         // Map tag -> action for quick lookup.
         let mut tag_to_action: HashMap<&str, ActionModel> = HashMap::new();

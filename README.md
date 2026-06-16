@@ -1,19 +1,18 @@
 # Vibe Action
 
-Vibe Action is a command router that executes shell commands and LLM prompts via simple YAML pipelines.
-Just say what you want — it figures out the rest.
+Command router for shell and LLM tasks via YAML pipelines.
 
 ## Why Vibe Action
 
 - ⚡ **Complex pipelines** — chain shell and LLM into one command
 - 🔗 **Tag system** — auto-dependency graph via `{tag}`
+- 🔧 **Modifiers** — `{tag|upper|trim|join}` transform values inline
+- 🌳 **AST parsing** — `{tag|ast:rs}` extract code structure
 - 🤖 **Batch LLM** — parallel execution across cluster nodes
 - ✅ **Type-safe** — validate with types and regex
 - 🔐 **Confirmations** — approve before executing
 - 🎯 **CLI-first** — no browser, just terminal
-- 🔒 **Secure** — runs locally
-- 🆓 **Free** — open source, local models
-- 📦 **Modular** — share YAML like Homebrew formulas
+- 🔒 **Local & free** — Ollama, 3b models, no subscriptions
 - 🦀 **Fast** — built in Rust
 
 ## Quick Start
@@ -23,39 +22,40 @@ Just say what you want — it figures out the rest.
 cargo install vibe-action
 
 # AI-powered commit
-vibe-action action commit
+vibe-action commit
 
 # Translate files
-vibe-action action translate -f README.md -l Russian
+vibe-action translate -f README.md -l Russian
 
 # Extract errors from logs
-vibe-action action extract -f app.log -q 'find all errors'
-
-# Direct prompt to cluster
-vibe-action prompt 'Explain Rust lifetimes'
+vibe-action extract -f app.log -q 'find errors'
 ```
 
 ## Built-in Actions
 
-| Action       | Description                                |
-| ------------ | ------------------------------------------ |
-| `commit`     | AI-generated git commit message            |
-| `extract`    | Extract matching lines from logs and text  |
-| `find`       | Semantic file search by meaning            |
-| `mock`       | Generate mock data (JSON, YAML, CSV, etc.) |
-| `naming`     | Code naming suggestions                    |
-| `regex`      | Generate regular expression patterns       |
-| `spellcheck` | Fix spelling in text and files             |
-| `synonyms`   | Technical synonyms for a word              |
-| `tone`       | Rewrite text with professional tone        |
-| `translate`  | Translate text and files                   |
+| Action       | Description                               |
+| ------------ | ----------------------------------------- |
+| `commit`     | AI-generated git commit message           |
+| `extract`    | Extract matching lines from logs and text |
+| `find`       | Semantic file search by meaning           |
+| `mock`       | Generate mock data (JSON, YAML, CSV)      |
+| `naming`     | Code naming suggestions                   |
+| `regex`      | Generate regular expression patterns      |
+| `spellcheck` | Fix spelling in text and files            |
+| `synonyms`   | Technical synonyms for a word             |
+| `tone`       | Rewrite text with professional tone       |
+| `translate`  | Translate text and files                  |
 
 ## Configuration
 
 `~/.vibe-action/config.yaml`:
 
 ```yaml
-version: 0.0.1
+version: '0.0.2'
+
+action:
+  system: 'You are Vibe Action — a CLI tool. Output ONLY the result.'
+  retries: 2
 
 cluster:
   - provider: ollama
@@ -87,4 +87,4 @@ cargo build --release
 
 ## Dependencies
 
-- Ollama, DeepSeek, or Qwen (for LLM cluster)
+- [Ollama](https://ollama.com), [DeepSeek](https://deepseek.com), or [Qwen](https://qwen.ai) for LLM inference

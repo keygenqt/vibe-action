@@ -1,0 +1,8 @@
+name: expect-bool-false
+about: Test expect bool false
+args: []
+actions:
+  - tag: tag_val
+    type: value
+    expect: bool
+    action: 'false'

@@ -1,0 +1,34 @@
+name: ast-kt
+about: Test AST modifier for Kotlin
+args: []
+actions:
+  - tag: tag_code
+    type: value
+    expect: string
+    action: |
+      /**
+       * Adds two numbers
+       */
+      fun add(a: Int, b: Int): Int {
+          return a + b
+      }
+
+      /**
+       * User data class
+       */
+      data class User(
+          val name: String,
+          val age: Int
+      )
+
+      /**
+       * Color enum
+       */
+      enum class Color {
+          RED, GREEN, BLUE
+      }
+
+  - tag: tag_ast
+    type: value
+    expect: string
+    action: '{tag_code|ast:kt}'

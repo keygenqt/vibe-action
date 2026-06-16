@@ -2,13 +2,29 @@
 
 Vibe Action uses a single YAML config file at `~/.vibe-action/config.yaml`. It is created automatically on first run.
 
+## Action
+
+Runtime settings for all flows.
+
+```yaml
+action:
+  system: |
+    You are Vibe Action — a CLI tool, not a chatbot.
+    Work fast. Don't think too much. Just do the task.
+    Output ONLY the requested result.
+  retries: 2
+```
+
+| Field     | Type    | Description                                      |
+| --------- | ------- | ------------------------------------------------ |
+| `system`  | string  | Global system prompt for all LLM requests        |
+| `retries` | integer | Number of retries for failed LLM steps (0 = off) |
+
 ## Cluster
 
 Define one or more LLM providers. The engine sends prompts to all nodes in parallel.
 
 ```yaml
-version: 0.0.1
-
 cluster:
   - provider: ollama
     host: http://localhost:11434
@@ -76,7 +92,7 @@ All nodes receive prompts in parallel.
 
 ## Actions Directory
 
-Actions are stored in `~/.vibe-action/actions/`. The directory is created on first run with default actions.
+Actions are stored in `~/.vibe-action/actions/`. The directory is created on first run with default actions. Override with `VIBE_ACTION_PATH`.
 
 ```
 ~/.vibe-action/

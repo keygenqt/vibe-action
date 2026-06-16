@@ -1,0 +1,16 @@
+name: ast-bat
+about: Test AST modifier for Batch
+args: []
+actions:
+  - tag: tag_code
+    type: value
+    expect: string
+    action: |
+      @echo off
+      set NAME=World
+      echo Hello %NAME%
+
+  - tag: tag_ast
+    type: value
+    expect: string
+    action: '{tag_code|ast:bat}'

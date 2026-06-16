@@ -8,20 +8,26 @@ use std::collections::HashMap;
 /// Enum of all available modifier keys.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ModifierKey {
+    Ast,
     Join,
+    Lower,
+    Split,
+    Take,
     Trim,
     Upper,
-    Lower,
 }
 
 impl ModifierKey {
     /// Convert from string, returns None if unknown.
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
+            "ast" => Some(Self::Ast),
             "join" => Some(Self::Join),
+            "lower" => Some(Self::Lower),
+            "split" => Some(Self::Split),
+            "take" => Some(Self::Take),
             "trim" => Some(Self::Trim),
             "upper" => Some(Self::Upper),
-            "lower" => Some(Self::Lower),
             _ => None,
         }
     }
@@ -44,10 +50,13 @@ impl ModifierRegistry {
         let mut registry = Self {
             modifiers: HashMap::new(),
         };
+        registry.register(Box::new(super::ast::AstModifier));
         registry.register(Box::new(super::join::JoinModifier));
+        registry.register(Box::new(super::lower::LowerModifier));
+        registry.register(Box::new(super::split::SplitModifier));
+        registry.register(Box::new(super::take::TakeModifier));
         registry.register(Box::new(super::trim::TrimModifier));
         registry.register(Box::new(super::upper::UpperModifier));
-        registry.register(Box::new(super::lower::LowerModifier));
         registry
     }
 

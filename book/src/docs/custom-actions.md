@@ -21,7 +21,7 @@ actions:
 ```
 
 ```bash
-$ vibe-action action hello
+$ vibe-action hello
 progress: hello (val)... 100% (1/1)
 info: completed in 8.58ms
 ── success ──
@@ -48,7 +48,7 @@ actions:
 ```
 
 ```bash
-$ vibe-action action disk
+$ vibe-action disk
 progress: disk (cmd)... 100% (1/1)
 info: completed in 21.13ms
 ── success ───────────────────────────────────────────────────────────────────
@@ -81,7 +81,7 @@ actions:
 ```
 
 ```bash
-$ vibe-action action greet -n Alice
+$ vibe-action greet -n Alice
 progress: greeting (val)... 100% (1/1)
 info: completed in 8.45ms
 ── success ──
@@ -114,7 +114,7 @@ actions:
 ```
 
 ```bash
-$ vibe-action action explain -q "Rust borrow checker"
+$ vibe-action explain -q "Rust borrow checker"
 progress: answer (llm)... 100% (1/1)
 info: completed in 6.63s
 ── success ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -158,7 +158,7 @@ actions:
 ```
 
 ```bash
-$ vibe-action action summarize-file -f README.md
+$ vibe-action summarize-file -f README.md
 progress: summary (llm)... 100% (2/2)
 info: completed in 7.74s
 ── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -174,4 +174,4 @@ committing code, translating files, and extracting errors from logs more efficie
 - **Tag naming:** use `tag_` prefix for consistency with built-in actions
 - **Dependencies:** the engine sorts steps by `{tag}` references, not YAML order
 - **Validation:** add `check: ".+"` to ensure non-empty output
-- **Debugging:** use `--debug` to see each step's input and output
+- **Debugging:** set `VIBE_DEBUG=1` to see each step's input and output

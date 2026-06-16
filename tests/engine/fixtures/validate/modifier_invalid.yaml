@@ -1,0 +1,13 @@
+name: modifier-invalid
+about: Test empty modifier should fail
+args: []
+actions:
+  - tag: tag_input
+    type: value
+    expect: string
+    action: hello
+
+  - tag: tag_result
+    type: value
+    expect: string
+    action: '{tag_input|}'
