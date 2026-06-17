@@ -6,7 +6,7 @@ use std::fs;
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
-use crate::default;
+use crate::default::default::default_flows;
 use crate::models::flow::FlowModel;
 use crate::validate::ValidateTrait;
 
@@ -17,25 +17,6 @@ pub struct ActionsModel {
     pub flows: Vec<FlowModel>,
 }
 
-impl Default for ActionsModel {
-    /// Create with all default actions embedded in the binary.
-    fn default() -> Self {
-        Self {
-            flows: vec![
-                default::commit::default(),
-                default::extract::default(),
-                default::find::default(),
-                default::mock::default(),
-                default::naming::default(),
-                default::regex::default(),
-                default::spellcheck::default(),
-                default::synonyms::default(),
-                default::tone::default(),
-                default::translate::default(),
-            ],
-        }
-    }
-}
 impl ActionsModel {
     /// Find a flow by name (exact match).
     pub fn find(&self, name: &str) -> Option<&FlowModel> {
@@ -43,7 +24,14 @@ impl ActionsModel {
     }
 
     /// Load flows from a directory (recursively reads all .yaml files).
-    pub fn load(path: &PathBuf) -> Result<Self> {
+    /// If `is_save_default` is true, saves default flows before loading.
+    pub fn load(path: &PathBuf, is_save_default: bool) -> Result<Self> {
+        // Save default flows if needed (creates directory and files).
+        if is_save_default {
+            Self::save_defaults(path)?;
+        }
+
+        // Load existing flows from the directory.
         let mut actions = Self { flows: vec![] };
         if path.is_dir() {
             for entry in WalkDir::new(path).follow_links(true) {
@@ -64,69 +52,27 @@ impl ActionsModel {
             let flow = FlowModel::load(&path.to_path_buf())?;
             actions.flows.push(flow);
         } else {
-            return Ok(ActionsModel::default());
+            anyhow::bail!("Actions path not found: {}", path.display());
         }
+
         actions.validate()?;
         Ok(actions)
     }
 
     /// Save default actions to a directory. Only creates files that don't already exist.
-    pub fn save_defaults(path: &PathBuf) -> Result<()> {
-        let defaults = ActionsModel::default();
-
+    fn save_defaults(path: &PathBuf) -> Result<()> {
         if !path.exists() {
             fs::create_dir_all(path)?;
         }
-
-        for flow in &defaults.flows {
-            let file_path = path.join(format!("{}.yaml", flow.name));
+        for flow in default_flows() {
+            let yaml = flow.flow()?;
+            let name = flow.name()?;
+            let file_path = path.join(format!("{}.yaml", name));
             if file_path.exists() {
                 continue;
             }
-
-            let header = format!(
-                r#"# Vibe Action — {}
-# {}
-#
-# Fields:
-#   name      - Action name (CLI subcommand)
-#   about     - Short description
-#   check     - Optional regex validation for the final flow result
-#   clipboard - Copy final result to clipboard
-#   args      - CLI arguments (optional)
-#   actions   - Pipeline execution steps (execution order resolved automatically by tags)
-#
-# Args:
-#   name      - Argument name (used as --name and {{name}} tag)
-#   short     - Short flag, e.g. -p (optional)
-#   expect    - Expected type: string, number, bool
-#   help      - Description for help text (optional)
-#   default   - Default value (optional, makes argument non-required)
-#
-# Actions:
-#   tag       - Tag name for {{tag}} references with automatic dependency ordering
-#   type      - cmd (shell), llm (AI model), value (static string)
-#   expect    - Expected output type: void, bool, number, string, list<T>
-#   check     - Optional regex pre-validation for the result
-#   confirm   - Ask for user confirmation before executing
-#   action    - Shell command, LLM prompt, or static string
-#
-# Modifiers:
-#   {{tag|upper}}      - String: Transforms text to UPPERCASE
-#   {{tag|lower}}      - String: Transforms text to lowercase
-#   {{tag|join}}       - List  : Collapses list into a single string via newline (\n)
-#   {{tag|join:uniq}}  - List  : Collapses list via newline and removes all duplicates
-#   {{tag|trim}}       - Any   : Strips whitespace from string or filters empty list elements
-#   {{tag|trim:chars}} - Any   : Strips custom chars/whitespace. If string equals chars, returns empty
-"#,
-                flow.name, flow.about
-            );
-
-            let yaml = yaml_serde::to_string(flow)?;
-            let content = format!("{}\n{}", header, yaml);
-            fs::write(&file_path, &content)?;
+            fs::write(&file_path, &yaml)?;
         }
-
         Ok(())
     }
 }

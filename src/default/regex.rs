@@ -1,66 +1,50 @@
-//! Default regex action template.
+//! Default regex flow.
 
-use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::arg::ArgActionModel;
-use crate::models::flow::FlowModel;
+use crate::default::default::DefaultFlow;
 
-/// Returns the default regex FlowModel.
-pub fn default() -> FlowModel {
-    FlowModel {
-        name: "regex".into(),
-        about: "Generate a regular expression pattern based on your description".into(),
-        check: None,
-        clipboard: true,
-        args: vec![
-            ArgActionModel {
-                name: "query".into(),
-                short: Some('q'),
-                expect: ExpectMode::String,
-                help: Some(
-                    "What the regex should match (e.g., 'extract domain from email')".into(),
-                ),
-                default: None,
-                values: Vec::new(),
-            },
-            ArgActionModel {
-                name: "example".into(),
-                short: Some('e'),
-                expect: ExpectMode::String,
-                help: Some("Optional example string to test the pattern against".into()),
-                default: Some(String::new()),
-                values: Vec::new(),
-            },
-        ],
-        actions: vec![
-            ActionModel {
-                tag: "tag_regex".into(),
-                r#type: ActionMode::Llm,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: false,
-                action: r#"
-[Task]
-Generate a valid regular expression pattern based on the user's [Query].
-If an [Example] string is provided, ensure the generated regex matches it correctly.
-Output exactly 1 line.
+pub struct RegexFlow;
 
-[Query]
-{query}
+impl DefaultFlow for RegexFlow {
+    fn raw(&self) -> &'static str {
+        r#"
+name: regex
+about: Generate a regular expression pattern based on your description
+check: null
+clipboard: true
+args:
+  - name: query
+    short: 'q'
+    expect: string
+    help: What the regex should match (e.g., 'extract domain from email')
+    default: null
+  - name: example
+    short: 'e'
+    expect: string
+    help: Optional example string to test the pattern against
+    default: ''
+actions:
+  - tag: tag_regex
+    type: llm
+    expect: string
+    check: null
+    confirm: false
+    action: |-
+      [Task]
+      Generate a valid regular expression pattern based on the user's [Query].
+      If an [Example] string is provided, ensure the generated regex matches it correctly.
+      Output exactly 1 line.
 
-[Example]
-{example}
-                "#
-                .trim()
-                .into(),
-            },
-            ActionModel {
-                tag: "tag_value".into(),
-                r#type: ActionMode::Value,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: false,
-                action: "{tag_regex|trim:`}".into(),
-            },
-        ],
+      [Query]
+      {query}
+
+      [Example]
+      {example}
+  - tag: tag_value
+    type: value
+    expect: string
+    check: null
+    confirm: false
+    action: '{tag_regex|trim:`}'
+"#
     }
 }

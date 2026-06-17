@@ -1,92 +1,71 @@
-//! Default commit action template.
+//! Default commit flow — YAML template with documentation header.
 
-use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::arg::ArgActionModel;
-use crate::models::flow::FlowModel;
+use crate::default::default::DefaultFlow;
 
-/// Returns the default commit FlowModel.
-pub fn default() -> FlowModel {
-    FlowModel {
-        name: "commit".into(),
-        about: "AI-generated commit message".into(),
-        check: None,
-        clipboard: false,
-        args: vec![ArgActionModel {
-            name: "path".into(),
-            short: Some('p'),
-            expect: ExpectMode::String,
-            help: Some("Path to git repository (default: current directory)".into()),
-            default: Some(".".into()),
-            values: Vec::new(),
-        }],
-        actions: vec![
-            ActionModel {
-                tag: "tag_changed_files".into(),
-                r#type: ActionMode::Cmd,
-                expect: ExpectMode::List(Box::new(ExpectMode::String)),
-                check: Some(".+".into()),
-                confirm: false,
-                action: "cd {path} && git diff --name-only --relative".into(),
-            },
-            ActionModel {
-                tag: "tag_file_diff".into(),
-                r#type: ActionMode::Cmd,
-                expect: ExpectMode::List(Box::new(ExpectMode::String)),
-                check: None,
-                confirm: false,
-                action: r#"
-cd {path}
-if [ -f "{tag_changed_files}" ]; then
-  git diff -- "{tag_changed_files}"
-fi
-                "#
-                .trim()
-                .into(),
-            },
-            ActionModel {
-                tag: "tag_file_summary".into(),
-                r#type: ActionMode::Llm,
-                expect: ExpectMode::List(Box::new(ExpectMode::String)),
-                check: None,
-                confirm: false,
-                action: r#"
-[Task]
-Summarize the git diff below in strictly ONE sentence (max 10 words).
-Start with an action verb (Add, Fix, Refactor, Change).
-Write strictly in English.
+pub struct CommitFlow;
 
-[Diff]
-{tag_file_diff}
-                "#
-                .trim()
-                .into(),
-            },
-            ActionModel {
-                tag: "tag_commit_message".into(),
-                r#type: ActionMode::Llm,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: false,
-                action: r#"
-[Task]
-Summarize all summaries below into ONE short conventional commit message (max 10 words).
-Allowed types: feat, fix, docs, refactor, test, chore.
-Format strictly: <type>: <commit> (NO parentheses or scopes).
+impl DefaultFlow for CommitFlow {
+    fn raw(&self) -> &'static str {
+        r#"
+name: commit
+about: AI-generated commit message
+check: null
+clipboard: false
+args:
+  - name: path
+    short: 'p'
+    expect: string
+    help: 'Path to git repository (default: current directory)'
+    default: .
+actions:
+  - tag: tag_changed_files
+    type: cmd
+    expect: list<string>
+    check: .+
+    confirm: false
+    action: cd {path} && git diff --name-only --relative
+  - tag: tag_file_diff
+    type: cmd
+    expect: list<string>
+    check: null
+    confirm: false
+    action: |-
+      cd {path}
+      if [ -f "{tag_changed_files}" ]; then
+        git diff -- "{tag_changed_files}"
+      fi
+  - tag: tag_file_summary
+    type: llm
+    expect: list<string>
+    check: null
+    confirm: false
+    action: |-
+      [Task]
+      Summarize the git diff below in strictly ONE sentence (max 10 words).
+      Start with an action verb (Add, Fix, Refactor, Change).
+      Write strictly in English.
 
-[Summaries]
-{tag_file_summary|join:uniq}
-                "#
-                .trim()
-                .into(),
-            },
-            ActionModel {
-                tag: "tag_commit".into(),
-                r#type: ActionMode::Cmd,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: true,
-                action: "cd {path} && git add . && git commit -m '{tag_commit_message}'".into(),
-            },
-        ],
+      [Diff]
+      {tag_file_diff}
+  - tag: tag_commit_message
+    type: llm
+    expect: string
+    check: null
+    confirm: false
+    action: |-
+      [Task]
+      Summarize all summaries below into ONE short conventional commit message (max 10 words).
+      Allowed types: feat, fix, docs, refactor, test, chore.
+      Format strictly: <type>: <commit> (NO parentheses or scopes).
+
+      [Summaries]
+      {tag_file_summary|join:uniq}
+  - tag: tag_commit
+    type: cmd
+    expect: string
+    check: null
+    confirm: true
+    action: cd {path} && git add . && git commit -m '{tag_commit_message}'
+"#
     }
 }

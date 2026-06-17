@@ -128,13 +128,10 @@ impl AppConfig {
         config.validate()?;
 
         // Load actions from the configured path.
+        // Save defaults only if using the default path (not overridden by env).
         let actions_path = &path::actions_dir();
-        config.actions_model = Some(ActionsModel::load(&actions_path)?);
-
-        // Save default actions only if using default actions path (not overridden by env).
-        if std::env::var("VIBE_ACTION_PATH").is_err() {
-            ActionsModel::save_defaults(actions_path)?;
-        }
+        let is_save_default = std::env::var("VIBE_ACTION_PATH").is_err();
+        config.actions_model = Some(ActionsModel::load(&actions_path, is_save_default)?);
 
         // Cache globally.
         GLOBAL_CONFIG.set(config).ok();

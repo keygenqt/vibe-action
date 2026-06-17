@@ -1,50 +1,41 @@
-//! Default synonyms action template.
+//! Default synonyms flow.
 
-use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::arg::ArgActionModel;
-use crate::models::flow::FlowModel;
+use crate::default::default::DefaultFlow;
 
-/// Returns the default synonyms FlowModel.
-pub fn default() -> FlowModel {
-    FlowModel {
-        name: "synonyms".into(),
-        about: "Find programming/technical synonyms for a word".into(),
-        check: None,
-        clipboard: false,
-        args: vec![ArgActionModel {
-            name: "query".into(),
-            short: Some('q'),
-            expect: ExpectMode::String,
-            help: Some("Word or concept to find technical synonyms for".into()),
-            default: None,
-            values: Vec::new(),
-        }],
-        actions: vec![
-            ActionModel {
-                tag: "tag_synonyms_list".into(),
-                r#type: ActionMode::Llm,
-                expect: ExpectMode::List(Box::new(ExpectMode::String)), // ИСПРАВЛЕНО
-                check: None,
-                confirm: false,
-                action: r#"
-[Task]
-Give me 5 professional programming terms or alternatives for the concept below.
-Write each option strictly on a new line without numbering.
+pub struct SynonymsFlow;
 
-[Concept]
-{query}
+impl DefaultFlow for SynonymsFlow {
+    fn raw(&self) -> &'static str {
+        r#"
+name: synonyms
+about: Find programming/technical synonyms for a word
+check: null
+clipboard: false
+args:
+- name: query
+  short: 'q'
+  expect: string
+  help: Word or concept to find technical synonyms for
+  default: null
+actions:
+- tag: tag_synonyms_list
+  type: llm
+  expect: list<string>
+  check: null
+  confirm: false
+  action: |-
+    [Task]
+    Give me 5 professional programming terms or alternatives for the concept below.
+    Write each option strictly on a new line without numbering.
+
+    [Concept]
+    {query}
+- tag: tag_synonyms
+  type: value
+  expect: string
+  check: null
+  confirm: false
+  action: '{tag_synonyms_list|join}'
 "#
-                .trim()
-                .into(),
-            },
-            ActionModel {
-                tag: "tag_synonyms".into(),
-                r#type: ActionMode::Value,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: false,
-                action: "{tag_synonyms_list|join}".into(),
-            },
-        ],
     }
 }

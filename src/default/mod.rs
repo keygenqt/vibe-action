@@ -2,6 +2,7 @@
 //! These are written to ~/.vibe-action/actions/ on first run.
 
 pub mod commit;
+pub mod default;
 pub mod extract;
 pub mod find;
 pub mod mock;

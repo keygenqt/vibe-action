@@ -1,95 +1,75 @@
-//! Default find action template.
+//! Default find flow.
 
-use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::arg::ArgActionModel;
-use crate::models::flow::FlowModel;
+use crate::default::default::DefaultFlow;
 
-/// Returns the default find FlowModel.
-pub fn default() -> FlowModel {
-    FlowModel {
-        name: "find".into(),
-        about: "Semantic file finder — finds files by meaning, not just name".into(),
-        check: None,
-        clipboard: false,
-        args: vec![
-            ArgActionModel {
-                name: "path".into(),
-                short: Some('p'),
-                expect: ExpectMode::String,
-                help: Some("Directory to search in (default: current)".into()),
-                default: Some(".".into()),
-                values: Vec::new(),
-            },
-            ArgActionModel {
-                name: "query".into(),
-                short: Some('q'),
-                expect: ExpectMode::String,
-                help: Some("What to find — describe in natural language".into()),
-                default: None,
-                values: Vec::new(),
-            },
-        ],
-        actions: vec![
-            ActionModel {
-                tag: "tag_files".into(),
-                r#type: ActionMode::Cmd,
-                expect: ExpectMode::List(Box::new(ExpectMode::String)),
-                check: None,
-                confirm: false,
-                action: "find {path} -type f -exec grep -Iq . {} \\; -print".into(),
-            },
-            ActionModel {
-                tag: "tag_content".into(),
-                r#type: ActionMode::Cmd,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: false,
-                action: r#"
-cat << 'EOF'
-[Task]
-Check if the [Content] code/comments contain the technical [Query] word, function name, or meaning.
-If YES — print ONLY the [File] path inside brackets: <{tag_files}>
-If NO — print ONLY: <->
+pub struct FindFlow;
 
-[Query]
-{query}
+impl DefaultFlow for FindFlow {
+    fn raw(&self) -> &'static str {
+        r#"
+name: find
+about: Semantic file finder — finds files by meaning, not just name
+check: null
+clipboard: false
+args:
+  - name: path
+    short: 'p'
+    expect: string
+    help: 'Directory to search in (default: current)'
+    default: .
+  - name: query
+    short: 'q'
+    expect: string
+    help: What to find — describe in natural language
+    default: null
+actions:
+  - tag: tag_files
+    type: cmd
+    expect: list<string>
+    check: null
+    confirm: false
+    action: find {path} -type f -exec grep -Iq . {} \; -print
+  - tag: tag_content
+    type: cmd
+    expect: string
+    check: null
+    confirm: false
+    action: |-
+      cat << 'EOF'
+      [Task]
+      Check if the [Content] code/comments contain the technical [Query] word, function name, or meaning.
+      If YES — print ONLY the [File] path inside brackets: <{tag_files}>
+      If NO — print ONLY: <->
 
-[Content]
-EOF
-cat "{tag_files}"
-cat << 'EOF'
+      [Query]
+      {query}
 
-[File]
-{tag_files}
-EOF
-                "#
-                .trim()
-                .into(),
-            },
-            ActionModel {
-                tag: "tag_matches".into(),
-                r#type: ActionMode::Llm,
-                expect: ExpectMode::List(Box::new(ExpectMode::String)),
-                check: None,
-                confirm: false,
-                action: "{tag_content}".into(),
-            },
-            ActionModel {
-                tag: "tag_filtered".into(),
-                r#type: ActionMode::Value,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: false,
-                action: "{tag_matches|trim:<->}".into(),
-            },
-            ActionModel {
-                tag: "tag_find".into(),
-                r#type: ActionMode::Value,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: false,
-                action: "{tag_filtered|join:uniq}".into(),
-            },
-        ],
+      [Content]
+      EOF
+      cat "{tag_files}"
+      cat << 'EOF'
+
+      [File]
+      {tag_files}
+      EOF
+  - tag: tag_matches
+    type: llm
+    expect: list<string>
+    check: null
+    confirm: false
+    action: '{tag_content}'
+  - tag: tag_filtered
+    type: value
+    expect: string
+    check: null
+    confirm: false
+    action: '{tag_matches|trim:<->}'
+  - tag: tag_find
+    type: value
+    expect: string
+    check: null
+    confirm: false
+    action: '{tag_filtered|join:uniq}'
+"#
     }
 }

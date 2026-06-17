@@ -1,81 +1,63 @@
-//! Default extract action template.
+//! Default extract flow.
 
-use crate::models::action::{ActionMode, ActionModel, ExpectMode};
-use crate::models::arg::ArgActionModel;
-use crate::models::flow::FlowModel;
+use crate::default::default::DefaultFlow;
 
-/// Returns the default extract FlowModel.
-pub fn default() -> FlowModel {
-    FlowModel {
-        name: "extract".into(),
-        about: "Extract structured data or matching lines from text and logs".into(),
-        check: None,
-        clipboard: false,
-        args: vec![
-            ArgActionModel {
-                name: "file".into(),
-                short: Some('f'),
-                expect: ExpectMode::String,
-                help: Some("Path to the log or text file".into()),
-                default: None,
-                values: Vec::new(),
-            },
-            ArgActionModel {
-                name: "query".into(),
-                short: Some('q'),
-                expect: ExpectMode::String,
-                help: Some("Extraction criteria (e.g., 'find all errors')".into()),
-                default: None,
-                values: Vec::new(),
-            },
-        ],
-        actions: vec![
-            ActionModel {
-                tag: "tag_lines".into(),
-                r#type: ActionMode::Cmd,
-                expect: ExpectMode::List(Box::new(ExpectMode::String)),
-                check: None,
-                confirm: false,
-                action: "cat {file}".into(),
-            },
-            ActionModel {
-                tag: "tag_content".into(),
-                r#type: ActionMode::Llm,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: false,
-                action: r#"
-[Task]
-Read the log line and the search query.
-If the line matches the query — output the EXACT line unchanged.
-If the line does not match — output only a single dash: "-"
-Do NOT skip lines. Process every line.
+pub struct ExtractFlow;
 
-[Query]
-{query}
+impl DefaultFlow for ExtractFlow {
+    fn raw(&self) -> &'static str {
+        r#"
+name: extract
+about: Extract structured data or matching lines from text and logs
+check: null
+clipboard: false
+args:
+  - name: file
+    short: 'f'
+    expect: string
+    help: Path to the log or text file
+    default: null
+  - name: query
+    short: 'q'
+    expect: string
+    help: Extraction criteria (e.g., 'find all errors')
+    default: null
+actions:
+  - tag: tag_lines
+    type: cmd
+    expect: list<string>
+    check: null
+    confirm: false
+    action: cat {file}
+  - tag: tag_content
+    type: llm
+    expect: string
+    check: null
+    confirm: false
+    action: |-
+      [Task]
+      Read the log line and the search query.
+      If the line matches the query — output the EXACT line unchanged.
+      If the line does not match — output only a single dash: "-"
+      Do NOT skip lines. Process every line.
 
-[Line]
-{tag_lines}
-                "#
-                .trim()
-                .into(),
-            },
-            ActionModel {
-                tag: "tag_clean".into(),
-                r#type: ActionMode::Value,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: false,
-                action: "{tag_content|trim:-}".into(),
-            },
-            ActionModel {
-                tag: "tag_extract".into(),
-                r#type: ActionMode::Value,
-                expect: ExpectMode::String,
-                check: None,
-                confirm: false,
-                action: "{tag_clean|join:uniq}".into(),
-            },
-        ],
+      [Query]
+      {query}
+
+      [Line]
+      {tag_lines}
+  - tag: tag_clean
+    type: value
+    expect: string
+    check: null
+    confirm: false
+    action: '{tag_content|trim:-}'
+  - tag: tag_extract
+    type: value
+    expect: string
+    check: null
+    confirm: false
+    action: '{tag_clean|join:uniq}'
+"#
     }
 }
