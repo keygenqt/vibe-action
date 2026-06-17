@@ -1,0 +1,16 @@
+name: sort-default
+about: Test sort modifier default (ascending)
+args: []
+actions:
+  - tag: tag_input
+    type: cmd
+    expect: list<string>
+    action: |
+      echo "b"
+      echo "c"
+      echo "a"
+
+  - tag: tag_sorted
+    type: value
+    expect: string
+    action: '{tag_input|sort|join}'

@@ -11,6 +11,8 @@ pub enum ModifierKey {
     Ast,
     Join,
     Lower,
+    Reverse,
+    Sort,
     Split,
     Take,
     Trim,
@@ -24,6 +26,8 @@ impl ModifierKey {
             "ast" => Some(Self::Ast),
             "join" => Some(Self::Join),
             "lower" => Some(Self::Lower),
+            "reverse" => Some(Self::Reverse),
+            "sort" => Some(Self::Sort),
             "split" => Some(Self::Split),
             "take" => Some(Self::Take),
             "trim" => Some(Self::Trim),
@@ -53,6 +57,8 @@ impl ModifierRegistry {
         registry.register(Box::new(super::ast::AstModifier));
         registry.register(Box::new(super::join::JoinModifier));
         registry.register(Box::new(super::lower::LowerModifier));
+        registry.register(Box::new(super::reverse::ReverseModifier));
+        registry.register(Box::new(super::sort::SortModifier));
         registry.register(Box::new(super::split::SplitModifier));
         registry.register(Box::new(super::take::TakeModifier));
         registry.register(Box::new(super::trim::TrimModifier));

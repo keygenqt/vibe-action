@@ -1,0 +1,16 @@
+name: reverse-list
+about: Test reverse modifier on list
+args: []
+actions:
+  - tag: tag_input
+    type: cmd
+    expect: list<string>
+    action: |
+      echo "a"
+      echo "b"
+      echo "c"
+
+  - tag: tag_reversed
+    type: value
+    expect: string
+    action: '{tag_input|reverse|join}'

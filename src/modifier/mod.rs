@@ -5,6 +5,8 @@ pub mod ast;
 pub mod join;
 pub mod lower;
 pub mod modifier;
+pub mod reverse;
+pub mod sort;
 pub mod split;
 pub mod take;
 pub mod trim;

@@ -1,0 +1,13 @@
+name: reverse-string
+about: Test reverse modifier on string
+args: []
+actions:
+  - tag: tag_input
+    type: value
+    expect: string
+    action: hello
+
+  - tag: tag_reversed
+    type: value
+    expect: string
+    action: '{tag_input|reverse}'

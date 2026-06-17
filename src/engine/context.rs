@@ -69,7 +69,6 @@ impl Context {
                     anyhow::bail!("Empty modifier not allowed in '{}'", placeholder);
                 }
                 let processed_value = modifier.apply_modifier(modifier_value, context_value)?;
-
                 match processed_value {
                     ContextModel::String(s) => {
                         let mut final_string = s;
