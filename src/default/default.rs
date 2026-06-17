@@ -1,13 +1,7 @@
-//! Default flow trait — validates built-in YAML flows.
-//! Each built-in flow implements this trait and returns its YAML as a static string.
+//! Default flow trait — validates built-in YAML flows from embedded YAML files.
 
+use crate::{models::flow::FlowModel, validate::ValidateTrait};
 use anyhow::Result;
-
-use crate::{
-    default::{commit, extract, find, mock, naming, regex, spellcheck, synonyms, tone, translate},
-    models::flow::FlowModel,
-    validate::ValidateTrait,
-};
 
 /// Common header template for all built-in YAML flows.
 pub const FLOW_HEADER: &str = r#"# Vibe Action — {name}
@@ -51,42 +45,69 @@ pub trait DefaultFlow {
 
     /// Returns the YAML content for this flow (header + validated body).
     fn flow(&self) -> Result<String> {
-        // read data
         let raw = self.raw();
         let model = self.model(raw)?;
-        // validate model
         model.validate()?;
-        // create header
         let header = FLOW_HEADER
             .replace("{name}", &model.name)
             .replace("{about}", &model.about);
-        // return formatted
         Ok(format!("{}\n{}", header, raw.trim()))
     }
 
-    /// Flow name (used for filename and CLI subcommand).
+    /// Flow name from parsed YAML.
     fn name(&self) -> Result<String> {
         Ok(self.model(self.raw())?.name)
     }
 
-    /// Raw YAML flow body (without header).
+    /// Parse raw YAML into FlowModel.
     fn model(&self, raw: &str) -> Result<FlowModel> {
         Ok(yaml_serde::from_str(raw).map_err(|e| anyhow::anyhow!("{}", e))?)
+    }
+}
+
+/// A built-in flow with embedded YAML.
+pub struct BuiltinFlow {
+    pub yaml: &'static str,
+}
+
+impl DefaultFlow for BuiltinFlow {
+    fn raw(&self) -> &'static str {
+        self.yaml
     }
 }
 
 /// Returns all built-in default flows.
 pub fn default_flows() -> Vec<Box<dyn DefaultFlow>> {
     vec![
-        Box::new(commit::CommitFlow),
-        Box::new(extract::ExtractFlow),
-        Box::new(find::FindFlow),
-        Box::new(mock::MockFlow),
-        Box::new(naming::NamingFlow),
-        Box::new(regex::RegexFlow),
-        Box::new(spellcheck::SpellcheckFlow),
-        Box::new(synonyms::SynonymsFlow),
-        Box::new(tone::ToneFlow),
-        Box::new(translate::TranslateFlow),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/commit.yaml"),
+        }),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/extract.yaml"),
+        }),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/find.yaml"),
+        }),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/mock.yaml"),
+        }),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/naming.yaml"),
+        }),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/regex.yaml"),
+        }),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/spellcheck.yaml"),
+        }),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/synonyms.yaml"),
+        }),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/tone.yaml"),
+        }),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/translate.yaml"),
+        }),
     ]
 }

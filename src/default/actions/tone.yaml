@@ -1,12 +1,3 @@
-//! Default tone flow.
-
-use crate::default::default::DefaultFlow;
-
-pub struct ToneFlow;
-
-impl DefaultFlow for ToneFlow {
-    fn raw(&self) -> &'static str {
-        r#"
 name: tone
 about: Change the tone of a text based on your instructions
 check: null
@@ -43,6 +34,3 @@ actions:
     check: null
     confirm: false
     action: '{tag_rewritten_text}'
-"#
-    }
-}

@@ -1,12 +1,3 @@
-//! Default naming flow.
-
-use crate::default::default::DefaultFlow;
-
-pub struct NamingFlow;
-
-impl DefaultFlow for NamingFlow {
-    fn raw(&self) -> &'static str {
-        r#"
 name: naming
 about: Generate code naming suggestions based on a description
 check: null
@@ -38,6 +29,3 @@ actions:
     check: null
     confirm: false
     action: '{tag_name_suggestions|join:uniq}'
-"#
-    }
-}

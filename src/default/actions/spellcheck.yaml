@@ -1,12 +1,3 @@
-//! Default spellcheck flow.
-
-use crate::default::default::DefaultFlow;
-
-pub struct SpellcheckFlow;
-
-impl DefaultFlow for SpellcheckFlow {
-    fn raw(&self) -> &'static str {
-        r#"
 name: spellcheck
 about: Check and fix spelling in text or files
 check: null
@@ -77,6 +68,3 @@ actions:
     check: null
     confirm: false
     action: '{tag_checked}'
-"#
-    }
-}

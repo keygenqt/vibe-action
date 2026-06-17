@@ -1,0 +1,29 @@
+name: synonyms
+about: Find programming/technical synonyms for a word
+check: null
+clipboard: false
+args:
+  - name: query
+    short: 'q'
+    expect: string
+    help: Word or concept to find technical synonyms for
+    default: null
+actions:
+  - tag: tag_synonyms_list
+    type: llm
+    expect: list<string>
+    check: null
+    confirm: false
+    action: |-
+      [Task]
+      Give me 5 professional programming terms or alternatives for the concept below.
+      Write each option strictly on a new line without numbering.
+
+      [Concept]
+      {query}
+  - tag: tag_synonyms
+    type: value
+    expect: string
+    check: null
+    confirm: false
+    action: '{tag_synonyms_list|join}'

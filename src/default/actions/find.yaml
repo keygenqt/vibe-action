@@ -1,12 +1,3 @@
-//! Default find flow.
-
-use crate::default::default::DefaultFlow;
-
-pub struct FindFlow;
-
-impl DefaultFlow for FindFlow {
-    fn raw(&self) -> &'static str {
-        r#"
 name: find
 about: Semantic file finder — finds files by meaning, not just name
 check: null
@@ -70,6 +61,3 @@ actions:
     check: null
     confirm: false
     action: '{tag_filtered|join:uniq}'
-"#
-    }
-}

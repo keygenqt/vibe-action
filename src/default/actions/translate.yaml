@@ -1,12 +1,3 @@
-//! Default translate flow.
-
-use crate::default::default::DefaultFlow;
-
-pub struct TranslateFlow;
-
-impl DefaultFlow for TranslateFlow {
-    fn raw(&self) -> &'static str {
-        r#"
 name: translate
 about: Translate text or files to another language
 check: null
@@ -61,6 +52,3 @@ actions:
     check: null
     confirm: false
     action: '{tag_translated}'
-"#
-    }
-}

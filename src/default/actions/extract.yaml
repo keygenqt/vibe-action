@@ -1,12 +1,3 @@
-//! Default extract flow.
-
-use crate::default::default::DefaultFlow;
-
-pub struct ExtractFlow;
-
-impl DefaultFlow for ExtractFlow {
-    fn raw(&self) -> &'static str {
-        r#"
 name: extract
 about: Extract structured data or matching lines from text and logs
 check: null
@@ -58,6 +49,3 @@ actions:
     check: null
     confirm: false
     action: '{tag_clean|join:uniq}'
-"#
-    }
-}

@@ -1,12 +1,3 @@
-//! Default regex flow.
-
-use crate::default::default::DefaultFlow;
-
-pub struct RegexFlow;
-
-impl DefaultFlow for RegexFlow {
-    fn raw(&self) -> &'static str {
-        r#"
 name: regex
 about: Generate a regular expression pattern based on your description
 check: null
@@ -45,6 +36,3 @@ actions:
     check: null
     confirm: false
     action: '{tag_regex|trim:`}'
-"#
-    }
-}
