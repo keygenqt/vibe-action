@@ -1,7 +1,6 @@
 name: find
 about: Semantic file finder — finds files by meaning, not just name
-check: null
-clipboard: false
+clipboard: true
 args:
   - name: path
     short: 'p'
@@ -12,19 +11,16 @@ args:
     short: 'q'
     expect: string
     help: What to find — describe in natural language
-    default: null
 actions:
+  # Collect all text files in the directory
   - tag: tag_files
     type: cmd
     expect: list<string>
-    check: null
-    confirm: false
     action: find {path} -type f -exec grep -Iq . {} \; -print
+  # Build prompt with file path and content for each file
   - tag: tag_content
     type: cmd
     expect: string
-    check: null
-    confirm: false
     action: |-
       cat << 'EOF'
       [Task]
@@ -43,21 +39,18 @@ actions:
       [File]
       {tag_files}
       EOF
+  # LLM evaluates each file against the query
   - tag: tag_matches
     type: llm
     expect: list<string>
-    check: null
-    confirm: false
     action: '{tag_content}'
+  # Filter out non-matching entries
   - tag: tag_filtered
     type: value
     expect: string
-    check: null
-    confirm: false
     action: '{tag_matches|trim:<->}'
+  # Join matching file paths, remove duplicates
   - tag: tag_find
     type: value
     expect: string
-    check: null
-    confirm: false
     action: '{tag_filtered|join:uniq}'

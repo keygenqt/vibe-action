@@ -12,12 +12,12 @@ use crate::validate::ValidateTrait;
 
 /// Aggregated actions from all sources.
 #[derive(Debug, Clone)]
-pub struct ActionsModel {
+pub struct FlowsModel {
     /// All loaded flows.
     pub flows: Vec<FlowModel>,
 }
 
-impl ActionsModel {
+impl FlowsModel {
     /// Find a flow by name (exact match).
     pub fn find(&self, name: &str) -> Option<&FlowModel> {
         self.flows.iter().find(|f| f.name == name)

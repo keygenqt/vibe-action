@@ -1,30 +1,25 @@
 name: extract
 about: Extract structured data or matching lines from text and logs
-check: null
-clipboard: false
+clipboard: true
 args:
   - name: file
     short: 'f'
     expect: string
     help: Path to the log or text file
-    default: null
   - name: query
     short: 'q'
     expect: string
     help: Extraction criteria (e.g., 'find all errors')
-    default: null
 actions:
+  # Read the file line by line
   - tag: tag_lines
     type: cmd
     expect: list<string>
-    check: null
-    confirm: false
     action: cat {file}
+  # LLM checks each line against the query, outputs matching lines or "-"
   - tag: tag_content
     type: llm
     expect: string
-    check: null
-    confirm: false
     action: |-
       [Task]
       Read the log line and the search query.
@@ -37,15 +32,13 @@ actions:
 
       [Line]
       {tag_lines}
+  # Remove lines that became empty after filtering
   - tag: tag_clean
     type: value
     expect: string
-    check: null
-    confirm: false
     action: '{tag_content|trim:-}'
+  # Join remaining lines, remove duplicates
   - tag: tag_extract
     type: value
     expect: string
-    check: null
-    confirm: false
     action: '{tag_clean|join:uniq}'

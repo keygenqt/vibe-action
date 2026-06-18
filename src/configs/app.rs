@@ -15,7 +15,7 @@ use vibe_cluster::Provider;
 
 use crate::configs::action::ActionConfig;
 use crate::configs::cluster::ClusterConfig;
-use crate::models::actions::ActionsModel;
+use crate::models::actions::FlowsModel;
 use crate::models::flow::FlowModel;
 use crate::utils;
 use crate::utils::constants;
@@ -43,7 +43,7 @@ pub struct AppConfig {
     pub cluster: Vec<ClusterConfig>,
     /// Loaded actions model (not serialized).
     #[serde(skip)]
-    pub actions_model: Option<ActionsModel>,
+    pub flows: Option<FlowsModel>,
 }
 
 impl Default for AppConfig {
@@ -55,12 +55,12 @@ impl Default for AppConfig {
             cluster: vec![
                 ClusterConfig::default(),
                 // @todo
-                // ClusterConfig {
-                //     host: "http://192.168.1.10:11434".to_string(),
-                //     ..ClusterConfig::default()
-                // },
+                ClusterConfig {
+                    host: "http://192.168.1.10:11434".to_string(),
+                    ..ClusterConfig::default()
+                },
             ],
-            actions_model: None,
+            flows: None,
         }
     }
 }
@@ -131,7 +131,7 @@ impl AppConfig {
         // Save defaults only if using the default path (not overridden by env).
         let actions_path = &path::actions_dir();
         let is_save_default = std::env::var("VIBE_ACTION_PATH").is_err();
-        config.actions_model = Some(ActionsModel::load(&actions_path, is_save_default)?);
+        config.flows = Some(FlowsModel::load(&actions_path, is_save_default)?);
 
         // Cache globally.
         GLOBAL_CONFIG.set(config).ok();
@@ -181,11 +181,11 @@ impl AppConfig {
 
     /// Find a flow by name from the loaded actions model.
     pub fn find_flow(&self, name: &str) -> Result<FlowModel> {
-        let actions = self
-            .actions_model
+        let flows = self
+            .flows
             .as_ref()
             .ok_or_else(|| anyhow::anyhow!("No actions loaded."))?;
-        actions
+        flows
             .find(name)
             .cloned()
             .ok_or_else(|| anyhow::anyhow!("Unknown action: {}", name))

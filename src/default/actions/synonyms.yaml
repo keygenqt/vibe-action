@@ -1,19 +1,15 @@
 name: synonyms
 about: Find programming/technical synonyms for a word
-check: null
-clipboard: false
 args:
   - name: query
     short: 'q'
     expect: string
     help: Word or concept to find technical synonyms for
-    default: null
 actions:
+  # LLM generates 5 technical alternatives
   - tag: tag_synonyms_list
     type: llm
     expect: list<string>
-    check: null
-    confirm: false
     action: |-
       [Task]
       Give me 5 professional programming terms or alternatives for the concept below.
@@ -21,9 +17,8 @@ actions:
 
       [Concept]
       {query}
+  # Join alternatives into a single string
   - tag: tag_synonyms
     type: value
     expect: string
-    check: null
-    confirm: false
     action: '{tag_synonyms_list|join}'

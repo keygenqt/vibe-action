@@ -1,19 +1,16 @@
 name: tone
 about: Change the tone of a text based on your instructions
-check: null
 clipboard: true
 args:
   - name: query
     short: 'q'
     expect: string
     help: "The text to rewrite along with tone instructions (e.g., 'make it formal: hi friend')"
-    default: null
 actions:
+  # LLM transforms rude/aggressive language into professional tone
   - tag: tag_rewritten_text
     type: llm
     expect: string
-    check: null
-    confirm: false
     action: |-
       [Task]
       You receive a text that may contain rude or aggressive language.
@@ -28,9 +25,8 @@ actions:
 
       [Input]
       {query}
+  # Output the transformed text
   - tag: tag_tone
     type: value
     expect: string
-    check: null
-    confirm: false
     action: '{tag_rewritten_text}'

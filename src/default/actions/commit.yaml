@@ -1,7 +1,5 @@
 name: commit
 about: AI-generated commit message
-check: null
-clipboard: false
 args:
   - name: path
     short: 'p'
@@ -9,28 +7,26 @@ args:
     help: 'Path to git repository (default: current directory)'
     default: .
 actions:
+  # Get list of changed files
   - tag: tag_changed_files
     type: cmd
     expect: list<string>
     check: .+
-    confirm: false
     action: cd {path} && git diff --name-only --relative
+  # Diff each changed file
   - tag: tag_file_diff
     type: cmd
     expect: list<string>
-    check: null
-    confirm: false
-    action: |-
+    action: |
       cd {path}
       if [ -f "{tag_changed_files}" ]; then
         git diff -- "{tag_changed_files}"
       fi
+  # LLM summarizes each diff in one sentence
   - tag: tag_file_summary
     type: llm
     expect: list<string>
-    check: null
-    confirm: false
-    action: |-
+    action: |
       [Task]
       Summarize the git diff below in strictly ONE sentence (max 10 words).
       Start with an action verb (Add, Fix, Refactor, Change).
@@ -38,12 +34,11 @@ actions:
 
       [Diff]
       {tag_file_diff}
+  # LLM combines all summaries into one commit message
   - tag: tag_commit_message
     type: llm
     expect: string
-    check: null
-    confirm: false
-    action: |-
+    action: |
       [Task]
       Summarize all summaries below into ONE short conventional commit message (max 10 words).
       Allowed types: feat, fix, docs, refactor, test, chore.
@@ -51,9 +46,9 @@ actions:
 
       [Summaries]
       {tag_file_summary|join:uniq}
+  # Execute git commit (asks for confirmation)
   - tag: tag_commit
     type: cmd
     expect: string
-    check: null
     confirm: true
     action: cd {path} && git add . && git commit -m '{tag_commit_message}'

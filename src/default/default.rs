@@ -4,14 +4,14 @@ use crate::{models::flow::FlowModel, validate::ValidateTrait};
 use anyhow::Result;
 
 /// Common header template for all built-in YAML flows.
-pub const FLOW_HEADER: &str = r#"# Vibe Action — {name}
-# {about}
+pub const FLOW_HEADER: &str = r#"# Vibe Action — {{name}}
+# {{about}}
 #
 # Fields:
 #   name      - Action name (CLI subcommand)
 #   about     - Short description
 #   check     - Optional regex validation for the final flow result
-#   clipboard - Copy final result to clipboard
+#   clipboard - Copy final result to clipboard (default: false)
 #   args      - CLI arguments (optional)
 #   actions   - Pipeline execution steps (execution order resolved automatically by tags)
 #
@@ -27,16 +27,22 @@ pub const FLOW_HEADER: &str = r#"# Vibe Action — {name}
 #   type      - cmd (shell), llm (AI model), value (static string)
 #   expect    - Expected output type: void, bool, number, string, list<T>
 #   check     - Optional regex pre-validation for the result
-#   confirm   - Ask for user confirmation before executing
+#   confirm   - Ask for user confirmation before executing (default: false)
 #   action    - Shell command, LLM prompt, or static string
 #
 # Modifiers:
-#   {tag|upper}      - String: Transforms text to UPPERCASE
-#   {tag|lower}      - String: Transforms text to lowercase
-#   {tag|join}       - List  : Collapses list into a single string via newline (\n)
-#   {tag|join:uniq}  - List  : Collapses list via newline and removes all duplicates
-#   {tag|trim}       - Any   : Strips whitespace from string or filters empty list elements
-#   {tag|trim:chars} - Any   : Strips custom chars/whitespace. If string equals chars, returns empty
+#   {tag|upper}      - Any   : transform to UPPERCASE
+#   {tag|lower}      - Any   : transform to lowercase
+#   {tag|reverse}    - Any   : reverse order
+#   {tag|take:N}     - Any   : first N chars (string) or elements (list)
+#   {tag|trim}       - Any   : strip whitespace, remove empty
+#   {tag|trim:chars} - Any   : strip custom chars
+#   {tag|join}       - List  : join elements with \n
+#   {tag|join:uniq}  - List  : join with deduplication
+#   {tag|sort}       - List  : sort ascending
+#   {tag|sort:desc}  - List  : sort descending
+#   {tag|split}      - String: split into list by \n
+#   {tag|ast:lang}   - String: parse source code to JSON (rs, py, ts, js, ...)
 "#;
 
 pub trait DefaultFlow {
@@ -49,8 +55,8 @@ pub trait DefaultFlow {
         let model = self.model(raw)?;
         model.validate()?;
         let header = FLOW_HEADER
-            .replace("{name}", &model.name)
-            .replace("{about}", &model.about);
+            .replace("{{name}}", &model.name)
+            .replace("{{about}}", &model.about);
         Ok(format!("{}\n{}", header, raw.trim()))
     }
 

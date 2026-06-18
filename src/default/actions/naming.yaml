@@ -1,19 +1,15 @@
 name: naming
 about: Generate code naming suggestions based on a description
-check: null
-clipboard: false
 args:
   - name: query
     short: 'q'
     expect: string
     help: Code component description (e.g., 'function to sort actions by dependency')
-    default: null
 actions:
+  # LLM generates 5-10 naming options based on the description
   - tag: tag_name_suggestions
     type: llm
     expect: list<string>
-    check: null
-    confirm: false
     action: |-
       [Task]
       Generate 5-10 high-quality, professional programming naming suggestions based on the description.
@@ -23,9 +19,8 @@ actions:
 
       [Query]
       {query}
+  # Join suggestions with deduplication
   - tag: tag_naming
     type: value
     expect: string
-    check: null
-    confirm: false
     action: '{tag_name_suggestions|join:uniq}'

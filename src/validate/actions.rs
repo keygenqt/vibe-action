@@ -5,9 +5,9 @@ use std::collections::HashSet;
 
 use anyhow::Result;
 
-use crate::{models::actions::ActionsModel, validate::ValidateTrait};
+use crate::{models::actions::FlowsModel, validate::ValidateTrait};
 
-impl ValidateTrait for ActionsModel {
+impl ValidateTrait for FlowsModel {
     /// Validate all flows: each flow internally, plus duplicate names across flows.
     fn validate(&self) -> Result<()> {
         for flow in &self.flows {

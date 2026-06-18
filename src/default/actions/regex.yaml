@@ -1,24 +1,20 @@
 name: regex
 about: Generate a regular expression pattern based on your description
-check: null
 clipboard: true
 args:
   - name: query
     short: 'q'
     expect: string
     help: What the regex should match (e.g., 'extract domain from email')
-    default: null
   - name: example
     short: 'e'
     expect: string
     help: Optional example string to test the pattern against
-    default: ''
 actions:
+  # LLM generates regex pattern, optionally testing against example
   - tag: tag_regex
     type: llm
     expect: string
-    check: null
-    confirm: false
     action: |-
       [Task]
       Generate a valid regular expression pattern based on the user's [Query].
@@ -30,9 +26,8 @@ actions:
 
       [Example]
       {example}
+  # Strip backticks if model wrapped output in them
   - tag: tag_value
     type: value
     expect: string
-    check: null
-    confirm: false
     action: '{tag_regex|trim:`}'

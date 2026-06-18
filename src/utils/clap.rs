@@ -7,7 +7,7 @@ macro_rules! build_app {
     ($config:expr) => {{
         use clap::{Arg, Command, CommandFactory};
         let mut app = $crate::App::command();
-        if let Some(actions_model) = &$config.actions_model {
+        if let Some(actions_model) = &$config.flows {
             for flow in &actions_model.flows {
                 let mut dynamic_cmd = Command::new(flow.name.as_str()).about(&flow.about);
                 for arg_def in &flow.args {

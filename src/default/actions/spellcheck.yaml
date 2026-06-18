@@ -1,35 +1,33 @@
 name: spellcheck
 about: Check and fix spelling in text or files
-check: null
 clipboard: true
 args:
   - name: text
     short: 't'
     expect: string
-    help: Text to check
     default: ''
+    help: Text to check
   - name: file
     short: 'f'
     expect: string
-    help: File to check
     default: ''
+    help: File to check
 actions:
+  # Read input from file or text argument
   - tag: tag_content
     type: cmd
     expect: string
     check: .+
-    confirm: false
     action: |-
       if [ -n "{file}" ]; then
         cat "{file}"
       elif [ -n "{text}" ]; then
         echo "{text}"
       fi
+  # LLM checks if text contains any errors
   - tag: tag_check_errors
     type: llm
     expect: string
-    check: null
-    confirm: false
     action: |-
       [Task]
       Analyze the text below for typos, spelling mistakes, and grammar errors.
@@ -37,24 +35,20 @@ actions:
 
       [Text]
       {tag_content}
-
+  # If errors found, pass text through; otherwise return "No errors found."
   - tag: tag_check_errors_filter
     type: cmd
     expect: string
-    check: null
-    confirm: false
     action: |-
       if [ "{tag_check_errors}" = "DIRTY" ]; then
         echo "{tag_content}"
       else
         echo "No errors found."
       fi
-
+  # LLM fixes all errors while preserving formatting
   - tag: tag_checked
     type: llm
     expect: string
-    check: null
-    confirm: false
     action: |-
       [Task]
       Fix all spelling mistakes, typos, and grammar errors in the text below.
@@ -62,9 +56,8 @@ actions:
 
       [Text]
       {tag_check_errors_filter}
+  # Output corrected text
   - tag: tag_spellcheck
     type: value
     expect: string
-    check: null
-    confirm: false
     action: '{tag_checked}'

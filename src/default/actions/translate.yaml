@@ -1,40 +1,37 @@
 name: translate
 about: Translate text or files to another language
-check: null
 clipboard: true
 args:
   - name: text
     short: 't'
     expect: string
-    help: Text to translate
     default: ''
+    help: Text to translate
   - name: file
     short: 'f'
     expect: string
-    help: File to translate
     default: ''
+    help: File to translate
   - name: to
     short: 'l'
     expect: string
     help: Target language (e.g., Russian, English, Chinese)
-    default: null
 actions:
+  # Read input from file or text argument
   - tag: tag_content
     type: cmd
     expect: string
     check: .+
-    confirm: false
     action: |-
       if [ -n "{file}" ]; then
         cat "{file}"
       elif [ -n "{text}" ]; then
         echo "{text}"
       fi
+  # LLM translates text, preserving code and proper names
   - tag: tag_translated
     type: llm
     expect: string
-    check: null
-    confirm: false
     action: |-
       [Task]
       Translate the entire [Text] to the language specified in [User].
@@ -46,9 +43,8 @@ actions:
 
       [Text]
       {tag_content}
+  # Output translated text
   - tag: tag_translate
     type: value
     expect: string
-    check: null
-    confirm: false
     action: '{tag_translated}'
