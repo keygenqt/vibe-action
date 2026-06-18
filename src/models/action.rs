@@ -4,14 +4,23 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize, Serializer};
 
-/// Action type: command or LLM.
+/// Action runner type.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum ActionMode {
+pub enum ActionRun {
     /// Execute command in terminal.
     Cmd,
-    /// Send prompt to LLM.
+    /// Send prompt to LLM (all nodes).
     Llm,
+    /// Send prompt to small LLM.
+    #[serde(rename = "llm_small")]
+    LlmSmall,
+    /// Send prompt to medium LLM.
+    #[serde(rename = "llm_medium")]
+    LlmMedium,
+    /// Send prompt to large LLM.
+    #[serde(rename = "llm_large")]
+    LlmLarge,
     /// Return the action string directly (no shell, no LLM).
     Value,
 }
@@ -31,13 +40,21 @@ pub enum ExpectMode {
     List(Box<ExpectMode>),
 }
 
+/// A single switch case.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum SwitchCase {
+    Case { case: String, action: String },
+    Else { action: String },
+}
+
 /// A single action step.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActionModel {
     /// Tag name for {tag} references.
     pub tag: String,
-    /// Action type.
-    pub r#type: ActionMode,
+    /// Action runner type.
+    pub run: ActionRun,
     /// Expected result type.
     pub expect: ExpectMode,
     /// Optional regex validation for the result.
@@ -46,8 +63,36 @@ pub struct ActionModel {
     /// Ask for confirmation before executing.
     #[serde(default)]
     pub confirm: bool,
-    /// Command or prompt.
-    pub action: String,
+    /// Command or prompt (optional if switch is set).
+    #[serde(default)]
+    pub action: Option<String>,
+    /// Switch cases for conditional execution.
+    #[serde(default)]
+    pub switch: Option<Vec<SwitchCase>>,
+}
+
+impl ActionModel {
+    /// Return all action texts for dependency scanning.
+    pub fn actions(&self) -> Vec<&str> {
+        let mut texts = Vec::new();
+        if let Some(action) = &self.action {
+            texts.push(action.as_str());
+        }
+        if let Some(switch) = &self.switch {
+            for branch in switch {
+                match branch {
+                    SwitchCase::Case { case, action } => {
+                        texts.push(case.as_str());
+                        texts.push(action.as_str());
+                    }
+                    SwitchCase::Else { action } => {
+                        texts.push(action.as_str());
+                    }
+                }
+            }
+        }
+        texts
+    }
 }
 
 /// Custom deserializer for ExpectMode.
@@ -102,12 +147,14 @@ impl Serialize for ExpectMode {
     }
 }
 
-impl std::fmt::Display for ActionMode {
+impl std::fmt::Display for ActionRun {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ActionMode::Cmd => write!(f, "cmd"),
-            ActionMode::Llm => write!(f, "llm"),
-            ActionMode::Value => write!(f, "val"),
+            ActionRun::Cmd => write!(f, "cmd"),
+            ActionRun::Llm | ActionRun::LlmSmall | ActionRun::LlmMedium | ActionRun::LlmLarge => {
+                write!(f, "llm")
+            }
+            ActionRun::Value => write!(f, "val"),
         }
     }
 }

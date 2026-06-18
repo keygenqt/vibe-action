@@ -15,6 +15,8 @@ use vibe_cluster::Provider;
 
 use crate::configs::action::ActionConfig;
 use crate::configs::cluster::ClusterConfig;
+use crate::configs::cluster::ClusterRole;
+use crate::models::action::ActionRun;
 use crate::models::actions::FlowsModel;
 use crate::models::flow::FlowModel;
 use crate::utils;
@@ -160,9 +162,10 @@ impl AppConfig {
                 vec![
                     "LLM cluster nodes (local and cloud models).",
                     "",
-                    "provider - Provider type: ollama, deepseek, qwen",
+                    "provider - Provider run:ollama, deepseek, qwen",
                     "host - API endpoint",
                     "model - LLM model name",
+                    "role - Node role: small, medium, large (optional, default: all)",
                     "timeout_secs - Request timeout in seconds",
                     "temperature - Sampling temperature (0.0 - 1.0)",
                     "seed - Random seed for reproducibility",
@@ -191,11 +194,34 @@ impl AppConfig {
             .ok_or_else(|| anyhow::anyhow!("Unknown action: {}", name))
     }
 
-    /// Create vibe-cluster from all configured nodes.
-    pub fn create_cluster(&self) -> Result<Cluster> {
+    /// Check if any node has the given role.
+    pub fn model_role_exist(&self, role: &ClusterRole) -> bool {
+        self.cluster.iter().any(|c| c.role.as_ref() == Some(role))
+    }
+
+    /// Create vibe-cluster filtered by role.
+    pub fn create_cluster_filtered(&self, run: &ActionRun) -> Result<Cluster> {
+        let target_role = match run {
+            ActionRun::LlmSmall => Some(ClusterRole::Small),
+            ActionRun::LlmMedium => Some(ClusterRole::Medium),
+            ActionRun::LlmLarge => Some(ClusterRole::Large),
+            _ => None,
+        };
+
+        // If target role specified but no node has it, fallback to all nodes.
+        let effective_role = match &target_role {
+            Some(role) if !self.model_role_exist(role) => None,
+            _ => target_role,
+        };
+
         let connections: Vec<ConnectionParams> = self
             .cluster
             .iter()
+            .filter(|c| match (&effective_role, &c.role) {
+                (Some(target), Some(node_role)) => node_role == target,
+                (None, _) => true,
+                _ => false,
+            })
             .map(|c| {
                 let provider = match c.provider.as_str() {
                     "ollama" => Provider::Ollama,
@@ -219,7 +245,7 @@ impl AppConfig {
             .collect::<Result<Vec<_>>>()?;
 
         if connections.is_empty() {
-            anyhow::bail!("No cluster nodes found in configuration.");
+            anyhow::bail!("No cluster nodes found for role: {:?}", effective_role);
         }
 
         Cluster::new(connections).map_err(|e| anyhow::anyhow!(e.to_string()))

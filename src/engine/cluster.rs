@@ -4,7 +4,7 @@
 use anyhow::Result;
 use vibe_cluster::{BatchOptions, Prompt};
 
-use crate::configs::app::AppConfig;
+use crate::{configs::app::AppConfig, models::action::ActionRun};
 
 /// Distributed cluster execution response payload.
 pub struct ClusterResult {
@@ -21,10 +21,11 @@ impl Cluster {
     pub async fn exec(
         system: &str,
         retries: u32,
+        run: &ActionRun,
         prompts: &[String],
     ) -> Result<Vec<ClusterResult>> {
         let config = AppConfig::instance()?;
-        let cluster = config.create_cluster()?;
+        let cluster = config.create_cluster_filtered(run)?;
 
         let options = BatchOptions {
             retries: Some(retries as usize),

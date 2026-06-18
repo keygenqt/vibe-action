@@ -3,7 +3,7 @@ about: Test regex check on step
 args: []
 actions:
   - tag: tag_val
-    type: value
+    run: value
     expect: string
     check: '^\d+$'
     action: '42'

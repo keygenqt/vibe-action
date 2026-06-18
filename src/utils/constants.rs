@@ -11,7 +11,7 @@ pub const ACTIONS_DIR_NAME: &str = "actions";
 pub const CONFIG_FILE_NAME: &str = "config.yaml";
 
 /// Config version
-pub const CONFIG_VERSION: &str = "0.0.2";
+pub const CONFIG_VERSION: &str = "0.0.3";
 
 /// Regex pattern for {tag|modifier} placeholders.
 /// Matches: {tag}, {tag|mod}, {tag|mod:arg}, {tag|mod1|mod2}

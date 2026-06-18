@@ -33,12 +33,14 @@ impl TopologicalSort {
             in_degree.entry(&action.tag).or_insert(0);
             deps.entry(&action.tag).or_default();
 
-            // Collect unique {tag} references (avoid double counting).
             let mut unique_deps: HashSet<&str> = HashSet::new();
-            for cap in re.captures_iter(&action.action) {
-                let dep_tag = cap.get(1).unwrap().as_str(); // tag without modifier
-                if dep_tag != action.tag {
-                    unique_deps.insert(dep_tag);
+
+            for action_text in action.actions() {
+                for cap in re.captures_iter(action_text) {
+                    let dep_tag = cap.get(1).unwrap().as_str(); // Теперь ссылка живет долго
+                    if dep_tag != action.tag {
+                        unique_deps.insert(dep_tag);
+                    }
                 }
             }
 

@@ -8,6 +8,7 @@ use walkdir::WalkDir;
 
 use crate::default::default::default_flows;
 use crate::models::flow::FlowModel;
+use crate::print_warning;
 use crate::validate::ValidateTrait;
 
 /// Aggregated actions from all sources.
@@ -43,8 +44,8 @@ impl FlowsModel {
                 {
                     if let Ok(flow) = FlowModel::load(&file_path.to_path_buf()) {
                         actions.flows.push(flow);
-                    } else {
-                        tracing::warn!("Failed to load action file: {}", file_path.display());
+                    } else if let Err(e) = FlowModel::load(&file_path.to_path_buf()) {
+                        print_warning!("Failed to load {}: {}", file_path.display(), e);
                     }
                 }
             }

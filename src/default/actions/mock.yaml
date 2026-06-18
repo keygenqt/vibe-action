@@ -14,9 +14,9 @@ args:
 actions:
   # LLM generates structured mock data in the requested format
   - tag: tag_mock
-    type: llm
+    run: llm
     expect: string
-    action: |-
+    action: |
       [Task]
       Generate a realistic mock data array based on the user's [Query].
       Format the output strictly as valid raw {format} data.

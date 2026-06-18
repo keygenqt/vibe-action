@@ -12,7 +12,7 @@ clipboard: false
 args: []
 actions:
   - tag: tag_hello
-    type: value
+    run: value
     expect: string
     check: null
     confirm: false
@@ -42,7 +42,7 @@ args: # Optional: CLI arguments
     default: 'default' # Optional: makes argument non-required
 actions: # Pipeline steps (executed in order of dependencies)
   - tag: tag_step1
-    type: cmd # cmd | llm | value
+    run: cmd # cmd | llm | value
     expect: string # void | bool | number | string | list<T>
     check: '^.+$' # Optional: regex validation for this step
     confirm: true # Optional: ask before executing
@@ -75,11 +75,11 @@ The engine builds a dependency graph and executes in topological order.
 ```yaml
 actions:
   - tag: tag_files # 1st — no dependencies
-    type: cmd
+    run: cmd
     action: find . -name '*.rs'
 
   - tag: tag_summary # 2nd — depends on tag_files
-    type: llm
+    run: llm
     action: Summarize - {tag_files}
 ```
 
@@ -89,7 +89,7 @@ actions:
 
 ```yaml
 - tag: tag_files
-  type: cmd
+  run: cmd
   check: '.+' # Must be non-empty
   action: git diff --name-only
 ```
@@ -100,7 +100,7 @@ actions:
 
 ```yaml
 - tag: tag_commit
-  type: cmd
+  run: cmd
   confirm: true
   action: git commit -m "feat: something"
 ```

@@ -5,13 +5,16 @@ use anyhow::Result;
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 
-use crate::models::action::{ActionMode, ActionModel};
+use crate::models::action::ActionRun;
 use crate::models::context::ContextModel;
 use crate::modifier::modifier::ModifierRegistry;
 use crate::utils::constants;
 
 /// Result of expanding a template with context values.
+#[derive(Debug, Clone, Default)]
 pub struct ExpandedTemplate {
+    /// Original template before expansion.
+    pub raw: String,
     /// Expanded template strings (one per combination if list tags were present).
     pub items: Vec<String>,
     /// Whether the expansion involved list tags (loop mode).
@@ -44,13 +47,14 @@ impl Context {
     /// Fill {tag} placeholders and return ExpandedTemplate.
     pub fn fill(
         &self,
-        action: &ActionModel,
+        raw: &str,
+        run: &ActionRun,
         modifier: &ModifierRegistry,
     ) -> Result<ExpandedTemplate> {
-        let is_encode = action.r#type == ActionMode::Cmd;
+        let is_encode = run == &ActionRun::Cmd;
         let re = Regex::new(constants::TAG_PLACEHOLDER_PATTERN).unwrap();
 
-        let clean_text = Self::strip_all_template_quotes(&action.action, is_encode);
+        let clean_text = Self::strip_all_template_quotes(&raw, is_encode);
         let mut processed_tags = HashSet::new();
         let mut results = vec![clean_text.clone()];
         let mut is_list = false;
@@ -70,16 +74,6 @@ impl Context {
                 }
                 let processed_value = modifier.apply_modifier(modifier_value, context_value)?;
                 match processed_value {
-                    ContextModel::String(s) => {
-                        let mut final_string = s;
-                        if is_encode {
-                            final_string = shell_words::quote(&final_string).to_string();
-                        }
-                        for current in results.iter_mut() {
-                            *current = current.replace(placeholder, &final_string);
-                        }
-                        processed_tags.insert(tag_name.to_string());
-                    }
                     ContextModel::List(items) => {
                         is_list = true;
                         let mut next = Vec::new();
@@ -95,12 +89,22 @@ impl Context {
                         results = next;
                         processed_tags.insert(tag_name.to_string());
                     }
-                    _ => {}
+                    _ => {
+                        let mut final_string = processed_value.to_string();
+                        if is_encode {
+                            final_string = shell_words::quote(&final_string).to_string();
+                        }
+                        for current in results.iter_mut() {
+                            *current = current.replace(placeholder, &final_string);
+                        }
+                        processed_tags.insert(tag_name.to_string());
+                    }
                 }
             }
         }
 
         Ok(ExpandedTemplate {
+            raw: raw.to_string(),
             items: results,
             is_list,
         })

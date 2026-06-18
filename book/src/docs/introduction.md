@@ -39,13 +39,13 @@ args:
     default: null
 actions:
   - tag: tag_lines
-    type: cmd
+    run: cmd
     expect: list<string>
     check: null
     confirm: false
     action: cat {file}
   - tag: tag_content
-    type: llm
+    run: llm
     expect: string
     check: null
     confirm: false
@@ -61,13 +61,13 @@ actions:
       [Line]
       {tag_lines}
   - tag: tag_clean
-    type: value
+    run: value
     expect: string
     check: null
     confirm: false
     action: '{tag_content|trim:-}'
   - tag: tag_extract
-    type: value
+    run: value
     expect: string
     check: null
     confirm: false

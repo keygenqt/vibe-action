@@ -3,7 +3,7 @@ about: Test AST modifier for Rust
 args: []
 actions:
   - tag: tag_code
-    type: value
+    run: value
     expect: string
     action: |
       /// Adds two numbers
@@ -27,6 +27,6 @@ actions:
       pub const MAX_SIZE: usize = 1024;
 
   - tag: tag_ast
-    type: value
+    run: value
     expect: string
     action: '{tag_code|ast:rs}'

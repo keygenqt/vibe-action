@@ -3,6 +3,6 @@ about: Test expect bool false
 args: []
 actions:
   - tag: tag_val
-    type: value
+    run: value
     expect: bool
     action: 'false'

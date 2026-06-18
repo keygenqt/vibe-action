@@ -8,9 +8,9 @@ args:
 actions:
   # LLM generates 5-10 naming options based on the description
   - tag: tag_name_suggestions
-    type: llm
-    expect: list<string>
-    action: |-
+    run: llm
+    expect: string
+    action: |
       [Task]
       Generate 5-10 high-quality, professional programming naming suggestions based on the description.
       Strictly follow the programming language or style constraints requested in the description if specified.
@@ -19,8 +19,3 @@ actions:
 
       [Query]
       {query}
-  # Join suggestions with deduplication
-  - tag: tag_naming
-    type: value
-    expect: string
-    action: '{tag_name_suggestions|join:uniq}'

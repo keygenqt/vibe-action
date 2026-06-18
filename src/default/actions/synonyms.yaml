@@ -8,7 +8,7 @@ args:
 actions:
   # LLM generates 5 technical alternatives
   - tag: tag_synonyms_list
-    type: llm
+    run: llm
     expect: list<string>
     action: |-
       [Task]
@@ -19,6 +19,6 @@ actions:
       {query}
   # Join alternatives into a single string
   - tag: tag_synonyms
-    type: value
+    run: value
     expect: string
     action: '{tag_synonyms_list|join}'

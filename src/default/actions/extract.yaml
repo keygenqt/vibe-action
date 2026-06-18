@@ -13,14 +13,14 @@ args:
 actions:
   # Read the file line by line
   - tag: tag_lines
-    type: cmd
+    run: cmd
     expect: list<string>
     action: cat {file}
   # LLM checks each line against the query, outputs matching lines or "-"
   - tag: tag_content
-    type: llm
+    run: llm
     expect: string
-    action: |-
+    action: |
       [Task]
       Read the log line and the search query.
       If the line matches the query — output the EXACT line unchanged.
@@ -34,11 +34,11 @@ actions:
       {tag_lines}
   # Remove lines that became empty after filtering
   - tag: tag_clean
-    type: value
+    run: value
     expect: string
     action: '{tag_content|trim:-}'
   # Join remaining lines, remove duplicates
   - tag: tag_extract
-    type: value
+    run: value
     expect: string
     action: '{tag_clean|join:uniq}'

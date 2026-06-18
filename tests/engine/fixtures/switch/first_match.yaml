@@ -1,0 +1,17 @@
+name: switch-first-match
+about: Test switch first matching case wins
+args: []
+actions:
+  - tag: tag_check
+    run: value
+    expect: string
+    action: DIRTY
+
+  - tag: tag_result
+    run: value
+    expect: string
+    switch:
+      - case: '{tag_check|contains:DIRTY}'
+        action: first
+      - case: '{tag_check|contains:DIRTY}'
+        action: second

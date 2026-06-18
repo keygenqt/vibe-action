@@ -1,0 +1,13 @@
+name: not-empty-string
+about: Test not_empty modifier on non-empty string
+args: []
+actions:
+  - tag: tag_input
+    run: value
+    expect: string
+    action: hello
+
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{tag_input|not_empty}'

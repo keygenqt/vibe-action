@@ -1,0 +1,15 @@
+name: switch-no-match
+about: Test switch with no matching case and no else
+args: []
+actions:
+  - tag: tag_check
+    run: value
+    expect: string
+    action: CLEAR
+
+  - tag: tag_result
+    run: value
+    expect: string
+    switch:
+      - case: '{tag_check|contains:DIRTY}'
+        action: fixed

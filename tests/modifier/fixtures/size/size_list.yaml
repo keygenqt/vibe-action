@@ -1,0 +1,16 @@
+name: size-list
+about: Test size modifier on list
+args: []
+actions:
+  - tag: tag_input
+    run: cmd
+    expect: list<string>
+    action: |
+      echo "a"
+      echo "b"
+      echo "c"
+
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{tag_input|size}'

@@ -3,7 +3,7 @@ about: Test AST modifier for Kotlin
 args: []
 actions:
   - tag: tag_code
-    type: value
+    run: value
     expect: string
     action: |
       /**
@@ -29,6 +29,6 @@ actions:
       }
 
   - tag: tag_ast
-    type: value
+    run: value
     expect: string
     action: '{tag_code|ast:kt}'

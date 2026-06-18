@@ -1,6 +1,6 @@
 name: find
 about: Semantic file finder — finds files by meaning, not just name
-clipboard: true
+clipboard: false
 args:
   - name: path
     short: 'p'
@@ -14,14 +14,14 @@ args:
 actions:
   # Collect all text files in the directory
   - tag: tag_files
-    type: cmd
+    run: cmd
     expect: list<string>
     action: find {path} -type f -exec grep -Iq . {} \; -print
   # Build prompt with file path and content for each file
   - tag: tag_content
-    type: cmd
+    run: cmd
     expect: string
-    action: |-
+    action: |
       cat << 'EOF'
       [Task]
       Check if the [Content] code/comments contain the technical [Query] word, function name, or meaning.
@@ -41,16 +41,16 @@ actions:
       EOF
   # LLM evaluates each file against the query
   - tag: tag_matches
-    type: llm
+    run: llm
     expect: list<string>
     action: '{tag_content}'
   # Filter out non-matching entries
   - tag: tag_filtered
-    type: value
+    run: value
     expect: string
     action: '{tag_matches|trim:<->}'
   # Join matching file paths, remove duplicates
   - tag: tag_find
-    type: value
+    run: value
     expect: string
     action: '{tag_filtered|join:uniq}'

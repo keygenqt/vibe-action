@@ -38,5 +38,6 @@ pub fn app_test_engine(name: &str) -> std::process::Output {
 
 mod engine {
     mod expect_test;
+    mod switch_test;
     mod validate_test;
 }

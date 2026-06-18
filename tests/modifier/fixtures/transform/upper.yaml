@@ -3,11 +3,11 @@ about: Test upper modifier
 args: []
 actions:
   - tag: tag_input
-    type: value
+    run: value
     expect: string
     action: hello
 
   - tag: tag_upper
-    type: value
+    run: value
     expect: string
     action: '{tag_input|upper}'

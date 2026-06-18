@@ -3,7 +3,7 @@ about: Test sort modifier default (ascending)
 args: []
 actions:
   - tag: tag_input
-    type: cmd
+    run: cmd
     expect: list<string>
     action: |
       echo "b"
@@ -11,6 +11,6 @@ actions:
       echo "a"
 
   - tag: tag_sorted
-    type: value
+    run: value
     expect: string
     action: '{tag_input|sort|join}'

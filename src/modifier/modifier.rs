@@ -9,9 +9,17 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ModifierKey {
     Ast,
+    Contains,
+    Empty,
+    Equals,
+    IsDir,
+    IsFile,
     Join,
     Lower,
+    NotEmpty,
+    Resolve,
     Reverse,
+    Size,
     Sort,
     Split,
     Take,
@@ -24,9 +32,17 @@ impl ModifierKey {
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
             "ast" => Some(Self::Ast),
+            "contains" => Some(Self::Contains),
+            "empty" => Some(Self::Empty),
+            "equals" => Some(Self::Equals),
+            "is_dir" => Some(Self::IsDir),
+            "is_file" => Some(Self::IsFile),
             "join" => Some(Self::Join),
             "lower" => Some(Self::Lower),
+            "not_empty" => Some(Self::NotEmpty),
+            "resolve" => Some(Self::Resolve),
             "reverse" => Some(Self::Reverse),
+            "size" => Some(Self::Size),
             "sort" => Some(Self::Sort),
             "split" => Some(Self::Split),
             "take" => Some(Self::Take),
@@ -55,9 +71,17 @@ impl ModifierRegistry {
             modifiers: HashMap::new(),
         };
         registry.register(Box::new(super::ast::AstModifier));
+        registry.register(Box::new(super::contains::ContainsModifier));
+        registry.register(Box::new(super::empty::EmptyModifier));
+        registry.register(Box::new(super::equals::EqualsModifier));
+        registry.register(Box::new(super::is_dir::IsDirModifier));
+        registry.register(Box::new(super::is_file::IsFileModifier));
         registry.register(Box::new(super::join::JoinModifier));
         registry.register(Box::new(super::lower::LowerModifier));
+        registry.register(Box::new(super::not_empty::NotEmptyModifier));
+        registry.register(Box::new(super::resolve::ResolveModifier));
         registry.register(Box::new(super::reverse::ReverseModifier));
+        registry.register(Box::new(super::size::SizeModifier));
         registry.register(Box::new(super::sort::SortModifier));
         registry.register(Box::new(super::split::SplitModifier));
         registry.register(Box::new(super::take::TakeModifier));

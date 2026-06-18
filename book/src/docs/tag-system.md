@@ -7,12 +7,12 @@ Tags connect pipeline steps. When you write `{tag_name}` in an action, the engin
 ```yaml
 actions:
   - tag: tag_files
-    type: cmd
+    run: cmd
     expect: list<string>
     action: ls *.rs
 
   - tag: tag_summary
-    type: llm
+    run: llm
     expect: string
     action: Summarize these files - {tag_files|join}
 ```
@@ -33,15 +33,15 @@ You don't need to write steps in execution order. The engine:
 actions:
   # These can be in any order — the engine sorts them:
   - tag: tag_commit
-    type: cmd
+    run: cmd
     action: git commit -m '{tag_message}'
 
   - tag: tag_files
-    type: cmd
+    run: cmd
     action: git diff --name-only
 
   - tag: tag_message
-    type: llm
+    run: llm
     action: Write a commit message for: {tag_files}
 ```
 
@@ -54,13 +54,13 @@ When a step expects `list<string>` and receives a list from a tag, the engine ru
 ```yaml
 actions:
   - tag: tag_files
-    type: cmd
+    run: cmd
     expect: list<string>
     action: git diff --name-only
     # Returns: ["main.rs", "lib.rs"]
 
   - tag: tag_diff
-    type: cmd
+    run: cmd
     expect: list<string>
     action: git diff {tag_files}
     # Runs twice: git diff main.rs, git diff lib.rs
@@ -73,7 +73,7 @@ A step can reference multiple tags:
 
 ```yaml
 - tag: tag_report
-  type: llm
+  run: llm
   expect: string
   action: |
     Compare these two files:

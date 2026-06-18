@@ -4,6 +4,6 @@ args: []
 check: '^\d+$'
 actions:
   - tag: tag_val
-    type: value
+    run: value
     expect: string
     action: '42'

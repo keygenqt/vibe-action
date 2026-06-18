@@ -3,6 +3,6 @@ about: Test expect string
 args: []
 actions:
   - tag: tag_val
-    type: value
+    run: value
     expect: string
     action: hello

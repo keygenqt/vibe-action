@@ -33,7 +33,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         print_progress!(
             "{} ({})... {:.0}% ({}/{})",
             action.tag,
-            action.r#type.to_string(),
+            action.run.to_string(),
             ((i + 1) as f32 / total as f32) * 100.0,
             i + 1,
             total
@@ -43,9 +43,12 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             print_newline!();
             print_info!("completed in {:.2?}", start_time.elapsed());
             let query = format!("Execute '{}'?", format_msg(&action.tag));
+            let resolve = engine
+                .action_display(&action)
+                .unwrap_or_else(|e| exit_error!("{}", e));
             let ans = Confirm::new(&query)
                 .with_default(false)
-                .with_placeholder(&format!("\n{}", engine.action_display(&action)))
+                .with_placeholder(&format!("\n{}", resolve))
                 .prompt();
             match ans {
                 Ok(true) => {

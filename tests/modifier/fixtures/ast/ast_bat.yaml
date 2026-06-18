@@ -3,7 +3,7 @@ about: Test AST modifier for Batch
 args: []
 actions:
   - tag: tag_code
-    type: value
+    run: value
     expect: string
     action: |
       @echo off
@@ -11,6 +11,6 @@ actions:
       echo Hello %NAME%
 
   - tag: tag_ast
-    type: value
+    run: value
     expect: string
     action: '{tag_code|ast:bat}'

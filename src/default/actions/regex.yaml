@@ -13,9 +13,9 @@ args:
 actions:
   # LLM generates regex pattern, optionally testing against example
   - tag: tag_regex
-    type: llm
+    run: llm
     expect: string
-    action: |-
+    action: |
       [Task]
       Generate a valid regular expression pattern based on the user's [Query].
       If an [Example] string is provided, ensure the generated regex matches it correctly.
@@ -28,6 +28,6 @@ actions:
       {example}
   # Strip backticks if model wrapped output in them
   - tag: tag_value
-    type: value
+    run: value
     expect: string
     action: '{tag_regex|trim:`}'

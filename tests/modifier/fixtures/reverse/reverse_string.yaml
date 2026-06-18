@@ -3,11 +3,11 @@ about: Test reverse modifier on string
 args: []
 actions:
   - tag: tag_input
-    type: value
+    run: value
     expect: string
     action: hello
 
   - tag: tag_reversed
-    type: value
+    run: value
     expect: string
     action: '{tag_input|reverse}'

@@ -4,11 +4,11 @@ about: Test lower modifier
 args: []
 actions:
   - tag: tag_input
-    type: value
+    run: value
     expect: string
     action: HELLO
 
   - tag: tag_lower
-    type: value
+    run: value
     expect: string
     action: '{tag_input|lower}'

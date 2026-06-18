@@ -1,0 +1,13 @@
+name: equals-string
+about: Test equals modifier on string
+args: []
+actions:
+  - tag: tag_input
+    run: value
+    expect: string
+    action: hello
+
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{tag_input|equals:hello}'

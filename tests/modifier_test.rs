@@ -1,6 +1,6 @@
 //! Modifier integration tests: upper, lower, trim, join, take, split, ast.
 //!
-//! cargo test --test modifier_test -- --test-threads=1
+//! cargo test --test modifier_test -- --test-threads=1 # --nocapture
 
 use std::sync::Once;
 
@@ -38,8 +38,15 @@ pub fn app_test_modifier(name: &str) -> std::process::Output {
 
 mod modifier {
     mod ast_test;
+    mod contains_test;
+    mod empty_test;
+    mod equals_test;
+    mod is_dir_test;
+    mod is_file_test;
     mod join_test;
+    mod resolve_test;
     mod reverse_test;
+    mod size_test;
     mod sort_test;
     mod split_test;
     mod take_test;

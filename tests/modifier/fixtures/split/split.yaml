@@ -3,7 +3,7 @@ about: Test split modifier
 args: []
 actions:
   - tag: tag_input
-    type: value
+    run: value
     expect: string
     action: |
       a
@@ -11,6 +11,6 @@ actions:
       c
 
   - tag: tag_split
-    type: value
+    run: value
     expect: string
     action: '{tag_input|split|join}'

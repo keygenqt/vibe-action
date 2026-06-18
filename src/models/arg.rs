@@ -3,7 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::models::{action::ExpectMode, arg_value::ArgActionValue};
+use crate::models::action::ExpectMode;
 
 /// CLI argument definition.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,22 +21,6 @@ pub struct ArgActionModel {
     /// Default value. If set, the argument is optional and uses this value when not provided.
     #[serde(default)]
     pub default: Option<String>,
-    /// Resolved values from CLI input (not serialized).
-    #[serde(skip, default)]
-    pub values: Vec<ArgActionValue>,
-}
-
-impl ArgActionModel {
-    /// Fill values from CLI matches. Handles multiple values and default fallback.
-    pub fn resolve_values(&mut self, matches: &clap::ArgMatches) {
-        if let Some(values) = matches.get_many::<String>(&self.name) {
-            self.values = values
-                .map(|v| ArgActionValue::new_with_check(&self.name, v))
-                .collect();
-        } else if let Some(default) = &self.default {
-            self.values = vec![ArgActionValue::new_with_check(&self.name, default)];
-        }
-    }
 }
 
 /// Convert ArgActionModel into a clap::Arg for CLI building.

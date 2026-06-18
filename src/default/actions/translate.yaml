@@ -19,20 +19,19 @@ args:
 actions:
   # Read input from file or text argument
   - tag: tag_content
-    type: cmd
+    run: cmd
     expect: string
     check: .+
-    action: |-
-      if [ -n "{file}" ]; then
-        cat "{file}"
-      elif [ -n "{text}" ]; then
-        echo "{text}"
-      fi
+    switch:
+      - case: '{file|not_empty}'
+        action: cat "{file|resolve}"
+      - else:
+        action: echo "{text|resolve}"
   # LLM translates text, preserving code and proper names
   - tag: tag_translated
-    type: llm
+    run: llm
     expect: string
-    action: |-
+    action: |
       [Task]
       Translate the entire [Text] to the language specified in [User].
       Do not translate proper names, code, or comments inside code blocks.
@@ -43,8 +42,3 @@ actions:
 
       [Text]
       {tag_content}
-  # Output translated text
-  - tag: tag_translate
-    type: value
-    expect: string
-    action: '{tag_translated}'

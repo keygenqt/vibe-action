@@ -4,7 +4,7 @@
 use anyhow::Result;
 use clap::ArgMatches;
 use serde::{Deserialize, Serialize};
-use std::{fs, path::PathBuf};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 use crate::{
     models::{action::ActionModel, arg::ArgActionModel},
@@ -30,6 +30,9 @@ pub struct FlowModel {
     /// Preparation steps.
     #[serde(default)]
     pub actions: Vec<ActionModel>,
+    /// Resolved argument values (name -> value).
+    #[serde(skip, default)]
+    pub input_args: HashMap<String, String>,
 }
 
 impl FlowModel {
@@ -42,16 +45,13 @@ impl FlowModel {
         Ok(flow)
     }
 
-    /// Apply CLI arguments by replacing {arg} placeholders in all action strings.
+    /// Resolve CLI arguments and store them in state.
     pub fn apply_args(mut self, matches: &ArgMatches) -> Self {
-        for arg in &mut self.args {
-            arg.resolve_values(matches);
-        }
-        for action in &mut self.actions {
-            for arg in &self.args {
-                for v in &arg.values {
-                    action.action = action.action.replace(&format!("{{{}}}", v.name), &v.value);
-                }
+        for arg in &self.args {
+            if let Some(value) = matches.get_one::<String>(&arg.name) {
+                self.input_args.insert(arg.name.clone(), value.clone());
+            } else if let Some(default) = &arg.default {
+                self.input_args.insert(arg.name.clone(), default.clone());
             }
         }
         self

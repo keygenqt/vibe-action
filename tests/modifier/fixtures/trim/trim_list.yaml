@@ -3,7 +3,7 @@ about: Test trim modifier filtering list
 args: []
 actions:
   - tag: tag_input
-    type: cmd
+    run: cmd
     expect: list<string>
     action: |
       echo "="
@@ -11,6 +11,6 @@ actions:
       echo "="
 
   - tag: tag_trimmed
-    type: value
+    run: value
     expect: string
     action: '{tag_input|trim:=|join}'

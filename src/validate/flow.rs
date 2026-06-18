@@ -7,6 +7,7 @@ use std::collections::{HashMap, HashSet};
 use anyhow::Result;
 use regex::Regex;
 
+use crate::models::action::SwitchCase;
 use crate::{models::flow::FlowModel, utils::constants, validate::ValidateTrait};
 
 impl ValidateTrait for FlowModel {
@@ -42,7 +43,27 @@ impl ValidateTrait for FlowModel {
         // Supports modifiers with special chars: {tag|trim:-}, {tag|join}, {tag|upper}
         let re = Regex::new(constants::TAG_PLACEHOLDER_PATTERN).unwrap();
         for action in &self.actions {
-            validate_tag_references(&action.action, &tags, &re)?;
+            if let Some(ref act) = action.action {
+                validate_tag_references(act, &tags, &re)?;
+            }
+            if let Some(ref switch) = action.switch {
+                for branch in switch {
+                    match branch {
+                        SwitchCase::Case {
+                            case,
+                            action: branch_action,
+                        } => {
+                            validate_tag_references(case, &tags, &re)?;
+                            validate_tag_references(branch_action, &tags, &re)?;
+                        }
+                        SwitchCase::Else {
+                            action: branch_action,
+                        } => {
+                            validate_tag_references(branch_action, &tags, &re)?;
+                        }
+                    }
+                }
+            }
         }
         // Validate match regex if present.
         if let Some(pattern) = &self.check {
@@ -72,7 +93,28 @@ fn validate_no_cycles(flow: &FlowModel, tags: &HashSet<&str>, re: &Regex) -> Res
         graph.insert(*tag, vec![]);
     }
     for action in &flow.actions {
-        let deps = extract_tag_refs(&action.action, re);
+        let mut deps = Vec::new();
+        if let Some(ref act) = action.action {
+            deps.extend(extract_tag_refs(act, re));
+        }
+        if let Some(ref switch) = action.switch {
+            for branch in switch {
+                match branch {
+                    SwitchCase::Case {
+                        case,
+                        action: branch_action,
+                    } => {
+                        deps.extend(extract_tag_refs(case, re));
+                        deps.extend(extract_tag_refs(branch_action, re));
+                    }
+                    SwitchCase::Else {
+                        action: branch_action,
+                    } => {
+                        deps.extend(extract_tag_refs(branch_action, re));
+                    }
+                }
+            }
+        }
         graph.insert(
             action.tag.as_str(),
             deps.into_iter().filter(|d| tags.contains(d)).collect(),

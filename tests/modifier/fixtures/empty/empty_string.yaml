@@ -1,0 +1,13 @@
+name: empty-string
+about: Test empty modifier on empty string
+args: []
+actions:
+  - tag: tag_input
+    run: cmd
+    expect: string
+    action: echo ""
+
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{tag_input|empty}'

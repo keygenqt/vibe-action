@@ -3,11 +3,11 @@ about: Test take modifier on string
 args: []
 actions:
   - tag: tag_input
-    type: value
+    run: value
     expect: string
     action: hello
 
   - tag: tag_take
-    type: value
+    run: value
     expect: string
     action: '{tag_input|take:1}'

@@ -15,20 +15,19 @@ args:
 actions:
   # Read input from file or text argument
   - tag: tag_content
-    type: cmd
+    run: cmd
     expect: string
     check: .+
-    action: |-
-      if [ -n "{file}" ]; then
-        cat "{file}"
-      elif [ -n "{text}" ]; then
-        echo "{text}"
-      fi
+    switch:
+      - case: '{file|not_empty}'
+        action: cat "{file|resolve}"
+      - else:
+        action: echo "{text}"
   # LLM checks if text contains any errors
   - tag: tag_check_errors
-    type: llm
+    run: llm
     expect: string
-    action: |-
+    action: |
       [Task]
       Analyze the text below for typos, spelling mistakes, and grammar errors.
       If errors exist, reply strictly with "DIRTY". If no errors exist, reply strictly with "CLEAR"
@@ -37,27 +36,21 @@ actions:
       {tag_content}
   # If errors found, pass text through; otherwise return "No errors found."
   - tag: tag_check_errors_filter
-    type: cmd
+    run: cmd
     expect: string
-    action: |-
-      if [ "{tag_check_errors}" = "DIRTY" ]; then
-        echo "{tag_content}"
-      else
-        echo "No errors found."
-      fi
+    switch:
+      - case: '{tag_check_errors|contains:DIRTY}'
+        action: echo "{tag_content}"
+      - else:
+        action: echo "No errors found."
   # LLM fixes all errors while preserving formatting
   - tag: tag_checked
-    type: llm
+    run: llm
     expect: string
-    action: |-
+    action: |
       [Task]
       Fix all spelling mistakes, typos, and grammar errors in the text below.
       Strict rules: Preserve all code syntax, markdown tags, and formatting exactly as-is.
 
       [Text]
       {tag_check_errors_filter}
-  # Output corrected text
-  - tag: tag_spellcheck
-    type: value
-    expect: string
-    action: '{tag_checked}'

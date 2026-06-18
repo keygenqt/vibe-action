@@ -3,11 +3,11 @@ about: Test execution order by dependencies
 args: []
 actions:
   - tag: tag_second
-    type: value
+    run: value
     expect: string
     action: '{tag_first} world'
 
   - tag: tag_first
-    type: value
+    run: value
     expect: string
     action: hello

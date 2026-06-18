@@ -3,11 +3,11 @@ about: Test circular dependency detection
 args: []
 actions:
   - tag: tag_a
-    type: value
+    run: value
     expect: string
     action: '{tag_b}'
 
   - tag: tag_b
-    type: value
+    run: value
     expect: string
     action: '{tag_a}'

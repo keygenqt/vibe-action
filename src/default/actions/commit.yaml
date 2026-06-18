@@ -9,22 +9,22 @@ args:
 actions:
   # Get list of changed files
   - tag: tag_changed_files
-    type: cmd
+    run: cmd
     expect: list<string>
     check: .+
     action: cd {path} && git diff --name-only --relative
   # Diff each changed file
   - tag: tag_file_diff
-    type: cmd
+    run: cmd
     expect: list<string>
-    action: |
-      cd {path}
-      if [ -f "{tag_changed_files}" ]; then
-        git diff -- "{tag_changed_files}"
-      fi
+    switch:
+      - case: '{tag_changed_files|resolve|is_file}'
+        action: cd {path} && git diff -- "{tag_changed_files}"
+      - else:
+        action: echo ""
   # LLM summarizes each diff in one sentence
   - tag: tag_file_summary
-    type: llm
+    run: llm
     expect: list<string>
     action: |
       [Task]
@@ -36,7 +36,7 @@ actions:
       {tag_file_diff}
   # LLM combines all summaries into one commit message
   - tag: tag_commit_message
-    type: llm
+    run: llm
     expect: string
     action: |
       [Task]
@@ -48,7 +48,7 @@ actions:
       {tag_file_summary|join:uniq}
   # Execute git commit (asks for confirmation)
   - tag: tag_commit
-    type: cmd
+    run: cmd
     expect: string
     confirm: true
     action: cd {path} && git add . && git commit -m '{tag_commit_message}'

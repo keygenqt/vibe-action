@@ -3,7 +3,7 @@ about: Test AST modifier for Markdown
 args: []
 actions:
   - tag: tag_code
-    type: value
+    run: value
     expect: string
     action: |
       # Hello World
@@ -14,6 +14,6 @@ actions:
       - item 2
 
   - tag: tag_ast
-    type: value
+    run: value
     expect: string
     action: '{tag_code|ast:md}'

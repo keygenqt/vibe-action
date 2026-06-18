@@ -13,7 +13,7 @@ clipboard: false
 args: []
 actions:
   - tag: tag_hello
-    type: value
+    run: value
     expect: string
     check: null
     confirm: false
@@ -40,7 +40,7 @@ clipboard: false
 args: []
 actions:
   - tag: tag_disk
-    type: cmd
+    run: cmd
     expect: string
     check: null
     confirm: false
@@ -73,7 +73,7 @@ args:
     default: World
 actions:
   - tag: tag_greeting
-    type: value
+    run: value
     expect: string
     check: null
     confirm: false
@@ -104,7 +104,7 @@ args:
     help: What to explain
 actions:
   - tag: tag_answer
-    type: llm
+    run: llm
     expect: string
     check: null
     confirm: false
@@ -141,14 +141,14 @@ args:
     help: File to summarize
 actions:
   - tag: tag_content
-    type: cmd
+    run: cmd
     expect: string
     check: null
     confirm: false
     action: cat {file}
 
   - tag: tag_summary
-    type: llm
+    run: llm
     expect: string
     check: null
     confirm: false

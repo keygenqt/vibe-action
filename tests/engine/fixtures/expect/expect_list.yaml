@@ -3,7 +3,7 @@ about: Test expect list
 args: []
 actions:
   - tag: tag_files
-    type: cmd
+    run: cmd
     expect: list<string>
     action: |
       echo "a"
@@ -11,6 +11,6 @@ actions:
       echo "c"
 
   - tag: tag_result
-    type: value
+    run: value
     expect: string
     action: '{tag_files|join}'
