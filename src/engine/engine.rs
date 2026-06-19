@@ -12,6 +12,7 @@ use crate::models::action::{ActionModel, ActionRun, ActionValue, ExpectMode};
 use crate::models::context::ContextModel;
 use crate::models::flow::FlowModel;
 use crate::modifier::modifier::ModifierRegistry;
+use crate::print_trace;
 
 /// Pipeline execution engine — resolves dependencies, executes actions, manages context.
 pub struct Engine {
@@ -227,7 +228,7 @@ impl Engine {
         let preview_original: String = original.chars().take(size).collect();
         let preview_resolved: String = resolved.chars().take(size).collect();
         let preview_result: String = result.chars().take(size).collect();
-        tracing::debug!(
+        print_trace!(
             r#"[{}] ({})
 ------------- original (len:{})
 {}

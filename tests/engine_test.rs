@@ -12,8 +12,7 @@ pub fn setup() {
         unsafe {
             std::env::set_var("VIBE_CONFIG", "tests/config.yaml");
             std::env::set_var("VIBE_ACTION_PATH", "tests/engine/fixtures");
-            std::env::set_var("VIBE_DEBUG", "1");
-            std::env::set_var("VIBE_LOG_LEVEL", "6")
+            std::env::set_var("VIBE_LOG_TYPE", "plain");
         }
     });
 }

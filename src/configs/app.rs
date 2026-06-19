@@ -6,9 +6,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::fs;
 use std::sync::OnceLock;
-use std::sync::atomic::AtomicBool;
-use std::sync::atomic::AtomicU16;
-use std::sync::atomic::Ordering;
 use vibe_cluster::Cluster;
 use vibe_cluster::ConnectionParams;
 use vibe_cluster::Provider;
@@ -19,20 +16,18 @@ use crate::configs::cluster::ClusterRole;
 use crate::models::action::ActionRun;
 use crate::models::actions::FlowsModel;
 use crate::models::flow::FlowModel;
+use crate::output::output::OutputRegistry;
 use crate::utils;
 use crate::utils::constants;
 use crate::utils::path;
 use crate::utils::yaml::YamlComment;
 use crate::validate::ValidateTrait;
 
-/// Global debug mode flag.
-static DEBUG_MODE: AtomicBool = AtomicBool::new(false);
-
-/// Global level mode flag.
-static LEVEL_MODE: AtomicU16 = AtomicU16::new(1);
-
 /// Global config instance, loaded once at startup.
 static GLOBAL_CONFIG: OnceLock<AppConfig> = OnceLock::new();
+
+/// Global output registry.
+static OUTPUT: OnceLock<OutputRegistry> = OnceLock::new();
 
 /// Main application configuration structure.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -68,53 +63,26 @@ impl Default for AppConfig {
 }
 
 impl AppConfig {
-    /// Returns true if debug mode is enabled.
-    pub fn is_debug() -> bool {
-        DEBUG_MODE.load(Ordering::Relaxed)
+    /// Get the global output registry.
+    pub fn output() -> &'static OutputRegistry {
+        OUTPUT
+            .get()
+            .expect("Output not initialized. Call AppConfig::init() first.")
     }
 
-    /// Returns true if the application is running in test mode (level 6).
-    pub fn is_test() -> bool {
-        LEVEL_MODE.load(Ordering::Relaxed) == 6
-    }
-
-    /// Get the global config instance (loads if not cached).
+    /// Get the global config instance.
     pub fn instance() -> Result<&'static Self> {
-        // Return cached config if already loaded.
-        if let Some(config) = GLOBAL_CONFIG.get() {
-            return Ok(config);
-        }
-        anyhow::bail!("Config not initialized. Call AppConfig::init() first.")
+        GLOBAL_CONFIG
+            .get()
+            .ok_or_else(|| anyhow::anyhow!("Config not initialized. Call AppConfig::init() first."))
     }
 
-    /// Initialize configuration, creating default files if missing.
-    pub fn init(debug: String, level: String) -> Result<()> {
-        // Set debug mode before any logs.
-        let debug = debug == "1" || debug.to_lowercase() == "true";
-        DEBUG_MODE.store(debug, Ordering::Relaxed);
-
-        // Set debug mode before any logs.
-        let level = level.parse::<u16>().unwrap_or(0);
-        LEVEL_MODE.store(level, Ordering::Relaxed);
-
-        // Initialize tracing if debug enabled.
-        if debug {
-            let level_name = match level {
-                1 => "error",
-                2 => "warn",
-                3 => "info",
-                4 => "debug",
-                5 => "trace",
-                6 => "test",
-                _ => "debug",
-            };
-            let filter = if level_name == "test" {
-                format!("vibe_action=error")
-            } else {
-                format!("vibe_action={}", level_name)
-            };
-            let _ = tracing_subscriber::fmt().with_env_filter(filter).try_init();
-        }
+    // Initialize configuration and output.
+    pub fn init() -> Result<()> {
+        // Set up output from env vars.
+        let log_type = std::env::var("VIBE_LOG_TYPE").unwrap_or_else(|_| "cli".to_string());
+        let trace_level = std::env::var("VIBE_TRACE_LEVEL").unwrap_or_else(|_| "info".to_string());
+        let _ = OUTPUT.set(OutputRegistry::new(&log_type, &trace_level));
 
         // Load config from file or create default.
         let config_path = path::config_path();
@@ -129,8 +97,7 @@ impl AppConfig {
 
         config.validate()?;
 
-        // Load actions from the configured path.
-        // Save defaults only if using the default path (not overridden by env).
+        // Load flows.
         let actions_path = &path::actions_dir();
         let is_save_default = std::env::var("VIBE_ACTION_PATH").is_err();
         config.flows = Some(FlowsModel::load(&actions_path, is_save_default)?);
@@ -162,7 +129,7 @@ impl AppConfig {
                 vec![
                     "LLM cluster nodes (local and cloud models).",
                     "",
-                    "provider - Provider run:ollama, deepseek, qwen",
+                    "provider - Provider type: ollama, deepseek, qwen",
                     "host - API endpoint",
                     "model - LLM model name",
                     "role - Node role: small, medium, large (optional, default: all)",
@@ -208,7 +175,6 @@ impl AppConfig {
             _ => None,
         };
 
-        // If target role specified but no node has it, fallback to all nodes.
         let effective_role = match &target_role {
             Some(role) if !self.model_role_exist(role) => None,
             _ => target_role,

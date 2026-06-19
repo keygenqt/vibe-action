@@ -11,6 +11,7 @@ mod default;
 mod engine;
 mod models;
 mod modifier;
+mod output;
 mod utils;
 mod validate;
 
@@ -23,11 +24,8 @@ struct App;
 
 #[tokio::main]
 async fn main() {
-    let debug = std::env::var("VIBE_DEBUG").unwrap_or("0".into());
-    let level = std::env::var("VIBE_LOG_LEVEL").unwrap_or("0".into());
-
     // Initialize configuration.
-    if let Err(e) = AppConfig::init(debug, level) {
+    if let Err(e) = AppConfig::init() {
         exit_error!("{}", e);
     }
 

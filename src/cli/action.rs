@@ -6,8 +6,8 @@ use clap::ArgMatches;
 use inquire::Confirm;
 
 use crate::{
-    configs::app::AppConfig, engine::engine::Engine, exit_error, print_info, print_newline,
-    print_progress, print_rich_block, print_warning, utils::macros::format_msg,
+    configs::app::AppConfig, engine::engine::Engine, exit_error, output::macros::format_msg,
+    print_debug, print_info, print_newline, print_progress, print_success, print_warning,
 };
 
 /// Execute a dynamic action command.
@@ -24,11 +24,11 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
     let actions = engine.actions().to_vec();
     let total = actions.len();
 
-    tracing::info!("Flow: {} ({} steps)", flow.name, total);
+    print_debug!("Flow: {} ({} steps)", flow.name, total);
 
     // Execute all actions.
     for (i, action) in actions.iter().enumerate() {
-        tracing::debug!("[{}/{}] Running: {}", i + 1, total, action.tag);
+        print_debug!("[{}/{}] Running: {}", i + 1, total, action.tag);
 
         print_progress!(
             "{} ({})... {:.0}% ({}/{})",
@@ -71,7 +71,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         }
     }
 
-    tracing::info!("Flow completed: {}", flow.name);
+    print_debug!("Flow completed: {}", flow.name);
     let result = engine.result().unwrap_or_else(|e| exit_error!("{}", e));
 
     if flow.clipboard {
@@ -88,6 +88,6 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
     if result.is_empty() {
         print_info!("No matches found.")
     } else {
-        print_rich_block!("{}", &result)
+        print_success!("{}", &result)
     }
 }
