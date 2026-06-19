@@ -1,0 +1,54 @@
+name: mega-switch
+about: Mega test covering all switch combinations
+args: []
+actions:
+  - tag: tag_fruits
+    run: cmd
+    expect: list<string>
+    action: |
+      echo "apple"
+      echo "banana"
+      echo "cherry"
+
+  - tag: tag_files
+    run: cmd
+    expect: list<string>
+    action: |
+      echo "Cargo.toml"
+      echo "nonexistent.txt"
+
+  - tag: tag_users
+    run: cmd
+    expect: list<string>
+    action: |
+      echo "alice"
+      echo "bob"
+
+  - tag: test_all_true
+    run: value
+    expect: string
+    action:
+      - when: '{tag_fruits|contains:a}'
+        then: '{tag_fruits|upper}'
+
+  - tag: test_mixed
+    run: value
+    expect: string
+    action:
+      - when: '{tag_files|resolve|is_file}'
+        then: 'found:{tag_files}'
+
+  - tag: test_multi_tag
+    run: value
+    expect: string
+    action:
+      - when: '{tag_files|resolve|is_file}'
+        then: 'user={tag_users} file={tag_files}'
+
+  - tag: tag_final
+    run: value
+    expect: string
+    action: |
+      ALL_TRUE: {test_all_true}
+      MIXED: {test_mixed}
+      MULTI: {test_multi_tag|join:, }

@@ -1,9 +1,9 @@
 //! Equals modifier — checks if a string or list equals a value.
-//! Returns true if equal, false otherwise.
+//! Supports :not to invert.
 
 use anyhow::Result;
 
-use super::modifier::{Modifier, ModifierKey};
+use super::modifier::{Modifier, ModifierKey, invert_bool};
 use crate::models::context::ContextModel;
 
 pub struct EqualsModifier;
@@ -14,11 +14,26 @@ impl Modifier for EqualsModifier {
     }
 
     fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
+        let (pattern, invert) = if let Some(p) = arg.strip_suffix(":not") {
+            (p, true)
+        } else {
+            (arg, false)
+        };
         let result = match value {
-            ContextModel::String(s) => s == arg,
-            ContextModel::List(items) => items.len() == 1 && items[0].to_string() == arg,
+            ContextModel::String(s) => ContextModel::Bool(s == pattern),
+            ContextModel::List(items) => {
+                let results: Vec<ContextModel> = items
+                    .iter()
+                    .map(|i| ContextModel::Bool(i.to_string() == pattern))
+                    .collect();
+                ContextModel::List(results)
+            }
             _ => anyhow::bail!("Modifier 'equals' expects a string or list"),
         };
-        Ok(ContextModel::Bool(result))
+        if invert {
+            Ok(invert_bool(result))
+        } else {
+            Ok(result)
+        }
     }
 }

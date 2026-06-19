@@ -1,0 +1,17 @@
+name: list-is-file-mixed
+about: Test switch with is_file where some files exist, some don't
+args: []
+actions:
+  - tag: tag_files
+    run: cmd
+    expect: list<string>
+    action: |
+      echo "Cargo.toml"
+      echo "nonexistent.txt"
+
+  - tag: tag_result
+    run: value
+    expect: string
+    action:
+      - when: '{tag_files|resolve|is_file}'
+        then: '{tag_files}'

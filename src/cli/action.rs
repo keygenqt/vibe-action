@@ -48,7 +48,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
                 .unwrap_or_else(|e| exit_error!("{}", e));
             let ans = Confirm::new(&query)
                 .with_default(false)
-                .with_placeholder(&format!("\n{}", resolve))
+                .with_placeholder(&format!("\n{}\n", resolve))
                 .prompt();
             match ans {
                 Ok(true) => {

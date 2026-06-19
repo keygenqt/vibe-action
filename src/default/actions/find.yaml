@@ -48,7 +48,7 @@ actions:
   - tag: tag_filtered
     run: value
     expect: string
-    action: '{tag_matches|trim:<->}'
+    action: '{tag_matches|trim:<->|resolve}'
   # Join matching file paths, remove duplicates
   - tag: tag_find
     run: value

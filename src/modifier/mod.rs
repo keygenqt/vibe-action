@@ -10,7 +10,6 @@ pub mod is_file;
 pub mod join;
 pub mod lower;
 pub mod modifier;
-pub mod not_empty;
 pub mod resolve;
 pub mod reverse;
 pub mod size;

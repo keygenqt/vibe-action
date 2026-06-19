@@ -7,8 +7,11 @@ use std::collections::{HashMap, HashSet};
 use anyhow::Result;
 use regex::Regex;
 
-use crate::models::action::SwitchCase;
-use crate::{models::flow::FlowModel, utils::constants, validate::ValidateTrait};
+use crate::{
+    models::{action::ActionValue, flow::FlowModel},
+    utils::constants,
+    validate::ValidateTrait,
+};
 
 impl ValidateTrait for FlowModel {
     /// Validate the flow: name, tags, references, dependencies.
@@ -43,24 +46,14 @@ impl ValidateTrait for FlowModel {
         // Supports modifiers with special chars: {tag|trim:-}, {tag|join}, {tag|upper}
         let re = Regex::new(constants::TAG_PLACEHOLDER_PATTERN).unwrap();
         for action in &self.actions {
-            if let Some(ref act) = action.action {
-                validate_tag_references(act, &tags, &re)?;
-            }
-            if let Some(ref switch) = action.switch {
-                for branch in switch {
-                    match branch {
-                        SwitchCase::Case {
-                            case,
-                            action: branch_action,
-                        } => {
-                            validate_tag_references(case, &tags, &re)?;
-                            validate_tag_references(branch_action, &tags, &re)?;
-                        }
-                        SwitchCase::Else {
-                            action: branch_action,
-                        } => {
-                            validate_tag_references(branch_action, &tags, &re)?;
-                        }
+            match &action.action {
+                ActionValue::Simple(act) => {
+                    validate_tag_references(act, &tags, &re)?;
+                }
+                ActionValue::Switch(cases) => {
+                    for case in cases {
+                        validate_tag_references(&case.when, &tags, &re)?;
+                        validate_tag_references(&case.then, &tags, &re)?;
                     }
                 }
             }
@@ -94,24 +87,14 @@ fn validate_no_cycles(flow: &FlowModel, tags: &HashSet<&str>, re: &Regex) -> Res
     }
     for action in &flow.actions {
         let mut deps = Vec::new();
-        if let Some(ref act) = action.action {
-            deps.extend(extract_tag_refs(act, re));
-        }
-        if let Some(ref switch) = action.switch {
-            for branch in switch {
-                match branch {
-                    SwitchCase::Case {
-                        case,
-                        action: branch_action,
-                    } => {
-                        deps.extend(extract_tag_refs(case, re));
-                        deps.extend(extract_tag_refs(branch_action, re));
-                    }
-                    SwitchCase::Else {
-                        action: branch_action,
-                    } => {
-                        deps.extend(extract_tag_refs(branch_action, re));
-                    }
+        match &action.action {
+            ActionValue::Simple(act) => {
+                deps.extend(extract_tag_refs(act, re));
+            }
+            ActionValue::Switch(cases) => {
+                for case in cases {
+                    deps.extend(extract_tag_refs(&case.when, re));
+                    deps.extend(extract_tag_refs(&case.then, re));
                 }
             }
         }

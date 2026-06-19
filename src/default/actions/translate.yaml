@@ -22,11 +22,11 @@ actions:
     run: cmd
     expect: string
     check: .+
-    switch:
-      - case: '{file|not_empty}'
-        action: cat "{file|resolve}"
-      - else:
-        action: echo "{text|resolve}"
+    action:
+      - when: '{file|empty}'
+        then: echo "{text}"
+      - when: '{file|empty:not}'
+        then: cat "{file|resolve}"
   # LLM translates text, preserving code and proper names
   - tag: tag_translated
     run: llm

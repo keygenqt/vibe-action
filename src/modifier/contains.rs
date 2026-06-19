@@ -1,5 +1,5 @@
 //! Contains modifier — checks if a string or list contains a substring.
-//! Returns true if found, false otherwise.
+//! For strings: returns Bool. For lists: returns List<Bool> per element.
 
 use anyhow::Result;
 
@@ -14,11 +14,16 @@ impl Modifier for ContainsModifier {
     }
 
     fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
-        let result = match value {
-            ContextModel::String(s) => s.contains(arg),
-            ContextModel::List(items) => items.iter().any(|i| i.to_string().contains(arg)),
+        match value {
+            ContextModel::String(s) => Ok(ContextModel::Bool(s.contains(arg))),
+            ContextModel::List(items) => {
+                let results: Vec<ContextModel> = items
+                    .iter()
+                    .map(|i| ContextModel::Bool(i.to_string().contains(arg)))
+                    .collect();
+                Ok(ContextModel::List(results))
+            }
             _ => anyhow::bail!("Modifier 'contains' expects a string or list"),
-        };
-        Ok(ContextModel::Bool(result))
+        }
     }
 }

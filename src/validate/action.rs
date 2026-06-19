@@ -5,7 +5,7 @@ use anyhow::Result;
 use regex::Regex;
 
 use crate::{
-    models::action::{ActionModel, ActionRun, ExpectMode, SwitchCase},
+    models::action::{ActionModel, ActionRun, ActionValue, ExpectMode},
     utils::constants,
     validate::ValidateTrait,
 };
@@ -13,36 +13,26 @@ use crate::{
 impl ValidateTrait for ActionModel {
     /// Validate action fields.
     fn validate(&self) -> Result<()> {
-        // Validate switch: at most one else, and it must be last.
-        if let Some(switch) = &self.switch {
-            // Count else branches — only one allowed.
-            let else_count = switch
-                .iter()
-                .filter(|s| matches!(s, SwitchCase::Else { .. }))
-                .count();
-            if else_count > 1 {
-                anyhow::bail!("Switch in '{}' has multiple else branches.", self.tag);
+        // Validate action: switch cases or simple string must be valid.
+        match &self.action {
+            ActionValue::Simple(s) => {
+                if s.trim().is_empty() {
+                    anyhow::bail!("Action '{}' has empty command/prompt.", self.tag);
+                }
             }
-            // Else must be the last branch.
-            if else_count == 1 && !matches!(switch.last(), Some(SwitchCase::Else { .. })) {
-                anyhow::bail!("Else in '{}' must be the last branch.", self.tag);
-            }
-            // Case conditions must be valid {tag|modifier} placeholders.
-            let case_re = Regex::new(&format!("^{}$", constants::TAG_PLACEHOLDER_PATTERN)).unwrap();
-            for branch in switch {
-                if let SwitchCase::Case { case, .. } = branch {
-                    if !case_re.is_match(case.trim()) {
+            ActionValue::Switch(cases) => {
+                let case_re =
+                    Regex::new(&format!("^{}$", constants::TAG_PLACEHOLDER_PATTERN)).unwrap();
+                for case in cases {
+                    if case.when != "true" && !case_re.is_match(case.when.trim()) {
                         anyhow::bail!(
-                            "Case condition in '{}' must be a single {{tag|modifier}}, got: '{}'",
+                            "When condition in '{}' must be a single {{tag|modifier}} or 'true', got: '{}'",
                             self.tag,
-                            case
+                            case.when
                         );
                     }
                 }
             }
-        } else if self.action.as_ref().map_or(true, |a| a.trim().is_empty()) {
-            // Action cannot be empty when switch is not set.
-            anyhow::bail!("Action '{}' has empty command/prompt.", self.tag);
         }
 
         // LLM must have expect set (need to know what to parse).

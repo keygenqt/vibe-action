@@ -40,12 +40,19 @@ pub enum ExpectMode {
     List(Box<ExpectMode>),
 }
 
-/// A single switch case.
+/// Action value: simple string or switch with when/then pairs.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum SwitchCase {
-    Case { case: String, action: String },
-    Else { action: String },
+pub enum ActionValue {
+    Simple(String),
+    Switch(Vec<SwitchCase>),
+}
+
+/// A single switch case.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SwitchCase {
+    pub when: String,
+    pub then: String,
 }
 
 /// A single action step.
@@ -63,31 +70,24 @@ pub struct ActionModel {
     /// Ask for confirmation before executing.
     #[serde(default)]
     pub confirm: bool,
-    /// Command or prompt (optional if switch is set).
-    #[serde(default)]
-    pub action: Option<String>,
-    /// Switch cases for conditional execution.
-    #[serde(default)]
-    pub switch: Option<Vec<SwitchCase>>,
+    /// Action value: simple string or switch with when/then pairs.
+    pub action: ActionValue,
 }
 
 impl ActionModel {
     /// Return all action texts for dependency scanning.
     pub fn actions(&self) -> Vec<&str> {
         let mut texts = Vec::new();
-        if let Some(action) = &self.action {
-            texts.push(action.as_str());
-        }
-        if let Some(switch) = &self.switch {
-            for branch in switch {
-                match branch {
-                    SwitchCase::Case { case, action } => {
-                        texts.push(case.as_str());
-                        texts.push(action.as_str());
-                    }
-                    SwitchCase::Else { action } => {
-                        texts.push(action.as_str());
-                    }
+        match &self.action {
+            ActionValue::Simple(s) => {
+                if !s.is_empty() {
+                    texts.push(s.as_str());
+                }
+            }
+            ActionValue::Switch(cases) => {
+                for case in cases {
+                    texts.push(case.when.as_str());
+                    texts.push(case.then.as_str());
                 }
             }
         }

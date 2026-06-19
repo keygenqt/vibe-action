@@ -18,11 +18,11 @@ actions:
     run: cmd
     expect: string
     check: .+
-    switch:
-      - case: '{file|not_empty}'
-        action: cat "{file|resolve}"
-      - else:
-        action: echo "{text}"
+    action:
+      - when: '{file|empty}'
+        then: echo "{text}"
+      - when: '{file|empty:not}'
+        then: cat "{file|resolve}"
   # LLM checks if text contains any errors
   - tag: tag_check_errors
     run: llm
@@ -38,11 +38,11 @@ actions:
   - tag: tag_check_errors_filter
     run: cmd
     expect: string
-    switch:
-      - case: '{tag_check_errors|contains:DIRTY}'
-        action: echo "{tag_content}"
-      - else:
-        action: echo "No errors found."
+    action:
+      - when: '{tag_check_errors|contains:DIRTY}'
+        then: echo "{tag_content}"
+      - when: '{tag_check_errors|contains:CLEAR}'
+        then: echo "No errors found."
   # LLM fixes all errors while preserving formatting
   - tag: tag_checked
     run: llm

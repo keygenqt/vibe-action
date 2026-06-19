@@ -11,7 +11,6 @@ use crate::modifier::modifier::ModifierRegistry;
 use crate::utils::constants;
 
 /// Result of expanding a template with context values.
-#[derive(Debug, Clone, Default)]
 pub struct ExpandedTemplate {
     /// Original template before expansion.
     pub raw: String,
@@ -55,7 +54,8 @@ impl Context {
         let re = Regex::new(constants::TAG_PLACEHOLDER_PATTERN).unwrap();
 
         let clean_text = Self::strip_all_template_quotes(&raw, is_encode);
-        let mut processed_tags = HashSet::new();
+        let mut processed_placeholders = HashSet::new();
+        let mut list_expanded_tags: HashSet<String> = HashSet::new();
         let mut results = vec![clean_text.clone()];
         let mut is_list = false;
 
@@ -63,7 +63,7 @@ impl Context {
             let placeholder = cap.get(0).unwrap().as_str();
             let tag_name = cap.get(1).unwrap().as_str();
 
-            if processed_tags.contains(tag_name) {
+            if processed_placeholders.contains(placeholder) {
                 continue;
             }
 
@@ -75,19 +75,36 @@ impl Context {
                 let processed_value = modifier.apply_modifier(modifier_value, context_value)?;
                 match processed_value {
                     ContextModel::List(items) => {
-                        is_list = true;
-                        let mut next = Vec::new();
-                        for item in items {
-                            let mut s = item.to_string();
-                            if is_encode {
-                                s = shell_words::quote(&s).to_string();
+                        if list_expanded_tags.contains(tag_name) {
+                            // Same tag already expanded — replace in each existing element.
+                            for (i, current) in results.iter_mut().enumerate() {
+                                let idx = i % items.len();
+                                let val = items[idx].to_string();
+                                if is_encode {
+                                    *current = current.replace(
+                                        placeholder,
+                                        &shell_words::quote(&val).to_string(),
+                                    );
+                                } else {
+                                    *current = current.replace(placeholder, &val);
+                                }
                             }
-                            for current in &results {
-                                next.push(current.replace(placeholder, &s));
+                        } else {
+                            // First list expansion for this tag.
+                            is_list = true;
+                            list_expanded_tags.insert(tag_name.to_string());
+                            let mut next = Vec::new();
+                            for item in items {
+                                let mut s = item.to_string();
+                                if is_encode {
+                                    s = shell_words::quote(&s).to_string();
+                                }
+                                for current in &results {
+                                    next.push(current.replace(placeholder, &s));
+                                }
                             }
+                            results = next;
                         }
-                        results = next;
-                        processed_tags.insert(tag_name.to_string());
                     }
                     _ => {
                         let mut final_string = processed_value.to_string();
@@ -97,10 +114,10 @@ impl Context {
                         for current in results.iter_mut() {
                             *current = current.replace(placeholder, &final_string);
                         }
-                        processed_tags.insert(tag_name.to_string());
                     }
                 }
             }
+            processed_placeholders.insert(placeholder.to_string());
         }
 
         Ok(ExpandedTemplate {

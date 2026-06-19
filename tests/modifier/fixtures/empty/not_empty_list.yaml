@@ -1,5 +1,5 @@
 name: not-empty-list
-about: Test not_empty modifier on list
+about: Test empty:not modifier on list
 args: []
 actions:
   - tag: tag_input
@@ -12,4 +12,4 @@ actions:
   - tag: tag_result
     run: value
     expect: string
-    action: '{tag_input|not_empty}'
+    action: '{tag_input|empty:not}'

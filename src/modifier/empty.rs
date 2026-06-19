@@ -1,9 +1,9 @@
 //! Empty modifier — checks if a string or list is empty.
-//! Returns true if empty, false otherwise.
+//! Supports :not to invert.
 
 use anyhow::Result;
 
-use super::modifier::{Modifier, ModifierKey};
+use super::modifier::{Modifier, ModifierKey, invert_bool};
 use crate::models::context::ContextModel;
 
 pub struct EmptyModifier;
@@ -13,12 +13,23 @@ impl Modifier for EmptyModifier {
         ModifierKey::Empty
     }
 
-    fn apply(&self, value: &ContextModel, _arg: &str) -> Result<ContextModel> {
+    fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
+        let invert = arg == "not";
         let result = match value {
-            ContextModel::String(s) => s.is_empty(),
-            ContextModel::List(items) => items.is_empty(),
+            ContextModel::String(s) => ContextModel::Bool(s.is_empty()),
+            ContextModel::List(items) => {
+                let results: Vec<ContextModel> = items
+                    .iter()
+                    .map(|i| ContextModel::Bool(i.to_string().is_empty()))
+                    .collect();
+                ContextModel::List(results)
+            }
             _ => anyhow::bail!("Modifier 'empty' expects a string or list"),
         };
-        Ok(ContextModel::Bool(result))
+        if invert {
+            Ok(invert_bool(result))
+        } else {
+            Ok(result)
+        }
     }
 }

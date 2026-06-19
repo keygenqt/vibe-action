@@ -12,16 +12,16 @@ actions:
     run: cmd
     expect: list<string>
     check: .+
-    action: cd {path} && git diff --name-only --relative
+    action: cd {path|resolve} && git diff --name-only --relative
   # Diff each changed file
   - tag: tag_file_diff
     run: cmd
     expect: list<string>
-    switch:
-      - case: '{tag_changed_files|resolve|is_file}'
-        action: cd {path} && git diff -- "{tag_changed_files}"
-      - else:
-        action: echo ""
+    action: |
+      cd {path}
+      if [ -f "{tag_changed_files}" ]; then
+        git diff -- "{tag_changed_files}"
+      fi
   # LLM summarizes each diff in one sentence
   - tag: tag_file_summary
     run: llm

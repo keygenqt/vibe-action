@@ -8,7 +8,7 @@ use crate::engine::context::{Context, ExpandedTemplate};
 use crate::engine::resolve::Resolve;
 use crate::engine::shell::Shell;
 use crate::engine::sort::TopologicalSort;
-use crate::models::action::{ActionModel, ActionRun, ExpectMode, SwitchCase};
+use crate::models::action::{ActionModel, ActionRun, ActionValue, ExpectMode};
 use crate::models::context::ContextModel;
 use crate::models::flow::FlowModel;
 use crate::modifier::modifier::ModifierRegistry;
@@ -122,67 +122,34 @@ impl Engine {
     }
 
     /// Resolve the effective action from switch or action field.
+    /// Resolve the effective action from switch or action field.
     fn resolve_action(&self, resolve_action: &ActionModel) -> Result<ExpandedTemplate> {
-        let Some(switch) = &resolve_action.switch else {
-            let raw = resolve_action.action.clone().ok_or_else(|| {
-                anyhow::anyhow!(
-                    "Action '{}' has no action and no switch",
-                    resolve_action.tag
-                )
-            })?;
-            return self.ctx.fill(&raw, &resolve_action.run, &self.modifier);
-        };
-
-        struct ResolvedBranch {
-            cases: ExpandedTemplate,
-            actions: ExpandedTemplate,
-        }
-
-        let mut switch_cases: Vec<ResolvedBranch> = Vec::with_capacity(switch.len());
-        let mut switch_else: Option<ExpandedTemplate> = None;
-
-        for branch in switch {
-            match branch {
-                SwitchCase::Case { case, action } => {
-                    let cases = self.ctx.fill(case, &ActionRun::Value, &self.modifier)?;
-                    let actions = self.ctx.fill(action, &resolve_action.run, &self.modifier)?;
-                    // Check
-                    if cases.items.len() != actions.items.len() {
-                        anyhow::bail!("Error");
+        match &resolve_action.action {
+            ActionValue::Simple(raw) => {
+                return self.ctx.fill(raw, &resolve_action.run, &self.modifier);
+            }
+            ActionValue::Switch(cases) => {
+                for case in cases {
+                    let full = format!("__case={};{}", case.when, case.then);
+                    let template = self.ctx.fill(&full, &resolve_action.run, &self.modifier)?;
+                    let mut result: Vec<String> = Vec::with_capacity(template.items.len());
+                    for item in &template.items {
+                        if let Some(rest) = item.strip_prefix("__case=true;") {
+                            result.push(rest.to_string());
+                        }
                     }
-                    // Save for resolve
-                    switch_cases.push(ResolvedBranch {
-                        cases: cases,
-                        actions,
-                    });
-                }
-                SwitchCase::Else { action } => {
-                    switch_else =
-                        Some(self.ctx.fill(action, &resolve_action.run, &self.modifier)?);
+                    if !result.is_empty() {
+                        return Ok(ExpandedTemplate {
+                            raw: case.then.clone(),
+                            items: result,
+                            is_list: template.is_list,
+                        });
+                    }
                 }
             }
         }
 
-        let mut template = ExpandedTemplate::default();
-        for switch in switch_cases {
-            for (i, action_item) in switch.actions.items.iter().enumerate() {
-                if !template.items.contains(action_item) && switch.cases.items[i] == "true" {
-                    template.raw = switch.actions.raw.clone();
-                    template.is_list = switch.actions.is_list;
-                    template.items.push(action_item.clone());
-                }
-            }
-        }
-
-        if template.items.is_empty() {
-            if let Some(switch_else) = switch_else {
-                return Ok(switch_else);
-            } else {
-                anyhow::bail!("Error");
-            }
-        }
-
-        Ok(template)
+        anyhow::bail!("No case matched in switch '{}'", resolve_action.tag);
     }
 
     /// Fill template, execute shell/LLM, validate each output against regex.

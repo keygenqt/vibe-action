@@ -16,7 +16,6 @@ pub enum ModifierKey {
     IsFile,
     Join,
     Lower,
-    NotEmpty,
     Resolve,
     Reverse,
     Size,
@@ -39,7 +38,6 @@ impl ModifierKey {
             "is_file" => Some(Self::IsFile),
             "join" => Some(Self::Join),
             "lower" => Some(Self::Lower),
-            "not_empty" => Some(Self::NotEmpty),
             "resolve" => Some(Self::Resolve),
             "reverse" => Some(Self::Reverse),
             "size" => Some(Self::Size),
@@ -78,7 +76,6 @@ impl ModifierRegistry {
         registry.register(Box::new(super::is_file::IsFileModifier));
         registry.register(Box::new(super::join::JoinModifier));
         registry.register(Box::new(super::lower::LowerModifier));
-        registry.register(Box::new(super::not_empty::NotEmptyModifier));
         registry.register(Box::new(super::resolve::ResolveModifier));
         registry.register(Box::new(super::reverse::ReverseModifier));
         registry.register(Box::new(super::size::SizeModifier));
@@ -119,5 +116,23 @@ impl ModifierRegistry {
             }
         }
         Ok(current)
+    }
+}
+
+/// Invert a ContextModel::Bool or ContextModel::List<Bool>.
+pub fn invert_bool(value: ContextModel) -> ContextModel {
+    match value {
+        ContextModel::Bool(b) => ContextModel::Bool(!b),
+        ContextModel::List(items) => {
+            let inverted: Vec<ContextModel> = items
+                .iter()
+                .map(|i| match i {
+                    ContextModel::Bool(b) => ContextModel::Bool(!b),
+                    _ => i.clone(),
+                })
+                .collect();
+            ContextModel::List(inverted)
+        }
+        _ => value,
     }
 }
