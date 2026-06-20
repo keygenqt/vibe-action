@@ -20,7 +20,7 @@ benchmarks:
 
   find:
     # Discovers a specific technical macro across the codebase
-    - cargo run -- find -p ./src/utils -q 'где объявлен макрос print_rich_block?'
+    - cargo run -- find -p ./src/utils -q 'где объявлен указана версия'
     # Searches by logic meaning (topological dependency sorting modules)
     - cargo run -- find -p ./src/engine -q 'найди файлы, которые занимаются топологической сортировкой экшенов'
     # Edge case: searches for missing architectural components
