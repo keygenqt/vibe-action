@@ -4,7 +4,10 @@
 use anyhow::Result;
 use vibe_cluster::{BatchOptions, Prompt};
 
-use crate::{configs::app::AppConfig, models::action::ActionRun};
+use crate::{
+    configs::app::AppConfig, models::action::ActionRun, output::output::OutputLevel, print_info,
+    print_newline, print_progress,
+};
 
 /// Distributed cluster execution response payload.
 pub struct ClusterResult {
@@ -41,8 +44,44 @@ impl Cluster {
             })
             .collect();
 
+        let run_arc = std::sync::Arc::new(run.to_string());
+        let run_for_closure = run_arc.clone();
+
         let cluster_results = cluster
-            .batch_call_with_options(&cluster_prompts, &options, |_, _, _| {})
+            .batch_call_with_options(&cluster_prompts, &options, move |result, current, total| {
+                let bpe = tiktoken_rs::cl100k_base().unwrap();
+                let user_tokens = bpe.encode_with_special_tokens(&result.prompt.user).len();
+                let system_tokens = result
+                    .prompt
+                    .system
+                    .as_ref()
+                    .map(|s| bpe.encode_with_special_tokens(s).len())
+                    .unwrap_or(0);
+                let total_tokens = user_tokens + system_tokens;
+                if AppConfig::output().level() == OutputLevel::Cli {
+                    print_newline!();
+                    print_progress!(
+                        "└─ [{}] node batch: {}/{} | {} finished in {}ms ({} tokens)",
+                        run_for_closure,
+                        current,
+                        total,
+                        result.model,
+                        result.duration_ms,
+                        total_tokens
+                    );
+                    print_newline!();
+                } else {
+                    print_info!(
+                        "[{}] batch {}/{} completed by node '{}' in {}ms ({} tokens)",
+                        run_for_closure,
+                        current,
+                        total,
+                        result.model,
+                        result.duration_ms,
+                        total_tokens
+                    );
+                }
+            })
             .await
             .map_err(|e| anyhow::anyhow!("Cluster batch call failed: {}", e))?;
 

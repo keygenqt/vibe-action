@@ -2,6 +2,16 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Comment",
+      "type": "shell",
+      "command": "vibe-action comment",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "focus": false
+      }
+    },
+    {
       "label": "Tone",
       "type": "shell",
       "command": "vibe-action tone",
@@ -22,9 +32,19 @@
       }
     },
     {
-      "label": "Translate",
+      "label": "Translate Fast",
       "type": "shell",
-      "command": "vibe-action translate",
+      "command": "vibe-action translate-fast",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "focus": false
+      }
+    },
+    {
+      "label": "Translate Deep",
+      "type": "shell",
+      "command": "vibe-action translate-deep",
       "problemMatcher": [],
       "presentation": {
         "reveal": "never",

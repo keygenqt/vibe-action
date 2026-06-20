@@ -9,6 +9,7 @@ use crate::{
     configs::app::AppConfig,
     engine::engine::Engine,
     exit_error,
+    models::action::ActionRun,
     output::{macros::format_msg, output::OutputLevel},
     print_debug, print_info, print_newline, print_progress, print_success, print_warning, utils,
 };
@@ -69,7 +70,12 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
                 exit_error!("{}", e)
             });
             if i + 1 == total {
-                print_newline!();
+                match action.run {
+                    ActionRun::Cmd | ActionRun::Value => {
+                        print_newline!();
+                    }
+                    _ => {}
+                }
             }
         }
     }

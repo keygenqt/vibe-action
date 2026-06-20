@@ -151,9 +151,10 @@ impl std::fmt::Display for ActionRun {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ActionRun::Cmd => write!(f, "cmd"),
-            ActionRun::Llm | ActionRun::LlmSmall | ActionRun::LlmMedium | ActionRun::LlmLarge => {
-                write!(f, "llm")
-            }
+            ActionRun::Llm => write!(f, "cluster"),
+            ActionRun::LlmSmall => write!(f, "small"),
+            ActionRun::LlmMedium => write!(f, "medium"),
+            ActionRun::LlmLarge => write!(f, "large"),
             ActionRun::Value => write!(f, "val"),
         }
     }
