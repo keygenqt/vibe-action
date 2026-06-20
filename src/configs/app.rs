@@ -52,10 +52,10 @@ impl Default for AppConfig {
             cluster: vec![
                 ClusterConfig::default(),
                 // @todo
-                ClusterConfig {
-                    host: "http://192.168.1.10:11434".to_string(),
-                    ..ClusterConfig::default()
-                },
+                // ClusterConfig {
+                //     host: "http://192.168.1.10:11434".to_string(),
+                //     ..ClusterConfig::default()
+                // },
             ],
             flows: None,
         }

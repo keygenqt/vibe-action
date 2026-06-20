@@ -3,7 +3,7 @@
 
 benchmarks:
   commit:
-    # Basic execution test without path arguments @todo
+    # Basic execution test without path arguments
     - cargo run -- commit
     # Fails if there are no changes in the repository
     - cargo run -- commit -p .
