@@ -2,23 +2,31 @@
 
 ## Environment Variables
 
-| Variable           | Description                       | Default                      |
-| ------------------ | --------------------------------- | ---------------------------- |
-| `VIBE_CONFIG`      | Path to config file               | `~/.vibe-action/config.yaml` |
-| `VIBE_ACTION_PATH` | Path to actions directory         | `~/.vibe-action/actions/`    |
-| `VIBE_DEBUG`       | Enable debug mode (`1` or `true`) | disabled                     |
-| `VIBE_LOG_LEVEL`   | Tracing level (1-6)               | `4` (debug)                  |
+| Variable           | Description                                              | Default                      |
+| ------------------ | -------------------------------------------------------- | ---------------------------- |
+| `VIBE_CONFIG`      | Path to config file                                      | `~/.vibe-action/config.yaml` |
+| `VIBE_ACTION_PATH` | Path to actions directory                                | `~/.vibe-action/actions/`    |
+| `VIBE_LOG_TYPE`    | Output mode: `cli`, `plain`, `json`, `tracing`           | `cli`                        |
+| `VIBE_TRACE_LEVEL` | Tracing level: `error`, `warn`, `info`, `debug`, `trace` | `info`                       |
 
-## Log Levels
+## Output Modes
 
-| Level | Name  | Description                |
-| ----- | ----- | -------------------------- |
-| 1     | error | Errors only                |
-| 2     | warn  | Warnings and errors        |
-| 3     | info  | Flow progress and results  |
-| 4     | debug | Detailed engine internals  |
-| 5     | trace | Maximum verbosity          |
-| 6     | test  | Test mode (minimal output) |
+| Mode      | Description                                    |
+| --------- | ---------------------------------------------- |
+| `cli`     | ANSI colors, progress bar, framed results      |
+| `plain`   | Result only, no formatting (for tests/CI)      |
+| `json`    | JSON objects `{"level":"...","message":"..."}` |
+| `tracing` | Structured logs with timestamps and log levels |
+
+## Trace Levels
+
+| Level   | Description               |
+| ------- | ------------------------- |
+| `error` | Errors only               |
+| `warn`  | Warnings and errors       |
+| `info`  | Flow progress and results |
+| `debug` | Detailed engine internals |
+| `trace` | Maximum verbosity         |
 
 ## Commands
 
@@ -28,6 +36,7 @@ Execute a YAML-defined action directly:
 vibe-action <name> [args...]
 vibe-action commit -p .
 vibe-action translate -f README.md -l Russian
+vibe-action tone   # reads from clipboard
 vibe-action --help
 ```
 
@@ -49,10 +58,10 @@ vibe-action extract --help
 
 ## Debug Mode
 
-Set `VIBE_DEBUG=1` for detailed logs of each pipeline step:
+Set `VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug` for detailed logs:
 
 ```bash
-VIBE_DEBUG=1 vibe-action commit -p .
+VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug vibe-action commit -p .
 ```
 
 Shows:

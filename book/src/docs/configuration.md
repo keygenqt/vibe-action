@@ -23,12 +23,14 @@ action:
 ## Cluster
 
 Define one or more LLM providers. The engine sends prompts to all nodes in parallel.
+Use `role` to assign models to specific complexity levels.
 
 ```yaml
 cluster:
   - provider: ollama
     host: http://localhost:11434
     model: qwen2.5-coder:14b-instruct
+    role: medium
     timeout_secs: 60
     temperature: 0.1
     seed: 42
@@ -44,6 +46,7 @@ cluster:
 | `provider`     | string  | `ollama`, `deepseek`, `qwen`           |
 | `host`         | string  | API endpoint URL                       |
 | `model`        | string  | Model name                             |
+| `role`         | string  | `small`, `medium`, `large` (optional)  |
 | `timeout_secs` | integer | Request timeout in seconds             |
 | `temperature`  | float   | 0.0-2.0, lower = more deterministic    |
 | `seed`         | integer | Random seed for reproducibility        |
@@ -52,13 +55,14 @@ cluster:
 | `api_key`      | string  | API key for cloud providers (optional) |
 | `parallel`     | integer | Concurrent connections (default: 1)    |
 
-### Multi-Node Cluster
+### Multi-Node Cluster with Roles
 
 ```yaml
 cluster:
   - provider: ollama
     host: http://localhost:11434
     model: qwen2.5-coder:3b-instruct
+    role: small
     timeout_secs: 30
     temperature: 0.0
     seed: 42
@@ -69,6 +73,7 @@ cluster:
   - provider: ollama
     host: http://192.168.1.10:11434
     model: qwen2.5-coder:14b-instruct
+    role: medium
     timeout_secs: 60
     temperature: 0.1
     seed: 42
@@ -79,6 +84,7 @@ cluster:
   - provider: deepseek
     host: https://api.deepseek.com/v1
     model: deepseek-v4-flash
+    role: large
     timeout_secs: 120
     temperature: 0.1
     seed: 42
@@ -88,7 +94,8 @@ cluster:
     parallel: 2
 ```
 
-All nodes receive prompts in parallel.
+Nodes with `role: small` are used for `run: llm_small`, `role: medium` for `llm_medium`, `role: large` for `llm_large`.
+Nodes without a `role` respond to all requests.
 
 ## Actions Directory
 

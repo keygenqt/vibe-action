@@ -76,6 +76,9 @@ vibe-action commit -p .
 # Translate a file
 vibe-action translate -f README.md -l Russian
 
+# Rewrite tone from clipboard
+vibe-action tone
+
 # Extract errors from logs
 vibe-action extract -f app.log -q "find all errors"
 
@@ -85,10 +88,10 @@ vibe-action --help
 
 ## Debug Mode
 
-Set `VIBE_DEBUG=1` to see what's happening under the hood:
+Set `VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug` to see what's happening under the hood:
 
 ```bash
-VIBE_DEBUG=1 vibe-action commit -p .
+VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug vibe-action commit -p .
 ```
 
 Shows each pipeline step: original command, resolved template, and result.

@@ -7,15 +7,10 @@ Each action is a YAML file in `~/.vibe-action/actions/`. The engine loads all `.
 ```yaml
 name: hello
 about: Say hello
-check: null
-clipboard: false
-args: []
 actions:
   - tag: tag_hello
     run: value
     expect: string
-    check: null
-    confirm: false
     action: Hello, World!
 ```
 
@@ -34,6 +29,7 @@ name: my-action # CLI subcommand name
 about: Description # Help text
 check: '^[a-z]+$' # Optional: regex validation for final output
 clipboard: true # Optional: copy result to clipboard
+notify: true # Optional: show system notification on completion
 args: # Optional: CLI arguments
   - name: input
     short: i
@@ -42,7 +38,7 @@ args: # Optional: CLI arguments
     default: 'default' # Optional: makes argument non-required
 actions: # Pipeline steps (executed in order of dependencies)
   - tag: tag_step1
-    run: cmd # cmd | llm | value
+    run: cmd # cmd | llm | llm_small | llm_medium | llm_large | value
     expect: string # void | bool | number | string | list<T>
     check: '^.+$' # Optional: regex validation for this step
     confirm: true # Optional: ask before executing
@@ -51,11 +47,14 @@ actions: # Pipeline steps (executed in order of dependencies)
 
 ## Action Types
 
-| Type    | Description                        |
-| ------- | ---------------------------------- |
-| `cmd`   | Shell command executed in terminal |
-| `llm`   | Prompt sent to LLM cluster         |
-| `value` | Static string, no execution        |
+| Type         | Description                        |
+| ------------ | ---------------------------------- |
+| `cmd`        | Shell command executed in terminal |
+| `llm`        | Prompt sent to all LLM nodes       |
+| `llm_small`  | Prompt sent to small models only   |
+| `llm_medium` | Prompt sent to medium models only  |
+| `llm_large`  | Prompt sent to large models only   |
+| `value`      | Static string, no execution        |
 
 ## Expect Types
 
@@ -66,6 +65,24 @@ actions: # Pipeline steps (executed in order of dependencies)
 | `number`       | Integer or float                  |
 | `string`       | Text (default)                    |
 | `list<string>` | List of strings, triggers loop    |
+
+## Conditional Actions (When/Then)
+
+`action` can be a list of `when/then` pairs for conditional execution:
+
+```yaml
+- tag: tag_result
+  run: cmd
+  expect: string
+  action:
+    - when: '{tag_check|contains:DIRTY}'
+      then: echo "{tag_content}"
+    - when: '{tag_check|contains:CLEAR}'
+      then: echo "No errors found."
+```
+
+Each `when` condition is evaluated. The first matching `then` is executed.
+If no condition matches — the step fails with an error.
 
 ## Execution Order
 

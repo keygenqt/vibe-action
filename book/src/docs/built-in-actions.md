@@ -95,11 +95,13 @@ vibe-action synonyms -q "event emitter"
 ## tone
 
 Rewrite text with professional, calm tone. Supports Russian, English, Chinese.
+Reads from clipboard if no argument provided.
 
 ```bash
 vibe-action tone -q "Какого хрена ты до сих пор не на работе?"
 vibe-action tone -q "How fucking long do I have to wait?"
 vibe-action tone -q "你写代码写得像个该死的老外！"
+vibe-action tone   # reads from clipboard
 ```
 
 **How it works:** LLM rewrites text preserving meaning but removing aggression and rudeness.

@@ -32,21 +32,14 @@ Strips characters from ends of strings, or filters list elements.
 | `"<->"`         | `"<->"`       | `"-"`            |
 | `["", "a", ""]` | `["a"]`       | `["a"]`          |
 
-## `upper`
+## `upper` / `lower`
 
-Transforms text to UPPERCASE.
+Transform text case.
 
-| Input     | Output    |
-| --------- | --------- |
-| `"hello"` | `"HELLO"` |
-
-## `lower`
-
-Transforms text to lowercase.
-
-| Input     | Output    |
-| --------- | --------- |
-| `"HELLO"` | `"hello"` |
+| Modifier | Input     | Output    |
+| -------- | --------- | --------- |
+| `upper`  | `"hello"` | `"HELLO"` |
+| `lower`  | `"HELLO"` | `"hello"` |
 
 ## `take`
 
@@ -73,9 +66,43 @@ Splits a string into a list by newlines.
 | ----------- | ----------------- |
 | `"a\nb\nc"` | `["a", "b", "c"]` |
 
+## `sort`
+
+Sorts a list alphabetically.
+
+| Syntax             | Description              |
+| ------------------ | ------------------------ |
+| `{tag\|sort}`      | Sort ascending (default) |
+| `{tag\|sort:asc}`  | Sort ascending           |
+| `{tag\|sort:desc}` | Sort descending          |
+
+## `reverse`
+
+Reverses a string or list.
+
+| Syntax           | Description   |
+| ---------------- | ------------- |
+| `{tag\|reverse}` | Reverse order |
+
+## `size`
+
+Returns the length of a string or list as a number.
+
+| Syntax        | Description        |
+| ------------- | ------------------ |
+| `{tag\|size}` | Number of elements |
+
+## `resolve`
+
+Resolves a path to absolute form (`~`, `.`, `..` expanded).
+
+| Syntax           | Description              |
+| ---------------- | ------------------------ |
+| `{tag\|resolve}` | Resolve to absolute path |
+
 ## `ast`
 
-Parses source code into structured JSON via [vibe-ast](https://crates.io/crates/vibe-ast).
+Parses source code into structured JSON via [vibe-ast](https://crates.io/crates/vibe-ast). 14 languages supported.
 
 | Syntax             | Description         |
 | ------------------ | ------------------- |
@@ -94,6 +121,28 @@ Parses source code into structured JSON via [vibe-ast](https://crates.io/crates/
 | `{tag\|ast:ets}`   | Parse as ArkTS      |
 | `{tag\|ast:md}`    | Parse as Markdown   |
 
+## Predicate Modifiers
+
+Return `true`/`false` for use in `when` conditions. Support `:not` to invert.
+
+| Modifier   | Description                    | Example                 |
+| ---------- | ------------------------------ | ----------------------- |
+| `contains` | String contains substring      | `{tag\|contains:error}` |
+| `empty`    | String or list is empty        | `{tag\|empty}`          |
+| `equals`   | String equals value            | `{tag\|equals:done}`    |
+| `is_file`  | Path exists and is a file      | `{tag\|is_file}`        |
+| `is_dir`   | Path exists and is a directory | `{tag\|is_dir}`         |
+
+### Inverting with `:not`
+
+Add `:not` to any predicate to invert the result:
+
+| Syntax                  | Description              |
+| ----------------------- | ------------------------ |
+| `{tag\|empty:not}`      | String or list not empty |
+| `{tag\|contains:x:not}` | Does not contain x       |
+| `{tag\|is_file:not}`    | Path is not a file       |
+
 ## Chaining
 
 Modifiers can be chained in a single expression:
@@ -104,4 +153,7 @@ Modifiers can be chained in a single expression:
 
 # Split, take first 3, then join back
 {tag_text|split|take:3|join}
+
+# Check if not empty
+{file|empty:not}
 ```

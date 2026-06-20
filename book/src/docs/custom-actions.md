@@ -8,15 +8,10 @@ Create your own actions by adding `.yaml` files to `~/.vibe-action/actions/`. An
 # ~/.vibe-action/actions/hello.yaml
 name: hello
 about: Say hello
-check: null
-clipboard: false
-args: []
 actions:
   - tag: tag_hello
     run: value
     expect: string
-    check: null
-    confirm: false
     action: Hello, World!
 ```
 
@@ -35,15 +30,10 @@ Hello, World!
 # ~/.vibe-action/actions/disk.yaml
 name: disk
 about: Show disk usage
-check: null
-clipboard: false
-args: []
 actions:
   - tag: tag_disk
     run: cmd
     expect: string
-    check: null
-    confirm: false
     action: df -h /
 ```
 
@@ -63,8 +53,6 @@ Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
 # ~/.vibe-action/actions/greet.yaml
 name: greet
 about: Greet someone
-check: null
-clipboard: false
 args:
   - name: name
     short: n
@@ -75,8 +63,6 @@ actions:
   - tag: tag_greeting
     run: value
     expect: string
-    check: null
-    confirm: false
     action: Hello, {name}!
 ```
 
@@ -89,14 +75,33 @@ Hello, Alice!
 ─────────────
 ```
 
+## Using System Tags
+
+System tags provide context from your environment:
+
+```yaml
+# ~/.vibe-action/actions/status.yaml
+name: status
+about: Show system info
+actions:
+  - tag: tag_info
+    run: value
+    expect: string
+    action: |
+      User: {system_user}
+      OS: {system_os}
+      PWD: {system_pwd}
+      Date: {system_date}
+```
+
+Available system tags: `{system_clipboard}`, `{system_pwd}`, `{system_os}`, `{system_user}`, `{system_home}`, `{system_date}`, `{system_time}`, `{system_pid}`, `{system_temp}`.
+
 ## LLM Call
 
 ```yaml
 # ~/.vibe-action/actions/explain.yaml
 name: explain
 about: Explain a concept
-check: null
-clipboard: false
 args:
   - name: query
     short: q
@@ -106,8 +111,6 @@ actions:
   - tag: tag_answer
     run: llm
     expect: string
-    check: null
-    confirm: false
     action: |
       Explain this concept in simple terms. Keep it under 3 sentences.
       {query}
@@ -117,14 +120,36 @@ actions:
 $ vibe-action explain -q "Rust borrow checker"
 progress: answer (llm)... 100% (1/1)
 info: completed in 6.63s
-── success ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-The Rust borrow checker is a part of the Rust programming language that ensures memory safety and prevents common
-programming errors like null pointer dereferencing or data races. It works by analyzing how variables are borrowed
-(accessed) and mutably borrowed (modified) throughout your code, ensuring that these accesses are always valid and do
-not conflict with each other. This allows Rust to avoid the need for a garbage collector while still providing safety
-guarantees similar to those found in languages with automatic memory management.
-─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+── success ──
+The Rust borrow checker...
+─────────────
 ```
+
+## Conditional Actions (When/Then)
+
+Use `when/then` for conditional execution:
+
+```yaml
+# ~/.vibe-action/actions/safe-commit.yaml
+name: safe-commit
+about: Commit only if there are changes
+actions:
+  - tag: tag_changed
+    run: cmd
+    expect: list<string>
+    action: git diff --name-only
+
+  - tag: tag_commit
+    run: cmd
+    expect: string
+    action:
+      - when: '{tag_changed|not_empty}'
+        then: git add . && git commit -m "auto: updates"
+      - when: '{tag_changed|empty}'
+        then: echo "Nothing to commit."
+```
+
+Each `when` is evaluated in order. The first matching `then` executes.
 
 ## Multi-Step Pipeline
 
@@ -132,8 +157,6 @@ guarantees similar to those found in languages with automatic memory management.
 # ~/.vibe-action/actions/summarize-file.yaml
 name: summarize-file
 about: Read a file and summarize it
-check: null
-clipboard: false
 args:
   - name: file
     short: f
@@ -143,15 +166,11 @@ actions:
   - tag: tag_content
     run: cmd
     expect: string
-    check: null
-    confirm: false
     action: cat {file}
 
   - tag: tag_summary
     run: llm
     expect: string
-    check: null
-    confirm: false
     action: |
       Summarize this file in 2-3 sentences:
       {tag_content}
@@ -161,12 +180,9 @@ actions:
 $ vibe-action summarize-file -f README.md
 progress: summary (llm)... 100% (2/2)
 info: completed in 7.74s
-── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Vibe Action is a command router that simplifies the execution of shell commands and large language model prompts using
-YAML pipelines. It allows developers to describe their workflows declaratively in YAML, automatically handling execution
-order, running shell commands, calling LLMs, validating results, and providing answers, making repetitive tasks like
-committing code, translating files, and extracting errors from logs more efficient and less error-prone.
-────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+── success ──
+Vibe Action is a command router...
+─────────────
 ```
 
 ## Tips
@@ -174,4 +190,6 @@ committing code, translating files, and extracting errors from logs more efficie
 - **Tag naming:** use `tag_` prefix for consistency with built-in actions
 - **Dependencies:** the engine sorts steps by `{tag}` references, not YAML order
 - **Validation:** add `check: ".+"` to ensure non-empty output
-- **Debugging:** set `VIBE_DEBUG=1` to see each step's input and output
+- **Debugging:** set `VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug` to see each step's input and output
+- **Clipboard:** use `default: '{system_clipboard}'` to read from clipboard
+- **Notifications:** add `notify: true` to show desktop notification on completion
