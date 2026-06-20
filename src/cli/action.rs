@@ -6,8 +6,11 @@ use clap::ArgMatches;
 use inquire::Confirm;
 
 use crate::{
-    configs::app::AppConfig, engine::engine::Engine, exit_error, output::macros::format_msg,
-    print_debug, print_info, print_newline, print_progress, print_success, print_warning,
+    configs::app::AppConfig,
+    engine::engine::Engine,
+    exit_error,
+    output::{macros::format_msg, output::OutputLevel},
+    print_debug, print_info, print_newline, print_progress, print_success, print_warning, utils,
 };
 
 /// Execute a dynamic action command.
@@ -89,5 +92,37 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         print_info!("No matches found.")
     } else {
         print_success!("{}", &result)
+    }
+    if flow.notify && AppConfig::output().level() == OutputLevel::Cli {
+        #[cfg(target_os = "macos")]
+        {
+            match std::process::Command::new("terminal-notifier")
+                .args(&[
+                    "-title",
+                    utils::app::app_name_pretty(),
+                    "-message",
+                    &format!("{} completed in {:.2?}", flow.name, start_time.elapsed()),
+                ])
+                .spawn()
+            {
+                Ok(_) => {}
+                Err(_) => {
+                    print_warning!(
+                        "terminal-notifier not found. Install: brew install terminal-notifier"
+                    );
+                }
+            }
+        }
+        #[cfg(target_os = "linux")]
+        {
+            let _ = notify_rust::Notification::new()
+                .summary(utils::app::app_name_pretty())
+                .body(&format!(
+                    "{} completed in {:.2?}",
+                    flow.name,
+                    start_time.elapsed()
+                ))
+                .show();
+        }
     }
 }

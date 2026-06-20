@@ -1,6 +1,6 @@
 name: extract
 about: Extract structured data or matching lines from text and logs
-clipboard: true
+clipboard: false
 args:
   - name: file
     short: 'f'

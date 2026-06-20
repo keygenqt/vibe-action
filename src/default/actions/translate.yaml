@@ -1,11 +1,12 @@
 name: translate
 about: Translate text or files to another language
 clipboard: true
+notify: true
 args:
   - name: text
     short: 't'
     expect: string
-    default: ''
+    default: '{system_clipboard}'
     help: Text to translate
   - name: file
     short: 'f'
@@ -16,6 +17,7 @@ args:
     short: 'l'
     expect: string
     help: Target language (e.g., Russian, English, Chinese)
+    default: Russian
 actions:
   # Read input from file or text argument
   - tag: tag_content

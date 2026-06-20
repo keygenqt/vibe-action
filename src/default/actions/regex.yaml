@@ -9,8 +9,8 @@ args:
   - name: example
     short: 'e'
     expect: string
-    default: ''
     help: Optional example string to test the pattern against
+    default: ''
 actions:
   # LLM generates regex pattern, optionally testing against example
   - tag: tag_regex

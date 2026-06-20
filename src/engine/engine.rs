@@ -43,7 +43,7 @@ impl Engine {
 
         // Load input arguments as context tags.
         let mut ctx = Context::new();
-        for (name, value) in &flow.input_args {
+        for (name, value) in &flow.input_tags {
             ctx.set(name, ContextModel::String(value.clone()));
         }
 

@@ -1,17 +1,18 @@
 name: spellcheck
 about: Check and fix spelling in text or files
 clipboard: true
+notify: true
 args:
   - name: text
     short: 't'
     expect: string
-    default: ''
     help: Text to check
+    default: '{system_clipboard}'
   - name: file
     short: 'f'
     expect: string
-    default: ''
     help: File to check
+    default: ''
 actions:
   # Read input from file or text argument
   - tag: tag_content

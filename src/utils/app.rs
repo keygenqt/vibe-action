@@ -9,9 +9,14 @@ pub fn app_version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }
 
-/// Returns the application name as a static string slice.
+/// Returns the application name for CLI usage.
 pub fn app_name() -> &'static str {
     "vibe-action"
+}
+
+/// Returns the pretty application name for notifications and UI.
+pub fn app_name_pretty() -> &'static str {
+    "Vibe Action"
 }
 
 /// Returns the application about text with styling.

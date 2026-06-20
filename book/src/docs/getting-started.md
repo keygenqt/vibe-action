@@ -49,7 +49,7 @@ This creates:
 Edit `~/.vibe-action/config.yaml` to point to your Ollama instance:
 
 ```yaml
-version: '0.0.2'
+version: '0.0.3'
 
 action:
   system: 'You are Vibe Action — a CLI tool. Output ONLY the result.'

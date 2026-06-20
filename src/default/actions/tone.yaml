@@ -1,11 +1,13 @@
 name: tone
 about: Change the tone of a text based on your instructions
 clipboard: true
+notify: true
 args:
   - name: query
     short: 'q'
     expect: string
     help: "The text to rewrite along with tone instructions (e.g., 'make it formal: hi friend')"
+    default: '{system_clipboard}'
 actions:
   # LLM transforms rude/aggressive language into professional tone
   - tag: tag_rewritten_text

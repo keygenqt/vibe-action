@@ -6,10 +6,13 @@ Command router for shell and LLM tasks via YAML pipelines.
 
 - ⚡ **Complex pipelines** — chain shell and LLM into one command
 - 🔗 **Tag system** — auto-dependency graph via `{tag}`
-- 🔧 **Modifiers** — `{tag|upper|trim|join}` transform values inline
+- 🔧 **Modifiers** — rich set of modifiers with arguments for transforming values inline
+- 🔀 **Switch/when-then** — conditional execution in YAML
 - 🌳 **AST parsing** — `{tag|ast:rs}` extract code structure
-- 🤖 **Batch LLM** — parallel execution across cluster nodes
+- 🖥️ **System tags** — `{system_clipboard}`, `{system_pwd}`, `{system_os}` and more
+- 🤖 **Batch LLM** — parallel execution across cluster nodes with role-based routing
 - ✅ **Type-safe** — validate with types and regex
+- 🔔 **Notifications** — optional system notifications on completion
 - 🔐 **Confirmations** — approve before executing
 - 🎯 **CLI-first** — no browser, just terminal
 - 🔒 **Local & free** — Ollama, 3b models, no subscriptions
@@ -26,6 +29,9 @@ vibe-action commit
 
 # Translate files
 vibe-action translate -f README.md -l Russian
+
+# Rewrite tone from clipboard
+vibe-action tone
 
 # Extract errors from logs
 vibe-action extract -f app.log -q 'find errors'
@@ -51,7 +57,7 @@ vibe-action extract -f app.log -q 'find errors'
 `~/.vibe-action/config.yaml`:
 
 ```yaml
-version: '0.0.2'
+version: '0.0.3'
 
 action:
   system: 'You are Vibe Action — a CLI tool. Output ONLY the result.'
@@ -68,6 +74,15 @@ cluster:
     num_predict: 2048
     parallel: 1
 ```
+
+## Environment Variables
+
+| Variable           | Description                                              | Default                      |
+| ------------------ | -------------------------------------------------------- | ---------------------------- |
+| `VIBE_CONFIG`      | Path to config file                                      | `~/.vibe-action/config.yaml` |
+| `VIBE_ACTION_PATH` | Path to actions directory                                | `~/.vibe-action/actions/`    |
+| `VIBE_LOG_TYPE`    | Output mode: `cli`, `plain`, `json`, `tracing`           | `cli`                        |
+| `VIBE_TRACE_LEVEL` | Tracing level: `error`, `warn`, `info`, `debug`, `trace` | `info`                       |
 
 ## Install
 
@@ -88,3 +103,4 @@ cargo build --release
 ## Dependencies
 
 - [Ollama](https://ollama.com), [DeepSeek](https://deepseek.com), or [Qwen](https://qwen.ai) for LLM inference
+- [terminal-notifier](https://github.com/julienXX/terminal-notifier) (macOS) for desktop notifications

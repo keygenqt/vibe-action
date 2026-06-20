@@ -1,6 +1,6 @@
 [package]
 name = "vibe-action"
-version = "0.0.2"
+version = "0.0.3"
 edition = "2024"
 license = "Apache-2.0"
 description = "Command router — execute shell commands and LLM prompts via simple YAML actions."
@@ -36,6 +36,7 @@ walkdir = "2.5"
 url = "2.5"
 arboard = "3.6"
 shell-words = "1.1"
+notify-rust = "4"
 
 # Debug logging (--debug flag)
 tracing = "0.1"
