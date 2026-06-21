@@ -19,17 +19,6 @@ pub fn format_msg(s: &str) -> String {
 }
 
 #[macro_export]
-macro_rules! print_newline {
-    () => {{
-        if $crate::configs::app::AppConfig::output().level()
-            == $crate::output::output::OutputLevel::Cli
-        {
-            println!();
-        }
-    }};
-}
-
-#[macro_export]
 macro_rules! print_error {
     ($($arg:tt)*) => {{
         let msg = format!($($arg)*);

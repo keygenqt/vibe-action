@@ -18,7 +18,7 @@ actions:
     action: cat {file}
   # LLM checks each line against the query, outputs matching lines or "-"
   - tag: tag_content
-    run: llm
+    run: llm_small
     expect: string
     action: |
       [Task]

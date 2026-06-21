@@ -14,7 +14,7 @@ args:
 actions:
   # LLM generates structured mock data in the requested format
   - tag: tag_mock
-    run: llm
+    run: llm_small
     expect: string
     action: |
       [Task]

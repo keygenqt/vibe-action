@@ -14,7 +14,7 @@ args:
 actions:
   # LLM generates regex pattern, optionally testing against example
   - tag: tag_regex
-    run: llm
+    run: llm_small
     expect: string
     action: |
       [Task]

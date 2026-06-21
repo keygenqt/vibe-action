@@ -41,7 +41,7 @@ actions:
       EOF
   # LLM evaluates each file against the query
   - tag: tag_matches
-    run: llm
+    run: llm_small
     expect: list<string>
     action: '{tag_content}'
   # Filter out non-matching entries

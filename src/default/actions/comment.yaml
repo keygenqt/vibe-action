@@ -1,0 +1,27 @@
+name: comment
+about: Replace TODO with a meaningful comment
+clipboard: true
+notify: true
+args:
+  - name: query
+    short: 'q'
+    expect: string
+    help: The line to comment
+    default: '{system_clipboard}'
+actions:
+  - tag: tag_comment
+    run: llm_small
+    expect: string
+    action: |
+      [Task]
+      Replace EVERY "TODO" or "@todo" placeholder in the code with an intelligent technical comment in English.
+
+      [Rules]
+      1. Do NOT modify, reformat, or optimize any actual programming code. Your only task is to update the TODO comments.
+      2. For file/module placeholders (`//!`), write a high-level summary strictly in TWO short sentences (one per line). Start each sentence directly with an action verb or noun (do NOT use "This module...", "It...").
+      3. For structures, fields, or methods below, write a brief description (max 7 words). Do NOT start with "Represents...", "The...".
+      4. Keep the exact same comment syntax (`//!`, `///`, `//`, `#`).
+      5. Output the ENTIRE code block with placeholders replaced.
+
+      [Code]
+      {query}

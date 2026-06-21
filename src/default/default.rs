@@ -12,8 +12,9 @@ pub const FLOW_HEADER: &str = r#"# Vibe Action — {{name}}
 #   about     - Short description
 #   check     - Optional regex validation for the final flow result
 #   clipboard - Copy final result to clipboard (default: false)
+#   notify    - Show desktop notification on completion (default: false)
 #   args      - CLI arguments (optional)
-#   actions   - Pipeline execution steps (execution order resolved automatically by tags)
+#   actions   - Pipeline steps (execution order resolved automatically by tags)
 #
 # Args:
 #   name      - Argument name (used as --name and {name} tag)
@@ -24,25 +25,32 @@ pub const FLOW_HEADER: &str = r#"# Vibe Action — {{name}}
 #
 # Actions:
 #   tag       - Tag name for {tag} references with automatic dependency ordering
-#   type      - cmd (shell), llm (AI model), value (static string)
-#   expect    - Expected output type: void, bool, number, string, list<T>
-#   check     - Optional regex pre-validation for the result
+#   run       - cmd (shell), llm / llm_small / llm_medium / llm_large (AI), value (static)
+#   expect    - Expected output type: void, bool, number, string, list<string>
+#   check     - Optional regex validation for the step result
 #   confirm   - Ask for user confirmation before executing (default: false)
-#   action    - Shell command, LLM prompt, or static string
+#   action    - Shell command, LLM prompt, static string, or when/then list
 #
 # Modifiers:
-#   {tag|upper}      - Any   : transform to UPPERCASE
-#   {tag|lower}      - Any   : transform to lowercase
-#   {tag|reverse}    - Any   : reverse order
-#   {tag|take:N}     - Any   : first N chars (string) or elements (list)
-#   {tag|trim}       - Any   : strip whitespace, remove empty
-#   {tag|trim:chars} - Any   : strip custom chars
-#   {tag|join}       - List  : join elements with \n
-#   {tag|join:uniq}  - List  : join with deduplication
-#   {tag|sort}       - List  : sort ascending
-#   {tag|sort:desc}  - List  : sort descending
-#   {tag|split}      - String: split into list by \n
-#   {tag|ast:lang}   - String: parse source code to JSON (rs, py, ts, js, ...)
+#   {tag|upper}        - Any   : transform to UPPERCASE
+#   {tag|lower}        - Any   : transform to lowercase
+#   {tag|reverse}      - Any   : reverse order
+#   {tag|take:N}       - Any   : first N chars (string) or elements (list)
+#   {tag|trim}         - Any   : strip whitespace, remove empty
+#   {tag|trim:chars}   - Any   : strip custom chars, remove matching
+#   {tag|join}         - List  : join elements with \n
+#   {tag|join:uniq}    - List  : join with deduplication
+#   {tag|sort}         - List  : sort ascending
+#   {tag|sort:desc}    - List  : sort descending
+#   {tag|split}        - String: split into list by \n
+#   {tag|ast:lang}     - String: parse source code to JSON (rs, py, ts, js, kt, ...)
+#   {tag|contains:X}   - Any   : check if contains X (predicate, supports :not)
+#   {tag|empty}        - Any   : check if empty (predicate, supports :not)
+#   {tag|equals:X}     - Any   : check if equals X (predicate, supports :not)
+#   {tag|is_file}      - Any   : check if path is a file (predicate, supports :not)
+#   {tag|is_dir}       - Any   : check if path is a directory (predicate, supports :not)
+#   {tag|size}         - Any   : length of string or list
+#   {tag|resolve}      - Any   : resolve path to absolute (~, ., .. expanded)
 "#;
 
 pub trait DefaultFlow {
@@ -86,6 +94,9 @@ impl DefaultFlow for BuiltinFlow {
 pub fn default_flows() -> Vec<Box<dyn DefaultFlow>> {
     vec![
         Box::new(BuiltinFlow {
+            yaml: include_str!("actions/comment.yaml"),
+        }),
+        Box::new(BuiltinFlow {
             yaml: include_str!("actions/commit.yaml"),
         }),
         Box::new(BuiltinFlow {
@@ -104,6 +115,9 @@ pub fn default_flows() -> Vec<Box<dyn DefaultFlow>> {
             yaml: include_str!("actions/regex.yaml"),
         }),
         Box::new(BuiltinFlow {
+            yaml: include_str!("actions/review.yaml"),
+        }),
+        Box::new(BuiltinFlow {
             yaml: include_str!("actions/spellcheck.yaml"),
         }),
         Box::new(BuiltinFlow {
@@ -113,7 +127,10 @@ pub fn default_flows() -> Vec<Box<dyn DefaultFlow>> {
             yaml: include_str!("actions/tone.yaml"),
         }),
         Box::new(BuiltinFlow {
-            yaml: include_str!("actions/translate.yaml"),
+            yaml: include_str!("actions/translate-deep.yaml"),
+        }),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/translate-fast.yaml"),
         }),
     ]
 }

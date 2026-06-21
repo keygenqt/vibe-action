@@ -1,5 +1,5 @@
-name: translate
-about: Translate text or files to another language
+name: translate-deep
+about: Deep two-stage translation using local drafting and cloud polishing
 clipboard: true
 notify: true
 args:
@@ -29,18 +29,35 @@ actions:
         then: echo "{text}"
       - when: '{file|empty:not}'
         then: cat "{file|resolve}"
-  # LLM translates text, preserving code and proper names
-  - tag: tag_translated
-    run: llm
+
+  # Local model generates a raw text translation
+  - tag: tag_draft
+    run: llm_small
     expect: string
     action: |
       [Task]
       Translate the entire [Text] to the language specified in [User].
       Do not translate proper names, code, or comments inside code blocks.
-      Reply with the full translated text.
+      Reply with the full raw translated text.
 
       [User]
       {to}
 
       [Text]
       {tag_content}
+
+  # Powerful cloud model polishes and refines the draft without original context
+  - tag: tag_translated
+    run: llm_large
+    expect: string
+    action: |
+      [Task]
+      Act as an expert native editor and senior technical writer.
+      Review, polish, and fix the IT slang and phrasing in this rough draft translated into the language specified in [User].
+      Keep formatting, code blocks, and proper names intact. Output ONLY the polished final text.
+
+      [User]
+      {to}
+
+      [Rough Draft]
+      {tag_draft}

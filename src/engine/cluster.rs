@@ -6,7 +6,7 @@ use vibe_cluster::{BatchOptions, Prompt};
 
 use crate::{
     configs::app::AppConfig, models::action::ActionRun, output::output::OutputLevel, print_info,
-    print_newline, print_progress,
+    print_progress,
 };
 
 /// Distributed cluster execution response payload.
@@ -57,28 +57,29 @@ impl Cluster {
                     .as_ref()
                     .map(|s| bpe.encode_with_special_tokens(s).len())
                     .unwrap_or(0);
+                let total_width = total.to_string().len();
                 let total_tokens = user_tokens + system_tokens;
                 if AppConfig::output().level() == OutputLevel::Cli {
-                    print_newline!();
                     print_progress!(
-                        "└─ [{}] node batch: {}/{} | {} finished in {}ms ({} tokens)",
+                        "└─ [{}] node batch: {:>width$}/{} | {} finished in {}ms ({} tokens)",
                         run_for_closure,
                         current,
                         total,
                         result.model,
                         result.duration_ms,
-                        total_tokens
+                        total_tokens,
+                        width = total_width
                     );
-                    print_newline!();
                 } else {
                     print_info!(
-                        "[{}] batch {}/{} completed by node '{}' in {}ms ({} tokens)",
+                        "[{}] batch {:>width$}/{} completed by node '{}' in {}ms ({} tokens)",
                         run_for_closure,
                         current,
                         total,
                         result.model,
                         result.duration_ms,
-                        total_tokens
+                        total_tokens,
+                        width = total_width
                     );
                 }
             })

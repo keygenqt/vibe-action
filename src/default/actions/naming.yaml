@@ -8,7 +8,7 @@ args:
 actions:
   # LLM generates 5-10 naming options based on the description
   - tag: tag_name_suggestions
-    run: llm
+    run: llm_small
     expect: string
     action: |
       [Task]

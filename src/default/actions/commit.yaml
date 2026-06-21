@@ -24,7 +24,7 @@ actions:
       fi
   # LLM summarizes each diff in one sentence
   - tag: tag_file_summary
-    run: llm
+    run: llm_small
     expect: list<string>
     action: |
       [Task]
@@ -36,7 +36,7 @@ actions:
       {tag_file_diff}
   # LLM combines all summaries into one commit message
   - tag: tag_commit_message
-    run: llm
+    run: llm_medium
     expect: string
     action: |
       [Task]

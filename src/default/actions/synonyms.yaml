@@ -8,7 +8,7 @@ args:
 actions:
   # LLM generates 5 technical alternatives
   - tag: tag_synonyms_list
-    run: llm
+    run: llm_small
     expect: list<string>
     action: |-
       [Task]

@@ -12,9 +12,9 @@
       }
     },
     {
-      "label": "Tone",
+      "label": "Review",
       "type": "shell",
-      "command": "vibe-action tone",
+      "command": "vibe-action review",
       "problemMatcher": [],
       "presentation": {
         "reveal": "never",
@@ -32,9 +32,9 @@
       }
     },
     {
-      "label": "Translate Fast",
+      "label": "Tone",
       "type": "shell",
-      "command": "vibe-action translate-fast",
+      "command": "vibe-action tone",
       "problemMatcher": [],
       "presentation": {
         "reveal": "never",
@@ -45,6 +45,16 @@
       "label": "Translate Deep",
       "type": "shell",
       "command": "vibe-action translate-deep",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "focus": false
+      }
+    },
+    {
+      "label": "Translate Fast",
+      "type": "shell",
+      "command": "vibe-action translate-fast",
       "problemMatcher": [],
       "presentation": {
         "reveal": "never",

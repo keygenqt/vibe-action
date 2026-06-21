@@ -4,7 +4,17 @@ use crate::output::output::OutputLevel;
 
 use super::output::Output;
 
-pub struct CliOutput;
+pub struct CliOutput {
+    last_had_newline: std::sync::Mutex<bool>,
+}
+
+impl CliOutput {
+    pub fn new() -> Self {
+        Self {
+            last_had_newline: std::sync::Mutex::new(true),
+        }
+    }
+}
 
 impl Output for CliOutput {
     /// Returns the output level.
@@ -14,21 +24,40 @@ impl Output for CliOutput {
 
     /// Prints red error message.
     fn error(&self, msg: &str) {
+        let mut last = self.last_had_newline.lock().unwrap();
+        if !*last {
+            println!();
+        }
         println!("\x1b[1m\x1b[91merror\x1b[0m: {}", msg);
+        *last = true;
     }
 
     /// Prints yellow warning message.
     fn warning(&self, msg: &str) {
+        let mut last = self.last_had_newline.lock().unwrap();
+        if !*last {
+            println!();
+        }
         println!("\x1b[1m\x1b[93mwarning\x1b[0m: {}", msg);
+        *last = true;
     }
 
     /// Prints blue info message.
     fn info(&self, msg: &str) {
+        let mut last = self.last_had_newline.lock().unwrap();
+        if !*last {
+            println!();
+        }
         println!("\x1b[1m\x1b[94minfo\x1b[0m: {}", msg);
+        *last = true;
     }
 
     /// Prints framed success block with text wrapping.
     fn success(&self, msg: &str) {
+        let mut last = self.last_had_newline.lock().unwrap();
+        if !*last {
+            println!();
+        }
         let max_width = 120usize;
         let wrapped: Vec<String> = msg
             .lines()
@@ -81,6 +110,7 @@ impl Output for CliOutput {
             println!("\x1b[37m{}\x1b[0m", line);
         }
         println!("\x1b[1m\x1b[32m{}\x1b[0m", bottom);
+        *last = true;
     }
 
     /// Ignored in CLI mode.
@@ -91,7 +121,17 @@ impl Output for CliOutput {
 
     /// Prints cyan progress message with carriage return.
     fn progress(&self, msg: &str) {
-        print!("\r\x1b[1m\x1b[36mprogress\x1b[0m: {}\x1b[K", msg);
+        let mut last = self.last_had_newline.lock().unwrap();
+        if msg.contains('%') {
+            print!("\r\x1b[1m\x1b[36mprogress\x1b[0m: {}\x1b[K", msg);
+            *last = false;
+        } else {
+            if !*last {
+                println!();
+            }
+            println!("\x1b[1m\x1b[36mprogress\x1b[0m: {}", msg);
+            *last = true;
+        }
         std::io::Write::flush(&mut std::io::stdout()).unwrap();
     }
 }

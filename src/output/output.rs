@@ -30,11 +30,11 @@ impl OutputRegistry {
     /// Create registry based on VIBE_LOG_TYPE and VIBE_TRACE_LEVEL.
     pub fn new(log_type: &str, trace_level: &str) -> Self {
         let current: Box<dyn Output> = match log_type {
-            "cli" => Box::new(super::cli::CliOutput),
+            "cli" => Box::new(super::cli::CliOutput::new()),
             "tracing" => Box::new(super::tracing::TracingOutput::new(trace_level)),
             "plain" => Box::new(super::plain::PlainOutput),
             "json" => Box::new(super::json::JsonOutput),
-            _ => Box::new(super::cli::CliOutput),
+            _ => Box::new(super::cli::CliOutput::new()),
         };
         Self { current }
     }

@@ -11,7 +11,7 @@ args:
 actions:
   # LLM transforms rude/aggressive language into professional tone
   - tag: tag_rewritten_text
-    run: llm
+    run: llm_medium
     expect: string
     action: |
       [Task]

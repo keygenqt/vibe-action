@@ -9,9 +9,8 @@ use crate::{
     configs::app::AppConfig,
     engine::engine::Engine,
     exit_error,
-    models::action::ActionRun,
     output::{macros::format_msg, output::OutputLevel},
-    print_debug, print_info, print_newline, print_progress, print_success, print_warning, utils,
+    print_debug, print_info, print_progress, print_success, print_warning, utils,
 };
 
 /// Execute a dynamic action command.
@@ -44,7 +43,6 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         );
 
         if action.confirm {
-            print_newline!();
             print_info!("completed in {:.2?}", start_time.elapsed());
             let query = format!("Execute '{}'?", format_msg(&action.tag));
             let resolve = engine
@@ -65,18 +63,10 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
                 Err(_) => return,
             }
         } else {
-            engine.exec_action(action).await.unwrap_or_else(|e| {
-                print_newline!();
-                exit_error!("{}", e)
-            });
-            if i + 1 == total {
-                match action.run {
-                    ActionRun::Cmd | ActionRun::Value => {
-                        print_newline!();
-                    }
-                    _ => {}
-                }
-            }
+            engine
+                .exec_action(action)
+                .await
+                .unwrap_or_else(|e| exit_error!("{}", e));
         }
     }
 
