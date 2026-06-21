@@ -105,16 +105,19 @@ Actions are stored in `~/.vibe-action/actions/`. The directory is created on fir
 ~/.vibe-action/
 ├── config.yaml
 └── actions/
+    ├── comment.yaml
     ├── commit.yaml
     ├── extract.yaml
     ├── find.yaml
     ├── mock.yaml
     ├── naming.yaml
     ├── regex.yaml
+    ├── review.yaml
     ├── spellcheck.yaml
     ├── synonyms.yaml
     ├── tone.yaml
-    └── translate.yaml
+    ├── translate-fast.yaml
+    └── translate-deep.yaml
 ```
 
 Add your own `.yaml` files here — they will be loaded automatically.

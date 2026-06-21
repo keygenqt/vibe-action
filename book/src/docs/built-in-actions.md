@@ -1,10 +1,20 @@
 # Built-in Actions
 
-Vibe Action ships with 10 ready-to-use actions. They are written to `~/.vibe-action/actions/` on first run and can be customized.
+Vibe Action ships with 13 ready-to-use actions. They are written to `~/.vibe-action/actions/` on first run and can be customized.
+
+## comment
+
+Replace TODO with a meaningful comment. Select a line with `// TODO` and get a specific, technical comment back.
+
+```bash
+vibe-action comment                 # reads from clipboard
+```
+
+**How it works:** reads TODO line → LLM generates specific comment → copies to clipboard.
 
 ## commit
 
-AI-generated git commit message with conventional commit format.
+AI-generated git commit message with conventional commit format. Uses small model for diffs, medium for final message.
 
 ```bash
 vibe-action commit                # current directory
@@ -70,6 +80,17 @@ vibe-action regex -q "регулярка для валидации email"
 
 **How it works:** LLM generates a regex pattern. Optional example string for validation.
 
+## review
+
+Critically analyze code for bugs and flaws using a powerful model.
+
+```bash
+vibe-action review -q "your code" -l Russian
+vibe-action review   # reads from clipboard
+```
+
+**How it works:** LLM analyzes code → returns list of issues with `Fix:` patches → or `PERFECT` if clean.
+
 ## spellcheck
 
 Check and fix spelling in text or files.
@@ -106,13 +127,23 @@ vibe-action tone   # reads from clipboard
 
 **How it works:** LLM rewrites text preserving meaning but removing aggression and rudeness.
 
-## translate
+## translate-fast
 
-Translate text or files to another language.
+Fast single-model translation.
 
 ```bash
-vibe-action translate -f README.md -l Russian
-vibe-action translate -t "Hello world" -l Chinese
+vibe-action translate-fast -f README.md -l Russian
+vibe-action translate-fast -t "Hello world" -l Chinese
 ```
 
 **How it works:** reads text → LLM translates to target language → preserves formatting and code blocks.
+
+## translate-deep
+
+Two-stage translation with local drafting and cloud polishing for higher quality.
+
+```bash
+vibe-action translate-deep -f README.md -l Chinese
+```
+
+**How it works:** small model drafts translation → large model polishes and refines → higher quality output.

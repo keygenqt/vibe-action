@@ -6,8 +6,8 @@ Command router for shell and LLM tasks via YAML pipelines.
 
 - ⚡ **Complex pipelines** — chain shell and LLM into one command
 - 🔗 **Tag system** — auto-dependency graph via `{tag}`
-- 🔧 **Modifiers** — rich set of modifiers with arguments for transforming values inline
-- 🔀 **Switch/when-then** — conditional execution in YAML
+- 🔧 **Modifiers** — 15+ modifiers with arguments for transforming values inline
+- 🔀 **When/Then** — conditional execution in YAML
 - 🌳 **AST parsing** — `{tag|ast:rs}` extract code structure
 - 🖥️ **System tags** — `{system_clipboard}`, `{system_pwd}`, `{system_os}` and more
 - 🤖 **Batch LLM** — parallel execution across cluster nodes with role-based routing
@@ -28,7 +28,7 @@ cargo install vibe-action
 vibe-action commit
 
 # Translate files
-vibe-action translate -f README.md -l Russian
+vibe-action translate-fast -f README.md -l Russian
 
 # Rewrite tone from clipboard
 vibe-action tone
@@ -39,18 +39,26 @@ vibe-action extract -f app.log -q 'find errors'
 
 ## Built-in Actions
 
-| Action       | Description                               |
-| ------------ | ----------------------------------------- |
-| `commit`     | AI-generated git commit message           |
-| `extract`    | Extract matching lines from logs and text |
-| `find`       | Semantic file search by meaning           |
-| `mock`       | Generate mock data (JSON, YAML, CSV)      |
-| `naming`     | Code naming suggestions                   |
-| `regex`      | Generate regular expression patterns      |
-| `spellcheck` | Fix spelling in text and files            |
-| `synonyms`   | Technical synonyms for a word             |
-| `tone`       | Rewrite text with professional tone       |
-| `translate`  | Translate text and files                  |
+| Action           | Description                                |
+| ---------------- | ------------------------------------------ |
+| `comment`        | Replace TODO with meaningful comment       |
+| `commit`         | AI-generated git commit message            |
+| `extract`        | Extract matching lines from logs and text  |
+| `find`           | Semantic file search by meaning            |
+| `mock`           | Generate mock data (JSON, YAML, CSV)       |
+| `naming`         | Code naming suggestions                    |
+| `regex`          | Generate regular expression patterns       |
+| `review`         | Critically analyze code for bugs and flaws |
+| `spellcheck`     | Fix spelling in text and files             |
+| `synonyms`       | Technical synonyms for a word              |
+| `tone`           | Rewrite text with professional tone        |
+| `translate-fast` | Fast single-model translation              |
+| `translate-deep` | Two-stage translation with polishing       |
+
+## IDE Integration
+
+- [VS Code](https://gitcode.com/keygenqt_vz/vibe-action/blob/main/book/src/docs/ide-vscode.md) — Tasks + Task Notifier
+- [IntelliJ IDEA](https://gitcode.com/keygenqt_vz/vibe-action/blob/main/book/src/docs/ide-intellij.md) — External Tools
 
 ## Configuration
 

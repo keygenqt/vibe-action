@@ -35,7 +35,7 @@ Execute a YAML-defined action directly:
 ```bash
 vibe-action <name> [args...]
 vibe-action commit -p .
-vibe-action translate -f README.md -l Russian
+vibe-action translate-fast -f README.md -l Russian
 vibe-action tone   # reads from clipboard
 vibe-action --help
 ```

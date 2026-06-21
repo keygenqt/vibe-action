@@ -42,7 +42,7 @@ $ vibe-action --help
 This creates:
 
 - `~/.vibe-action/config.yaml` — configuration
-- `~/.vibe-action/actions/` — 10 built-in actions
+- `~/.vibe-action/actions/` — 13 built-in actions
 
 ## Configure Cluster
 
@@ -74,7 +74,7 @@ cluster:
 vibe-action commit -p .
 
 # Translate a file
-vibe-action translate -f README.md -l Russian
+vibe-action translate-fast -f README.md -l Russian
 
 # Rewrite tone from clipboard
 vibe-action tone
