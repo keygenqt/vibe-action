@@ -16,6 +16,11 @@
 - [Built-in Actions](./docs/built-in-actions.md)
 - [Custom Actions](./docs/custom-actions.md)
 
+# IDE Integration
+
+- [VS Code](./docs/ide-vscode.md)
+- [IntelliJ IDEA](./docs/ide-intellij.md)
+
 # Reference
 
 - [Configuration](./docs/configuration.md)
