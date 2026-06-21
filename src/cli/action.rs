@@ -27,6 +27,25 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
     let actions = engine.actions().to_vec();
     let total = actions.len();
 
+    print_info!(
+        "Found action '{}' ({} steps), starting...",
+        flow.name,
+        total
+    );
+
+    // Warn if flow uses roles not available in cluster
+    if config.check_role_mismatch(&flow) {
+        let ans = Confirm::new("Continue with available nodes?")
+        .with_placeholder("\nFlow has actions with roles not found in cluster. All available nodes will be used.")
+        .with_default(false)
+        .prompt();
+        match ans {
+            Ok(true) => {}
+            Ok(false) => return,
+            Err(_) => return,
+        }
+    }
+
     print_debug!("Flow: {} ({} steps)", flow.name, total);
 
     // Execute all actions.

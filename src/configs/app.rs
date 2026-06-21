@@ -166,6 +166,22 @@ impl AppConfig {
         self.cluster.iter().any(|c| c.role.as_ref() == Some(role))
     }
 
+    /// Check if flow references roles that don't exist in cluster.
+    pub fn check_role_mismatch(&self, flow: &FlowModel) -> bool {
+        for action in &flow.actions {
+            let missing = match action.run {
+                ActionRun::LlmSmall => !self.model_role_exist(&ClusterRole::Small),
+                ActionRun::LlmMedium => !self.model_role_exist(&ClusterRole::Medium),
+                ActionRun::LlmLarge => !self.model_role_exist(&ClusterRole::Large),
+                _ => false,
+            };
+            if missing {
+                return true;
+            }
+        }
+        false
+    }
+
     /// Create vibe-cluster filtered by role.
     pub fn create_cluster_filtered(&self, run: &ActionRun) -> Result<Cluster> {
         let target_role = match run {

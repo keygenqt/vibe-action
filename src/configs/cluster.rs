@@ -16,6 +16,17 @@ pub enum ClusterRole {
     Large,
 }
 
+/// Implements Display trait for ClusterRole to format as string.
+impl std::fmt::Display for ClusterRole {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ClusterRole::Small => write!(f, "small"),
+            ClusterRole::Medium => write!(f, "medium"),
+            ClusterRole::Large => write!(f, "large"),
+        }
+    }
+}
+
 /// Configuration for a single LLM provider connection.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClusterConfig {
@@ -52,7 +63,7 @@ impl Default for ClusterConfig {
             provider: "ollama".to_string(),
             host: "http://localhost:11434".to_string(),
             model: "qwen2.5-coder:14b-instruct".to_string(),
-            role: Some(ClusterRole::Medium),
+            role: Some(ClusterRole::Small),
             timeout_secs: 60,
             temperature: 0.1,
             seed: 42,

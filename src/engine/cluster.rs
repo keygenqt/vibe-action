@@ -44,9 +44,6 @@ impl Cluster {
             })
             .collect();
 
-        let run_arc = std::sync::Arc::new(run.to_string());
-        let run_for_closure = run_arc.clone();
-
         let cluster_results = cluster
             .batch_call_with_options(&cluster_prompts, &options, move |result, current, total| {
                 let bpe = tiktoken_rs::cl100k_base().unwrap();
@@ -59,10 +56,16 @@ impl Cluster {
                     .unwrap_or(0);
                 let total_width = total.to_string().len();
                 let total_tokens = user_tokens + system_tokens;
+                let role_label = AppConfig::instance()
+                    .ok()
+                    .and_then(|c| c.cluster.iter().find(|n| n.model == result.model))
+                    .and_then(|n| n.role.as_ref())
+                    .map(|r| r.to_string())
+                    .unwrap_or_else(|| "llm".to_string());
                 if AppConfig::output().level() == OutputLevel::Cli {
                     print_progress!(
                         "└─ [{}] node batch: {:>width$}/{} | {} finished in {}ms ({} tokens)",
-                        run_for_closure,
+                        role_label,
                         current,
                         total,
                         result.model,
@@ -73,7 +76,7 @@ impl Cluster {
                 } else {
                     print_info!(
                         "[{}] batch {:>width$}/{} completed by node '{}' in {}ms ({} tokens)",
-                        run_for_closure,
+                        role_label,
                         current,
                         total,
                         result.model,
