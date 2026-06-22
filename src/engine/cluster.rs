@@ -1,12 +1,14 @@
 //! LLM cluster executor.
 //! Sends prompts to vibe-cluster and returns model responses.
 
+use std::time::Duration;
+
 use anyhow::Result;
 use vibe_cluster::{BatchOptions, Prompt};
 
 use crate::{
     configs::app::AppConfig, models::action::ActionRun, output::output::OutputLevel, print_info,
-    print_progress,
+    print_progress, utils,
 };
 
 /// Distributed cluster execution response payload.
@@ -64,23 +66,23 @@ impl Cluster {
                     .unwrap_or_else(|| "llm".to_string());
                 if AppConfig::output().level() == OutputLevel::Cli {
                     print_progress!(
-                        "└─ [{}] node batch: {:>width$}/{} | {} finished in {}ms ({} tokens)",
+                        "└─ [{}] node batch: {:>width$}/{} | {} finished in {} ({} tokens)",
                         role_label,
                         current,
                         total,
                         result.model,
-                        result.duration_ms,
+                        utils::time::format_duration(Duration::from_millis(result.duration_ms)),
                         total_tokens,
                         width = total_width
                     );
                 } else {
                     print_info!(
-                        "[{}] batch {:>width$}/{} completed by node '{}' in {}ms ({} tokens)",
+                        "[{}] batch {:>width$}/{} completed by node '{}' in {} ({} tokens)",
                         role_label,
                         current,
                         total,
                         result.model,
-                        result.duration_ms,
+                        utils::time::format_duration(Duration::from_millis(result.duration_ms)),
                         total_tokens,
                         width = total_width
                     );

@@ -62,7 +62,10 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         );
 
         if action.confirm {
-            print_info!("completed in {:.2?}", start_time.elapsed());
+            print_info!(
+                "completed in {}",
+                utils::time::format_duration(start_time.elapsed())
+            );
             let query = format!("Execute '{}'?", format_msg(&action.tag));
             let resolve = engine
                 .action_display(&action)
@@ -101,7 +104,10 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         }
     }
 
-    print_info!("completed in {:.2?}", start_time.elapsed());
+    print_info!(
+        "completed in {}",
+        utils::time::format_duration(start_time.elapsed())
+    );
 
     if result.is_empty() {
         print_info!("No matches found.")
@@ -116,7 +122,11 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
                     "-title",
                     utils::app::app_name_pretty(),
                     "-message",
-                    &format!("{} completed in {:.2?}", flow.name, start_time.elapsed()),
+                    &format!(
+                        "{} completed in {}",
+                        flow.name,
+                        utils::time::format_duration(start_time.elapsed())
+                    ),
                 ])
                 .spawn()
             {
@@ -133,9 +143,9 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             let _ = notify_rust::Notification::new()
                 .summary(utils::app::app_name_pretty())
                 .body(&format!(
-                    "{} completed in {:.2?}",
+                    "{} completed in {}",
                     flow.name,
-                    start_time.elapsed()
+                    utils::time::format_duration(start_time.elapsed())
                 ))
                 .show();
         }
