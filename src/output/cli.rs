@@ -5,7 +5,6 @@ use syntect::{
     highlighting::{Style, ThemeSet},
     parsing::SyntaxSet,
 };
-use termimad::terminal_size;
 
 use crate::output::output::OutputLevel;
 
@@ -23,10 +22,8 @@ impl CliOutput {
     }
 
     /// Renders markdown text to the terminal with syntax highlighting for code blocks.
-    fn render_markdown(&self, text: &str) {
+    fn render_markdown(&self, text: &str, max_width: usize) {
         let skin = termimad::MadSkin::default();
-        let (width, _) = termimad::terminal_size();
-        let max_width = (width as usize).min(120);
 
         let ps = SyntaxSet::load_defaults_newlines();
         let ts = ThemeSet::load_defaults();
@@ -114,13 +111,20 @@ impl Output for CliOutput {
             println!();
         }
 
-        let (term_width, _) = terminal_size();
-        let width = (term_width as usize).min(120).max(13);
-        let top = format!("── success ──{}", "─".repeat(width.saturating_sub(13)));
-        let bottom = "─".repeat(width);
+        let (term_width, _) = termimad::terminal_size();
+        let term_width = (term_width as usize).min(120);
+        let longest_line = msg.lines().map(|l| l.chars().count()).max().unwrap_or(0);
+        let max_width = if longest_line <= term_width {
+            longest_line.max(13)
+        } else {
+            term_width
+        };
+
+        let top = format!("── success ──{}", "─".repeat(max_width.saturating_sub(13)));
+        let bottom = "─".repeat(max_width);
 
         println!("\x1b[1m\x1b[32m{}\x1b[0m", top);
-        self.render_markdown(msg);
+        self.render_markdown(msg, max_width);
         println!("\x1b[1m\x1b[32m{}\x1b[0m", bottom);
 
         *last = true;
