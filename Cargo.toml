@@ -38,6 +38,8 @@ arboard = "3.6"
 shell-words = "1.1"
 notify-rust = "4"
 tiktoken-rs = "0.12"
+termimad = "0.34"
+syntect = "5.3"
 
 # Debug logging (--debug flag)
 tracing = "0.1"

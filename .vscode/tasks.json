@@ -12,6 +12,16 @@
       }
     },
     {
+      "label": "Explain",
+      "type": "shell",
+      "command": "./target/debug/vibe-action explain",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "focus": false
+      }
+    },
+    {
       "label": "Review",
       "type": "shell",
       "command": "vibe-action review",

@@ -1,5 +1,12 @@
 //! CLI output with ANSI colors and progress bar.
 
+use syntect::{
+    easy::HighlightLines,
+    highlighting::{Style, ThemeSet},
+    parsing::SyntaxSet,
+};
+use termimad::terminal_size;
+
 use crate::output::output::OutputLevel;
 
 use super::output::Output;
@@ -12,6 +19,54 @@ impl CliOutput {
     pub fn new() -> Self {
         Self {
             last_had_newline: std::sync::Mutex::new(true),
+        }
+    }
+
+    /// Renders markdown text to the terminal with syntax highlighting for code blocks.
+    fn render_markdown(&self, text: &str) {
+        let skin = termimad::MadSkin::default();
+        let (width, _) = termimad::terminal_size();
+        let max_width = (width as usize).min(120);
+
+        let ps = SyntaxSet::load_defaults_newlines();
+        let ts = ThemeSet::load_defaults();
+        let theme = &ts.themes["base16-eighties.dark"];
+
+        let mut in_code_block = false;
+        let mut highlighter: Option<HighlightLines> = None;
+        for line in syntect::util::LinesWithEndings::from(text) {
+            let trimmed = line.trim_start();
+            if trimmed.starts_with("```") {
+                if !in_code_block {
+                    in_code_block = true;
+                    let lang_token = trimmed.trim_start_matches('`').trim();
+                    let syntax = if lang_token.is_empty() {
+                        ps.find_syntax_plain_text()
+                    } else {
+                        ps.find_syntax_by_token(lang_token)
+                            .unwrap_or_else(|| ps.find_syntax_plain_text())
+                    };
+                    highlighter = Some(HighlightLines::new(syntax, theme));
+                } else {
+                    in_code_block = false;
+                    highlighter = None;
+                    print!("\x1b[0m");
+                }
+            } else if in_code_block {
+                if let Some(ref mut h) = highlighter {
+                    let regions: Vec<(Style, &str)> = h.highlight_line(line, &ps).unwrap();
+                    for (style, raw_text) in regions {
+                        let c = style.foreground;
+                        print!("\x1b[38;2;{};{};{}m{}", c.r, c.g, c.b, raw_text);
+                    }
+                    print!("\x1b[0m");
+                } else {
+                    print!("{}", line);
+                }
+            } else {
+                let text_view = skin.text(line, Some(max_width));
+                print!("{}", text_view);
+            }
         }
     }
 }
@@ -52,64 +107,22 @@ impl Output for CliOutput {
         *last = true;
     }
 
-    /// Prints framed success block with text wrapping.
+    /// Prints framed success block with text wrapping and Markdown highlighting.
     fn success(&self, msg: &str) {
         let mut last = self.last_had_newline.lock().unwrap();
         if !*last {
             println!();
         }
-        let max_width = 120usize;
-        let wrapped: Vec<String> = msg
-            .lines()
-            .flat_map(|line| {
-                let chars: Vec<char> = line.chars().collect();
-                if chars.len() <= max_width {
-                    vec![line.to_string()]
-                } else {
-                    let mut result = Vec::new();
-                    let mut start = 0;
-                    while start < chars.len() {
-                        let mut end = (start + max_width).min(chars.len());
-                        if end < chars.len()
-                            && !chars[end].is_whitespace()
-                            && !chars[end - 1].is_whitespace()
-                        {
-                            let mut space_idx = end;
-                            while space_idx > start && !chars[space_idx].is_whitespace() {
-                                space_idx -= 1;
-                            }
-                            if space_idx > start {
-                                end = space_idx;
-                            }
-                        }
-                        let sub_str: String = chars[start..end].iter().collect();
-                        if start == 0 || !sub_str.trim().is_empty() || sub_str.len() == max_width {
-                            result.push(sub_str.to_string());
-                        }
-                        start = end;
-                        if start < chars.len() && chars[start].is_whitespace() {
-                            start += 1;
-                        }
-                    }
-                    result
-                }
-            })
-            .collect();
 
-        let width = wrapped
-            .iter()
-            .map(|l| l.chars().count())
-            .max()
-            .unwrap_or(0)
-            .max(13);
+        let (term_width, _) = terminal_size();
+        let width = (term_width as usize).min(120).max(13);
         let top = format!("── success ──{}", "─".repeat(width.saturating_sub(13)));
         let bottom = "─".repeat(width);
 
         println!("\x1b[1m\x1b[32m{}\x1b[0m", top);
-        for line in &wrapped {
-            println!("\x1b[37m{}\x1b[0m", line);
-        }
+        self.render_markdown(msg);
         println!("\x1b[1m\x1b[32m{}\x1b[0m", bottom);
+
         *last = true;
     }
 
