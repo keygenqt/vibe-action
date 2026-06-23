@@ -94,7 +94,7 @@ cluster:
     parallel: 2
 ```
 
-Nodes with `role: small` are used for `run: llm_small`, `role: medium` for `llm_medium`, `role: large` for `llm_large`.
+Nodes with `role: small` are used for `run: small`, `role: medium` for `run: medium`, `role: large` for `run: large`, `role: vision` for `run: vision`.
 Nodes without a `role` respond to all requests.
 
 ## Actions Directory

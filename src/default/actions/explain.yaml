@@ -1,0 +1,37 @@
+name: explain
+about: Explain what the selected code does in simple terms
+clipboard: true
+notify: true
+args:
+  - name: query
+    short: 'q'
+    expect: string
+    help: The code to explain
+    default: '{system_clipboard}'
+  - name: to
+    short: 'l'
+    expect: string
+    help: Language for explanation
+    default: Russian
+actions:
+  - tag: tag_explanation
+    run: medium
+    expect: string
+    action: |
+      [Task]
+        1. Add a general summary in plain text.
+        2. Keep the code logic identical, but add comments above EACH logical block.
+        3. Inside each comment, briefly explain the language-specific constructs, macros, or types used.
+        4. Split comments into multiple lines using the "// " symbol.
+        5. Use Markdown formatting, and place the code inside code blocks.
+        6. Language for comments and summary: {to}
+
+      [Example]
+      <summary>
+
+      ```rust
+      <code>
+      ```
+
+      [Code]
+      {query}

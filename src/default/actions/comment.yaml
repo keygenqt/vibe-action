@@ -10,7 +10,7 @@ args:
     default: '{system_clipboard}'
 actions:
   - tag: tag_comment
-    run: llm_small
+    run: small
     expect: string
     action: |
       [Task]

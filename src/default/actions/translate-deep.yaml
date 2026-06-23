@@ -32,7 +32,7 @@ actions:
 
   # Local model generates a raw text translation
   - tag: tag_draft
-    run: llm_small
+    run: small
     expect: string
     action: |
       [Task]
@@ -48,7 +48,7 @@ actions:
 
   # Powerful cloud model polishes and refines the draft without original context
   - tag: tag_translated
-    run: llm_large
+    run: large
     expect: string
     action: |
       [Task]

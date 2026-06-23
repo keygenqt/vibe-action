@@ -25,7 +25,7 @@ pub const FLOW_HEADER: &str = r#"# Vibe Action — {{name}}
 #
 # Actions:
 #   tag       - Tag name for {tag} references with automatic dependency ordering
-#   run       - cmd (shell), llm / llm_small / llm_medium / llm_large (AI), value (static)
+#   run       - cmd (shell), value (static), small / medium / large / vision (LLM)
 #   expect    - Expected output type: void, bool, number, string, list<string>
 #   check     - Optional regex validation for the step result
 #   confirm   - Ask for user confirmation before executing (default: false)
@@ -98,6 +98,9 @@ pub fn default_flows() -> Vec<Box<dyn DefaultFlow>> {
         }),
         Box::new(BuiltinFlow {
             yaml: include_str!("actions/commit.yaml"),
+        }),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/explain.yaml"),
         }),
         Box::new(BuiltinFlow {
             yaml: include_str!("actions/extract.yaml"),

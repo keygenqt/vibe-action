@@ -1,6 +1,6 @@
 //! Engine integration tests: expect types, check validation, ordering, circular deps.
 //!
-//! cargo test --test engine_test -- --test-threads=1 # --nocapture
+//! cargo test --test engine_test # -- --test-threads=1 --nocapture
 
 use std::sync::Once;
 

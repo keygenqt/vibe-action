@@ -16,7 +16,7 @@ args:
 actions:
   # Analyze code for bugs and generate technical recommendations in the target language
   - tag: tag_review
-    run: llm_large
+    run: large
     expect: string
     action: |
       [Task]

@@ -35,8 +35,16 @@ impl ValidateTrait for ActionModel {
             }
         }
 
-        // LLM must have expect set (need to know what to parse).
-        if self.run == ActionRun::Llm && self.expect == ExpectMode::Void {
+        // LLM actions must have expect set (need to know what to parse).
+        let is_llm = matches!(
+            self.run,
+            ActionRun::Tiny
+                | ActionRun::Small
+                | ActionRun::Medium
+                | ActionRun::Large
+                | ActionRun::Vision
+        );
+        if is_llm && self.expect == ExpectMode::Void {
             anyhow::bail!(
                 "LLM action '{}' cannot have expect: void. Specify what to expect.",
                 self.tag

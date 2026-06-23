@@ -28,6 +28,7 @@ impl Cluster {
         retries: u32,
         run: &ActionRun,
         prompts: &[String],
+        images: Option<Vec<String>>,
     ) -> Result<Vec<ClusterResult>> {
         let config = AppConfig::instance()?;
         let cluster = config.create_cluster_filtered(run)?;
@@ -41,8 +42,9 @@ impl Cluster {
             .iter()
             .map(|p| Prompt {
                 key: None,
-                system: Some(system.to_string()),
                 user: p.clone(),
+                system: Some(system.to_string()),
+                images: images.clone(),
             })
             .collect();
 
@@ -100,7 +102,7 @@ impl Cluster {
             if let Some(text) = result.text {
                 final_results.push(ClusterResult {
                     prompt: result.prompt.user,
-                    result: vibe_cluster::normalize_text(&text),
+                    result: text,
                 });
             }
         }

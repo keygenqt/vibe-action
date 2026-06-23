@@ -51,11 +51,29 @@ impl Default for AppConfig {
             action: ActionConfig::default(),
             cluster: vec![
                 ClusterConfig::default(),
-                // @todo
-                // ClusterConfig {
-                //     host: "http://192.168.1.10:11434".to_string(),
-                //     ..ClusterConfig::default()
-                // },
+                ClusterConfig {
+                    model: "qwen2.5-coder:7b-instruct".to_string(),
+                    role: Some(ClusterRole::Medium),
+                    temperature: 0.2,
+                    timeout_secs: 60,
+                    ..ClusterConfig::default()
+                },
+                ClusterConfig {
+                    model: "qwen2.5-coder:14b-instruct".to_string(),
+                    role: Some(ClusterRole::Large),
+                    temperature: 0.3,
+                    timeout_secs: 120,
+                    ..ClusterConfig::default()
+                },
+                ClusterConfig {
+                    model: "gemma4:12b".to_string(), // @todo qwen2.5vl:7b, qwen3-vl:8b
+                    role: Some(ClusterRole::Vision),
+                    temperature: 0.3,
+                    num_ctx: 1536,
+                    num_predict: 8192,
+                    timeout_secs: 180,
+                    ..ClusterConfig::default()
+                },
             ],
             flows: None,
         }
@@ -170,9 +188,11 @@ impl AppConfig {
     pub fn check_role_mismatch(&self, flow: &FlowModel) -> bool {
         for action in &flow.actions {
             let missing = match action.run {
-                ActionRun::LlmSmall => !self.model_role_exist(&ClusterRole::Small),
-                ActionRun::LlmMedium => !self.model_role_exist(&ClusterRole::Medium),
-                ActionRun::LlmLarge => !self.model_role_exist(&ClusterRole::Large),
+                ActionRun::Tiny => !self.model_role_exist(&ClusterRole::Tiny),
+                ActionRun::Small => !self.model_role_exist(&ClusterRole::Small),
+                ActionRun::Medium => !self.model_role_exist(&ClusterRole::Medium),
+                ActionRun::Large => !self.model_role_exist(&ClusterRole::Large),
+                ActionRun::Vision => !self.model_role_exist(&ClusterRole::Vision),
                 _ => false,
             };
             if missing {
@@ -185,9 +205,11 @@ impl AppConfig {
     /// Create vibe-cluster filtered by role.
     pub fn create_cluster_filtered(&self, run: &ActionRun) -> Result<Cluster> {
         let target_role = match run {
-            ActionRun::LlmSmall => Some(ClusterRole::Small),
-            ActionRun::LlmMedium => Some(ClusterRole::Medium),
-            ActionRun::LlmLarge => Some(ClusterRole::Large),
+            ActionRun::Tiny => Some(ClusterRole::Tiny),
+            ActionRun::Small => Some(ClusterRole::Small),
+            ActionRun::Medium => Some(ClusterRole::Medium),
+            ActionRun::Large => Some(ClusterRole::Large),
+            ActionRun::Vision => Some(ClusterRole::Vision),
             _ => None,
         };
 

@@ -1,10 +1,6 @@
 //! CLI output with ANSI colors and progress bar.
 
-use syntect::{
-    easy::HighlightLines,
-    highlighting::{Style, ThemeSet},
-    parsing::SyntaxSet,
-};
+use syntect::{easy::HighlightLines, highlighting::ThemeSet, parsing::SyntaxSet};
 
 use crate::output::output::OutputLevel;
 
@@ -24,15 +20,16 @@ impl CliOutput {
     /// Renders markdown text to the terminal with syntax highlighting for code blocks.
     fn render_markdown(&self, text: &str, max_width: usize) {
         let skin = termimad::MadSkin::default();
-
         let ps = SyntaxSet::load_defaults_newlines();
         let ts = ThemeSet::load_defaults();
         let theme = &ts.themes["base16-eighties.dark"];
 
         let mut in_code_block = false;
         let mut highlighter: Option<HighlightLines> = None;
+
         for line in syntect::util::LinesWithEndings::from(text) {
             let trimmed = line.trim_start();
+
             if trimmed.starts_with("```") {
                 if !in_code_block {
                     in_code_block = true;
@@ -51,12 +48,18 @@ impl CliOutput {
                 }
             } else if in_code_block {
                 if let Some(ref mut h) = highlighter {
-                    let regions: Vec<(Style, &str)> = h.highlight_line(line, &ps).unwrap();
-                    for (style, raw_text) in regions {
-                        let c = style.foreground;
-                        print!("\x1b[38;2;{};{};{}m{}", c.r, c.g, c.b, raw_text);
+                    match h.highlight_line(line, &ps) {
+                        Ok(regions) => {
+                            for (style, raw_text) in regions {
+                                let c = style.foreground;
+                                print!("\x1b[38;2;{};{};{}m{}", c.r, c.g, c.b, raw_text);
+                            }
+                            print!("\x1b[0m");
+                        }
+                        Err(_) => {
+                            print!("{}", line);
+                        }
                     }
-                    print!("\x1b[0m");
                 } else {
                     print!("{}", line);
                 }

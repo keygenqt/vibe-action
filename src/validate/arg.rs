@@ -3,10 +3,7 @@
 
 use anyhow::Result;
 
-use crate::{
-    models::{action::ExpectMode, arg::ArgActionModel},
-    validate::ValidateTrait,
-};
+use crate::{models::arg::ArgActionModel, validate::ValidateTrait};
 
 impl ValidateTrait for ArgActionModel {
     /// Validate argument fields for clap compatibility.
@@ -20,18 +17,10 @@ impl ValidateTrait for ArgActionModel {
                 self.name
             );
         }
-
         if let Some(short) = self.short {
             if !short.is_ascii_alphabetic() {
                 anyhow::bail!("Short flag must be an ASCII letter, got '{}'.", short);
             }
-        }
-
-        match &self.expect {
-            ExpectMode::Void | ExpectMode::List(_) => {
-                anyhow::bail!("Argument '{}' has unsupported type для CLI.", self.name);
-            }
-            _ => {}
         }
         Ok(())
     }

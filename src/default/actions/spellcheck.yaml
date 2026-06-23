@@ -26,7 +26,7 @@ actions:
         then: cat "{file|resolve}"
   # LLM checks if text contains any errors
   - tag: tag_check_errors
-    run: llm_small
+    run: small
     expect: string
     action: |
       [Task]
@@ -46,7 +46,7 @@ actions:
         then: echo "No errors found."
   # LLM fixes all errors while preserving formatting
   - tag: tag_checked
-    run: llm_small
+    run: small
     expect: string
     action: |
       [Task]

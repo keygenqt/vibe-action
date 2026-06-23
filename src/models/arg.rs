@@ -3,7 +3,30 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::models::action::ExpectMode;
+/// Expected result type.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ArgExpect {
+    /// Boolean (true/false).
+    Bool,
+    /// Integer or float.
+    Number,
+    /// Text.
+    String,
+    /// Image file path or base64 string.
+    Image,
+}
+
+impl std::fmt::Display for ArgExpect {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ArgExpect::Bool => write!(f, "bool"),
+            ArgExpect::Number => write!(f, "number"),
+            ArgExpect::String => write!(f, "string"),
+            ArgExpect::Image => write!(f, "image"),
+        }
+    }
+}
 
 /// CLI argument definition.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -14,7 +37,7 @@ pub struct ArgActionModel {
     #[serde(default)]
     pub short: Option<char>,
     /// Expected type.
-    pub expect: ExpectMode,
+    pub expect: ArgExpect,
     /// Help text.
     #[serde(default)]
     pub help: Option<String>,
@@ -38,21 +61,8 @@ impl From<&ArgActionModel> for clap::Arg {
             arg = arg.short(c);
         }
         match &model.expect {
-            ExpectMode::Bool => arg.action(clap::ArgAction::SetTrue),
+            ArgExpect::Bool => arg.action(clap::ArgAction::SetTrue),
             _ => arg.value_parser(clap::value_parser!(String)),
-        }
-    }
-}
-
-/// Display ExpectMode as a human-readable string.
-impl std::fmt::Display for ExpectMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ExpectMode::Void => write!(f, "void"),
-            ExpectMode::Bool => write!(f, "bool"),
-            ExpectMode::Number => write!(f, "number"),
-            ExpectMode::String => write!(f, "string"),
-            ExpectMode::List(inner) => write!(f, "list<{}>", inner),
         }
     }
 }

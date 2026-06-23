@@ -28,6 +28,8 @@ pub struct Engine {
     check_regex: Option<Regex>,
     /// Default system prompt for all LLM requests.
     pub system: String,
+    /// Images for vision actions (base64).
+    pub images: Option<Vec<String>>,
     /// Number of retries for failed LLM steps (default: 0).
     pub retries: u32,
 }
@@ -57,6 +59,7 @@ impl Engine {
                 None => None,
             },
             system: system.to_string(),
+            images: flow.get_images(),
             retries,
         })
     }
@@ -123,7 +126,6 @@ impl Engine {
     }
 
     /// Resolve the effective action from switch or action field.
-    /// Resolve the effective action from switch or action field.
     fn resolve_action(&self, resolve_action: &ActionModel) -> Result<ExpandedTemplate> {
         match &resolve_action.action {
             ActionValue::Simple(raw) => {
@@ -164,62 +166,76 @@ impl Engine {
             ActionRun::Cmd => {
                 for single_action in &expanded.items {
                     let raw = Shell::exec(single_action).await?;
-                    if let Some(re) = &compiled_check {
-                        if !re.is_match(raw.trim()) {
-                            anyhow::bail!(
-                                "Result for '{}' does not match pattern '{}': '{}'",
-                                action.tag,
-                                re.as_str(),
-                                raw.trim()
-                            );
-                        }
-                    }
+                    Self::validate_output(&action.tag, &raw, &compiled_check)?;
                     Self::log_action(&action.tag, &action.run, &expanded.raw, single_action, &raw);
                     results.push(raw);
                 }
             }
-            ActionRun::Llm | ActionRun::LlmSmall | ActionRun::LlmMedium | ActionRun::LlmLarge => {
-                let cluster_outputs =
-                    Cluster::exec(&self.system, self.retries, &action.run, &expanded.items).await?;
+            ActionRun::Vision => {
+                let cluster_outputs = Cluster::exec(
+                    &self.system,
+                    self.retries,
+                    &action.run,
+                    &expanded.items,
+                    self.images.clone(),
+                )
+                .await?;
                 for cluster_res in cluster_outputs {
-                    let result = cluster_res.result;
-                    if let Some(re) = &compiled_check {
-                        if !re.is_match(&result) {
-                            anyhow::bail!(
-                                "Result for '{}' does not match pattern '{}': '{}'",
-                                action.tag,
-                                re.as_str(),
-                                &result
-                            );
-                        }
-                    }
+                    Self::validate_output(&action.tag, &cluster_res.result, &compiled_check)?;
                     Self::log_action(
                         &action.tag,
                         &action.run,
                         &expanded.raw,
                         &cluster_res.prompt,
-                        &result,
+                        &cluster_res.result,
                     );
-                    results.push(result);
+                    results.push(cluster_res.result);
+                }
+            }
+            ActionRun::Tiny | ActionRun::Small | ActionRun::Medium | ActionRun::Large => {
+                let cluster_outputs = Cluster::exec(
+                    &self.system,
+                    self.retries,
+                    &action.run,
+                    &expanded.items,
+                    None,
+                )
+                .await?;
+                for cluster_res in cluster_outputs {
+                    Self::validate_output(&action.tag, &cluster_res.result, &compiled_check)?;
+                    Self::log_action(
+                        &action.tag,
+                        &action.run,
+                        &expanded.raw,
+                        &cluster_res.prompt,
+                        &cluster_res.result,
+                    );
+                    results.push(cluster_res.result);
                 }
             }
             ActionRun::Value => {
                 for single_action in &expanded.items {
-                    if let Some(re) = &compiled_check {
-                        if !re.is_match(single_action.trim()) {
-                            anyhow::bail!(
-                                "Result for '{}' does not match pattern '{}': '{}'",
-                                action.tag,
-                                re.as_str(),
-                                single_action.trim()
-                            );
-                        }
-                    }
+                    Self::validate_output(&action.tag, single_action, &compiled_check)?;
                     results.push(single_action.to_string());
                 }
             }
         }
         Ok((results, expanded.is_list))
+    }
+
+    /// Validate action output against optional regex pattern.
+    fn validate_output(tag: &str, output: &str, check: &Option<Regex>) -> Result<()> {
+        if let Some(re) = check {
+            if !re.is_match(output.trim()) {
+                anyhow::bail!(
+                    "Result for '{}' does not match pattern '{}': '{}'",
+                    tag,
+                    re.as_str(),
+                    output.trim()
+                );
+            }
+        }
+        Ok(())
     }
 
     /// Log action execution details.
@@ -240,11 +256,8 @@ impl Engine {
             tag,
             match run {
                 ActionRun::Cmd => "cmd",
-                ActionRun::Llm
-                | ActionRun::LlmSmall
-                | ActionRun::LlmMedium
-                | ActionRun::LlmLarge => "llm",
                 ActionRun::Value => "val",
+                _ => "llm",
             },
             original.len(),
             preview_original,

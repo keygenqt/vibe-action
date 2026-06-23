@@ -1,6 +1,6 @@
 //! Modifier integration tests: upper, lower, trim, join, take, split, ast.
 //!
-//! cargo test --test modifier_test -- --test-threads=1 # --nocapture
+//! cargo test --test modifier_test # -- --test-threads=1 --nocapture
 
 use std::sync::Once;
 

@@ -10,19 +10,18 @@ use serde::{Deserialize, Serialize, Serializer};
 pub enum ActionRun {
     /// Execute command in terminal.
     Cmd,
-    /// Send prompt to LLM (all nodes).
-    Llm,
-    /// Send prompt to small LLM.
-    #[serde(rename = "llm_small")]
-    LlmSmall,
-    /// Send prompt to medium LLM.
-    #[serde(rename = "llm_medium")]
-    LlmMedium,
-    /// Send prompt to large LLM.
-    #[serde(rename = "llm_large")]
-    LlmLarge,
     /// Return the action string directly (no shell, no LLM).
     Value,
+    /// Send prompt to tiny LLM.
+    Tiny,
+    /// Send prompt to small LLM.
+    Small,
+    /// Send prompt to medium LLM.
+    Medium,
+    /// Send prompt to large LLM.
+    Large,
+    /// Send prompt to vision LLM.
+    Vision,
 }
 
 /// Expected result type.
@@ -151,11 +150,12 @@ impl std::fmt::Display for ActionRun {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ActionRun::Cmd => write!(f, "cmd"),
-            ActionRun::Llm => write!(f, "cluster"),
-            ActionRun::LlmSmall => write!(f, "small"),
-            ActionRun::LlmMedium => write!(f, "medium"),
-            ActionRun::LlmLarge => write!(f, "large"),
             ActionRun::Value => write!(f, "val"),
+            ActionRun::Tiny => write!(f, "tiny"),
+            ActionRun::Small => write!(f, "small"),
+            ActionRun::Medium => write!(f, "medium"),
+            ActionRun::Large => write!(f, "large"),
+            ActionRun::Vision => write!(f, "vision"),
         }
     }
 }

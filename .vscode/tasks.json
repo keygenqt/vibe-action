@@ -22,6 +22,16 @@
       }
     },
     {
+      "label": "OCR",
+      "type": "shell",
+      "command": "./target/debug/vibe-action ocr",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "focus": false
+      }
+    },
+    {
       "label": "Review",
       "type": "shell",
       "command": "vibe-action review",

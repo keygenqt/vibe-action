@@ -3,11 +3,16 @@
 
 use anyhow::Result;
 use clap::ArgMatches;
+use image::{ImageEncoder, codecs::png::PngEncoder};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs, path::PathBuf};
 
 use crate::{
-    models::{action::ActionModel, arg::ArgActionModel},
+    configs::app::AppConfig,
+    models::{
+        action::ActionModel,
+        arg::{ArgActionModel, ArgExpect},
+    },
     validate::ValidateTrait,
 };
 
@@ -62,8 +67,37 @@ impl FlowModel {
                     .unwrap_or_else(|| default.clone());
                 self.input_tags.insert(arg.name.clone(), resolved);
             }
+
+            // Resolve Image type: file path → base64
+            if arg.expect == ArgExpect::Image {
+                if let Some(value) = self.input_tags.get(&arg.name) {
+                    let resolved = Self::resolve_image(value);
+                    self.input_tags.insert(arg.name.clone(), resolved);
+                }
+            }
         }
         self
+    }
+
+    /// Convert image file path to base64, or return as-is if already base64.
+    fn resolve_image(value: &str) -> String {
+        // Already base64
+        if value.starts_with("data:") || value.starts_with("iVBOR") || value.starts_with("/9j/") {
+            return value.to_string();
+        }
+        // Try as file path — resolve ~, ., ..
+        let resolved = crate::utils::path::resolve(value).unwrap_or_else(|_| PathBuf::from(value));
+        if resolved.exists() {
+            std::fs::read(&resolved)
+                .ok()
+                .map(|bytes| {
+                    use base64::Engine;
+                    base64::engine::general_purpose::STANDARD.encode(&bytes)
+                })
+                .unwrap_or_else(|| value.to_string())
+        } else {
+            value.to_string()
+        }
     }
 
     /// Add system tags to input arguments.
@@ -104,12 +138,16 @@ impl FlowModel {
             chrono::Local::now().format("%H:%M:%S").to_string(),
         );
 
-        // Clipboard content.
-        if let Ok(mut clipboard) = arboard::Clipboard::new() {
-            self.input_tags.insert(
-                "system_clipboard".into(),
-                clipboard.get_text().unwrap_or_default(),
-            );
+        // Clipboard content — detect type and store both
+        self.input_tags.insert(
+            "system_clipboard".into(),
+            self.get_clipboard_text().unwrap_or_default(),
+        );
+
+        // Try image — if it fails, that's fine (not an image or empty)
+        if let Ok(image_base64) = self.get_clipboard_image() {
+            self.input_tags
+                .insert("system_clipboard_image".into(), image_base64);
         }
 
         // Process ID.
@@ -122,5 +160,77 @@ impl FlowModel {
             std::env::temp_dir().display().to_string(),
         );
         self
+    }
+
+    /// Get clipboard text with validation.
+    pub fn get_clipboard_text(&self) -> Result<String> {
+        // 1. Get text
+        let mut clipboard = arboard::Clipboard::new()
+            .map_err(|e| anyhow::anyhow!("Failed to access clipboard: {}", e))?;
+        let text = clipboard
+            .get_text()
+            .map_err(|_| anyhow::anyhow!("Clipboard is empty or contains non-text data."))?;
+
+        // 2. Check size against cluster limits
+        let bpe = tiktoken_rs::cl100k_base().unwrap();
+        let tokens = bpe.encode_with_special_tokens(&text).len();
+
+        let config = AppConfig::instance()?;
+        let max_ctx = config
+            .cluster
+            .iter()
+            .map(|c| c.num_ctx)
+            .max()
+            .unwrap_or(4096);
+
+        if tokens > max_ctx {
+            anyhow::bail!(
+                "Clipboard text is too large ({} tokens). Max context size is {} tokens.",
+                tokens,
+                max_ctx
+            );
+        }
+
+        Ok(text)
+    }
+
+    /// Get clipboard image as base64 PNG string.
+    pub fn get_clipboard_image(&self) -> Result<String> {
+        let mut clipboard = arboard::Clipboard::new()
+            .map_err(|e| anyhow::anyhow!("Failed to access clipboard: {}", e))?;
+
+        let img = clipboard
+            .get_image()
+            .map_err(|_| anyhow::anyhow!("Clipboard does not contain an image."))?;
+
+        let mut png_bytes = Vec::new();
+        let encoder = PngEncoder::new(&mut png_bytes);
+        encoder
+            .write_image(
+                &img.bytes,
+                img.width as u32,
+                img.height as u32,
+                image::ExtendedColorType::Rgba8,
+            )
+            .map_err(|e| anyhow::anyhow!("Failed to encode PNG: {}", e))?;
+
+        use base64::Engine;
+        Ok(base64::engine::general_purpose::STANDARD.encode(&png_bytes))
+    }
+
+    /// Get images from flow input tags (for vision actions).
+    pub fn get_images(&self) -> Option<Vec<String>> {
+        let images: Vec<String> = self
+            .args
+            .iter()
+            .filter(|a| a.expect == ArgExpect::Image)
+            .filter_map(|a| self.input_tags.get(&a.name))
+            .cloned()
+            .collect();
+        if images.is_empty() {
+            None
+        } else {
+            Some(images)
+        }
     }
 }

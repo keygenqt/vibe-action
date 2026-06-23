@@ -40,11 +40,14 @@ notify-rust = "4"
 tiktoken-rs = "0.12"
 termimad = "0.34"
 syntect = "5.3"
+image = "0.25"
+base64 = "0.22"
 
 # Debug logging (--debug flag)
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Vibe
-vibe-cluster = "0.0.4"
+# vibe-cluster = "0.0.5" @todo
+vibe-cluster = { path = "/Users/keygenqt/Documents/Gitcode/Projects/vibe-cluster" }
 vibe-ast = "0.0.12"
