@@ -1,0 +1,26 @@
+name: whois
+about: Identify a person from a screenshot
+clipboard: true
+notify: true
+args:
+  - name: image
+    short: 'f'
+    expect: image
+    help: Path to image (or use clipboard)
+    default: '{system_clipboard_image}'
+actions:
+  - tag: tag_identity
+    run: vision
+    expect: string
+    action: |
+      [Task]
+      Look at this image. If it shows a known person, identify them:
+      - Full name
+      - Birth date and place
+      - What they are known for
+      - Approximate year of the photo (if can be estimated)
+
+      If it's NOT a person, say exactly: "This is not a person."
+      If it's a person but you don't recognize them, say exactly: "I don't know this person."
+
+      Be concise. No extra text.

@@ -1,0 +1,37 @@
+name: describe
+about: Describe screenshot for text-only LLM understanding
+clipboard: true
+notify: true
+args:
+  - name: image
+    short: 'f'
+    expect: image
+    help: Path to screenshot (or use clipboard)
+    default: '{system_clipboard_image}'
+actions:
+  - tag: tag_raw
+    run: vision
+    expect: string
+    action: |
+      [Task]
+      Describe this screenshot in rich detail.
+      This is a screenshot of an application interface, not a code extraction task.
+      Include:
+      - All visible text (if any)
+      - Layout, UI elements, objects, people, animals
+      - What is happening in the screenshot
+      - Colors: list each distinct color with its hex code, and what it is used for
+      Be thorough.
+  - tag: tag_md
+    run: small
+    expect: string
+    action: |
+      [Task]
+      Format the following description into clean Markdown.
+      - Use headers, lists, bold, and code blocks where appropriate
+      - Preserve ALL content — do not remove or summarize anything
+      - Keep the original language and wording
+      - Output ONLY the formatted Markdown
+
+      [Input]
+      {tag_raw}

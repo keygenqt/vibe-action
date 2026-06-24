@@ -64,7 +64,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         if action.confirm {
             print_info!(
                 "completed in {}",
-                utils::time::format_duration(start_time.elapsed())
+                utils::format::format_duration(start_time.elapsed())
             );
             let query = format!("Execute '{}'?", format_msg(&action.tag));
             let resolve = engine
@@ -106,7 +106,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
 
     print_info!(
         "completed in {}",
-        utils::time::format_duration(start_time.elapsed())
+        utils::format::format_duration(start_time.elapsed())
     );
 
     if result.is_empty() {
@@ -125,7 +125,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
                     &format!(
                         "{} completed in {}",
                         flow.name,
-                        utils::time::format_duration(start_time.elapsed())
+                        utils::format::format_duration(start_time.elapsed())
                     ),
                 ])
                 .spawn()

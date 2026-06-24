@@ -1,5 +1,5 @@
-//! Time formatting utilities.
-//! Converts milliseconds or Duration into a human-readable string.
+//! Formatting utilities.
+//! Converts data into a human-readable string.
 
 use std::time::Duration;
 
@@ -39,5 +39,19 @@ pub fn format_duration<T: Into<TimeInput>>(input: T) -> String {
         format!("{}ms", duration.as_millis())
     } else {
         format!("{}µs", duration.as_micros())
+    }
+}
+
+/// Formats a byte size into a human-readable string.
+/// Uses GB for >= 1GB, MB for >= 1MB, KB for >= 1KB, bytes otherwise.
+pub fn format_bytes(bytes: usize) -> String {
+    if bytes >= 1_000_000_000 {
+        format!("{:.1}GB", bytes as f64 / 1_000_000_000.0)
+    } else if bytes >= 1_000_000 {
+        format!("{:.1}MB", bytes as f64 / 1_000_000.0)
+    } else if bytes >= 1_000 {
+        format!("{}KB", bytes / 1_000)
+    } else {
+        format!("{}B", bytes)
     }
 }

@@ -50,6 +50,18 @@ impl Cluster {
 
         let cluster_results = cluster
             .batch_call_with_options(&cluster_prompts, &options, move |result, current, total| {
+                // Get size image
+                let image_info = result
+                    .prompt
+                    .images
+                    .as_ref()
+                    .map(|imgs| {
+                        let size: usize = imgs.iter().map(|i| i.len()).sum();
+                        format!(", {} image", utils::format::format_bytes(size))
+                    })
+                    .unwrap_or_default();
+
+                // Get size token
                 let bpe = tiktoken_rs::cl100k_base().unwrap();
                 let user_tokens = bpe.encode_with_special_tokens(&result.prompt.user).len();
                 let system_tokens = result
@@ -58,35 +70,43 @@ impl Cluster {
                     .as_ref()
                     .map(|s| bpe.encode_with_special_tokens(s).len())
                     .unwrap_or(0);
-                let total_width = total.to_string().len();
-                let total_tokens = user_tokens + system_tokens;
+
+                // Get label
                 let role_label = AppConfig::instance()
                     .ok()
                     .and_then(|c| c.cluster.iter().find(|n| n.model == result.model))
                     .and_then(|n| n.role.as_ref())
                     .map(|r| r.to_string())
                     .unwrap_or_else(|| "llm".to_string());
+
+                // Get duration
+                let duration_ms =
+                    utils::format::format_duration(Duration::from_millis(result.duration_ms));
+
+                // Print result info
                 if AppConfig::output().level() == OutputLevel::Cli {
                     print_progress!(
-                        "└─ [{}] node batch: {:>width$}/{} | {} finished in {} ({} tokens)",
+                        "└─ [{}] node batch: {:>width$}/{} | {} finished in {} ({} tokens{})",
                         role_label,
                         current,
                         total,
                         result.model,
-                        utils::time::format_duration(Duration::from_millis(result.duration_ms)),
-                        total_tokens,
-                        width = total_width
+                        duration_ms,
+                        user_tokens + system_tokens,
+                        image_info,
+                        width = total.to_string().len()
                     );
                 } else {
                     print_info!(
-                        "[{}] batch {:>width$}/{} completed by node '{}' in {} ({} tokens)",
+                        "[{}] node batch: {:>width$}/{} | {} finished in {} ({} tokens{})",
                         role_label,
                         current,
                         total,
                         result.model,
-                        utils::time::format_duration(Duration::from_millis(result.duration_ms)),
-                        total_tokens,
-                        width = total_width
+                        duration_ms,
+                        user_tokens + system_tokens,
+                        image_info,
+                        width = total.to_string().len()
                     );
                 }
             })
@@ -100,9 +120,13 @@ impl Cluster {
                 anyhow::bail!("Cluster node execution failed: {}", err);
             }
             if let Some(text) = result.text {
+                // // @todo
+                // println!("----");
+                // println!("{}", &text);
+                // println!("----");
                 final_results.push(ClusterResult {
                     prompt: result.prompt.user,
-                    result: text,
+                    result: vibe_cluster::normalize_text(&text),
                 });
             }
         }

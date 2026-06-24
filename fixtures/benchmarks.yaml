@@ -73,3 +73,18 @@ benchmarks:
     - cargo run -- translate-fast -f ./fixtures/README.md -l 'Russian'
     # Converts a technical text manifest file layout into Chinese
     - cargo run -- translate-fast -f ./fixtures/README.md -l 'Chinese'
+
+  translate-fast:
+    # Translates comprehensive project README documentation into Russian
+    - cargo run -- translate-fast -f ./fixtures/README.md -l 'Russian'
+    # Converts a technical text manifest file layout into Chinese
+    - cargo run -- translate-fast -f ./fixtures/README.md -l 'Chinese'
+
+  describe:
+    # Describe a photo of a cat
+    - cargo run -- describe -f ./fixtures/screenshot_1.png
+    # Describe a screenshot of application interface
+    - cargo run -- describe -f ./fixtures/screenshot_2.png
+
+  whois:
+    - cargo run -- whois -f ./fixtures/photo_1.png
