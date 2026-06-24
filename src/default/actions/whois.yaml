@@ -14,13 +14,18 @@ actions:
     expect: string
     action: |
       [Task]
-      Look at this image. If it shows a known person, identify them:
-      - Full name
-      - Birth date and place
-      - What they are known for
-      - Approximate year of the photo (if can be estimated)
+      Identify and analyze all public tech figures in this image from left to right.
 
-      If it's NOT a person, say exactly: "This is not a person."
-      If it's a person but you don't recognize them, say exactly: "I don't know this person."
+      [Rules]
+      - For every person found, output a concise summary using the exact structure from [Example].
+      - Remove any metadata or inline hints.
+      - No introduction, conclusion, or conversational fluff.
+      - At the beginning, add a brief description of the historical photo or event.
+      - Language: {to}.
 
-      Be concise. No extra text.
+      [Example]
+      brief description of the photo or event
+
+      1. **Full Name**
+         Role: contribution
+         Impact: one sentence about their impact
