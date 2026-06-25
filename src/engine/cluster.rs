@@ -7,8 +7,8 @@ use anyhow::Result;
 use vibe_cluster::{BatchOptions, Prompt};
 
 use crate::{
-    configs::app::AppConfig, models::action::ActionRun, output::output::OutputLevel, print_info,
-    print_progress, utils,
+    configs::app::AppConfig, engine::parser, models::action::ActionRun,
+    output::output::OutputLevel, print_info, print_progress, utils,
 };
 
 /// Distributed cluster execution response payload.
@@ -42,7 +42,7 @@ impl Cluster {
             .iter()
             .map(|p| Prompt {
                 key: None,
-                user: p.clone(),
+                user: parser::unescape_text(p),
                 system: Some(system.to_string()),
                 images: images.clone(),
             })

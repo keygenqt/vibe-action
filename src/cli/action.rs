@@ -9,7 +9,7 @@ use crate::{
     configs::app::AppConfig,
     engine::engine::Engine,
     exit_error,
-    output::{macros::format_msg, output::OutputLevel},
+    output::{cli::CliOutput, output::OutputLevel},
     print_debug, print_info, print_progress, print_success, print_warning, utils,
 };
 
@@ -66,7 +66,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
                 "completed in {}",
                 utils::format::format_duration(start_time.elapsed())
             );
-            let query = format!("Execute '{}'?", format_msg(&action.tag));
+            let query = format!("Execute '{}'?", CliOutput::format_msg(&action.tag));
             let resolve = engine
                 .action_display(&action)
                 .unwrap_or_else(|e| exit_error!("{}", e));

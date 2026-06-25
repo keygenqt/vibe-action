@@ -12,7 +12,3 @@ pub const CONFIG_FILE_NAME: &str = "config.yaml";
 
 /// Config version
 pub const CONFIG_VERSION: &str = "0.0.3";
-
-/// Regex pattern for {tag|modifier} placeholders.
-/// Matches: {tag}, {tag|mod}, {tag|mod:arg}, {tag|mod1|mod2}
-pub const TAG_PLACEHOLDER_PATTERN: &str = r"\{(\w+)(?:\|([^}]*))?\}";

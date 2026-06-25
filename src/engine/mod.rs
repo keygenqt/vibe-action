@@ -4,6 +4,7 @@
 pub mod cluster;
 pub mod context;
 pub mod engine;
+pub mod parser;
 pub mod resolve;
 pub mod shell;
 pub mod sort;

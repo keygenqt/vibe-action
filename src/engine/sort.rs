@@ -1,15 +1,10 @@
 //! Topological sort for action dependencies.
 //! Resolves {tag} references (with optional |modifier) to determine execution order.
 
+use anyhow::Result;
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use anyhow::Result;
-use regex::Regex;
-
-use crate::{
-    models::{action::ActionModel, flow::FlowModel},
-    utils::constants,
-};
+use crate::models::{action::ActionModel, flow::FlowModel};
 
 pub struct TopologicalSort;
 
@@ -17,9 +12,6 @@ impl TopologicalSort {
     /// Sort actions by {tag} dependencies using Kahn's algorithm.
     /// Returns actions in execution order (dependencies first).
     pub fn sort(flow: &FlowModel) -> Result<Vec<ActionModel>> {
-        // Supports modifiers with special chars: {tag|trim:-}, {tag|join}, {tag|upper}
-        let re = Regex::new(constants::TAG_PLACEHOLDER_PATTERN).unwrap();
-
         // Map tag -> action for quick lookup.
         let mut tag_to_action: HashMap<&str, ActionModel> = HashMap::new();
         for action in &flow.actions {
@@ -33,21 +25,23 @@ impl TopologicalSort {
             in_degree.entry(&action.tag).or_insert(0);
             deps.entry(&action.tag).or_default();
 
-            let mut unique_deps: HashSet<&str> = HashSet::new();
+            // Accumulate parsed dependencies safely as allocated strings
+            let mut unique_deps: HashSet<String> = HashSet::new();
 
             for action_text in action.actions() {
-                for cap in re.captures_iter(action_text) {
-                    let dep_tag = cap.get(1).unwrap().as_str(); // Теперь ссылка живет долго
-                    if dep_tag != action.tag {
-                        unique_deps.insert(dep_tag);
+                // Stream tokens natively through our new standalone parser module
+                for mat in crate::engine::parser::TagIterator::new(action_text) {
+                    if mat.base_tag != action.tag {
+                        unique_deps.insert(mat.base_tag);
                     }
                 }
             }
 
+            // Bridge lifetimes back to long-lived strings inside the map
             for dep_tag in unique_deps {
-                if tag_to_action.contains_key(dep_tag) {
+                if let Some((&stable_tag, _)) = tag_to_action.get_key_value(dep_tag.as_str()) {
                     *in_degree.entry(&action.tag).or_insert(0) += 1;
-                    deps.entry(dep_tag).or_default().push(&action.tag);
+                    deps.entry(stable_tag).or_default().push(&action.tag);
                 }
             }
         }
@@ -65,6 +59,7 @@ impl TopologicalSort {
             if let Some(action) = tag_to_action.get(tag) {
                 order.push(action.clone());
             }
+
             if let Some(dependents) = deps.get(tag) {
                 for dep in dependents {
                     if let Some(deg) = in_degree.get_mut(dep) {

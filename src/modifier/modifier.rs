@@ -97,24 +97,29 @@ impl ModifierRegistry {
         self.modifiers.get(&key).map(|m| m.as_ref())
     }
 
-    /// Apply a chain of pipe modifiers to a value.
-    /// Format: "mod1:arg1|mod2:arg2|mod3"
-    pub fn apply_modifier(&self, modifier: &str, value: &ContextModel) -> Result<ContextModel> {
-        if modifier.is_empty() {
-            return Ok(value.clone());
-        }
+    /// Apply a pre-parsed chain of pipe modifiers to a context value in chronological order.
+    pub fn apply_modifier(
+        &self,
+        modifiers: &[crate::engine::parser::ModifierMatch],
+        value: &ContextModel,
+    ) -> Result<ContextModel> {
         let mut current = value.clone();
-        for part in modifier.split('|') {
-            let (name, arg) = part.split_once(':').unwrap_or((part, ""));
-            match ModifierKey::from_str(name) {
-                Some(key) => {
-                    if let Some(modifier) = self.get(key) {
-                        current = modifier.apply(&current, arg)?;
-                    }
+
+        for mat in modifiers {
+            if let Some(key) = ModifierKey::from_str(&mat.name) {
+                if let Some(modifier) = self.get(key) {
+                    // Extract the safe isolated argument slice or fallback to an empty string contract
+                    let arg = mat.argument.as_deref().unwrap_or("");
+                    current = modifier.apply(&current, arg)?;
                 }
-                None => {}
+            } else {
+                anyhow::bail!(
+                    "Unknown modifier key '{}' invoked in execution pipeline",
+                    mat.name
+                );
             }
         }
+
         Ok(current)
     }
 }

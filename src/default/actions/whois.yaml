@@ -8,6 +8,11 @@ args:
     expect: image
     help: Path to image (or use clipboard)
     default: '{system_clipboard_image}'
+  - name: to
+    short: 'l'
+    expect: string
+    help: Language for explanation
+    default: Russian
 actions:
   - tag: tag_identity
     run: vision

@@ -1,0 +1,12 @@
+name: parser-chained-pipeline
+about: Test sequential chronological pipeline modification
+args: []
+actions:
+  - tag: tag_input
+    run: value
+    expect: string
+    action: '   hello world   '
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{tag_input|trim|upper}'

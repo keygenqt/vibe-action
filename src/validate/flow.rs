@@ -9,7 +9,6 @@ use regex::Regex;
 
 use crate::{
     models::{action::ActionValue, flow::FlowModel},
-    utils::constants,
     validate::ValidateTrait,
 };
 
@@ -20,14 +19,17 @@ impl ValidateTrait for FlowModel {
         if self.name.trim().is_empty() {
             anyhow::bail!("Flow has no name. Add a name for the CLI command.");
         }
+
         // Validate args.
         for arg in &self.args {
             arg.validate()?;
         }
+
         // Validate each action.
         for action in &self.actions {
             action.validate()?;
         }
+
         // Collect all valid tags: args + actions[].tag.
         let mut tags: HashSet<&str> = HashSet::new();
         for arg in &self.args {
@@ -43,66 +45,75 @@ impl ValidateTrait for FlowModel {
                 anyhow::bail!("Duplicate tag: '{}'", action.tag);
             }
         }
-        // Supports modifiers with special chars: {tag|trim:-}, {tag|join}, {tag|upper}
-        let re = Regex::new(constants::TAG_PLACEHOLDER_PATTERN).unwrap();
+
+        // Validate tag references using our standalone TagIterator
         for action in &self.actions {
             match &action.action {
                 ActionValue::Simple(act) => {
-                    validate_tag_references(act, &tags, &re)?;
+                    validate_tag_references(act, &tags)?;
                 }
                 ActionValue::Switch(cases) => {
                     for case in cases {
-                        validate_tag_references(&case.when, &tags, &re)?;
-                        validate_tag_references(&case.then, &tags, &re)?;
+                        validate_tag_references(&case.when, &tags)?;
+                        validate_tag_references(&case.then, &tags)?;
                     }
                 }
             }
         }
+
         // Validate match regex if present.
         if let Some(pattern) = &self.check {
             Regex::new(pattern).map_err(|e| anyhow::anyhow!("Invalid check regex: {}", e))?;
         }
+
         // Check for circular dependencies via {tag}.
-        validate_no_cycles(self, &tags, &re)?;
+        validate_no_cycles(self, &tags)?;
+
         Ok(())
     }
 }
 
 /// Check that all {tag} references in text point to valid tags.
-fn validate_tag_references(text: &str, valid_tags: &HashSet<&str>, re: &Regex) -> Result<()> {
-    for cap in re.captures_iter(text) {
-        let tag = cap.get(1).unwrap().as_str();
-        if !valid_tags.contains(tag) {
-            anyhow::bail!("Unknown tag '{{{}}}' referenced in action", tag);
+fn validate_tag_references(text: &str, valid_tags: &HashSet<&str>) -> Result<()> {
+    // Stream unescaped tokens natively through the unified parser layer
+    for mat in crate::engine::parser::TagIterator::new(text) {
+        if !valid_tags.contains(mat.base_tag.as_str()) {
+            anyhow::bail!("Unknown tag '{{{}}}' referenced in action", mat.base_tag);
         }
     }
     Ok(())
 }
 
 /// Check for circular dependencies between tags.
-fn validate_no_cycles(flow: &FlowModel, tags: &HashSet<&str>, re: &Regex) -> Result<()> {
+fn validate_no_cycles(flow: &FlowModel, tags: &HashSet<&str>) -> Result<()> {
     let mut graph: HashMap<&str, Vec<&str>> = HashMap::new();
     for tag in tags.iter() {
         graph.insert(*tag, vec![]);
     }
+
     for action in &flow.actions {
         let mut deps = Vec::new();
         match &action.action {
             ActionValue::Simple(act) => {
-                deps.extend(extract_tag_refs(act, re));
+                deps.extend(extract_tag_refs(act));
             }
             ActionValue::Switch(cases) => {
                 for case in cases {
-                    deps.extend(extract_tag_refs(&case.when, re));
-                    deps.extend(extract_tag_refs(&case.then, re));
+                    deps.extend(extract_tag_refs(&case.when));
+                    deps.extend(extract_tag_refs(&case.then));
                 }
             }
         }
-        graph.insert(
-            action.tag.as_str(),
-            deps.into_iter().filter(|d| tags.contains(d)).collect(),
-        );
+
+        // Map short-lived extracted strings to long-lived graph reference keys
+        let filtered_deps: Vec<&str> = deps
+            .into_iter()
+            .filter_map(|d| tags.get(d.as_str()).copied())
+            .collect();
+
+        graph.insert(action.tag.as_str(), filtered_deps);
     }
+
     let mut visited = HashSet::new();
     let mut stack = HashSet::new();
     for tag in tags {
@@ -111,10 +122,10 @@ fn validate_no_cycles(flow: &FlowModel, tags: &HashSet<&str>, re: &Regex) -> Res
     Ok(())
 }
 
-/// Extract {tag} references from a string (ignores modifiers).
-fn extract_tag_refs<'a>(text: &'a str, re: &Regex) -> Vec<&'a str> {
-    re.captures_iter(text)
-        .map(|c| c.get(1).unwrap().as_str())
+/// Extract clean {tag} references from a string (ignores modifiers via parser mapping).
+fn extract_tag_refs(text: &str) -> Vec<String> {
+    crate::engine::parser::TagIterator::new(text)
+        .map(|mat| mat.base_tag)
         .collect()
 }
 
@@ -131,13 +142,16 @@ fn dfs<'a>(
     if visited.contains(node) {
         return Ok(());
     }
+
     visited.insert(node);
     stack.insert(node);
+
     if let Some(deps) = graph.get(node) {
         for dep in deps {
             dfs(dep, graph, visited, stack)?;
         }
     }
+
     stack.remove(node);
     Ok(())
 }

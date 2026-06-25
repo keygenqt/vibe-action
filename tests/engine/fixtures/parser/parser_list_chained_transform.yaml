@@ -1,0 +1,14 @@
+name: parser-list-chained-transform
+about: Test multi-stage sequential modifiers applied across lists
+args: []
+actions:
+  - tag: tag_items
+    run: cmd
+    expect: list<string>
+    action: |
+      echo "  orange  "
+      echo "  grape   "
+  - tag: tag_result
+    run: value
+    expect: string
+    action: "{tag_items|trim|upper|join:,\\s}"

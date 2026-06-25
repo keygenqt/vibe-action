@@ -17,6 +17,24 @@ impl CliOutput {
         }
     }
 
+    /// Format a message for display.
+    pub fn format_msg(s: &str) -> String {
+        let s = s
+            .strip_prefix("tag_")
+            .or_else(|| s.strip_prefix("tag-"))
+            .unwrap_or(s);
+        let s = if s.ends_with('.') && !s.ends_with("..") {
+            s.strip_suffix('.').unwrap_or(s)
+        } else {
+            s
+        };
+        let mut chars = s.chars();
+        match chars.next() {
+            None => String::new(),
+            Some(c) => c.to_lowercase().to_string() + chars.as_str(),
+        }
+    }
+
     /// Renders markdown text to the terminal with syntax highlighting for code blocks.
     fn render_markdown(&self, text: &str, max_width: usize) {
         let skin = termimad::MadSkin::default();
@@ -79,6 +97,7 @@ impl Output for CliOutput {
 
     /// Prints red error message.
     fn error(&self, msg: &str) {
+        let msg = Self::format_msg(msg);
         let mut last = self.last_had_newline.lock().unwrap();
         if !*last {
             println!();
@@ -89,6 +108,7 @@ impl Output for CliOutput {
 
     /// Prints yellow warning message.
     fn warning(&self, msg: &str) {
+        let msg = Self::format_msg(msg);
         let mut last = self.last_had_newline.lock().unwrap();
         if !*last {
             println!();
@@ -99,6 +119,7 @@ impl Output for CliOutput {
 
     /// Prints blue info message.
     fn info(&self, msg: &str) {
+        let msg = Self::format_msg(msg);
         let mut last = self.last_had_newline.lock().unwrap();
         if !*last {
             println!();
@@ -141,6 +162,7 @@ impl Output for CliOutput {
 
     /// Prints cyan progress message with carriage return.
     fn progress(&self, msg: &str) {
+        let msg = Self::format_msg(msg);
         let mut last = self.last_had_newline.lock().unwrap();
         if msg.contains('%') {
             print!("\r\x1b[1m\x1b[36mprogress\x1b[0m: {}\x1b[K", msg);

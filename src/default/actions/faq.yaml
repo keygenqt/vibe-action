@@ -1,0 +1,113 @@
+name: faq
+about: Ask a question about Vibe Action — YAML structure, fields, modifiers, or usage
+clipboard: false
+notify: false
+args:
+  - name: query
+    short: 'q'
+    expect: string
+    help: Your question about Vibe Action
+actions:
+  - tag: tag_faq
+    run: small
+    expect: string
+    action: |
+      [Data]
+      Vibe Action — command router for shell and LLM tasks via YAML pipelines.
+      Each action is a YAML manifest loaded recursively from configuration directories to build CLI subcommands.
+
+      Top-Level Manifest Fields:
+        name      - Action name (CLI subcommand name, required)
+        about     - Short description for CLI help text layout (required)
+        check     - Optional global regex validation pattern for the final flow output
+        clipboard - Copy final pipeline string result to system clipboard (default: false)
+        notify    - Show desktop system notification on flow completion (default: false)
+        args      - Collection defining CLI arguments schema (optional)
+        actions   - Pipeline steps where execution order is resolved automatically by tag dependencies
+
+      Args Definition Schema Sub-fields:
+        name    - Argument flag name (used as --name and referenced via {{name}} tag)
+        short   - Short flag alias single character, e.g. -p (optional)
+        expect  - Expected input data type validation constraint: string, number, bool
+        help    - Description string for CLI help text layout (optional)
+        default - Default value payload (makes argument optional; non-required)
+
+      Pipeline Actions Sub-fields:
+        tag     - Unique identifier for {{tag}} references with automatic dependency graph sorting
+        run     - Execution engine: cmd (shell), value (static string), small / medium / large / vision (LLM nodes)
+        expect  - Expected output block type layout: void, bool, number, string, list<string>
+        check   - Optional regex validation pattern matching the step output result
+        confirm - Intercept execution to ask for explicit user approval before running (default: false)
+        action  - Shell instruction, LLM prompt string, static literal, or conditional when/then matrix list
+
+      Tag System & Dependency Graph Engine:
+        When writing {{tag_name}} inside an action payload, the engine replaces it with the output of that step.
+        Steps do NOT execute sequentially by file layout alignment order. The engine scans all actions for
+        {{tag}} references, builds a Directed Acyclic Graph (DAG), and sorts them topologically using Kahn's algorithm.
+        Multiple Dependencies: A single step can reference multiple tags (e.g., "Compare {{tag_a}} and {{tag_b}}").
+        The engine safely blocks execution until all parent dependencies are fully resolved.
+        Circular Dependencies: Cyclic loops (e.g., A needs B, B needs A) are caught at startup and fail validation.
+
+      List Expansion Matrix Mechanics:
+        When a pipeline step expects an input type of 'string' or executes a 'cmd' but receives a 'list<string>'
+        payload from a referenced tag, the engine triggers List Expansion. It automatically iterates and executes
+        that specific action independently FOR EACH ELEMENT in the list.
+        Example: If {{tag_files}} yields ["main.rs", "lib.rs"], then 'git diff {{tag_files}}' runs twice:
+        'git diff main.rs' and 'git diff lib.rs', returning a new composite array list result.
+        Collapsing Lists: To prevent iterative expansion loop triggers, append the '|join' modifier.
+        It collapses a 'list<string>' matrix back into a single flat scalar string block.
+
+      Conditional Branching Logic (When/Then Matrix):
+        An action payload can host a sequence of conditional checks. Each 'when' clause is evaluated.
+        The first matching condition triggers its corresponding 'then' payload execution.
+        If no 'when' conditions resolve to 'true', the pipeline instantly halts with a runtime failure.
+        Example:
+          - when: '{{tag_check|contains:DIRTY}}'
+            then: 'echo "Found dirty state: {{tag_content}}"'
+          - when: '{{tag_check|contains:CLEAR}}'
+            then: 'echo "No errors detected."'
+
+      Built-in Modifiers Spacers & Transformers:
+        {{tag|upper}}       - Any   : transform text block to UPPERCASE
+        {{tag|lower}}       - Any   : transform text block to lowercase
+        {{tag|reverse}}     - Any   : reverse string sequence or list layout order
+        {{tag|take:N}}      - Any   : extract first N characters (string) or elements (list)
+        {{tag|trim}}        - Any   : strip surrounding whitespace, drop empty list elements
+        {{tag|trim:chars}}  - Any   : strip custom characters, drop list elements matching arg string
+        {{tag|join}}        - List  : join list elements natively with a newline \\n separator
+        {{tag|join:uniq}}   - List  : join unique elements with a newline \\n separator
+        {{tag|join:X}}      - List  : join list elements utilizing a custom separator string X
+        {{tag|join:uniq:X}} - List  : join unique list elements utilizing a custom separator string X
+        {{tag|split}}       - String: split a scalar string into a list layout by newline \\n
+        {{tag|ast:lang}}    - String: compile source code to JSON AST (rs, py, ts, js, kt, dart, sh, bat, ...)
+        {{tag|contains:X}}  - Any   : check if sequence contains substring X (predicate, supports :not)
+        {{tag|empty}}       - Any   : check if targeted value is empty (predicate, supports :not)
+        {{tag|equals:X}}    - Any   : check if text strictly equals payload X (predicate, supports :not)
+        {{tag|is_file}}     - Any   : check if provided string path is an existing file (predicate, supports :not)
+        {{tag|is_dir}}      - Any   : check if provided string path is an existing directory (predicate, supports :not)
+        {{tag|size}}        - Any   : calculate integer character length of string or size count of list
+        {{tag|resolve}}     - Any   : expand relative path string boundaries to absolute (~, ., .. resolved)
+
+      Special Spacing Escape Mnemonics inside Modifiers:
+        \n     - Represents a real newline control byte (0x0A)
+        \t     - Represents a real tab character control byte (0x09)
+        \s     - Represents a real space character byte (shields spaces from rigid YAML trimmers)
+
+      Mnemonic Examples:
+        {{tag|join:\n}}      - Standard newline collapse operation
+        {{tag|join:uniq:\s}}  - Merges unique rows separated strictly by a space literal character
+        {{tag|join:,\s}}      - Formats list elements into a comma-space display sequence (", ")
+
+      [Task]
+      Answer the user's question using the information from [Data] above. Be concise, highly technical, and practical.
+
+      STRICT SYNTAX RULES FOR THE LLM:
+        1. When generating or showing string templates with custom spaces (like a comma and space or hyphen and space),
+           NEVER use a literal whitespace character inside the modifier brackets.
+        2. You MUST explicitly output the tools spacing mnemonic code '\s' for ANY custom space separator.
+        3. Never write multi-step pipelines if the operations can be chained within a single tag using pipes (e.g., use '{{tag|trim|upper|join:uniq}}').
+
+      When providing code blocks or configurations, always write them in valid, clean YAML formatting matching the exact schema metrics defined.
+
+      [Query]
+      {query}

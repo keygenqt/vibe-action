@@ -87,4 +87,15 @@ benchmarks:
     - cargo run -- describe -f ./fixtures/screenshot_2.png
 
   whois:
+    # Identify tech figures in a historical photo
     - cargo run -- whois -f ./fixtures/photo_1.png
+
+  faq:
+    # Test code generation (trim, upper, join with space mnemonic)
+    - cargo run -- faq -q 'напиши экшен - взять список, оттримить, в верхний регистр, склеить через запятую с пробелом'
+    # Test logic execution (matrix list expansion count vs flat collapse check)
+    - cargo run -- faq -q 'тег вернул 3 файла, а шаг ждет строку. сколько раз выполнится cmd и как запустить её один раз?'
+    # Test schema constraints (exact types, flags, and default values mapping)
+    - cargo run -- faq -q 'напиши YAML блок аргумента - число, флаг -n, помощь, дефолт 5. только код'
+    # Test escape rules (validation of structural spacing control bytes)
+    - cargo run -- faq -q 'покажи точный синтаксис тегов - склеить список через дефис с пробелом, а потом через перенос строки'

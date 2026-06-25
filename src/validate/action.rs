@@ -6,7 +6,6 @@ use regex::Regex;
 
 use crate::{
     models::action::{ActionModel, ActionRun, ActionValue, ExpectMode},
-    utils::constants,
     validate::ValidateTrait,
 };
 
@@ -21,15 +20,32 @@ impl ValidateTrait for ActionModel {
                 }
             }
             ActionValue::Switch(cases) => {
-                let case_re =
-                    Regex::new(&format!("^{}$", constants::TAG_PLACEHOLDER_PATTERN)).unwrap();
                 for case in cases {
-                    if case.when != "true" && !case_re.is_match(case.when.trim()) {
-                        anyhow::bail!(
-                            "When condition in '{}' must be a single {{tag|modifier}} or 'true', got: '{}'",
-                            self.tag,
-                            case.when
-                        );
+                    let trimmed_when = case.when.trim();
+                    if trimmed_when != "true" {
+                        // Initialize our standalone iterator to inspect the condition layout
+                        let mut iter = crate::engine::parser::TagIterator::new(trimmed_when);
+
+                        match (iter.next(), iter.next()) {
+                            (Some(mat), None) => {
+                                // The placeholder must span across the exact entirety of the when string
+                                if mat.full_match.len() != trimmed_when.len() {
+                                    anyhow::bail!(
+                                        "When condition in '{}' must be a single {{tag|modifier}} or 'true', got: '{}'",
+                                        self.tag,
+                                        case.when
+                                    );
+                                }
+                            }
+                            _ => {
+                                // Fails if 0 placeholders or multiple placeholders are detected
+                                anyhow::bail!(
+                                    "When condition in '{}' must be a single {{tag|modifier}} or 'true', got: '{}'",
+                                    self.tag,
+                                    case.when
+                                );
+                            }
+                        }
                     }
                 }
             }

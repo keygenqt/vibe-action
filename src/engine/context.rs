@@ -2,13 +2,11 @@
 //! Stores resolved tag -> value mapping and handles {tag} expansion with pipe modifiers.
 
 use anyhow::Result;
-use regex::Regex;
 use std::collections::{HashMap, HashSet};
 
 use crate::models::action::ActionRun;
 use crate::models::context::ContextModel;
 use crate::modifier::modifier::ModifierRegistry;
-use crate::utils::constants;
 
 /// Result of expanding a template with context values.
 pub struct ExpandedTemplate {
@@ -29,7 +27,7 @@ impl Context {
     /// Create empty context.
     pub fn new() -> Self {
         Self {
-            values: HashMap::new(),
+            values: std::collections::HashMap::new(),
         }
     }
 
@@ -51,32 +49,37 @@ impl Context {
         modifier: &ModifierRegistry,
     ) -> Result<ExpandedTemplate> {
         let is_encode = run == &ActionRun::Cmd;
-        let re = Regex::new(constants::TAG_PLACEHOLDER_PATTERN).unwrap();
 
-        let clean_text = Self::strip_all_template_quotes(&raw, is_encode);
+        // Strip quotes utilizing the safe parser-driven snapshot pass
+        let clean_text = Self::strip_all_template_quotes(raw, is_encode);
+
         let mut processed_placeholders = HashSet::new();
         let mut list_expanded_tags: HashSet<String> = HashSet::new();
         let mut results = vec![clean_text.clone()];
         let mut is_list = false;
 
-        for cap in re.captures_iter(&clean_text) {
-            let placeholder = cap.get(0).unwrap().as_str();
-            let tag_name = cap.get(1).unwrap().as_str();
+        // Drive string replacements cleanly through our unified static singleton iterator
+        for mat in crate::engine::parser::TagIterator::new(&clean_text) {
+            let placeholder = mat.full_match.as_str();
+            let tag_name = mat.base_tag.as_str();
 
             if processed_placeholders.contains(placeholder) {
                 continue;
             }
 
             if let Some(context_value) = self.values.get(tag_name) {
-                let modifier_value = cap.get(2).map(|m| m.as_str()).unwrap_or_default();
-                if modifier_value.is_empty() && placeholder.contains('|') {
+                // Strictly preserve empty pipe constraints contract (e.g. "{tag|}")
+                if mat.modifiers.is_empty() && placeholder.contains('|') {
                     anyhow::bail!("Empty modifier not allowed in '{}'", placeholder);
                 }
-                let processed_value = modifier.apply_modifier(modifier_value, context_value)?;
+
+                // Architectural fix: forward the pre-parsed modifiers array directly to the registry
+                let processed_value = modifier.apply_modifier(&mat.modifiers, context_value)?;
+
                 match processed_value {
                     ContextModel::List(items) => {
                         if list_expanded_tags.contains(tag_name) {
-                            // Same tag already expanded — replace in each existing element.
+                            // Same tag already expanded — replace in each existing element
                             for (i, current) in results.iter_mut().enumerate() {
                                 let idx = i % items.len();
                                 let val = items[idx].to_string();
@@ -90,7 +93,7 @@ impl Context {
                                 }
                             }
                         } else {
-                            // First list expansion for this tag.
+                            // First list expansion for this tag
                             is_list = true;
                             list_expanded_tags.insert(tag_name.to_string());
                             let mut next = Vec::new();
@@ -120,6 +123,11 @@ impl Context {
             processed_placeholders.insert(placeholder.to_string());
         }
 
+        // Finalization sweep: resolve double-brace literal escapes back to clean tags for the LLM
+        for current in results.iter_mut() {
+            *current = current.replace("{{", "{").replace("}}", "}");
+        }
+
         Ok(ExpandedTemplate {
             raw: raw.to_string(),
             items: results,
@@ -132,10 +140,12 @@ impl Context {
         if !escape {
             return text.to_string();
         }
-        let re = regex::Regex::new(constants::TAG_PLACEHOLDER_PATTERN).unwrap();
+
         let mut result = text.to_string();
-        for cap in re.captures_iter(text) {
-            let placeholder = cap.get(0).unwrap().as_str();
+
+        // Leverage TagIterator to safely process all valid unescaped placeholders
+        for mat in crate::engine::parser::TagIterator::new(text) {
+            let placeholder = mat.full_match.as_str();
             for quote in &["'", "\""] {
                 let quoted = format!("{}{}{}", quote, placeholder, quote);
                 if result.contains(&quoted) {

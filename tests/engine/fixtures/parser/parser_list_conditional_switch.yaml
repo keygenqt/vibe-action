@@ -1,0 +1,16 @@
+name: parser-list-conditional-switch
+about: Test list expansion and conditional logic switch branches
+args: []
+actions:
+  - tag: tag_files
+    run: cmd
+    expect: list<string>
+    action: |
+      echo "index.ts"
+      echo "main.rs"
+  - tag: tag_result
+    run: value
+    expect: string
+    action:
+      - when: '{tag_files|contains:rs}'
+        then: 'Found Rust source: {tag_files|upper}'

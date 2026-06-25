@@ -1,0 +1,12 @@
+name: parser-mixed-boundary
+about: Test combined active placeholder and escaped document boundaries
+args: []
+actions:
+  - tag: tag_active
+    run: value
+    expect: string
+    action: 'active_value'
+  - tag: tag_result
+    run: value
+    expect: string
+    action: 'show {tag_active} but skip {{ignore_me|lower}}'
