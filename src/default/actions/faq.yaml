@@ -101,11 +101,12 @@ actions:
       [Task]
       Answer the user's question using the information from [Data] above. Be concise, highly technical, and practical.
 
-      STRICT SYNTAX RULES FOR THE LLM:
+      [RULES]
         1. When generating or showing string templates with custom spaces (like a comma and space or hyphen and space),
            NEVER use a literal whitespace character inside the modifier brackets.
         2. You MUST explicitly output the tools spacing mnemonic code '\s' for ANY custom space separator.
         3. Never write multi-step pipelines if the operations can be chained within a single tag using pipes (e.g., use '{{tag|trim|upper|join:uniq}}').
+        4. Always answer in the same language as the [Query]. If the user writes in Russian, reply in Russian. If in English, reply in English.
 
       When providing code blocks or configurations, always write them in valid, clean YAML formatting matching the exact schema metrics defined.
 

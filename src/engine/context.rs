@@ -123,11 +123,6 @@ impl Context {
             processed_placeholders.insert(placeholder.to_string());
         }
 
-        // Finalization sweep: resolve double-brace literal escapes back to clean tags for the LLM
-        for current in results.iter_mut() {
-            *current = current.replace("{{", "{").replace("}}", "}");
-        }
-
         Ok(ExpandedTemplate {
             raw: raw.to_string(),
             items: results,

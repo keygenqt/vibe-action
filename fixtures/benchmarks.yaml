@@ -91,11 +91,19 @@ benchmarks:
     - cargo run -- whois -f ./fixtures/photo_1.png
 
   faq:
-    # Test code generation (trim, upper, join with space mnemonic)
+    # Ask how to use modifiers
+    - cargo run -- faq -q 'как использовать модификаторы?'
+    # Ask about list expansion mechanics
+    - cargo run -- faq -q 'что такое list expansion?'
+    # Ask how to add a default argument
+    - cargo run -- faq -q 'как добавить аргумент по умолчанию?'
+    # Ask about spaces in join modifier when YAML strips them
+    - cargo run -- faq -q 'как использовать пробел в модификаторе join если yaml его стирает?'
+    # Generate code: trim, upper, join with comma-space
     - cargo run -- faq -q 'напиши экшен - взять список, оттримить, в верхний регистр, склеить через запятую с пробелом'
-    # Test logic execution (matrix list expansion count vs flat collapse check)
+    # Test list expansion vs collapse logic
     - cargo run -- faq -q 'тег вернул 3 файла, а шаг ждет строку. сколько раз выполнится cmd и как запустить её один раз?'
-    # Test schema constraints (exact types, flags, and default values mapping)
+    # Generate YAML: number arg with flag, help, and default
     - cargo run -- faq -q 'напиши YAML блок аргумента - число, флаг -n, помощь, дефолт 5. только код'
-    # Test escape rules (validation of structural spacing control bytes)
+    # Show exact syntax for join with dash-space and newline separators
     - cargo run -- faq -q 'покажи точный синтаксис тегов - склеить список через дефис с пробелом, а потом через перенос строки'
