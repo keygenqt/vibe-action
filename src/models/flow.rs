@@ -3,18 +3,19 @@
 
 use anyhow::Result;
 use clap::ArgMatches;
-use image::{ImageEncoder, codecs::png::PngEncoder};
-use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fs, path::PathBuf};
+use image::ImageEncoder;
+use image::codecs::png::PngEncoder;
+use serde::Deserialize;
+use serde::Serialize;
+use std::collections::HashMap;
+use std::fs;
+use std::path::PathBuf;
 
-use crate::{
-    configs::app::AppConfig,
-    models::{
-        action::ActionModel,
-        arg::{ArgActionModel, ArgExpect},
-    },
-    validate::ValidateTrait,
-};
+use crate::configs::app::AppConfig;
+use crate::models::action::ActionModel;
+use crate::models::arg::ArgActionModel;
+use crate::models::arg::ArgExpect;
+use crate::validate::ValidateTrait;
 
 /// One action flow: name, mode, steps, result source.
 #[derive(Debug, Clone, Serialize, Deserialize)]

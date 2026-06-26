@@ -4,7 +4,8 @@
 use anyhow::Result;
 use url::Url;
 
-use crate::{configs::cluster::ClusterConfig, validate::ValidateTrait};
+use crate::configs::cluster::ClusterConfig;
+use crate::validate::ValidateTrait;
 
 impl ValidateTrait for ClusterConfig {
     /// Validate cluster node configuration.

@@ -29,7 +29,6 @@ actions:
         then: echo "{text}"
       - when: '{file|empty:not}'
         then: cat "{file|resolve}"
-
   # Local model generates a raw text translation
   - tag: tag_draft
     run: small
@@ -45,7 +44,6 @@ actions:
 
       [Text]
       {tag_content}
-
   # Powerful cloud model polishes and refines the draft without original context
   - tag: tag_translated
     run: large

@@ -3,7 +3,9 @@
 
 use anyhow::Result;
 
-use super::modifier::{Modifier, ModifierKey, invert_bool};
+use super::modifier::Modifier;
+use super::modifier::ModifierKey;
+use super::modifier::invert_bool;
 use crate::models::context::ContextModel;
 
 pub struct EmptyModifier;

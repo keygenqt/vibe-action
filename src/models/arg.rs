@@ -1,7 +1,8 @@
 //! Action argument model.
 //! Defines CLI arguments for YAML actions.
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 /// Expected result type.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

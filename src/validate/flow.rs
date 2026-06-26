@@ -2,15 +2,15 @@
 //! Checks name, tags, references, and circular dependencies.
 //! Supports {tag|modifier} syntax with special chars like {tag|trim:-}.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 use anyhow::Result;
 use regex::Regex;
 
-use crate::{
-    models::{action::ActionValue, flow::FlowModel},
-    validate::ValidateTrait,
-};
+use crate::models::action::ActionValue;
+use crate::models::flow::FlowModel;
+use crate::validate::ValidateTrait;
 
 impl ValidateTrait for FlowModel {
     /// Validate the flow: name, tags, references, dependencies.

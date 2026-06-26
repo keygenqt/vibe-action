@@ -30,10 +30,11 @@ Repeat for other commands:
 - `Vibe: Comment` — `comment`
 - `Vibe: Spellcheck` — `spellcheck`
 - `Vibe: Review` — `review`
+- `Vibe: Explain` — `explain`
 - `Vibe: Translate Fast` — `translate-fast`
 - `Vibe: Translate Deep` — `translate-deep`
 
-Or via XML — save to `~/Library/Application Support/JetBrains/<IDE>/tools/External Tools.xml`:
+Or via XML — save to `~/Library/Application Support/JetBrains/<IDE>/tools/External Tools.xml` (macOS) or `~/.config/JetBrains/<IDE>/tools/External Tools.xml` (Linux):
 
 ```xml
 <toolSet name="External Tools">
@@ -41,6 +42,13 @@ Or via XML — save to `~/Library/Application Support/JetBrains/<IDE>/tools/Exte
     <exec>
       <option name="COMMAND" value="vibe-action" />
       <option name="PARAMETERS" value="comment" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="Vibe: Explain" description="Add detailed comments to code" showInMainMenu="false" showInEditor="false" showInProject="false" showInSearchPopup="false" disabled="false" useConsole="true" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
+    <exec>
+      <option name="COMMAND" value="vibe-action" />
+      <option name="PARAMETERS" value="explain" />
       <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
     </exec>
   </tool>

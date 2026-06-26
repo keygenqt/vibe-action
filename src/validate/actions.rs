@@ -5,7 +5,8 @@ use std::collections::HashSet;
 
 use anyhow::Result;
 
-use crate::{models::actions::FlowsModel, validate::ValidateTrait};
+use crate::models::actions::FlowsModel;
+use crate::validate::ValidateTrait;
 
 impl ValidateTrait for FlowsModel {
     /// Validate all flows: each flow internally, plus duplicate names across flows.

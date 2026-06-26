@@ -28,9 +28,9 @@ actions:
     expect: list<string>
     action: |
       [Task]
-      Summarize the git diff below in strictly ONE sentence (max 10 words).
-      Start with an action verb (Add, Fix, Refactor, Change).
-      Write strictly in English.
+      Analyze the specific file git diff provided below.
+      Write a single, brief phrase explaining the most important changes.
+      Ignore trivial changes like import reorganizations or formatting adjustments.
 
       [Diff]
       {tag_file_diff}

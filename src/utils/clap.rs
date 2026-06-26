@@ -5,7 +5,9 @@
 #[macro_export]
 macro_rules! build_app {
     ($config:expr) => {{
-        use clap::{Arg, Command, CommandFactory};
+        use clap::Arg;
+        use clap::Command;
+        use clap::CommandFactory;
         let mut app = $crate::App::command();
         if let Some(actions_model) = &$config.flows {
             for flow in &actions_model.flows {

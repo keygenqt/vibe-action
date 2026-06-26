@@ -12,7 +12,7 @@ actions:
     action: ls *.rs
 
   - tag: tag_summary
-    run: llm
+    run: small
     expect: string
     action: Summarize these files - {tag_files|join}
 ```
@@ -41,7 +41,7 @@ actions:
     action: git diff --name-only
 
   - tag: tag_message
-    run: llm
+    run: small
     action: Write a commit message for: {tag_files}
 ```
 
@@ -73,7 +73,7 @@ A step can reference multiple tags:
 
 ```yaml
 - tag: tag_report
-  run: llm
+  run: small
   expect: string
   action: |
     Compare these two files:
@@ -82,6 +82,19 @@ A step can reference multiple tags:
 ```
 
 The engine waits for both `tag_file_a` and `tag_file_b` before running `tag_report`.
+
+## Escaping Literals
+
+Use `{{...}}` to include literal braces that should not be parsed as tags:
+
+```yaml
+- tag: tag_example
+  run: value
+  expect: string
+  action: |
+    To reference a tag, use {{tag_name}} syntax in your action.
+    The modifier {{tag|upper}} transforms text to UPPERCASE.
+```
 
 ## Circular Dependencies
 

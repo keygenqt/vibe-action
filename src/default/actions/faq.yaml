@@ -16,6 +16,40 @@ actions:
       Vibe Action — command router for shell and LLM tasks via YAML pipelines.
       Each action is a YAML manifest loaded recursively from configuration directories to build CLI subcommands.
 
+      Built-in Action Ecosystem (Available CLI Subcommands):
+        comment        - Generate automated clean code comments and documentation headers
+        commit         - Analyze workspace git diff state to generate Conventional Commit logs
+        describe       - Analyze visual/text context to describe interfaces or environments
+        explain        - Explain complex code structures, logic architecture, or errors
+        extract        - Parse and isolate entities, tokens, or structures from chaotic data
+        faq            - Interactive LLM-powered assistant regarding Vibe Action usage (this tool)
+        find           - Advanced routing filter to locate specific workspace markers or entities
+        mock           - Generate synthetic structural test data or mock objects using blueprints
+        naming         - Suggest clean, expressive, and idiomatic variables or function names
+        regex          - Generate, interpret, or validate complex regular expression strings
+        review         - Perform automated static code review, catching bugs and performance flaws
+        spellcheck     - Detect and auto-correct grammar mistakes and structural typos in text
+        synonyms       - Suggest a rich contextual list of matching linguistic alternatives
+        tone           - Adjust text parameters matching specific structural emotional constraints
+        translate-deep - Perform heavy semantic multi-node text translation workflows
+        translate-fast - Perform immediate high-speed target localization translation tasks
+        whois          - Identify historical tech figures or contextual data from inputs
+
+      Built-in System Context Tags (Runtime Environment Variables):
+        {{system_clipboard}} - Current system clipboard raw text content
+        {{system_pwd}}       - Current working directory absolute path
+        {{system_os}}        - Active operating system string name (e.g., macos, linux, windows)
+        {{system_user}}      - Current operating system user name
+        {{system_home}}      - Absolute path to the user's home directory
+        {{system_date}}      - Current local system date formatted as ISO 8601 (YYYY-MM-DD)
+        {{system_time}}      - Current local system time formatted as HH:MM:SS
+        {{system_pid}}       - Current execution process ID identifier number
+        {{system_temp}}      - Absolute path to the operating system temporary directory
+
+      System Tag Usage Example:
+        - To write a flow analyzing the clipboard context natively, declare your step like:
+          action: "Analyze this git diff payload: {{system_clipboard}}"
+
       Top-Level Manifest Fields:
         name      - Action name (CLI subcommand name, required)
         about     - Short description for CLI help text layout (required)
@@ -98,17 +132,33 @@ actions:
         {{tag|join:uniq:\s}}  - Merges unique rows separated strictly by a space literal character
         {{tag|join:,\s}}      - Formats list elements into a comma-space display sequence (", ")
 
+      Official Documentation Links (Live References):
+        Landing Page       - https://keygenqt.com
+        Introduction       - https://vibe-action.keygenqt.com/docs/introduction.html
+        Quick Start        - https://vibe-action.keygenqt.com/docs/getting-started.html
+        Action Structure   - https://vibe-action.keygenqt.com/docs/action-structure.html
+        Tag System         - https://vibe-action.keygenqt.com/docs/tag-system.html
+        Modifiers Manual   - https://vibe-action.keygenqt.com/docs/modifiers.html
+        System Tags        - https://vibe-action.keygenqt.com/docs/system-tags.html
+        Built-in Actions   - https://vibe-action.keygenqt.com/docs/built-in-actions.html
+        Custom Actions     - https://vibe-action.keygenqt.com/docs/custom-actions.html
+        VS Code Setup      - https://vibe-action.keygenqt.com/docs/ide-vscode.html
+        IntelliJ Setup     - https://vibe-action.keygenqt.com/docs/ide-intellij.html
+        Configuration      - https://vibe-action.keygenqt.com/docs/configuration.html
+        CLI Reference      - https://vibe-action.keygenqt.com/docs/cli-reference.html
+
       [Task]
-      Answer the user's question using the information from [Data] above. Be concise, highly technical, and practical.
+      Answer the user's question as a helpful, concise technical assistant based strictly on the [Data] matrix.
 
       [RULES]
-        1. When generating or showing string templates with custom spaces (like a comma and space or hyphen and space),
-           NEVER use a literal whitespace character inside the modifier brackets.
-        2. You MUST explicitly output the tools spacing mnemonic code '\s' for ANY custom space separator.
-        3. Never write multi-step pipelines if the operations can be chained within a single tag using pipes (e.g., use '{{tag|trim|upper|join:uniq}}').
-        4. Always answer in the same language as the [Query]. If the user writes in Russian, reply in Russian. If in English, reply in English.
+      1. Use '\s' mnemonic for spaces inside modifier brackets, never literal whitespace.
+      2. Chain operations in a single tag with pipes when possible (e.g., use '{{tag|trim|upper|join:uniq}}').
+      4. Never use quotes for TEXT answers, lists, and general descriptions.
+      5. Output YAML ONLY if explicitly asked for a configuration example.
+      6. If the response contains YAML, wrap it in a ```yaml code block.
 
-      When providing code blocks or configurations, always write them in valid, clean YAML formatting matching the exact schema metrics defined.
+      [STRICT RULES]
+      1. Answer STRICTLY in the same language as the [Query]. NO mixed languages.
 
       [Query]
       {query}

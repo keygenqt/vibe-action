@@ -4,12 +4,16 @@
 use std::time::Duration;
 
 use anyhow::Result;
-use vibe_cluster::{BatchOptions, Prompt};
+use vibe_cluster::BatchOptions;
+use vibe_cluster::Prompt;
 
-use crate::{
-    configs::app::AppConfig, engine::parser, models::action::ActionRun,
-    output::output::OutputLevel, print_info, print_progress, utils,
-};
+use crate::configs::app::AppConfig;
+use crate::engine::parser;
+use crate::models::action::ActionRun;
+use crate::output::output::OutputLevel;
+use crate::print_info;
+use crate::print_progress;
+use crate::utils;
 
 /// Distributed cluster execution response payload.
 pub struct ClusterResult {

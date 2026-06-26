@@ -4,17 +4,31 @@ Modifiers transform tag values inline using the pipe syntax: `{tag|modifier}`. S
 
 ## `join`
 
-Collapses a list into a single string with newline separator.
+Collapses a list into a single string with custom separator support.
 
-| Syntax             | Description                       |
-| ------------------ | --------------------------------- |
-| `{tag\|join}`      | Join list elements with `\n`      |
-| `{tag\|join:uniq}` | Join with `\n`, remove duplicates |
+| Syntax               | Description                                     |
+| -------------------- | ----------------------------------------------- |
+| `{tag\|join}`        | Join list elements with `\n`                    |
+| `{tag\|join:X}`      | Join with custom separator X                    |
+| `{tag\|join:uniq}`   | Join with `\n`, remove duplicates               |
+| `{tag\|join:uniq:X}` | Join with custom separator X, remove duplicates |
 
-| Input             | `{tag\|join}` | `{tag\|join:uniq}` |
-| ----------------- | ------------- | ------------------ |
-| `["a", "b"]`      | `"a\nb"`      | `"a\nb"`           |
-| `["a", "b", "a"]` | `"a\nb\na"`   | `"a\nb"`           |
+| Input             | `{tag\|join}` | `{tag\|join:uniq}` | `{tag\|join:,\s}` |
+| ----------------- | ------------- | ------------------ | ----------------- |
+| `["a", "b"]`      | `"a\nb"`      | `"a\nb"`           | `"a, b"`          |
+| `["a", "b", "a"]` | `"a\nb\na"`   | `"a\nb"`           | `"a, b"`          |
+
+### Special escape mnemonics
+
+YAML may strip trailing spaces in modifier arguments. Use these escape codes:
+
+| Code | Description |
+| ---- | ----------- |
+| `\n` | Newline     |
+| `\t` | Tab         |
+| `\s` | Space       |
+
+Example: `{tag|join:,\s}` joins with comma-space `", "` without YAML trimming the space.
 
 ## `trim`
 
@@ -148,12 +162,22 @@ Add `:not` to any predicate to invert the result:
 Modifiers can be chained in a single expression:
 
 ```yaml
-# Trim, uppercase, then join with deduplication
-{tag_input|trim|upper|join:uniq}
+# Trim, uppercase, then join with comma-space
+{tag_input|trim|upper|join:,\s}
 
 # Split, take first 3, then join back
 {tag_text|split|take:3|join}
 
 # Check if not empty
 {file|empty:not}
+```
+
+## Escaping literals
+
+Use `{{...}}` to include literal braces in your YAML without being parsed as tags:
+
+```yaml
+# This is a literal, not a tag reference:
+{{name}}
+{{tag|upper}}
 ```

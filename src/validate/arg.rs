@@ -3,7 +3,8 @@
 
 use anyhow::Result;
 
-use crate::{models::arg::ArgActionModel, validate::ValidateTrait};
+use crate::models::arg::ArgActionModel;
+use crate::validate::ValidateTrait;
 
 impl ValidateTrait for ArgActionModel {
     /// Validate argument fields for clap compatibility.

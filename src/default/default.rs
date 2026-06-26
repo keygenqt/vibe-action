@@ -1,6 +1,7 @@
 //! Default flow trait — validates built-in YAML flows from embedded YAML files.
 
-use crate::{models::flow::FlowModel, validate::ValidateTrait};
+use crate::models::flow::FlowModel;
+use crate::validate::ValidateTrait;
 use anyhow::Result;
 
 /// Common header template for all built-in YAML flows.

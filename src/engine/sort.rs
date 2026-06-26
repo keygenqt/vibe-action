@@ -2,9 +2,12 @@
 //! Resolves {tag} references (with optional |modifier) to determine execution order.
 
 use anyhow::Result;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::collections::VecDeque;
 
-use crate::models::{action::ActionModel, flow::FlowModel};
+use crate::models::action::ActionModel;
+use crate::models::flow::FlowModel;
 
 pub struct TopologicalSort;
 

@@ -21,7 +21,7 @@ progress: hello (val)... 100% (1/1)
 info: completed in 8.58ms
 ── success ──
 Hello, World!
-───────────────
+─────────────
 ```
 
 ## Shell Command
@@ -94,13 +94,13 @@ actions:
       Date: {system_date}
 ```
 
-Available system tags: `{system_clipboard}`, `{system_pwd}`, `{system_os}`, `{system_user}`, `{system_home}`, `{system_date}`, `{system_time}`, `{system_pid}`, `{system_temp}`.
+Available system tags: `{system_clipboard}`, `{system_clipboard_image}`, `{system_pwd}`, `{system_os}`, `{system_user}`, `{system_home}`, `{system_date}`, `{system_time}`, `{system_pid}`, `{system_temp}`.
 
 ## LLM Call
 
 ```yaml
-# ~/.vibe-action/actions/explain.yaml
-name: explain
+# ~/.vibe-action/actions/explain-concept.yaml
+name: explain-concept
 about: Explain a concept
 args:
   - name: query
@@ -109,7 +109,7 @@ args:
     help: What to explain
 actions:
   - tag: tag_answer
-    run: llm
+    run: small
     expect: string
     action: |
       Explain this concept in simple terms. Keep it under 3 sentences.
@@ -117,11 +117,40 @@ actions:
 ```
 
 ```bash
-$ vibe-action explain -q "Rust borrow checker"
-progress: answer (llm)... 100% (1/1)
+$ vibe-action explain-concept -q "Rust borrow checker"
+progress: answer (small)... 100% (1/1)
 info: completed in 6.63s
 ── success ──
 The Rust borrow checker...
+─────────────
+```
+
+## Vision Call
+
+```yaml
+# ~/.vibe-action/actions/photo-desc.yaml
+name: photo-desc
+about: Describe a photo from clipboard
+clipboard: true
+args:
+  - name: image
+    short: f
+    expect: image
+    help: Path to photo
+    default: '{system_clipboard_image}'
+actions:
+  - tag: tag_description
+    run: vision
+    expect: string
+    action: Describe this image in detail.
+```
+
+```bash
+$ vibe-action photo-desc
+progress: description (vision)... 100% (1/1)
+info: completed in 3.21s
+── success ──
+A white cat with gray markings...
 ─────────────
 ```
 
@@ -169,7 +198,7 @@ actions:
     action: cat {file}
 
   - tag: tag_summary
-    run: llm
+    run: small
     expect: string
     action: |
       Summarize this file in 2-3 sentences:
@@ -178,7 +207,7 @@ actions:
 
 ```bash
 $ vibe-action summarize-file -f README.md
-progress: summary (llm)... 100% (2/2)
+progress: summary (small)... 100% (2/2)
 info: completed in 7.74s
 ── success ──
 Vibe Action is a command router...
@@ -192,4 +221,5 @@ Vibe Action is a command router...
 - **Validation:** add `check: ".+"` to ensure non-empty output
 - **Debugging:** set `VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug` to see each step's input and output
 - **Clipboard:** use `default: '{system_clipboard}'` to read from clipboard
+- **Images:** use `default: '{system_clipboard_image}'` with `expect: image` for vision flows
 - **Notifications:** add `notify: true` to show desktop notification on completion

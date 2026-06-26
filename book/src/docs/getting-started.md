@@ -11,8 +11,11 @@
 # macOS / Linux
 curl -fsSL https://ollama.com/install.sh | sh
 
-# Pull a model
-ollama pull qwen2.5-coder:14b-instruct
+# Pull models for different roles
+ollama pull qwen2.5-coder:3b-instruct   # small
+ollama pull qwen2.5-coder:7b-instruct   # medium
+ollama pull qwen2.5-coder:14b-instruct  # large
+ollama pull qwen2.5vl:7b                # vision
 ```
 
 ## Install Vibe Action
@@ -42,7 +45,7 @@ $ vibe-action --help
 This creates:
 
 - `~/.vibe-action/config.yaml` — configuration
-- `~/.vibe-action/actions/` — 13 built-in actions
+- `~/.vibe-action/actions/` — 17 built-in actions
 
 ## Configure Cluster
 
@@ -81,6 +84,12 @@ vibe-action tone
 
 # Extract errors from logs
 vibe-action extract -f app.log -q "find all errors"
+
+# Describe a screenshot
+vibe-action describe -f screenshot.png
+
+# Ask about Vibe Action itself
+vibe-action faq -q "как использовать модификаторы?"
 
 # See all available actions
 vibe-action --help

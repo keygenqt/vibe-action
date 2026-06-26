@@ -1,6 +1,7 @@
 //! Join modifier — collapses a list into a single string with specified separators.
 //! Supports arg "uniq" for deduplication and unescapes literal sequences like "\n" or "\s".
-use super::modifier::{Modifier, ModifierKey};
+use super::modifier::Modifier;
+use super::modifier::ModifierKey;
 use crate::models::context::ContextModel;
 use anyhow::Result;
 use std::collections::HashSet;

@@ -14,6 +14,7 @@ args:
     help: Language for explanation
     default: Russian
 actions:
+  # Add summary and detailed comments to the code
   - tag: tag_explanation
     run: medium
     expect: string

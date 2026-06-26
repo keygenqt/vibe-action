@@ -4,10 +4,11 @@
 use anyhow::Result;
 use regex::Regex;
 
-use crate::{
-    models::action::{ActionModel, ActionRun, ActionValue, ExpectMode},
-    validate::ValidateTrait,
-};
+use crate::models::action::ActionModel;
+use crate::models::action::ActionRun;
+use crate::models::action::ActionValue;
+use crate::models::action::ExpectMode;
+use crate::validate::ValidateTrait;
 
 impl ValidateTrait for ActionModel {
     /// Validate action fields.

@@ -4,11 +4,15 @@ use anyhow::Result;
 use regex::Regex;
 
 use crate::engine::cluster::Cluster;
-use crate::engine::context::{Context, ExpandedTemplate};
+use crate::engine::context::Context;
+use crate::engine::context::ExpandedTemplate;
 use crate::engine::resolve::Resolve;
 use crate::engine::shell::Shell;
 use crate::engine::sort::TopologicalSort;
-use crate::models::action::{ActionModel, ActionRun, ActionValue, ExpectMode};
+use crate::models::action::ActionModel;
+use crate::models::action::ActionRun;
+use crate::models::action::ActionValue;
+use crate::models::action::ExpectMode;
 use crate::models::context::ContextModel;
 use crate::models::flow::FlowModel;
 use crate::modifier::modifier::ModifierRegistry;

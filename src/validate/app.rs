@@ -3,7 +3,9 @@
 
 use anyhow::Result;
 
-use crate::{configs::app::AppConfig, utils::constants, validate::ValidateTrait};
+use crate::configs::app::AppConfig;
+use crate::utils::constants;
+use crate::validate::ValidateTrait;
 
 impl ValidateTrait for AppConfig {
     /// Validate configuration.

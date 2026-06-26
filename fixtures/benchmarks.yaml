@@ -18,11 +18,27 @@ benchmarks:
     # Edge case: searches for non-existent log entities (tests empty block output)
     - cargo run -- extract -f fixtures/app.log -q 'find all wordpress plugin updates'
 
+  faq:
+    # List all available commands with descriptions
+    - cargo run -- faq -q "какие команды есть и зачем?"
+    # Ask how to use modifiers
+    - cargo run -- faq -q 'как использовать модификаторы?'
+    # Ask about list expansion mechanics
+    - cargo run -- faq -q 'что такое list expansion?'
+    # Ask how to add a default argument
+    - cargo run -- faq -q 'как добавить аргумент по умолчанию?'
+    # Ask about spaces in join modifier when YAML strips them
+    - cargo run -- faq -q 'как использовать пробел в модификаторе join если yaml его стирает?'
+    # Query the list of all available system environment tags
+    - cargo run -- faq -q 'какие системные теги доступны в приложении?'
+    # Query the exact URL reference for a specific documentation page
+    - cargo run -- faq -q 'дай ссылку на доки по кастомным экшенам'
+    # Ask for the global CLI shortcuts setup configuration rules
+    - cargo run -- faq -q 'где почитать про настройку горячих клавиш или IDE?'
+
   find:
     # Discovers a specific technical macro across the codebase
     - cargo run -- find -p ./src/utils -q 'где объявлен указана версия'
-    # Searches by logic meaning (topological dependency sorting modules)
-    - cargo run -- find -p ./src/engine -q 'найди файлы, которые занимаются топологической сортировкой экшенов'
     # Edge case: searches for missing architectural components
     - cargo run -- find -p ./src/engine -q 'where is the docker-compose orchestrator configuration?'
 
@@ -37,16 +53,12 @@ benchmarks:
   naming:
     # Recommends snake_case naming options for Rust functions
     - cargo run -- naming -q 'функция сортировки данных для Rust'
-    # Recommends clean-code naming options for a complex graph engine description
-    - cargo run -- naming -q 'сервис для динамической сборки направленного ациклического графа зависимостей'
     # Suggests a concise boolean variable name matching a specific codebase function
     - cargo run -- naming -q 'boolean variable that checks if markdown code block token exists'
 
   regex:
     # Classic regex pattern synthesis for IPv4 validation with a strict string example
     - cargo run -- regex -q 'IPv4 address' -e '192.168.1.1'
-    # Generates a token extractor regex pattern without a sample string provided
-    - cargo run -- regex -q 'extract Bearer token from HTTP Authorization header'
     # Validates standard email address syntax using a Russian description
     - cargo run -- regex -q 'регулярка для валидации email адреса'
 
@@ -68,11 +80,11 @@ benchmarks:
     # Evaluates explicit, high-anger English developer communication profiles
     - cargo run -- tone -q 'How fucking long do I have to wait for your code?'
 
-  translate-fast:
+  translate-deep:
     # Translates comprehensive project README documentation into Russian
-    - cargo run -- translate-fast -f ./fixtures/README.md -l 'Russian'
+    - cargo run -- translate-deep -f ./fixtures/README.md -l 'Russian'
     # Converts a technical text manifest file layout into Chinese
-    - cargo run -- translate-fast -f ./fixtures/README.md -l 'Chinese'
+    - cargo run -- translate-deep -f ./fixtures/README.md -l 'Chinese'
 
   translate-fast:
     # Translates comprehensive project README documentation into Russian
@@ -88,22 +100,4 @@ benchmarks:
 
   whois:
     # Identify tech figures in a historical photo
-    - cargo run -- whois -f ./fixtures/photo_1.png
-
-  faq:
-    # Ask how to use modifiers
-    - cargo run -- faq -q 'как использовать модификаторы?'
-    # Ask about list expansion mechanics
-    - cargo run -- faq -q 'что такое list expansion?'
-    # Ask how to add a default argument
-    - cargo run -- faq -q 'как добавить аргумент по умолчанию?'
-    # Ask about spaces in join modifier when YAML strips them
-    - cargo run -- faq -q 'как использовать пробел в модификаторе join если yaml его стирает?'
-    # Generate code: trim, upper, join with comma-space
-    - cargo run -- faq -q 'напиши экшен - взять список, оттримить, в верхний регистр, склеить через запятую с пробелом'
-    # Test list expansion vs collapse logic
-    - cargo run -- faq -q 'тег вернул 3 файла, а шаг ждет строку. сколько раз выполнится cmd и как запустить её один раз?'
-    # Generate YAML: number arg with flag, help, and default
-    - cargo run -- faq -q 'напиши YAML блок аргумента - число, флаг -n, помощь, дефолт 5. только код'
-    # Show exact syntax for join with dash-space and newline separators
-    - cargo run -- faq -q 'покажи точный синтаксис тегов - склеить список через дефис с пробелом, а потом через перенос строки'
+    - cargo run -- whois -f ./fixtures/photo_1.jpg

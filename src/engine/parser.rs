@@ -1,4 +1,8 @@
-use regex::{CaptureMatches, Regex};
+//! Tag parser engine.
+//! Zero-allocation streaming lexer for {tag|modifier} placeholders with escaped {{literal}} support.
+
+use regex::CaptureMatches;
+use regex::Regex;
 use std::sync::OnceLock;
 
 /// Regex pattern for {tag|modifier} placeholders.

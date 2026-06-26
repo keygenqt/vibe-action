@@ -1,6 +1,8 @@
 //! CLI output with ANSI colors and progress bar.
 
-use syntect::{easy::HighlightLines, highlighting::ThemeSet, parsing::SyntaxSet};
+use syntect::easy::HighlightLines;
+use syntect::highlighting::ThemeSet;
+use syntect::parsing::SyntaxSet;
 
 use crate::output::output::OutputLevel;
 

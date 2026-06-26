@@ -9,6 +9,7 @@ args:
     help: The line to comment
     default: '{system_clipboard}'
 actions:
+  # Replace TODO placeholders with intelligent technical comments
   - tag: tag_comment
     run: small
     expect: string

@@ -38,8 +38,8 @@ args: # Optional: CLI arguments
     default: 'default' # Optional: makes argument non-required
 actions: # Pipeline steps (executed in order of dependencies)
   - tag: tag_step1
-    run: cmd # cmd | llm | llm_small | llm_medium | llm_large | value
-    expect: string # void | bool | number | string | list<T>
+    run: cmd # cmd | value | small | medium | large | vision
+    expect: string # void | bool | number | string | list<string>
     check: '^.+$' # Optional: regex validation for this step
     confirm: true # Optional: ask before executing
     action: echo "Hello {input}!"
@@ -47,14 +47,24 @@ actions: # Pipeline steps (executed in order of dependencies)
 
 ## Action Types
 
-| Type         | Description                        |
-| ------------ | ---------------------------------- |
-| `cmd`        | Shell command executed in terminal |
-| `llm`        | Prompt sent to all LLM nodes       |
-| `llm_small`  | Prompt sent to small models only   |
-| `llm_medium` | Prompt sent to medium models only  |
-| `llm_large`  | Prompt sent to large models only   |
-| `value`      | Static string, no execution        |
+| Type     | Description                        |
+| -------- | ---------------------------------- |
+| `cmd`    | Shell command executed in terminal |
+| `value`  | Static string, no execution        |
+| `tiny`   | Prompt sent to tiny models         |
+| `small`  | Prompt sent to small models        |
+| `medium` | Prompt sent to medium models       |
+| `large`  | Prompt sent to large models        |
+| `vision` | Prompt sent to vision models       |
+
+## Argument Types
+
+| Type     | Description                |
+| -------- | -------------------------- |
+| `string` | Text (default)             |
+| `bool`   | true/false, yes/no, да/нет |
+| `number` | Integer or float           |
+| `image`  | Image file path or base64  |
 
 ## Expect Types
 
@@ -96,7 +106,7 @@ actions:
     action: find . -name '*.rs'
 
   - tag: tag_summary # 2nd — depends on tag_files
-    run: llm
+    run: small
     action: Summarize - {tag_files}
 ```
 

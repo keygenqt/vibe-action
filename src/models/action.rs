@@ -2,7 +2,9 @@
 //! Defines structures for action files, trigger and steps.
 
 use anyhow::Result;
-use serde::{Deserialize, Serialize, Serializer};
+use serde::Deserialize;
+use serde::Serialize;
+use serde::Serializer;
 
 /// Action runner type.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

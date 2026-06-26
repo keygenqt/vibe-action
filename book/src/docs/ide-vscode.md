@@ -29,6 +29,16 @@ Create `.vscode/tasks.json` in your project:
       }
     },
     {
+      "label": "Explain",
+      "type": "shell",
+      "command": "vibe-action explain",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "focus": false
+      }
+    },
+    {
       "label": "Tone",
       "type": "shell",
       "command": "vibe-action tone",

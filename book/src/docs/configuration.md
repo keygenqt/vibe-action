@@ -41,19 +41,19 @@ cluster:
 
 ### Cluster Node Fields
 
-| Field          | Type    | Description                            |
-| -------------- | ------- | -------------------------------------- |
-| `provider`     | string  | `ollama`, `deepseek`, `qwen`           |
-| `host`         | string  | API endpoint URL                       |
-| `model`        | string  | Model name                             |
-| `role`         | string  | `small`, `medium`, `large` (optional)  |
-| `timeout_secs` | integer | Request timeout in seconds             |
-| `temperature`  | float   | 0.0-2.0, lower = more deterministic    |
-| `seed`         | integer | Random seed for reproducibility        |
-| `num_ctx`      | integer | Context window size in tokens          |
-| `num_predict`  | integer | Max tokens to generate                 |
-| `api_key`      | string  | API key for cloud providers (optional) |
-| `parallel`     | integer | Concurrent connections (default: 1)    |
+| Field          | Type    | Description                                  |
+| -------------- | ------- | -------------------------------------------- |
+| `provider`     | string  | `ollama`, `deepseek`, `qwen`                 |
+| `host`         | string  | API endpoint URL                             |
+| `model`        | string  | Model name                                   |
+| `role`         | string  | `tiny`, `small`, `medium`, `large`, `vision` |
+| `timeout_secs` | integer | Request timeout in seconds                   |
+| `temperature`  | float   | 0.0-2.0, lower = more deterministic          |
+| `seed`         | integer | Random seed for reproducibility              |
+| `num_ctx`      | integer | Context window size in tokens                |
+| `num_predict`  | integer | Max tokens to generate                       |
+| `api_key`      | string  | API key for cloud providers (optional)       |
+| `parallel`     | integer | Concurrent connections (default: 1)          |
 
 ### Multi-Node Cluster with Roles
 
@@ -62,7 +62,7 @@ cluster:
   - provider: ollama
     host: http://localhost:11434
     model: qwen2.5-coder:3b-instruct
-    role: small
+    role: tiny
     timeout_secs: 30
     temperature: 0.0
     seed: 42
@@ -92,9 +92,20 @@ cluster:
     num_predict: 8192
     api_key: sk-...
     parallel: 2
+
+  - provider: ollama
+    host: http://localhost:11434
+    model: qwen2.5vl:7b
+    role: vision
+    timeout_secs: 120
+    temperature: 0.1
+    seed: 42
+    num_ctx: 4096
+    num_predict: 2048
+    parallel: 1
 ```
 
-Nodes with `role: small` are used for `run: small`, `role: medium` for `run: medium`, `role: large` for `run: large`, `role: vision` for `run: vision`.
+Nodes with `role: tiny` are used for `run: tiny`, `role: small` for `run: small`, `role: medium` for `run: medium`, `role: large` for `run: large`, `role: vision` for `run: vision`.
 Nodes without a `role` respond to all requests.
 
 ## Actions Directory
@@ -107,7 +118,10 @@ Actions are stored in `~/.vibe-action/actions/`. The directory is created on fir
 └── actions/
     ├── comment.yaml
     ├── commit.yaml
+    ├── describe.yaml
+    ├── explain.yaml
     ├── extract.yaml
+    ├── faq.yaml
     ├── find.yaml
     ├── mock.yaml
     ├── naming.yaml
@@ -117,7 +131,8 @@ Actions are stored in `~/.vibe-action/actions/`. The directory is created on fir
     ├── synonyms.yaml
     ├── tone.yaml
     ├── translate-fast.yaml
-    └── translate-deep.yaml
+    ├── translate-deep.yaml
+    └── whois.yaml
 ```
 
 Add your own `.yaml` files here — they will be loaded automatically.

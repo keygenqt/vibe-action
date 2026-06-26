@@ -4,17 +4,18 @@ System tags are built-in variables available in any flow. They provide context f
 
 ## Available Tags
 
-| Tag                  | Description                    | Example               |
-| -------------------- | ------------------------------ | --------------------- |
-| `{system_clipboard}` | Current clipboard text content | `Hello, World!`       |
-| `{system_pwd}`       | Current working directory      | `/home/user/projects` |
-| `{system_os}`        | Operating system               | `macos`, `linux`      |
-| `{system_user}`      | Current user name              | `keygenqt`            |
-| `{system_home}`      | Home directory                 | `/home/user`          |
-| `{system_date}`      | Current date (ISO 8601)        | `2026-06-20`          |
-| `{system_time}`      | Current time                   | `23:59:59`            |
-| `{system_pid}`       | Process ID                     | `12345`               |
-| `{system_temp}`      | Temporary directory            | `/tmp`                |
+| Tag                        | Description                          | Example               |
+| -------------------------- | ------------------------------------ | --------------------- |
+| `{system_clipboard}`       | Current clipboard text content       | `Hello, World!`       |
+| `{system_clipboard_image}` | Current clipboard image (base64 PNG) | `iVBORw0KGgo...`      |
+| `{system_pwd}`             | Current working directory            | `/home/user/projects` |
+| `{system_os}`              | Operating system                     | `macos`, `linux`      |
+| `{system_user}`            | Current user name                    | `keygenqt`            |
+| `{system_home}`            | Home directory                       | `/home/user`          |
+| `{system_date}`            | Current date (ISO 8601)              | `2026-06-20`          |
+| `{system_time}`            | Current time                         | `23:59:59`            |
+| `{system_pid}`             | Process ID                           | `12345`               |
+| `{system_temp}`            | Temporary directory                  | `/tmp`                |
 
 ## Usage
 
@@ -40,6 +41,16 @@ args:
     expect: string
     help: Text to process
     default: '{system_clipboard}'
+```
+
+```yaml
+# As a default value for an image argument
+args:
+  - name: image
+    short: f
+    expect: image
+    help: Path to screenshot
+    default: '{system_clipboard_image}'
 ```
 
 ```yaml
@@ -71,7 +82,7 @@ args:
     default: '{system_clipboard}'
 actions:
   - tag: tag_result
-    run: llm
+    run: small
     expect: string
     action: |
       Rewrite professionally: {query}
@@ -84,8 +95,38 @@ vibe-action tone
 # Paste result → Cmd+V
 ```
 
+## Image Clipboard Integration
+
+`{system_clipboard_image}` enables the same workflow for images: screenshot → describe/OCR/identify → result in clipboard.
+
+```yaml
+name: describe
+about: Describe a screenshot
+clipboard: true
+notify: true
+args:
+  - name: image
+    short: f
+    expect: image
+    help: Path to screenshot
+    default: '{system_clipboard_image}'
+actions:
+  - tag: tag_description
+    run: vision
+    expect: string
+    action: Describe this image in rich detail.
+```
+
+```bash
+# Take screenshot → Cmd+Ctrl+Shift+4
+# Run without arguments → reads from clipboard
+vibe-action describe
+# Paste description → Cmd+V
+```
+
 ## Notes
 
 - System tags are read-only and cannot be modified by flow steps.
 - `{system_clipboard}` is read once at flow startup. If clipboard changes during execution, the tag still holds the original value.
+- `{system_clipboard_image}` returns the clipboard image as a base64-encoded PNG string. Use `expect: image` for arguments.
 - `{system_os}` returns the same value as Rust's `std::env::consts::OS`.

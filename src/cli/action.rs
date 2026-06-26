@@ -5,13 +5,17 @@ use arboard::Clipboard;
 use clap::ArgMatches;
 use inquire::Confirm;
 
-use crate::{
-    configs::app::AppConfig,
-    engine::engine::Engine,
-    exit_error,
-    output::{cli::CliOutput, output::OutputLevel},
-    print_debug, print_info, print_progress, print_success, print_warning, utils,
-};
+use crate::configs::app::AppConfig;
+use crate::engine::engine::Engine;
+use crate::exit_error;
+use crate::output::cli::CliOutput;
+use crate::output::output::OutputLevel;
+use crate::print_debug;
+use crate::print_info;
+use crate::print_progress;
+use crate::print_success;
+use crate::print_warning;
+use crate::utils;
 
 /// Execute a dynamic action command.
 pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig) {

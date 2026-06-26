@@ -9,6 +9,7 @@ args:
     help: Path to screenshot (or use clipboard)
     default: '{system_clipboard_image}'
 actions:
+  # Extract raw visual description from the screenshot
   - tag: tag_raw
     run: vision
     expect: string
@@ -22,6 +23,7 @@ actions:
       - What is happening in the screenshot
       - Colors: list each distinct color with its hex code, and what it is used for
       Be thorough.
+  # Format the raw description into clean Markdown
   - tag: tag_md
     run: small
     expect: string

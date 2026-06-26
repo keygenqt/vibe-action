@@ -54,18 +54,21 @@ impl Default for AppConfig {
                 ClusterConfig {
                     model: "qwen2.5-coder:7b-instruct".to_string(),
                     role: Some(ClusterRole::Medium),
+                    temperature: 0.2,
                     timeout_secs: 60,
                     ..ClusterConfig::default()
                 },
                 ClusterConfig {
                     model: "qwen2.5-coder:14b-instruct".to_string(),
                     role: Some(ClusterRole::Large),
+                    temperature: 0.3,
                     timeout_secs: 120,
                     ..ClusterConfig::default()
                 },
                 ClusterConfig {
                     model: "qwen2.5vl:7b".to_string(),
                     role: Some(ClusterRole::Vision),
+                    temperature: 0.4,
                     num_ctx: 8192,
                     num_predict: 8192,
                     timeout_secs: 120,

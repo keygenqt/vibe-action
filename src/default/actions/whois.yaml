@@ -14,6 +14,7 @@ args:
     help: Language for explanation
     default: Russian
 actions:
+  # Identify and analyze tech figures in the image
   - tag: tag_identity
     run: vision
     expect: string

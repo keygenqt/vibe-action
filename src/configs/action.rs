@@ -1,7 +1,8 @@
 //! Global action runtime settings: system prompt and retry policy.
 //! These apply to all flows by default.
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActionConfig {

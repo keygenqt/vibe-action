@@ -1,6 +1,6 @@
 # Built-in Actions
 
-Vibe Action ships with 13 ready-to-use actions. They are written to `~/.vibe-action/actions/` on first run and can be customized.
+Vibe Action ships with 17 ready-to-use actions. They are written to `~/.vibe-action/actions/` on first run and can be customized.
 
 ## comment
 
@@ -23,6 +23,28 @@ vibe-action commit -p ./src       # specific path
 
 **How it works:** gets changed files → diffs each file → LLM summarizes → combines into one commit message → commits (with confirmation).
 
+## describe
+
+Describe a screenshot or photo for text-only LLM understanding. Supports images from clipboard or file.
+
+```bash
+vibe-action describe -f screenshot.png
+vibe-action describe   # reads from clipboard
+```
+
+**How it works:** vision model analyzes image → small model formats into clean Markdown → copies to clipboard.
+
+## explain
+
+Explain what the selected code does by adding detailed comments.
+
+```bash
+vibe-action explain -q "your code" -l Russian
+vibe-action explain   # reads from clipboard
+```
+
+**How it works:** LLM adds comments above each logical block → preserves original code → copies to clipboard.
+
 ## extract
 
 Extract matching lines from log files or text using semantic search.
@@ -33,6 +55,17 @@ vibe-action extract -f app.log -q "покажи проблемы с безопа
 ```
 
 **How it works:** reads file line by line → LLM filters matching lines → returns only relevant entries.
+
+## faq
+
+Ask questions about Vibe Action — YAML structure, modifiers, usage, and best practices.
+
+```bash
+vibe-action faq -q "как использовать модификаторы?"
+vibe-action faq -q "что такое list expansion?"
+```
+
+**How it works:** LLM answers using built-in knowledge base → returns concise technical answer.
 
 ## find
 
@@ -147,3 +180,14 @@ vibe-action translate-deep -f README.md -l Chinese
 ```
 
 **How it works:** small model drafts translation → large model polishes and refines → higher quality output.
+
+## whois
+
+Identify people in a photo — full name, role, and historical impact.
+
+```bash
+vibe-action whois -f photo.jpg
+vibe-action whois   # reads from clipboard
+```
+
+**How it works:** vision model identifies tech figures → returns names, roles, and impact summaries.

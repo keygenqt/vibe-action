@@ -6,14 +6,16 @@ Vibe Action is a command router that executes shell commands and LLM prompts via
 
 - ⚡ **One command = complex pipeline** — chain shell scripts and LLM calls into a single action
 - 🔗 **Tag system** — connect steps via `{tag}` references with automatic dependency graph
-- 🔧 **Modifiers** — rich set of modifiers with arguments for transforming values inline
+- 🔧 **Modifiers** — powerful inline value transformations with arguments
 - 🔀 **When/Then** — conditional execution in YAML without shell scripts
 - 🌳 **AST parsing** — `{tag|ast:rs}` extract code structure for smarter prompts
 - 🖥️ **System tags** — `{system_clipboard}`, `{system_pwd}`, `{system_os}` and more
-- 🤖 **Batch LLM** — parallel execution across cluster nodes with role-based routing
+- 👁️ **Vision support** — `{system_clipboard_image}`, screenshot description, person identification
+- 🤖 **Batch LLM** — parallel execution across cluster nodes with role-based routing (tiny, small, medium, large, vision)
 - ✅ **Type-safe** — validate outputs with types and regex
 - 🔔 **Notifications** — optional desktop notifications on completion
 - 🔐 **Confirmations** — ask before executing dangerous commands
+- 💬 **Self-documenting** — built-in `faq` command answers questions about Vibe Action itself
 - 🎯 **CLI-first** — no browser, no context switching. Everything in the terminal
 - 🔒 **Local & free** — open source, local models via Ollama. No subscriptions
 - 🦀 **Fast** — built in Rust
@@ -42,7 +44,7 @@ actions:
     expect: list<string>
     action: cat {file}
   - tag: tag_content
-    run: llm
+    run: small
     expect: string
     action: |
       [Task]

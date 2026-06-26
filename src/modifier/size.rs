@@ -2,7 +2,8 @@
 
 use anyhow::Result;
 
-use super::modifier::{Modifier, ModifierKey};
+use super::modifier::Modifier;
+use super::modifier::ModifierKey;
 use crate::models::context::ContextModel;
 
 pub struct SizeModifier;

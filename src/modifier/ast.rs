@@ -1,9 +1,11 @@
 //! AST modifier — parses source code into structured JSON via vibe-ast.
 
 use anyhow::Result;
-use vibe_ast::{Language, parse_text};
+use vibe_ast::Language;
+use vibe_ast::parse_text;
 
-use super::modifier::{Modifier, ModifierKey};
+use super::modifier::Modifier;
+use super::modifier::ModifierKey;
 use crate::models::context::ContextModel;
 
 pub struct AstModifier;
