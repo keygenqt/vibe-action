@@ -1,22 +1,34 @@
 # Modifiers
 
 Modifiers transform tag values inline using the pipe syntax: `{tag|modifier}`. Some modifiers accept arguments: `{tag|modifier:argument}`.
+All modifiers work with both strings and lists.
+
+## `uniq`
+
+Removes duplicate characters from a string or duplicate elements from a list.
+
+| Syntax        | Description                           |
+| ------------- | ------------------------------------- |
+| `{tag\|uniq}` | Remove duplicates from string or list |
+
+| Input             | `{tag\|uniq}` |
+| ----------------- | ------------- |
+| `"hello"`         | `"helo"`      |
+| `["a", "b", "a"]` | `["a", "b"]`  |
 
 ## `join`
 
-Collapses a list into a single string with custom separator support.
+Collapses a list into a single string with custom separator. Strings pass through unchanged.
 
-| Syntax               | Description                                     |
-| -------------------- | ----------------------------------------------- |
-| `{tag\|join}`        | Join list elements with `\n`                    |
-| `{tag\|join:X}`      | Join with custom separator X                    |
-| `{tag\|join:uniq}`   | Join with `\n`, remove duplicates               |
-| `{tag\|join:uniq:X}` | Join with custom separator X, remove duplicates |
+| Syntax          | Description                  |
+| --------------- | ---------------------------- |
+| `{tag\|join}`   | Join list elements with `\n` |
+| `{tag\|join:X}` | Join with custom separator X |
 
-| Input             | `{tag\|join}` | `{tag\|join:uniq}` | `{tag\|join:,\s}` |
-| ----------------- | ------------- | ------------------ | ----------------- |
-| `["a", "b"]`      | `"a\nb"`      | `"a\nb"`           | `"a, b"`          |
-| `["a", "b", "a"]` | `"a\nb\na"`   | `"a\nb"`           | `"a, b"`          |
+| Input             | `{tag\|join}` | `{tag\|join:,\s}` |
+| ----------------- | ------------- | ----------------- |
+| `["a", "b"]`      | `"a\nb"`      | `"a, b"`          |
+| `["a", "b", "a"]` | `"a\nb\na"`   | `"a, b, a"`       |
 
 ### Special escape mnemonics
 
@@ -29,6 +41,20 @@ YAML may strip trailing spaces in modifier arguments. Use these escape codes:
 | `\s` | Space       |
 
 Example: `{tag|join:,\s}` joins with comma-space `", "` without YAML trimming the space.
+
+## `split`
+
+Splits a string into a list by separator. Lists pass through unchanged.
+
+| Syntax           | Description                         |
+| ---------------- | ----------------------------------- |
+| `{tag\|split}`   | Split string to list by `\n`        |
+| `{tag\|split:X}` | Split string to list by separator X |
+
+| Input       | `{tag\|split}`    | `{tag\|split:,\s}` |
+| ----------- | ----------------- | ------------------ |
+| `"a\nb\nc"` | `["a", "b", "c"]` | `["a\nb\nc"]`      |
+| `"a, b, c"` | `["a, b, c"]`     | `["a", "b", "c"]`  |
 
 ## `trim`
 
@@ -68,21 +94,9 @@ Returns first N characters of a string or first N elements of a list.
 | `"hello"`         | `"h"`           | `"he"`          |
 | `["a", "b", "c"]` | `["a"]`         | `["a", "b"]`    |
 
-## `split`
-
-Splits a string into a list by newlines.
-
-| Syntax         | Description                  |
-| -------------- | ---------------------------- |
-| `{tag\|split}` | Split string to list by `\n` |
-
-| Input       | `{tag\|split}`    |
-| ----------- | ----------------- |
-| `"a\nb\nc"` | `["a", "b", "c"]` |
-
 ## `sort`
 
-Sorts a list alphabetically.
+Sorts characters in a string or elements in a list.
 
 | Syntax             | Description              |
 | ------------------ | ------------------------ |
@@ -100,7 +114,7 @@ Reverses a string or list.
 
 ## `size`
 
-Returns the length of a string or list as a number.
+Returns the length of a string or list as a string.
 
 | Syntax        | Description        |
 | ------------- | ------------------ |
@@ -137,7 +151,7 @@ Parses source code into structured JSON via [vibe-ast](https://crates.io/crates/
 
 ## Predicate Modifiers
 
-Return `true`/`false` for use in `when` conditions. Support `:not` to invert.
+Return `"true"`/`"false"` as strings for use in `when` conditions. Support `:not` to invert.
 
 | Modifier   | Description                    | Example                 |
 | ---------- | ------------------------------ | ----------------------- |
@@ -162,8 +176,8 @@ Add `:not` to any predicate to invert the result:
 Modifiers can be chained in a single expression:
 
 ```yaml
-# Trim, uppercase, then join with comma-space
-{tag_input|trim|upper|join:,\s}
+# Remove duplicates, trim, uppercase, then join with comma-space
+{tag_input|uniq|trim|upper|join:,\s}
 
 # Split, take first 3, then join back
 {tag_text|split|take:3|join}

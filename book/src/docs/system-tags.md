@@ -38,7 +38,7 @@ System tags can be used anywhere in your flow — in actions, arguments, and con
 args:
   - name: query
     short: q
-    expect: string
+    input: string
     help: Text to process
     default: '{system_clipboard}'
 ```
@@ -48,7 +48,7 @@ args:
 args:
   - name: image
     short: f
-    expect: image
+    input: path
     help: Path to screenshot
     default: '{system_clipboard_image}'
 ```
@@ -77,7 +77,7 @@ notify: true
 args:
   - name: query
     short: q
-    expect: string
+    input: string
     help: Text to rewrite
     default: '{system_clipboard}'
 actions:
@@ -107,7 +107,7 @@ notify: true
 args:
   - name: image
     short: f
-    expect: image
+    input: path
     help: Path to screenshot
     default: '{system_clipboard_image}'
 actions:
@@ -128,5 +128,5 @@ vibe-action describe
 
 - System tags are read-only and cannot be modified by flow steps.
 - `{system_clipboard}` is read once at flow startup. If clipboard changes during execution, the tag still holds the original value.
-- `{system_clipboard_image}` returns the clipboard image as a base64-encoded PNG string. Use `expect: image` for arguments.
+- `{system_clipboard_image}` returns the clipboard image as a base64-encoded PNG string. Use `input: path` for arguments.
 - `{system_os}` returns the same value as Rust's `std::env::consts::OS`.

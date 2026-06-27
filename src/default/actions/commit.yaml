@@ -12,7 +12,7 @@ actions:
     run: cmd
     expect: list
     check: .+
-    action: cd {path|resolve} && git diff --name-only --relative
+    action: cd {path|resolve} && git diff -U0 --name-only --relative
   # Diff each changed file
   - tag: tag_file_diff
     run: cmd
@@ -28,9 +28,15 @@ actions:
     expect: list
     action: |
       [Task]
-      Analyze the specific file git diff provided below.
-      Write a single, brief phrase explaining the most important changes.
-      Ignore trivial changes like import reorganizations or formatting adjustments.
+        1. Read the git diff below.
+        2. Find the file path in the header (lines starting with --- and +++).
+        3. Count the number of changed blocks (@@ sections).
+        4. Write a single phrase describing the most important changes.
+        5. Reply in format: <path> (<N> changes): <phrase>
+        6. Ignore trivial changes like imports or formatting.
+
+      [Example]
+      src/main.rs (3 changes): fix CLI argument parsing
 
       [Diff]
       {tag_file_diff}
@@ -51,4 +57,4 @@ actions:
     run: cmd
     expect: string
     confirm: true
-    action: cd {path} && git add . && git commit -m '{tag_commit_message}'
+    action: cd {path} && git add . && git commit -m '{tag_commit_message|lower}'

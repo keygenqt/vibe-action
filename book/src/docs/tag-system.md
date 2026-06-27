@@ -18,7 +18,7 @@ actions:
 ```
 
 Step `tag_summary` depends on `tag_files`. The engine runs `tag_files` first, then passes its output to `tag_summary`.
-The `|join` modifier collapses the `list<string>` result into a single string — without it, `tag_summary` would execute once for each file in the list.
+The `|join` modifier collapses the list result into a single string — without it, `tag_summary` would execute once for each file in the list.
 
 ## Automatic Dependency Ordering
 
@@ -49,7 +49,7 @@ Execution order: `tag_files` → `tag_message` → `tag_commit`
 
 ## List Expansion
 
-When a step expects `list<string>` and receives a list from a tag, the engine runs the action **for each element**:
+When a step expects `string` or runs `cmd` but receives a list from a tag, the engine runs the action **for each element**:
 
 ```yaml
 actions:

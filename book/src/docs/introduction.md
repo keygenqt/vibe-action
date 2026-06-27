@@ -12,7 +12,7 @@ Vibe Action is a command router that executes shell commands and LLM prompts via
 - 🖥️ **System tags** — `{system_clipboard}`, `{system_pwd}`, `{system_os}` and more
 - 👁️ **Vision support** — `{system_clipboard_image}`, screenshot description, person identification
 - 🤖 **Batch LLM** — parallel execution across cluster nodes with role-based routing (tiny, small, medium, large, vision)
-- ✅ **Type-safe** — validate outputs with types and regex
+- ✅ **Type-safe** — validate outputs with `expect` types and regex `check`
 - 🔔 **Notifications** — optional desktop notifications on completion
 - 🔐 **Confirmations** — ask before executing dangerous commands
 - 💬 **Self-documenting** — built-in `faq` command answers questions about Vibe Action itself
@@ -32,11 +32,11 @@ about: Extract matching lines from text and logs
 args:
   - name: file
     short: f
-    expect: string
+    input: string
     help: Path to the log or text file
   - name: query
     short: q
-    expect: string
+    input: string
     help: Extraction criteria (e.g., 'find all errors')
 actions:
   - tag: tag_lines
@@ -64,7 +64,7 @@ actions:
   - tag: tag_extract
     run: value
     expect: string
-    action: '{tag_clean|join:uniq}'
+    action: '{tag_clean|uniq|join}'
 ```
 
 ### When/Then Conditions

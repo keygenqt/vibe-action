@@ -33,13 +33,13 @@ notify: true # Optional: show system notification on completion
 args: # Optional: CLI arguments
   - name: input
     short: i
-    expect: string
+    input: string # string | bool | number | path | list<string> | list<bool> | list<number> | list<path>
     help: Input text
     default: 'default' # Optional: makes argument non-required
 actions: # Pipeline steps (executed in order of dependencies)
   - tag: tag_step1
-    run: cmd # cmd | value | small | medium | large | vision
-    expect: string # void | bool | number | string | list<string>
+    run: cmd # cmd | value | small | medium | large | vision | tiny
+    expect: string # string | list. Omit for no expected output.
     check: '^.+$' # Optional: regex validation for this step
     confirm: true # Optional: ask before executing
     action: echo "Hello {input}!"
@@ -57,24 +57,27 @@ actions: # Pipeline steps (executed in order of dependencies)
 | `large`  | Prompt sent to large models        |
 | `vision` | Prompt sent to vision models       |
 
-## Argument Types
+## Argument Types (`input`)
 
-| Type     | Description                |
-| -------- | -------------------------- |
-| `string` | Text (default)             |
-| `bool`   | true/false, yes/no, да/нет |
-| `number` | Integer or float           |
-| `image`  | Image file path or base64  |
+| Type           | Description                         |
+| -------------- | ----------------------------------- |
+| `string`       | Text (default)                      |
+| `bool`         | true/false flag                     |
+| `number`       | Integer or float                    |
+| `path`         | File path (validated for existence) |
+| `list<string>` | Comma-separated list of strings     |
+| `list<bool>`   | Comma-separated list of bool values |
+| `list<number>` | Comma-separated list of numbers     |
+| `list<path>`   | Comma-separated list of file paths  |
 
 ## Expect Types
 
-| Type           | Description                       |
-| -------------- | --------------------------------- |
-| `void`         | No output                         |
-| `bool`         | true/false, yes/no, да/нет, 是/否 |
-| `number`       | Integer or float                  |
-| `string`       | Text (default)                    |
-| `list<string>` | List of strings, triggers loop    |
+| Type     | Description                    |
+| -------- | ------------------------------ |
+| `string` | Text (default)                 |
+| `list`   | List of strings, triggers loop |
+
+Omit `expect` for steps with no expected output.
 
 ## Conditional Actions (When/Then)
 

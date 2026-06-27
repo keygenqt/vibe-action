@@ -56,7 +56,7 @@ about: Greet someone
 args:
   - name: name
     short: n
-    expect: string
+    input: string
     help: Name to greet
     default: World
 actions:
@@ -105,7 +105,7 @@ about: Explain a concept
 args:
   - name: query
     short: q
-    expect: string
+    input: string
     help: What to explain
 actions:
   - tag: tag_answer
@@ -135,7 +135,7 @@ clipboard: true
 args:
   - name: image
     short: f
-    expect: image
+    input: path
     help: Path to photo
     default: '{system_clipboard_image}'
 actions:
@@ -172,7 +172,7 @@ actions:
     run: cmd
     expect: string
     action:
-      - when: '{tag_changed|not_empty}'
+      - when: '{tag_changed|empty:not}'
         then: git add . && git commit -m "auto: updates"
       - when: '{tag_changed|empty}'
         then: echo "Nothing to commit."
@@ -189,7 +189,7 @@ about: Read a file and summarize it
 args:
   - name: file
     short: f
-    expect: string
+    input: string
     help: File to summarize
 actions:
   - tag: tag_content
@@ -221,5 +221,5 @@ Vibe Action is a command router...
 - **Validation:** add `check: ".+"` to ensure non-empty output
 - **Debugging:** set `VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug` to see each step's input and output
 - **Clipboard:** use `default: '{system_clipboard}'` to read from clipboard
-- **Images:** use `default: '{system_clipboard_image}'` with `expect: image` for vision flows
+- **Images:** use `default: '{system_clipboard_image}'` with `input: path` for vision flows
 - **Notifications:** add `notify: true` to show desktop notification on completion
