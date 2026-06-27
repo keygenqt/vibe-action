@@ -1,6 +1,5 @@
 name: trim-chars
 about: Test trim modifier with custom chars
-args: []
 actions:
   - tag: tag_input
     run: value

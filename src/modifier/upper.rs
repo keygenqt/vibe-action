@@ -18,13 +18,9 @@ impl Modifier for UpperModifier {
         match value {
             ContextModel::String(s) => Ok(ContextModel::String(s.to_uppercase())),
             ContextModel::List(items) => {
-                let transformed: Vec<ContextModel> = items
-                    .iter()
-                    .map(|i| ContextModel::String(i.to_string().to_uppercase()))
-                    .collect();
+                let transformed: Vec<String> = items.iter().map(|i| i.to_uppercase()).collect();
                 Ok(ContextModel::List(transformed))
             }
-            _ => anyhow::bail!("Modifier 'upper' expects a string or list of strings"),
         }
     }
 }

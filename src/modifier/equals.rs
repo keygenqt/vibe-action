@@ -5,7 +5,7 @@ use anyhow::Result;
 
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use super::modifier::invert_bool;
+use super::modifier::invert;
 use crate::models::context::ContextModel;
 
 pub struct EqualsModifier;
@@ -16,24 +16,23 @@ impl Modifier for EqualsModifier {
     }
 
     fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
-        let (pattern, invert) = if let Some(p) = arg.strip_suffix(":not") {
+        let (pattern, invert_flag) = if let Some(p) = arg.strip_suffix(":not") {
             (p, true)
         } else {
             (arg, false)
         };
+
         let result = match value {
-            ContextModel::String(s) => ContextModel::Bool(s == pattern),
+            ContextModel::String(s) => ContextModel::String((s == pattern).to_string()),
             ContextModel::List(items) => {
-                let results: Vec<ContextModel> = items
-                    .iter()
-                    .map(|i| ContextModel::Bool(i.to_string() == pattern))
-                    .collect();
+                let results: Vec<String> =
+                    items.iter().map(|i| (i == pattern).to_string()).collect();
                 ContextModel::List(results)
             }
-            _ => anyhow::bail!("Modifier 'equals' expects a string or list"),
         };
-        if invert {
-            Ok(invert_bool(result))
+
+        if invert_flag {
+            Ok(invert(result))
         } else {
             Ok(result)
         }

@@ -1,10 +1,9 @@
 name: list-all-true
 about: Test switch where all list elements match case
-args: []
 actions:
   - tag: tag_items
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "apple"
       echo "banana"

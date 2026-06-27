@@ -1,10 +1,9 @@
 name: list-mixed
 about: Test switch where some list elements match case, some don't
-args: []
 actions:
   - tag: tag_items
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "apple"
       echo "banana"

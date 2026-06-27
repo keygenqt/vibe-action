@@ -1,4 +1,6 @@
-//! Split modifier — splits a string into a list by newlines.
+//! Split modifier — splits a string into a list by separator.
+//! Default separator is newline. Supports escape mnemonics \n, \t, \s.
+//! For list: returns unchanged.
 
 use anyhow::Result;
 
@@ -13,16 +15,21 @@ impl Modifier for SplitModifier {
         ModifierKey::Split
     }
 
-    fn apply(&self, value: &ContextModel, _arg: &str) -> Result<ContextModel> {
+    fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
         match value {
             ContextModel::String(s) => {
-                let items: Vec<ContextModel> = s
-                    .split('\n')
-                    .map(|line| ContextModel::String(line.to_string()))
-                    .collect();
+                let separator = if arg.is_empty() {
+                    "\n".to_string()
+                } else {
+                    arg.replace("\\n", "\n")
+                        .replace("\\t", "\t")
+                        .replace("\\s", " ")
+                };
+
+                let items: Vec<String> = s.split(&separator).map(|line| line.to_string()).collect();
                 Ok(ContextModel::List(items))
             }
-            _ => anyhow::bail!("Modifier 'split' expects a string"),
+            ContextModel::List(_) => Ok(value.clone()),
         }
     }
 }

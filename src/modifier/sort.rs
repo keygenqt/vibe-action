@@ -1,4 +1,4 @@
-//! Sort modifier — sorts a list alphabetically.
+//! Sort modifier — sorts a string (characters) or list alphabetically.
 
 use anyhow::Result;
 
@@ -26,17 +26,22 @@ impl Modifier for SortModifier {
     fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
         let ascending = Self::direction_from_arg(arg)?;
         match value {
+            ContextModel::String(s) => {
+                let mut chars: Vec<char> = s.chars().collect();
+                chars.sort();
+                if !ascending {
+                    chars.reverse();
+                }
+                Ok(ContextModel::String(chars.into_iter().collect()))
+            }
             ContextModel::List(items) => {
-                let mut sorted: Vec<String> = items.iter().map(|i| i.to_string()).collect();
+                let mut sorted = items.clone();
                 sorted.sort();
                 if !ascending {
                     sorted.reverse();
                 }
-                let sorted: Vec<ContextModel> =
-                    sorted.into_iter().map(ContextModel::String).collect();
                 Ok(ContextModel::List(sorted))
             }
-            _ => anyhow::bail!("Modifier 'sort' expects a list"),
         }
     }
 }

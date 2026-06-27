@@ -41,7 +41,7 @@ args:
 actions:
   - tag: tag_lines
     run: cmd
-    expect: list<string>
+    expect: list
     action: cat {file}
   - tag: tag_content
     run: small

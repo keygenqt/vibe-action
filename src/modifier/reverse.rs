@@ -24,7 +24,6 @@ impl Modifier for ReverseModifier {
                 reversed.reverse();
                 Ok(ContextModel::List(reversed))
             }
-            _ => anyhow::bail!("Modifier 'reverse' expects a string or list"),
         }
     }
 }

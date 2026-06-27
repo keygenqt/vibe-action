@@ -1,10 +1,9 @@
 name: chain-upper-join
 about: Test modifier chain upper and join
-args: []
 actions:
   - tag: tag_input
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "hello"
       echo "world"

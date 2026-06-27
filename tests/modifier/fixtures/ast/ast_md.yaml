@@ -1,6 +1,5 @@
 name: ast-md
 about: Test AST modifier for Markdown
-args: []
 actions:
   - tag: tag_code
     run: value

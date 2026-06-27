@@ -11,6 +11,22 @@ use crate::utils::constants::ACTIONS_DIR_NAME;
 use crate::utils::constants::CONFIG_DIR_NAME;
 use crate::utils::constants::CONFIG_FILE_NAME;
 
+/// Check if a path points to a supported image file.
+/// Returns Ok(true) if valid image, Ok(false) if not an image, Err if unsupported format.
+pub fn is_image(path: &str) -> Result<bool> {
+    let path = Path::new(path);
+    match path.extension().and_then(|e| e.to_str()) {
+        Some("png") | Some("jpg") | Some("jpeg") | Some("gif") | Some("webp") => Ok(true),
+        Some(ext @ ("bmp" | "tiff" | "svg")) => {
+            anyhow::bail!(
+                "Unsupported image format '{}'. Supported: png, jpg, jpeg, gif, webp.",
+                ext
+            )
+        }
+        _ => Ok(false),
+    }
+}
+
 /// Get config directory path
 pub fn config_dir() -> PathBuf {
     let home = home_dir().expect("Failed to get home directory");

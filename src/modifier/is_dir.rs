@@ -5,7 +5,7 @@ use anyhow::Result;
 
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use super::modifier::invert_bool;
+use super::modifier::invert;
 use crate::models::context::ContextModel;
 
 pub struct IsDirModifier;
@@ -16,20 +16,21 @@ impl Modifier for IsDirModifier {
     }
 
     fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
-        let invert = arg == "not";
+        let invert_flag = arg == "not";
         let result = match value {
-            ContextModel::String(s) => ContextModel::Bool(std::path::Path::new(s).is_dir()),
+            ContextModel::String(s) => {
+                ContextModel::String(std::path::Path::new(s).is_dir().to_string())
+            }
             ContextModel::List(items) => {
-                let results: Vec<ContextModel> = items
+                let results: Vec<String> = items
                     .iter()
-                    .map(|i| ContextModel::Bool(std::path::Path::new(&i.to_string()).is_dir()))
+                    .map(|i| std::path::Path::new(i).is_dir().to_string())
                     .collect();
                 ContextModel::List(results)
             }
-            _ => anyhow::bail!("Modifier 'is_dir' expects a string or list of paths"),
         };
-        if invert {
-            Ok(invert_bool(result))
+        if invert_flag {
+            Ok(invert(result))
         } else {
             Ok(result)
         }

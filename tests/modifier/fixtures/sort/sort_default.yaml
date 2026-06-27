@@ -1,10 +1,9 @@
 name: sort-default
 about: Test sort modifier default (ascending)
-args: []
 actions:
   - tag: tag_input
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "b"
       echo "c"

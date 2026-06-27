@@ -1,6 +1,5 @@
 name: string-case
 about: Test switch with case condition matching
-args: []
 actions:
   - tag: tag_check
     run: value

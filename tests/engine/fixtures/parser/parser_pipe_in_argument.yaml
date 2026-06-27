@@ -1,6 +1,5 @@
 name: parser-pipe-in-argument
 about: Test backslash escape protection for nested pipes inside arguments
-args: []
 actions:
   - tag: tag_input
     run: value

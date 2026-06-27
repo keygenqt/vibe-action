@@ -1,6 +1,5 @@
 name: modifier-invalid
 about: Test empty modifier should fail
-args: []
 actions:
   - tag: tag_input
     run: value

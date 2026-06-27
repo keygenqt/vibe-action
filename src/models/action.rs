@@ -1,10 +1,10 @@
 //! Action models for YAML parsing.
 //! Defines structures for action files, trigger and steps.
 
-use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
-use serde::Serializer;
+
+use crate::models::context::ContextModel;
 
 /// Action runner type.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -24,21 +24,6 @@ pub enum ActionRun {
     Large,
     /// Send prompt to vision LLM.
     Vision,
-}
-
-/// Expected result type.
-#[derive(Debug, Clone, PartialEq)]
-pub enum ExpectMode {
-    /// No result.
-    Void,
-    /// Boolean (true/false).
-    Bool,
-    /// Integer or float.
-    Number,
-    /// Text.
-    String,
-    /// List of values.
-    List(Box<ExpectMode>),
 }
 
 /// Action value: simple string or switch with when/then pairs.
@@ -64,7 +49,7 @@ pub struct ActionModel {
     /// Action runner type.
     pub run: ActionRun,
     /// Expected result type.
-    pub expect: ExpectMode,
+    pub expect: Option<ContextModel>,
     /// Optional regex validation for the result.
     #[serde(default)]
     pub check: Option<String>,
@@ -93,58 +78,6 @@ impl ActionModel {
             }
         }
         texts
-    }
-}
-
-/// Custom deserializer for ExpectMode.
-/// Supports: void, bool, number, string, json, list<string>, list<list<number>>, etc.
-impl<'de> Deserialize<'de> for ExpectMode {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let s = String::deserialize(deserializer)?;
-        if s == "list" {
-            return Err(serde::de::Error::custom(
-                "Expected 'list<T>', e.g. 'list<string>'. Bare 'list' is not allowed.",
-            ));
-        }
-        if let Some(inner_str) = s.strip_prefix("list<").and_then(|s| s.strip_suffix('>')) {
-            let inner = ExpectMode::deserialize(
-                serde::de::value::StrDeserializer::<D::Error>::new(inner_str),
-            )?;
-            return Ok(ExpectMode::List(Box::new(inner)));
-        }
-        match s.as_str() {
-            "void" => Ok(ExpectMode::Void),
-            "bool" => Ok(ExpectMode::Bool),
-            "number" => Ok(ExpectMode::Number),
-            "string" => Ok(ExpectMode::String),
-            _ => Err(serde::de::Error::custom(format!(
-                "Unknown expect type: {}",
-                s
-            ))),
-        }
-    }
-}
-
-impl Serialize for ExpectMode {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        // Выносим рекурсивное форматирование в отдельную строковую логику
-        fn stringify(mode: &ExpectMode) -> String {
-            match mode {
-                ExpectMode::Void => "void".to_string(),
-                ExpectMode::Bool => "bool".to_string(),
-                ExpectMode::Number => "number".to_string(),
-                ExpectMode::String => "string".to_string(),
-                ExpectMode::List(inner) => format!("list<{}>", stringify(inner)),
-            }
-        }
-
-        serializer.serialize_str(&stringify(self))
     }
 }
 

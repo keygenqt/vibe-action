@@ -5,7 +5,7 @@ notify: false
 args:
   - name: query
     short: 'q'
-    expect: string
+    input: string
     help: Your question about Vibe Action
 actions:
   - tag: tag_faq
@@ -36,15 +36,16 @@ actions:
         whois          - Identify historical tech figures or contextual data from inputs
 
       Built-in System Context Tags (Runtime Environment Variables):
-        {{system_clipboard}} - Current system clipboard raw text content
-        {{system_pwd}}       - Current working directory absolute path
-        {{system_os}}        - Active operating system string name (e.g., macos, linux, windows)
-        {{system_user}}      - Current operating system user name
-        {{system_home}}      - Absolute path to the user's home directory
-        {{system_date}}      - Current local system date formatted as ISO 8601 (YYYY-MM-DD)
-        {{system_time}}      - Current local system time formatted as HH:MM:SS
-        {{system_pid}}       - Current execution process ID identifier number
-        {{system_temp}}      - Absolute path to the operating system temporary directory
+        {{system_clipboard}}       - Current system clipboard raw text content
+        {{system_clipboard_image}} - Current clipboard image as base64-encoded PNG
+        {{system_pwd}}             - Current working directory absolute path
+        {{system_os}}              - Active operating system string name (e.g., macos, linux, windows)
+        {{system_user}}            - Current operating system user name
+        {{system_home}}            - Absolute path to the user's home directory
+        {{system_date}}            - Current local system date formatted as ISO 8601 (YYYY-MM-DD)
+        {{system_time}}            - Current local system time formatted as HH:MM:SS
+        {{system_pid}}             - Current execution process ID identifier number
+        {{system_temp}}            - Absolute path to the operating system temporary directory
 
       System Tag Usage Example:
         - To write a flow analyzing the clipboard context natively, declare your step like:
@@ -62,14 +63,14 @@ actions:
       Args Definition Schema Sub-fields:
         name    - Argument flag name (used as --name and referenced via {{name}} tag)
         short   - Short flag alias single character, e.g. -p (optional)
-        expect  - Expected input data type validation constraint: string, number, bool
+        input   - Input type: string, bool, number, path, list<string>, list<bool>, list<number>, list<path>
         help    - Description string for CLI help text layout (optional)
         default - Default value payload (makes argument optional; non-required)
 
       Pipeline Actions Sub-fields:
         tag     - Unique identifier for {{tag}} references with automatic dependency graph sorting
-        run     - Execution engine: cmd (shell), value (static string), small / medium / large / vision (LLM nodes)
-        expect  - Expected output block type layout: void, bool, number, string, list<string>
+        run     - Execution engine: cmd (shell), value (static string), tiny / small / medium / large / vision (LLM nodes)
+        expect  - Expected output type: string, list. Omit expect for steps with no expected output.
         check   - Optional regex validation pattern matching the step output result
         confirm - Intercept execution to ask for explicit user approval before running (default: false)
         action  - Shell instruction, LLM prompt string, static literal, or conditional when/then matrix list
@@ -83,13 +84,13 @@ actions:
         Circular Dependencies: Cyclic loops (e.g., A needs B, B needs A) are caught at startup and fail validation.
 
       List Expansion Matrix Mechanics:
-        When a pipeline step expects an input type of 'string' or executes a 'cmd' but receives a 'list<string>'
+        When a pipeline step expects an input type of 'string' or executes a 'cmd' but receives a 'list'
         payload from a referenced tag, the engine triggers List Expansion. It automatically iterates and executes
         that specific action independently FOR EACH ELEMENT in the list.
         Example: If {{tag_files}} yields ["main.rs", "lib.rs"], then 'git diff {{tag_files}}' runs twice:
-        'git diff main.rs' and 'git diff lib.rs', returning a new composite array list result.
+        'git diff main.rs' and 'git diff lib.rs', returning a new composite list result.
         Collapsing Lists: To prevent iterative expansion loop triggers, append the '|join' modifier.
-        It collapses a 'list<string>' matrix back into a single flat scalar string block.
+        It collapses a list back into a single flat string.
 
       Conditional Branching Logic (When/Then Matrix):
         An action payload can host a sequence of conditional checks. Each 'when' clause is evaluated.
@@ -105,21 +106,24 @@ actions:
         {{tag|upper}}       - Any   : transform text block to UPPERCASE
         {{tag|lower}}       - Any   : transform text block to lowercase
         {{tag|reverse}}     - Any   : reverse string sequence or list layout order
+        {{tag|sort}}        - Any   : sort characters (string) or elements (list) ascending
+        {{tag|sort:asc}}    - Any   : sort ascending (default)
+        {{tag|sort:desc}}   - Any   : sort descending
         {{tag|take:N}}      - Any   : extract first N characters (string) or elements (list)
         {{tag|trim}}        - Any   : strip surrounding whitespace, drop empty list elements
         {{tag|trim:chars}}  - Any   : strip custom characters, drop list elements matching arg string
-        {{tag|join}}        - List  : join list elements natively with a newline \\n separator
-        {{tag|join:uniq}}   - List  : join unique elements with a newline \\n separator
-        {{tag|join:X}}      - List  : join list elements utilizing a custom separator string X
-        {{tag|join:uniq:X}} - List  : join unique list elements utilizing a custom separator string X
-        {{tag|split}}       - String: split a scalar string into a list layout by newline \\n
+        {{tag|uniq}}        - Any   : remove duplicate characters (string) or duplicate elements (list)
+        {{tag|join}}        - Any   : join list elements with newline, string passes through unchanged
+        {{tag|join:X}}      - Any   : join list elements with custom separator X
+        {{tag|split}}       - Any   : split string into list by newline, list passes through unchanged
+        {{tag|split:X}}     - Any   : split string into list by custom separator X
         {{tag|ast:lang}}    - String: compile source code to JSON AST (rs, py, ts, js, kt, dart, sh, bat, ...)
-        {{tag|contains:X}}  - Any   : check if sequence contains substring X (predicate, supports :not)
-        {{tag|empty}}       - Any   : check if targeted value is empty (predicate, supports :not)
-        {{tag|equals:X}}    - Any   : check if text strictly equals payload X (predicate, supports :not)
-        {{tag|is_file}}     - Any   : check if provided string path is an existing file (predicate, supports :not)
-        {{tag|is_dir}}      - Any   : check if provided string path is an existing directory (predicate, supports :not)
-        {{tag|size}}        - Any   : calculate integer character length of string or size count of list
+        {{tag|contains:X}}  - Any   : check if sequence contains substring X (returns "true"/"false", supports :not)
+        {{tag|empty}}       - Any   : check if targeted value is empty (returns "true"/"false", supports :not)
+        {{tag|equals:X}}    - Any   : check if text strictly equals payload X (returns "true"/"false", supports :not)
+        {{tag|is_file}}     - Any   : check if provided string path is an existing file (returns "true"/"false", supports :not)
+        {{tag|is_dir}}      - Any   : check if provided string path is an existing directory (returns "true"/"false", supports :not)
+        {{tag|size}}        - Any   : calculate character length of string or element count of list
         {{tag|resolve}}     - Any   : expand relative path string boundaries to absolute (~, ., .. resolved)
 
       Special Spacing Escape Mnemonics inside Modifiers:
@@ -129,8 +133,8 @@ actions:
 
       Mnemonic Examples:
         {{tag|join:\n}}      - Standard newline collapse operation
-        {{tag|join:uniq:\s}}  - Merges unique rows separated strictly by a space literal character
-        {{tag|join:,\s}}      - Formats list elements into a comma-space display sequence (", ")
+        {{tag|uniq|join:\s}} - Remove duplicates, join with space
+        {{tag|join:,\s}}     - Format list elements into a comma-space display sequence (", ")
 
       Official Documentation Links (Live References):
         Landing Page       - https://keygenqt.com
@@ -152,7 +156,7 @@ actions:
 
       [RULES]
       1. Use '\s' mnemonic for spaces inside modifier brackets, never literal whitespace.
-      2. Chain operations in a single tag with pipes when possible (e.g., use '{{tag|trim|upper|join:uniq}}').
+      2. Chain operations in a single tag with pipes when possible (e.g., use '{{tag|trim|upper|uniq|join}}').
       4. Never use quotes for TEXT answers, lists, and general descriptions.
       5. Output YAML ONLY if explicitly asked for a configuration example.
       6. If the response contains YAML, wrap it in a ```yaml code block.

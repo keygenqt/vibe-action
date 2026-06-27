@@ -24,19 +24,16 @@ impl Modifier for ResolveModifier {
                 Ok(ContextModel::String(resolved))
             }
             ContextModel::List(items) => {
-                let resolved: Vec<ContextModel> = items
+                let resolved: Vec<String> = items
                     .iter()
                     .map(|i| {
-                        let s = i.to_string();
-                        let resolved = utils::path::resolve(&s)
+                        utils::path::resolve(i)
                             .map(|p| p.display().to_string())
-                            .unwrap_or(s);
-                        ContextModel::String(resolved)
+                            .unwrap_or_else(|_| i.clone())
                     })
                     .collect();
                 Ok(ContextModel::List(resolved))
             }
-            _ => anyhow::bail!("Modifier 'resolve' expects a string or list of paths"),
         }
     }
 }

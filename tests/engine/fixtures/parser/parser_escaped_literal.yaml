@@ -1,6 +1,5 @@
 name: parser-escaped-literal
 about: Test exclusion of escaped double-brace documents
-args: []
 actions:
   - tag: tag_result
     run: value

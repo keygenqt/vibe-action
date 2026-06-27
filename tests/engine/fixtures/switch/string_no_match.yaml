@@ -1,6 +1,5 @@
 name: string-no-match
 about: Test switch with no matching case and no else → error
-args: []
 actions:
   - tag: tag_check
     run: value

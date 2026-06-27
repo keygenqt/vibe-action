@@ -1,6 +1,5 @@
 name: check-fail
 about: Test regex check validation fails
-args: []
 check: '^\d+$'
 actions:
   - tag: tag_val

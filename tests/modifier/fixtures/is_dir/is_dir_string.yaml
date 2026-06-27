@@ -1,6 +1,5 @@
 name: is-dir-string
 about: Test is_dir modifier on directory path
-args: []
 actions:
   - tag: tag_input
     run: value

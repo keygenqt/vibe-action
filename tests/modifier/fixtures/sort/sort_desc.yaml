@@ -1,10 +1,9 @@
 name: sort-desc
 about: Test sort modifier descending
-args: []
 actions:
   - tag: tag_input
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "a"
       echo "c"

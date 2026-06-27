@@ -1,6 +1,5 @@
 name: string-first-match
 about: Test switch where first case matches → second skipped
-args: []
 actions:
   - tag: tag_check
     run: value

@@ -1,6 +1,5 @@
 name: circular
 about: Test circular dependency detection
-args: []
 actions:
   - tag: tag_a
     run: value

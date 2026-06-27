@@ -1,6 +1,5 @@
 name: ast-kt
 about: Test AST modifier for Kotlin
-args: []
 actions:
   - tag: tag_code
     run: value

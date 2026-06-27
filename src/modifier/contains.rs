@@ -1,10 +1,11 @@
 //! Contains modifier — checks if a string or list contains a substring.
-//! For strings: returns Bool. For lists: returns List<Bool> per element.
+//! Supports :not to invert.
 
 use anyhow::Result;
 
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
+use super::modifier::invert;
 use crate::models::context::ContextModel;
 
 pub struct ContainsModifier;
@@ -15,16 +16,27 @@ impl Modifier for ContainsModifier {
     }
 
     fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
-        match value {
-            ContextModel::String(s) => Ok(ContextModel::Bool(s.contains(arg))),
+        let (pattern, invert_flag) = if let Some(p) = arg.strip_suffix(":not") {
+            (p, true)
+        } else {
+            (arg, false)
+        };
+
+        let result = match value {
+            ContextModel::String(s) => ContextModel::String((s.contains(pattern)).to_string()),
             ContextModel::List(items) => {
-                let results: Vec<ContextModel> = items
+                let results: Vec<String> = items
                     .iter()
-                    .map(|i| ContextModel::Bool(i.to_string().contains(arg)))
+                    .map(|i| (i.contains(pattern)).to_string())
                     .collect();
-                Ok(ContextModel::List(results))
+                ContextModel::List(results)
             }
-            _ => anyhow::bail!("Modifier 'contains' expects a string or list"),
+        };
+
+        if invert_flag {
+            Ok(invert(result))
+        } else {
+            Ok(result)
         }
     }
 }

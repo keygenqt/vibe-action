@@ -1,6 +1,4 @@
 //! Trim modifier — strips characters from ends of strings, or filters list elements.
-//! Without arg: trims whitespace, removes empty strings from list.
-//! With arg: trims specified characters, removes elements equal to arg.
 
 use anyhow::Result;
 
@@ -22,39 +20,30 @@ impl Modifier for TrimModifier {
                 let trimmed = s
                     .trim_matches(|c: char| c.is_whitespace() || chars.contains(&c))
                     .to_string();
-                if arg.is_empty() {
-                    Ok(ContextModel::String(trimmed))
-                } else if trimmed == arg {
+                if !arg.is_empty() && trimmed == arg {
                     Ok(ContextModel::String(String::new()))
                 } else {
                     Ok(ContextModel::String(trimmed))
                 }
             }
             ContextModel::List(items) => {
-                let filtered: Vec<ContextModel> = items
+                let filtered: Vec<String> = items
                     .iter()
-                    .filter(|i| {
-                        let s = i
-                            .to_string()
+                    .filter_map(|i| {
+                        let trimmed = i
                             .trim_matches(|c: char| c.is_whitespace() || chars.contains(&c))
                             .to_string();
-                        if arg.is_empty() {
-                            !s.is_empty()
+                        if arg.is_empty() && trimmed.is_empty() {
+                            None
+                        } else if !arg.is_empty() && trimmed == arg {
+                            None
                         } else {
-                            s != arg
+                            Some(trimmed)
                         }
-                    })
-                    .map(|i| {
-                        let s = i
-                            .to_string()
-                            .trim_matches(|c: char| c.is_whitespace() || chars.contains(&c))
-                            .to_string();
-                        ContextModel::String(s)
                     })
                     .collect();
                 Ok(ContextModel::List(filtered))
             }
-            _ => anyhow::bail!("Modifier 'trim' expects a string or list"),
         }
     }
 }

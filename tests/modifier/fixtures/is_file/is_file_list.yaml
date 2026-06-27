@@ -1,10 +1,9 @@
 name: is-file-list
 about: Test is_file modifier on list of paths
-args: []
 actions:
   - tag: tag_input
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "/etc/hosts"
       echo "/tmp"

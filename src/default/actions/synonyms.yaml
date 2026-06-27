@@ -3,13 +3,13 @@ about: Find programming/technical synonyms for a word
 args:
   - name: query
     short: 'q'
-    expect: string
+    input: string
     help: Word or concept to find technical synonyms for
 actions:
   # LLM generates 5 technical alternatives
   - tag: tag_synonyms_list
     run: small
-    expect: list<string>
+    expect: list
     action: |-
       [Task]
       Give me 5 professional programming terms or alternatives for the concept below.

@@ -1,8 +1,0 @@
-name: expect-number-negative
-about: Test expect number negative
-args: []
-actions:
-  - tag: tag_val
-    run: value
-    expect: number
-    action: '-10'

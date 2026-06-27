@@ -1,10 +1,9 @@
 name: contains-list
 about: Test contains modifier on list
-args: []
 actions:
   - tag: tag_input
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "hello"
       echo "world"

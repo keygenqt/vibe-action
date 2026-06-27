@@ -1,10 +1,9 @@
 name: list-all-false
 about: Test switch where no list elements match case → error
-args: []
 actions:
   - tag: tag_items
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "cherry"
       echo "fig"

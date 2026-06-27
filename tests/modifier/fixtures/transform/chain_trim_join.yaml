@@ -1,10 +1,9 @@
 name: chain-trim-join
 about: Test modifier chain trim and join
-args: []
 actions:
   - tag: tag_input
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo " HELLO "
       echo " WORLD "
@@ -13,4 +12,4 @@ actions:
   - tag: tag_result
     run: value
     expect: string
-    action: '{tag_input|trim|upper|join:uniq}'
+    action: '{tag_input|trim|upper|uniq|join}'

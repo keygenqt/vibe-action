@@ -165,7 +165,7 @@ about: Commit only if there are changes
 actions:
   - tag: tag_changed
     run: cmd
-    expect: list<string>
+    expect: list
     action: git diff --name-only
 
   - tag: tag_commit

@@ -23,6 +23,7 @@ pub enum ModifierKey {
     Split,
     Take,
     Trim,
+    Uniq,
     Upper,
 }
 
@@ -45,6 +46,7 @@ impl ModifierKey {
             "split" => Some(Self::Split),
             "take" => Some(Self::Take),
             "trim" => Some(Self::Trim),
+            "uniq" => Some(Self::Uniq),
             "upper" => Some(Self::Upper),
             _ => None,
         }
@@ -83,6 +85,7 @@ impl ModifierRegistry {
         registry.register(Box::new(super::split::SplitModifier));
         registry.register(Box::new(super::take::TakeModifier));
         registry.register(Box::new(super::trim::TrimModifier));
+        registry.register(Box::new(super::uniq::UniqModifier));
         registry.register(Box::new(super::upper::UpperModifier));
         registry
     }
@@ -124,20 +127,33 @@ impl ModifierRegistry {
     }
 }
 
-/// Invert a ContextModel::Bool or ContextModel::List<Bool>.
-pub fn invert_bool(value: ContextModel) -> ContextModel {
+/// Invert a ContextModel::String ("true"/"false") or ContextModel::List of such strings.
+pub fn invert(value: ContextModel) -> ContextModel {
     match value {
-        ContextModel::Bool(b) => ContextModel::Bool(!b),
+        ContextModel::String(s) => {
+            let inverted = if s == "true" {
+                "false"
+            } else if s == "false" {
+                "true"
+            } else {
+                return ContextModel::String(s); // не bool-строка — не трогаем
+            };
+            ContextModel::String(inverted.to_string())
+        }
         ContextModel::List(items) => {
-            let inverted: Vec<ContextModel> = items
+            let inverted: Vec<String> = items
                 .iter()
-                .map(|i| match i {
-                    ContextModel::Bool(b) => ContextModel::Bool(!b),
-                    _ => i.clone(),
+                .map(|i| {
+                    if i == "true" {
+                        "false".to_string()
+                    } else if i == "false" {
+                        "true".to_string()
+                    } else {
+                        i.clone()
+                    }
                 })
                 .collect();
             ContextModel::List(inverted)
         }
-        _ => value,
     }
 }

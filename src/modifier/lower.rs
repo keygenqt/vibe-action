@@ -18,13 +18,9 @@ impl Modifier for LowerModifier {
         match value {
             ContextModel::String(s) => Ok(ContextModel::String(s.to_lowercase())),
             ContextModel::List(items) => {
-                let transformed: Vec<ContextModel> = items
-                    .iter()
-                    .map(|i| ContextModel::String(i.to_string().to_lowercase()))
-                    .collect();
+                let transformed: Vec<String> = items.iter().map(|i| i.to_lowercase()).collect();
                 Ok(ContextModel::List(transformed))
             }
-            _ => anyhow::bail!("Modifier 'lower' expects a string or list of strings"),
         }
     }
 }

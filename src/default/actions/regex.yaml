@@ -4,11 +4,11 @@ clipboard: true
 args:
   - name: query
     short: 'q'
-    expect: string
+    input: string
     help: What the regex should match (e.g., 'extract domain from email')
   - name: example
     short: 'e'
-    expect: string
+    input: string
     help: Optional example string to test the pattern against
     default: ''
 actions:

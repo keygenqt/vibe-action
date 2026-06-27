@@ -1,6 +1,5 @@
 name: reverse-string
 about: Test reverse modifier on string
-args: []
 actions:
   - tag: tag_input
     run: value

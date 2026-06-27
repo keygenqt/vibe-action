@@ -1,6 +1,5 @@
 name: expect-string
 about: Test expect string
-args: []
 actions:
   - tag: tag_val
     run: value

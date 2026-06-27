@@ -1,10 +1,9 @@
 name: expect-list
 about: Test expect list
-args: []
 actions:
   - tag: tag_files
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "a"
       echo "b"

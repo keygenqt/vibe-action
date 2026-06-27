@@ -1,6 +1,5 @@
 name: equals-string
 about: Test equals modifier on string
-args: []
 actions:
   - tag: tag_input
     run: value

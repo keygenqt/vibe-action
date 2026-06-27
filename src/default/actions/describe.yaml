@@ -5,7 +5,7 @@ notify: true
 args:
   - name: image
     short: 'f'
-    expect: image
+    input: path
     help: Path to screenshot (or use clipboard)
     default: '{system_clipboard_image}'
 actions:

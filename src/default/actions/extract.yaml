@@ -4,17 +4,17 @@ clipboard: false
 args:
   - name: file
     short: 'f'
-    expect: string
+    input: string
     help: Path to the log or text file
   - name: query
     short: 'q'
-    expect: string
+    input: string
     help: Extraction criteria (e.g., 'find all errors')
 actions:
   # Read the file line by line
   - tag: tag_lines
     run: cmd
-    expect: list<string>
+    expect: list
     action: cat {file}
   # LLM checks each line against the query, outputs matching lines or "-"
   - tag: tag_content
@@ -41,4 +41,4 @@ actions:
   - tag: tag_extract
     run: value
     expect: string
-    action: '{tag_clean|join:uniq}'
+    action: '{tag_clean|uniq|join}'

@@ -5,7 +5,7 @@ notify: false
 actions:
   - tag: tag_input
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo " orange "
       echo " grape "
@@ -13,4 +13,4 @@ actions:
   - tag: tag_result
     run: value
     expect: string
-    action: "{tag_input|trim|upper|join|split|reverse|join:uniq:,\\s}"
+    action: "{tag_input|trim|upper|join|split|reverse|uniq|join:,\\s}"

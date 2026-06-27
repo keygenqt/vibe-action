@@ -1,10 +1,9 @@
 name: sort-asc
 about: Test sort modifier ascending
-args: []
 actions:
   - tag: tag_input
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "c"
       echo "a"

@@ -1,8 +1,0 @@
-name: expect-bool-yes
-about: Test expect bool yes
-args: []
-actions:
-  - tag: tag_val
-    run: value
-    expect: bool
-    action: 'yes'

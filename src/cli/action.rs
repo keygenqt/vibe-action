@@ -24,7 +24,8 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
     let flow = config
         .find_flow(name)
         .unwrap_or_else(|e| exit_error!("{}", e))
-        .apply_args(action_matches);
+        .apply_args(action_matches)
+        .unwrap_or_else(|e| exit_error!("{}", e));
 
     let mut engine = Engine::new(&config.action.system, config.action.retries, &flow)
         .unwrap_or_else(|e| exit_error!("{}", e));

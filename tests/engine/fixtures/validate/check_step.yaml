@@ -1,6 +1,5 @@
 name: check-step
 about: Test regex check on step
-args: []
 actions:
   - tag: tag_val
     run: value

@@ -1,10 +1,9 @@
 name: list-is-file-all-false
 about: Test switch with is_file where no files exist → error
-args: []
 actions:
   - tag: tag_files
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "nonexistent1.txt"
       echo "nonexistent2.txt"

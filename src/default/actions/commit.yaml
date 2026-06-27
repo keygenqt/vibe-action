@@ -3,20 +3,20 @@ about: AI-generated commit message
 args:
   - name: path
     short: 'p'
-    expect: string
+    input: string
     help: 'Path to git repository (default: current directory)'
     default: .
 actions:
   # Get list of changed files
   - tag: tag_changed_files
     run: cmd
-    expect: list<string>
+    expect: list
     check: .+
     action: cd {path|resolve} && git diff --name-only --relative
   # Diff each changed file
   - tag: tag_file_diff
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       cd {path}
       if [ -f "{tag_changed_files}" ]; then
@@ -25,7 +25,7 @@ actions:
   # LLM summarizes each diff in one sentence
   - tag: tag_file_summary
     run: small
-    expect: list<string>
+    expect: list
     action: |
       [Task]
       Analyze the specific file git diff provided below.
@@ -45,7 +45,7 @@ actions:
       Format strictly: <type>: <commit> (NO parentheses or scopes).
 
       [Summaries]
-      {tag_file_summary|join:uniq}
+      {tag_file_summary|uniq|join}
   # Execute git commit (asks for confirmation)
   - tag: tag_commit
     run: cmd

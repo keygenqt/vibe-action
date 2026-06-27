@@ -1,6 +1,5 @@
 name: empty-string
 about: Test empty modifier on empty string
-args: []
 actions:
   - tag: tag_input
     run: cmd

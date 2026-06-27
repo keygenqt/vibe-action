@@ -1,6 +1,5 @@
 name: not-empty-string
 about: Test empty:not modifier on non-empty string
-args: []
 actions:
   - tag: tag_input
     run: value

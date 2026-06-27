@@ -17,17 +17,19 @@ pub fn setup() {
     });
 }
 
-pub fn app_test_engine(name: &str) -> std::process::Output {
+pub fn app_test_engine(args: &str) -> std::process::Output {
     setup();
+    let parts: Vec<&str> = args.split_whitespace().collect();
     let output = std::process::Command::new("cargo")
-        .args(&["run", "--", name])
+        .args(&["run", "--"])
+        .args(&parts)
         .output()
         .unwrap();
     let stderr = String::from_utf8_lossy(&output.stderr);
     let stdout = String::from_utf8_lossy(&output.stdout);
     eprintln!(
         "[{}] exit={:?}\nSTDERR:\n{}\nSTDOUT:\n{}",
-        name,
+        args,
         output.status.code(),
         stderr,
         stdout
@@ -36,6 +38,7 @@ pub fn app_test_engine(name: &str) -> std::process::Output {
 }
 
 mod engine {
+    mod arg_test;
     mod expect_test;
     mod parser_test;
     mod switch_test;

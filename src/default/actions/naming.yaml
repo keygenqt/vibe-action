@@ -3,7 +3,7 @@ about: Generate code naming suggestions based on a description
 args:
   - name: query
     short: 'q'
-    expect: string
+    input: string
     help: Code component description (e.g., 'function to sort actions by dependency')
 actions:
   # LLM generates 5-10 naming options based on the description

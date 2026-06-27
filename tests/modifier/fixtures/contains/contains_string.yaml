@@ -1,6 +1,5 @@
 name: contains-string
 about: Test contains modifier on string
-args: []
 actions:
   - tag: tag_input
     run: value

@@ -1,0 +1,12 @@
+name: arg-number
+about: Test number argument
+args:
+  - name: count
+    short: c
+    input: number
+    help: Count
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: 'count: {count}'

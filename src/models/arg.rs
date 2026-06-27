@@ -5,26 +5,52 @@ use serde::Deserialize;
 use serde::Serialize;
 
 /// Expected result type.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(rename_all = "lowercase")]
-pub enum ArgExpect {
-    /// Boolean (true/false).
-    Bool,
-    /// Integer or float.
-    Number,
-    /// Text.
+pub enum ArgInput {
     String,
-    /// Image file path or base64 string.
-    Image,
+    Bool,
+    Number,
+    Path,
+    List(Box<ArgInput>),
 }
 
-impl std::fmt::Display for ArgExpect {
+impl std::fmt::Display for ArgInput {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ArgExpect::Bool => write!(f, "bool"),
-            ArgExpect::Number => write!(f, "number"),
-            ArgExpect::String => write!(f, "string"),
-            ArgExpect::Image => write!(f, "image"),
+        fn fmt_inner(input: &ArgInput, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match input {
+                ArgInput::String => write!(f, "string"),
+                ArgInput::Bool => write!(f, "bool"),
+                ArgInput::Number => write!(f, "number"),
+                ArgInput::Path => write!(f, "path"),
+                ArgInput::List(inner) => write!(f, "list<{}>", inner),
+            }
+        }
+        fmt_inner(self, f)
+    }
+}
+
+impl<'de> Deserialize<'de> for ArgInput {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        if let Some(inner_str) = s.strip_prefix("list<").and_then(|s| s.strip_suffix('>')) {
+            let inner = ArgInput::deserialize(serde::de::value::StrDeserializer::<D::Error>::new(
+                inner_str,
+            ))?;
+            return Ok(ArgInput::List(Box::new(inner)));
+        }
+        match s.as_str() {
+            "string" => Ok(ArgInput::String),
+            "bool" => Ok(ArgInput::Bool),
+            "number" => Ok(ArgInput::Number),
+            "path" => Ok(ArgInput::Path),
+            _ => Err(serde::de::Error::custom(format!(
+                "Unknown input type: {}. Expected: string, bool, number, path, list<string>.",
+                s
+            ))),
         }
     }
 }
@@ -37,8 +63,8 @@ pub struct ArgActionModel {
     /// Short flag (e.g. -p).
     #[serde(default)]
     pub short: Option<char>,
-    /// Expected type.
-    pub expect: ArgExpect,
+    /// Input type.
+    pub input: ArgInput,
     /// Help text.
     #[serde(default)]
     pub help: Option<String>,
@@ -61,9 +87,14 @@ impl From<&ArgActionModel> for clap::Arg {
         if let Some(c) = model.short {
             arg = arg.short(c);
         }
-        match &model.expect {
-            ArgExpect::Bool => arg.action(clap::ArgAction::SetTrue),
-            _ => arg.value_parser(clap::value_parser!(String)),
+        match &model.input {
+            ArgInput::Bool => arg.action(clap::ArgAction::SetTrue),
+            ArgInput::Number => arg.value_parser(clap::value_parser!(f64)),
+            ArgInput::Path => arg.value_parser(clap::value_parser!(String)),
+            ArgInput::String => arg.value_parser(clap::value_parser!(String)),
+            ArgInput::List(_) => arg
+                .value_parser(clap::value_parser!(String))
+                .value_delimiter(','),
         }
     }
 }

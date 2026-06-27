@@ -1,10 +1,9 @@
 name: equals-list
 about: Test equals modifier on list
-args: []
 actions:
   - tag: tag_input
     run: cmd
-    expect: list<string>
+    expect: list
     action: echo "hello"
 
   - tag: tag_result

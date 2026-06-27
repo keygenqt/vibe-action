@@ -1,0 +1,12 @@
+name: arg-path
+about: Test path argument
+args:
+  - name: file
+    short: f
+    input: path
+    help: File path
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: 'file: {file}'

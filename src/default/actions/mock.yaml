@@ -4,11 +4,11 @@ clipboard: true
 args:
   - name: query
     short: 'q'
-    expect: string
+    input: string
     help: Describe the data you need (e.g., '5 users with id, name, and unique uuid')
   - name: format
     short: 'f'
-    expect: string
+    input: string
     help: 'Output format: json, yaml, csv (default: json)'
     default: json
 actions:
@@ -20,6 +20,11 @@ actions:
       [Task]
       Generate a realistic mock data array based on the user's [Query].
       Format the output strictly as valid raw {format} data.
+
+      [Example]
+      ```{format}
+      <code>
+      ```
 
       [Query]
       {query}

@@ -1,4 +1,4 @@
-//! Size modifier — returns the length of a string or list as a number.
+//! Size modifier — returns the length of a string or list as a string.
 
 use anyhow::Result;
 
@@ -17,8 +17,7 @@ impl Modifier for SizeModifier {
         let count = match value {
             ContextModel::String(s) => s.len(),
             ContextModel::List(items) => items.len(),
-            _ => anyhow::bail!("Modifier 'size' expects a string or list"),
         };
-        Ok(ContextModel::Number(count as f64))
+        Ok(ContextModel::String(count.to_string()))
     }
 }

@@ -7,7 +7,6 @@ use regex::Regex;
 use crate::models::action::ActionModel;
 use crate::models::action::ActionRun;
 use crate::models::action::ActionValue;
-use crate::models::action::ExpectMode;
 use crate::validate::ValidateTrait;
 
 impl ValidateTrait for ActionModel {
@@ -61,9 +60,9 @@ impl ValidateTrait for ActionModel {
                 | ActionRun::Large
                 | ActionRun::Vision
         );
-        if is_llm && self.expect == ExpectMode::Void {
+        if is_llm && self.expect.is_none() {
             anyhow::bail!(
-                "LLM action '{}' cannot have expect: void. Specify what to expect.",
+                "LLM action '{}' must have expect set. Specify what to expect.",
                 self.tag
             );
         }

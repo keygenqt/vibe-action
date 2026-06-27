@@ -1,6 +1,5 @@
 name: ast-rs
 about: Test AST modifier for Rust
-args: []
 actions:
   - tag: tag_code
     run: value

@@ -1,10 +1,9 @@
 name: resolve-list
 about: Test resolve modifier on list of paths
-args: []
 actions:
   - tag: tag_input
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "~/projects"
       echo "./src"

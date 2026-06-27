@@ -12,7 +12,6 @@ use crate::engine::sort::TopologicalSort;
 use crate::models::action::ActionModel;
 use crate::models::action::ActionRun;
 use crate::models::action::ActionValue;
-use crate::models::action::ExpectMode;
 use crate::models::context::ContextModel;
 use crate::models::flow::FlowModel;
 use crate::modifier::modifier::ModifierRegistry;
@@ -50,7 +49,7 @@ impl Engine {
         // Load input arguments as context tags.
         let mut ctx = Context::new();
         for (name, value) in &flow.input_tags {
-            ctx.set(name, ContextModel::String(value.clone()));
+            ctx.set(name, value.clone());
         }
 
         Ok(Self {
@@ -106,25 +105,32 @@ impl Engine {
 
     /// Execute action: fill tags, run shell/LLM, validate with regex, resolve types, store in context.
     pub async fn exec_action(&mut self, action: &ActionModel) -> Result<()> {
-        // Execute action and get raw outputs with list metadata.
         let (outputs, is_list) = self.execute_action(action).await?;
-        // Build the final ContextModel: list of items or single value.
+
         let data = if is_list {
             let inner_expect = match &action.expect {
-                ExpectMode::List(inner) => inner.as_ref(),
-                _ => &action.expect,
+                Some(ContextModel::List(_)) => Some(ContextModel::String(String::new())),
+                other => other.clone(),
             };
+
             let mut parsed_items = Vec::with_capacity(outputs.len());
             for item in outputs {
-                let validated = Resolve::resolve(&item, inner_expect)?;
-                parsed_items.push(validated);
+                if let Some(validated) = Resolve::resolve(&item, &inner_expect)? {
+                    match validated {
+                        ContextModel::String(s) => parsed_items.push(s),
+                        ContextModel::List(mut l) => parsed_items.append(&mut l),
+                    }
+                }
             }
             ContextModel::List(parsed_items)
         } else {
             let raw_single = outputs.into_iter().next().unwrap_or_default();
-            Resolve::resolve(&raw_single, &action.expect)?
+            match Resolve::resolve(&raw_single, &action.expect)? {
+                Some(value) => value,
+                None => return Ok(()),
+            }
         };
-        // Store validated result in context.
+
         self.ctx.set(&action.tag, data);
         Ok(())
     }

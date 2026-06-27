@@ -5,12 +5,12 @@ notify: true
 args:
   - name: image
     short: 'f'
-    expect: image
+    input: path
     help: Path to image (or use clipboard)
     default: '{system_clipboard_image}'
   - name: to
     short: 'l'
-    expect: string
+    input: string
     help: Language for explanation
     default: Russian
 actions:

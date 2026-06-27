@@ -1,6 +1,5 @@
 name: check
 about: Test regex check validation
-args: []
 check: '^\d+$'
 actions:
   - tag: tag_val

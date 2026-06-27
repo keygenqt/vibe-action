@@ -8,7 +8,7 @@ Tags connect pipeline steps. When you write `{tag_name}` in an action, the engin
 actions:
   - tag: tag_files
     run: cmd
-    expect: list<string>
+    expect: list
     action: ls *.rs
 
   - tag: tag_summary
@@ -55,13 +55,13 @@ When a step expects `list<string>` and receives a list from a tag, the engine ru
 actions:
   - tag: tag_files
     run: cmd
-    expect: list<string>
+    expect: list
     action: git diff --name-only
     # Returns: ["main.rs", "lib.rs"]
 
   - tag: tag_diff
     run: cmd
-    expect: list<string>
+    expect: list
     action: git diff {tag_files}
     # Runs twice: git diff main.rs, git diff lib.rs
     # Returns: ["diff for main", "diff for lib"]

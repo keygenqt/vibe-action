@@ -1,6 +1,5 @@
 name: is-file-string
 about: Test is_file modifier on file path
-args: []
 actions:
   - tag: tag_input
     run: value

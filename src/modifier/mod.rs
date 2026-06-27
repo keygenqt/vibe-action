@@ -17,4 +17,5 @@ pub mod sort;
 pub mod split;
 pub mod take;
 pub mod trim;
+pub mod uniq;
 pub mod upper;

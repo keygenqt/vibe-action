@@ -1,10 +1,9 @@
 name: parser-list-conditional-switch
 about: Test list expansion and conditional logic switch branches
-args: []
 actions:
   - tag: tag_files
     run: cmd
-    expect: list<string>
+    expect: list
     action: |
       echo "index.ts"
       echo "main.rs"

@@ -1,8 +1,0 @@
-name: expect-number
-about: Test expect number
-args: []
-actions:
-  - tag: tag_val
-    run: value
-    expect: number
-    action: '42'

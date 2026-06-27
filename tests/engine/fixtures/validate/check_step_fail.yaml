@@ -1,6 +1,5 @@
 name: check-step-fail
 about: Test regex check on step fails
-args: []
 actions:
   - tag: tag_val
     run: value

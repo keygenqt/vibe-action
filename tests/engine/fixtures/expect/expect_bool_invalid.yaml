@@ -1,8 +1,0 @@
-name: expect-bool-invalid
-about: Test expect bool with invalid value
-args: []
-actions:
-  - tag: tag_val
-    run: value
-    expect: bool
-    action: 'notabool'

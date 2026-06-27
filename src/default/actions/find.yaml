@@ -4,18 +4,18 @@ clipboard: false
 args:
   - name: path
     short: 'p'
-    expect: string
+    input: string
     help: 'Directory to search in (default: current)'
     default: .
   - name: query
     short: 'q'
-    expect: string
+    input: string
     help: What to find — describe in natural language
 actions:
   # Collect all text files in the directory
   - tag: tag_files
     run: cmd
-    expect: list<string>
+    expect: list
     action: find {path} -type f -exec grep -Iq . {} \; -print
   # Build prompt with file path and content for each file
   - tag: tag_content
@@ -42,7 +42,7 @@ actions:
   # LLM evaluates each file against the query
   - tag: tag_matches
     run: small
-    expect: list<string>
+    expect: list
     action: '{tag_content}'
   # Filter out non-matching entries
   - tag: tag_filtered
@@ -53,4 +53,4 @@ actions:
   - tag: tag_find
     run: value
     expect: string
-    action: '{tag_filtered|join:uniq}'
+    action: '{tag_filtered|uniq|join}'

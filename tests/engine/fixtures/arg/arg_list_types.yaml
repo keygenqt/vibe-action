@@ -1,0 +1,28 @@
+name: arg-list-types
+about: Test all list types with validation
+args:
+  - name: strings
+    short: s
+    input: list<string>
+    help: List of strings
+  - name: bools
+    short: b
+    input: list<bool>
+    help: List of bools
+  - name: numbers
+    short: n
+    input: list<number>
+    help: List of numbers
+  - name: paths
+    short: p
+    input: list<path>
+    help: List of paths
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: |
+      strings: {strings|join:,\s}
+      bools: {bools|join:,\s}
+      numbers: {numbers|join:,\s}
+      paths: {paths|join:,\s}

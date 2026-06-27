@@ -1,0 +1,12 @@
+name: arg-string
+about: Test string argument
+args:
+  - name: text
+    short: t
+    input: string
+    help: Some text
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: 'got: {text}'

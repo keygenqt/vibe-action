@@ -1,0 +1,12 @@
+name: arg-path-image
+about: Test image auto-convert to base64
+args:
+  - name: img
+    short: i
+    input: path
+    help: Image file
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{img|take:20}...'

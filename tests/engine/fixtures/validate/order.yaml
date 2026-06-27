@@ -1,6 +1,5 @@
 name: order
 about: Test execution order by dependencies
-args: []
 actions:
   - tag: tag_second
     run: value

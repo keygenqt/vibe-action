@@ -5,7 +5,7 @@ notify: true
 args:
   - name: query
     short: 'q'
-    expect: string
+    input: string
     help: The line to comment
     default: '{system_clipboard}'
 actions:

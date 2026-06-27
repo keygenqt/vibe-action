@@ -1,6 +1,5 @@
 name: upper
 about: Test upper modifier
-args: []
 actions:
   - tag: tag_input
     run: value

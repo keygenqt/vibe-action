@@ -14,7 +14,9 @@ use std::path::PathBuf;
 use crate::configs::app::AppConfig;
 use crate::models::action::ActionModel;
 use crate::models::arg::ArgActionModel;
-use crate::models::arg::ArgExpect;
+use crate::models::arg::ArgInput;
+use crate::models::context::ContextModel;
+use crate::utils;
 use crate::validate::ValidateTrait;
 
 /// One action flow: name, mode, steps, result source.
@@ -41,7 +43,7 @@ pub struct FlowModel {
     pub actions: Vec<ActionModel>,
     /// Resolved argument values (name -> value).
     #[serde(skip, default)]
-    pub input_tags: HashMap<String, String>,
+    pub input_tags: HashMap<String, ContextModel>,
 }
 
 impl FlowModel {
@@ -55,29 +57,95 @@ impl FlowModel {
     }
 
     /// Resolve CLI arguments and store them in state.
-    pub fn apply_args(mut self, matches: &ArgMatches) -> Self {
+    pub fn apply_args(mut self, matches: &ArgMatches) -> Result<Self> {
         for arg in &self.args {
-            if let Some(value) = matches.get_one::<String>(&arg.name) {
-                self.input_tags.insert(arg.name.clone(), value.clone());
-            } else if let Some(default) = &arg.default {
-                let tag = default.trim_start_matches('{').trim_end_matches('}');
-                let resolved = self
-                    .input_tags
-                    .get(tag)
-                    .cloned()
-                    .unwrap_or_else(|| default.clone());
-                self.input_tags.insert(arg.name.clone(), resolved);
-            }
-
-            // Resolve Image type: file path → base64
-            if arg.expect == ArgExpect::Image {
-                if let Some(value) = self.input_tags.get(&arg.name) {
-                    let resolved = Self::resolve_image(value);
-                    self.input_tags.insert(arg.name.clone(), resolved);
+            match &arg.input {
+                ArgInput::Bool => {
+                    let value = matches.get_flag(&arg.name);
+                    self.input_tags
+                        .insert(arg.name.clone(), ContextModel::String(value.to_string()));
+                }
+                ArgInput::Number => {
+                    if let Some(value) = matches.get_one::<f64>(&arg.name) {
+                        self.input_tags
+                            .insert(arg.name.clone(), ContextModel::String(value.to_string()));
+                    } else if let Some(default) = &arg.default {
+                        self.input_tags
+                            .insert(arg.name.clone(), ContextModel::String(default.clone()));
+                    }
+                }
+                ArgInput::Path => {
+                    if let Some(value) = matches.get_one::<String>(&arg.name) {
+                        let resolved = utils::path::resolve(value)
+                            .map_err(|e| anyhow::anyhow!("Invalid path '{}': {}", value, e))?;
+                        let path_str = resolved.display().to_string();
+                        match utils::path::is_image(&path_str) {
+                            Ok(true) => {
+                                let b64 = Self::resolve_image(&path_str);
+                                self.input_tags
+                                    .insert(arg.name.clone(), ContextModel::String(b64));
+                            }
+                            Err(e) => return Err(e),
+                            Ok(false) => {
+                                self.input_tags
+                                    .insert(arg.name.clone(), ContextModel::String(path_str));
+                            }
+                        }
+                    } else if let Some(default) = &arg.default {
+                        let tag = default.trim_start_matches('{').trim_end_matches('}');
+                        let resolved = self
+                            .input_tags
+                            .get(tag)
+                            .cloned()
+                            .unwrap_or_else(|| ContextModel::String(default.clone()));
+                        self.input_tags.insert(arg.name.clone(), resolved);
+                    }
+                }
+                ArgInput::List(inner) => {
+                    if let Some(values) = matches.get_many::<String>(&arg.name) {
+                        let validated: Vec<String> = values
+                            .cloned()
+                            .map(|v| match inner.as_ref() {
+                                ArgInput::Bool => match v.to_lowercase().as_str() {
+                                    "true" | "false" | "yes" | "no" | "да" | "нет" => Ok(v),
+                                    _ => Err(anyhow::anyhow!("Invalid bool value: {}", v)),
+                                },
+                                ArgInput::Number => {
+                                    v.parse::<f64>().map_err(|e| {
+                                        anyhow::anyhow!("Invalid number value '{}': {}", v, e)
+                                    })?;
+                                    Ok(v)
+                                }
+                                ArgInput::Path => utils::path::resolve(&v)
+                                    .map(|p| p.display().to_string())
+                                    .map_err(|e| anyhow::anyhow!("Invalid path '{}': {}", v, e)),
+                                _ => Ok(v),
+                            })
+                            .collect::<Result<Vec<String>>>()?;
+                        self.input_tags
+                            .insert(arg.name.clone(), ContextModel::List(validated));
+                    } else if let Some(default) = &arg.default {
+                        self.input_tags
+                            .insert(arg.name.clone(), ContextModel::String(default.clone()));
+                    }
+                }
+                ArgInput::String => {
+                    if let Some(value) = matches.get_one::<String>(&arg.name) {
+                        self.input_tags
+                            .insert(arg.name.clone(), ContextModel::String(value.clone()));
+                    } else if let Some(default) = &arg.default {
+                        let tag = default.trim_start_matches('{').trim_end_matches('}');
+                        let resolved = self
+                            .input_tags
+                            .get(tag)
+                            .cloned()
+                            .unwrap_or_else(|| ContextModel::String(default.clone()));
+                        self.input_tags.insert(arg.name.clone(), resolved);
+                    }
                 }
             }
         }
-        self
+        Ok(self)
     }
 
     /// Convert image file path to base64, or return as-is if already base64.
@@ -103,79 +171,64 @@ impl FlowModel {
 
     /// Add system tags to input arguments.
     fn apply_system_tags(mut self) -> Self {
-        // Current working directory.
         self.input_tags.insert(
             "system_pwd".into(),
-            std::env::current_dir()
-                .map(|p| p.display().to_string())
-                .unwrap_or_default(),
+            ContextModel::String(
+                std::env::current_dir()
+                    .map(|p| p.display().to_string())
+                    .unwrap_or_default(),
+            ),
         );
-
-        // Operating system.
-        self.input_tags
-            .insert("system_os".into(), std::env::consts::OS.into());
-
-        // Current user.
+        self.input_tags.insert(
+            "system_os".into(),
+            ContextModel::String(std::env::consts::OS.into()),
+        );
         self.input_tags.insert(
             "system_user".into(),
-            std::env::var("USER").unwrap_or_default(),
+            ContextModel::String(std::env::var("USER").unwrap_or_default()),
         );
-
-        // Home directory.
         self.input_tags.insert(
             "system_home".into(),
-            std::env::var("HOME").unwrap_or_default(),
+            ContextModel::String(std::env::var("HOME").unwrap_or_default()),
         );
-
-        // Current date (ISO 8601).
         self.input_tags.insert(
             "system_date".into(),
-            chrono::Local::now().format("%Y-%m-%d").to_string(),
+            ContextModel::String(chrono::Local::now().format("%Y-%m-%d").to_string()),
         );
-
-        // Current time.
         self.input_tags.insert(
             "system_time".into(),
-            chrono::Local::now().format("%H:%M:%S").to_string(),
+            ContextModel::String(chrono::Local::now().format("%H:%M:%S").to_string()),
         );
-
-        // Clipboard content — detect type and store both
         self.input_tags.insert(
             "system_clipboard".into(),
-            self.get_clipboard_text().unwrap_or_default(),
+            ContextModel::String(self.get_clipboard_text().unwrap_or_default()),
         );
-
-        // Try image — if it fails, that's fine (not an image or empty)
         if let Ok(image_base64) = self.get_clipboard_image() {
-            self.input_tags
-                .insert("system_clipboard_image".into(), image_base64);
+            self.input_tags.insert(
+                "system_clipboard_image".into(),
+                ContextModel::String(image_base64),
+            );
         }
-
-        // Process ID.
-        self.input_tags
-            .insert("system_pid".into(), std::process::id().to_string());
-
-        // Temporary directory.
+        self.input_tags.insert(
+            "system_pid".into(),
+            ContextModel::String(std::process::id().to_string()),
+        );
         self.input_tags.insert(
             "system_temp".into(),
-            std::env::temp_dir().display().to_string(),
+            ContextModel::String(std::env::temp_dir().display().to_string()),
         );
         self
     }
 
     /// Get clipboard text with validation.
     pub fn get_clipboard_text(&self) -> Result<String> {
-        // 1. Get text
         let mut clipboard = arboard::Clipboard::new()
             .map_err(|e| anyhow::anyhow!("Failed to access clipboard: {}", e))?;
         let text = clipboard
             .get_text()
             .map_err(|_| anyhow::anyhow!("Clipboard is empty or contains non-text data."))?;
-
-        // 2. Check size against cluster limits
         let bpe = tiktoken_rs::cl100k_base().unwrap();
         let tokens = bpe.encode_with_special_tokens(&text).len();
-
         let config = AppConfig::instance()?;
         let max_ctx = config
             .cluster
@@ -183,7 +236,6 @@ impl FlowModel {
             .map(|c| c.num_ctx)
             .max()
             .unwrap_or(4096);
-
         if tokens > max_ctx {
             anyhow::bail!(
                 "Clipboard text is too large ({} tokens). Max context size is {} tokens.",
@@ -191,7 +243,6 @@ impl FlowModel {
                 max_ctx
             );
         }
-
         Ok(text)
     }
 
@@ -199,11 +250,9 @@ impl FlowModel {
     pub fn get_clipboard_image(&self) -> Result<String> {
         let mut clipboard = arboard::Clipboard::new()
             .map_err(|e| anyhow::anyhow!("Failed to access clipboard: {}", e))?;
-
         let img = clipboard
             .get_image()
             .map_err(|_| anyhow::anyhow!("Clipboard does not contain an image."))?;
-
         let mut png_bytes = Vec::new();
         let encoder = PngEncoder::new(&mut png_bytes);
         encoder
@@ -214,7 +263,6 @@ impl FlowModel {
                 image::ExtendedColorType::Rgba8,
             )
             .map_err(|e| anyhow::anyhow!("Failed to encode PNG: {}", e))?;
-
         use base64::Engine;
         Ok(base64::engine::general_purpose::STANDARD.encode(&png_bytes))
     }
@@ -224,9 +272,12 @@ impl FlowModel {
         let images: Vec<String> = self
             .args
             .iter()
-            .filter(|a| a.expect == ArgExpect::Image)
+            .filter(|a| a.input == ArgInput::Path)
             .filter_map(|a| self.input_tags.get(&a.name))
-            .cloned()
+            .filter_map(|v| match v {
+                ContextModel::String(s) if s.len() > 100 => Some(s.clone()),
+                _ => None,
+            })
             .collect();
         if images.is_empty() {
             None

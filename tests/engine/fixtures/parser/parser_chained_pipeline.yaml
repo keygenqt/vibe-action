@@ -1,6 +1,5 @@
 name: parser-chained-pipeline
 about: Test sequential chronological pipeline modification
-args: []
 actions:
   - tag: tag_input
     run: value

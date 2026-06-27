@@ -5,17 +5,17 @@ notify: true
 args:
   - name: text
     short: 't'
-    expect: string
+    input: string
     default: '{system_clipboard}'
     help: Text to translate
   - name: file
     short: 'f'
-    expect: string
+    input: string
     default: ''
     help: File to translate
   - name: to
     short: 'l'
-    expect: string
+    input: string
     help: Target language (e.g., Russian, English, Chinese)
     default: Russian
 actions:

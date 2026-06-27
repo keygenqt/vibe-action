@@ -1,7 +1,6 @@
 # tests/fixtures/lower.yaml
 name: lower
 about: Test lower modifier
-args: []
 actions:
   - tag: tag_input
     run: value

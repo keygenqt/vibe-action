@@ -1,6 +1,5 @@
 name: ast-bat
 about: Test AST modifier for Batch
-args: []
 actions:
   - tag: tag_code
     run: value

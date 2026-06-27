@@ -5,12 +5,12 @@ notify: true
 args:
   - name: query
     short: 'q'
-    expect: string
+    input: string
     help: The code block or function to review
     default: '{system_clipboard}'
   - name: to
     short: 'l'
-    expect: string
+    input: string
     help: Target language (e.g., Russian, English, Chinese)
     default: Russian
 actions:

@@ -5,12 +5,12 @@ notify: true
 args:
   - name: text
     short: 't'
-    expect: string
+    input: string
     help: Text to check
     default: '{system_clipboard}'
   - name: file
     short: 'f'
-    expect: string
+    input: string
     help: File to check
     default: ''
 actions:

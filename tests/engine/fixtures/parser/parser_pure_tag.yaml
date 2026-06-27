@@ -1,6 +1,5 @@
 name: parser-pure-tag
 about: Test isolation of active tags without modifier
-args: []
 actions:
   - tag: tag_base
     run: value

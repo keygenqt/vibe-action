@@ -1,6 +1,5 @@
 name: ast-ets
 about: Test AST modifier for ArkTS
-args: []
 actions:
   - tag: tag_code
     run: value

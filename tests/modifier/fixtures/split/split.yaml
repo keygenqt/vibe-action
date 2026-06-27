@@ -1,6 +1,5 @@
 name: split
 about: Test split modifier
-args: []
 actions:
   - tag: tag_input
     run: value

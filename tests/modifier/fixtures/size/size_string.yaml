@@ -1,6 +1,5 @@
 name: size-string
 about: Test size modifier on string
-args: []
 actions:
   - tag: tag_input
     run: value
