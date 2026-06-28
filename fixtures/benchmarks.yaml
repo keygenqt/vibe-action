@@ -101,7 +101,7 @@ benchmarks:
     - cargo run -- translate-fast -f ./fixtures/README.md -l 'Chinese'
 
   sysinfo:
-    # @todo
+    # Generate a system report
     - cargo run -- sysinfo
 
   describe:

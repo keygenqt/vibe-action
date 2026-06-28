@@ -8,48 +8,55 @@ use std::collections::HashMap;
 /// Enum of all known system tag keys.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SystemKey {
+    Arch,
     Clipboard,
     ClipboardImage,
     Date,
     Home,
+    Hostname,
     Language,
     Os,
     Pid,
     Pwd,
+    Shell,
     Temp,
     Time,
     User,
 }
 
 impl SystemKey {
-    /// Tag name without braces.
     pub fn as_str(&self) -> &'static str {
         match self {
+            SystemKey::Arch => "system_arch",
             SystemKey::Clipboard => "system_clipboard",
             SystemKey::ClipboardImage => "system_clipboard_image",
             SystemKey::Date => "system_date",
             SystemKey::Home => "system_home",
+            SystemKey::Hostname => "system_hostname",
             SystemKey::Language => "system_language",
             SystemKey::Os => "system_os",
             SystemKey::Pid => "system_pid",
             SystemKey::Pwd => "system_pwd",
+            SystemKey::Shell => "system_shell",
             SystemKey::Temp => "system_temp",
             SystemKey::Time => "system_time",
             SystemKey::User => "system_user",
         }
     }
 
-    /// Parse from a tag string like "system_clipboard".
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
+            "system_arch" => Some(SystemKey::Arch),
             "system_clipboard" => Some(SystemKey::Clipboard),
             "system_clipboard_image" => Some(SystemKey::ClipboardImage),
             "system_date" => Some(SystemKey::Date),
             "system_home" => Some(SystemKey::Home),
+            "system_hostname" => Some(SystemKey::Hostname),
             "system_language" => Some(SystemKey::Language),
             "system_os" => Some(SystemKey::Os),
             "system_pid" => Some(SystemKey::Pid),
             "system_pwd" => Some(SystemKey::Pwd),
+            "system_shell" => Some(SystemKey::Shell),
             "system_temp" => Some(SystemKey::Temp),
             "system_time" => Some(SystemKey::Time),
             "system_user" => Some(SystemKey::User),
@@ -57,17 +64,19 @@ impl SystemKey {
         }
     }
 
-    /// All known keys.
     pub fn all() -> &'static [SystemKey] {
         &[
+            SystemKey::Arch,
             SystemKey::Clipboard,
             SystemKey::ClipboardImage,
             SystemKey::Date,
             SystemKey::Home,
+            SystemKey::Hostname,
             SystemKey::Language,
             SystemKey::Os,
             SystemKey::Pid,
             SystemKey::Pwd,
+            SystemKey::Shell,
             SystemKey::Temp,
             SystemKey::Time,
             SystemKey::User,
@@ -92,16 +101,19 @@ impl SystemRegistry {
         let mut registry = Self {
             providers: HashMap::new(),
         };
+        registry.register(Box::new(super::arch::SystemArchProvider));
         registry.register(Box::new(super::clipboard::SystemClipboardProvider));
         registry.register(Box::new(
             super::clipboard_image::SystemClipboardImageProvider,
         ));
         registry.register(Box::new(super::date::SystemDateProvider));
         registry.register(Box::new(super::home::SystemHomeProvider));
+        registry.register(Box::new(super::hostname::SystemHostnameProvider));
         registry.register(Box::new(super::language::SystemLanguageProvider));
         registry.register(Box::new(super::os::SystemOsProvider));
         registry.register(Box::new(super::pid::SystemPidProvider));
         registry.register(Box::new(super::pwd::SystemPwdProvider));
+        registry.register(Box::new(super::shell::SystemShellProvider));
         registry.register(Box::new(super::temp::SystemTempProvider));
         registry.register(Box::new(super::time::SystemTimeProvider));
         registry.register(Box::new(super::user::SystemUserProvider));

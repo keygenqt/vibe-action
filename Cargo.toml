@@ -49,6 +49,7 @@ md5 = "0.8"
 html2text = "0.17"
 pdf-extract = "0.12"
 mime2ext = "0.1.54"
+hostname = "0.4.2"
 
 # Debug logging (--debug flag)
 tracing = "0.1"

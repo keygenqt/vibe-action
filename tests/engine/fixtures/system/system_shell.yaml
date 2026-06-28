@@ -1,0 +1,7 @@
+name: system-shell
+about: Test system_shell tag
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{system_shell}'

@@ -12,6 +12,9 @@ actions:
 
       [Data]
       OS: {system_os}
+      Architecture: {system_arch}
+      Hostname: {system_hostname}
+      Shell: {system_shell}
       System Language: {system_language}
       User: {system_user}
       Date: {system_date}

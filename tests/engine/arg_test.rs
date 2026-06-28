@@ -91,3 +91,27 @@ fn test_arg_list_types_invalid_path() {
     let output = app_test_engine("arg-list-types -p Cargo.toml,nonexistent.txt");
     assert!(!output.status.success());
 }
+
+#[test]
+fn test_system_arch() {
+    let output = app_test_engine("system-arch");
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("aarch64") || stdout.contains("x86_64"));
+}
+
+#[test]
+fn test_system_hostname() {
+    let output = app_test_engine("system-hostname");
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(!stdout.trim().is_empty());
+}
+
+#[test]
+fn test_system_shell() {
+    let output = app_test_engine("system-shell");
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(!stdout.trim().is_empty());
+}
