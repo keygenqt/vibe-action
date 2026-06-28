@@ -37,11 +37,6 @@ impl LoadModifier {
         let file_name = format!("vibe-{:x}.{}", url_hash, ext);
         let temp_path = std::env::temp_dir().join(file_name);
 
-        // Return cached file if exists
-        if temp_path.exists() {
-            return Ok(temp_path);
-        }
-
         let bytes = response
             .bytes()
             .await
