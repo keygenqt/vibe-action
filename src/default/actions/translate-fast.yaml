@@ -17,7 +17,7 @@ args:
     short: 'l'
     input: string
     help: Target language (e.g., Russian, English, Chinese)
-    default: Russian
+    default: '{system_language}'
 actions:
   # Read input from file or text argument
   - tag: tag_content

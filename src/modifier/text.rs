@@ -56,6 +56,11 @@ impl Modifier for TextModifier {
     fn apply(&self, value: &ContextModel, _arg: &str) -> Result<ContextModel> {
         match value {
             ContextModel::String(s) => {
+                // Base64 image — return as-is
+                if crate::utils::image::is_image(s) {
+                    return Ok(ContextModel::String(s.clone()));
+                }
+
                 // Direct HTML content
                 if let Some(text) = Self::html_to_text(s)? {
                     return Ok(ContextModel::String(text));
@@ -79,8 +84,8 @@ impl Modifier for TextModifier {
                     }
                 }
 
-                // Plain text — return as is
-                Ok(ContextModel::String(s.clone()))
+                // If we got here, it's an invalid path or unsupported content
+                anyhow::bail!("File not found or unsupported content: '{}'", s)
             }
 
             ContextModel::List(items) => {

@@ -42,5 +42,6 @@ mod engine {
     mod expect_test;
     mod parser_test;
     mod switch_test;
+    mod system_test;
     mod validate_test;
 }

@@ -7,24 +7,19 @@ args:
     short: s
     input: string
     help: Path or URL of the page to fetch
-  - name: to
-    short: 'l'
-    input: string
-    help: Language for explanation
-    default: Russian
 actions:
   - tag: tag_description
     run: small
     expect: string
     action: |
       [Task]
-      Write a summary strictly in {to} language based on the document content below.
+      Write a summary strictly in {system_language} language based on the document content below.
 
-      Requirements:
+      [Requirements]
       1. Length: 2-5 sentences maximum.
       2. Focus: Explain the purpose, type, and core content.
       3. Details: Extract essential tools, key features, and specifics mentioned in the text.
-      4. Language: {to}
+      4. Language: {system_language}
 
       [Content]
       {source|load|text}

@@ -1,0 +1,7 @@
+name: system-clipboard
+about: Test system_clipboard tag
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{system_clipboard}'

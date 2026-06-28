@@ -1,7 +1,6 @@
 //! Default flow trait — validates built-in YAML flows from embedded YAML files.
 
 use crate::models::flow::FlowModel;
-use crate::validate::ValidateTrait;
 use anyhow::Result;
 
 /// Common header template for all built-in YAML flows.
@@ -17,7 +16,6 @@ pub trait DefaultFlow {
     fn flow(&self) -> Result<String> {
         let raw = self.raw();
         let model = self.model(raw)?;
-        model.validate()?;
         let header = FLOW_HEADER
             .replace("{{name}}", &model.name)
             .replace("{{about}}", &model.about);
@@ -90,6 +88,9 @@ pub fn default_flows() -> Vec<Box<dyn DefaultFlow>> {
         }),
         Box::new(BuiltinFlow {
             yaml: include_str!("actions/synonyms.yaml"),
+        }),
+        Box::new(BuiltinFlow {
+            yaml: include_str!("actions/sysinfo.yaml"),
         }),
         Box::new(BuiltinFlow {
             yaml: include_str!("actions/tone.yaml"),

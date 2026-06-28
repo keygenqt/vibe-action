@@ -8,11 +8,6 @@ args:
     input: string
     help: The code to explain
     default: '{system_clipboard}'
-  - name: to
-    short: 'l'
-    input: string
-    help: Language for explanation
-    default: Russian
 actions:
   # Add summary and detailed comments to the code
   - tag: tag_explanation
@@ -25,7 +20,7 @@ actions:
         3. Inside each comment, briefly explain the language-specific constructs, macros, or types used.
         4. Split comments into multiple lines using the "// " symbol.
         5. Use Markdown formatting, and place the code inside code blocks.
-        6. Language for comments and summary: {to}
+        6. Language for comments and summary: {system_language}
 
       [Example]
       <summary>

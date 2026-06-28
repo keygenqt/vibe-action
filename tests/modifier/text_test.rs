@@ -12,7 +12,5 @@ fn test_text_html() {
 #[test]
 fn test_text_not_html() {
     let output = app_test_modifier("text-not-html");
-    assert!(output.status.success());
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(stdout.contains("Just plain text"));
+    assert!(!output.status.success()); // should fail — not HTML, not file
 }

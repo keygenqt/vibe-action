@@ -8,11 +8,6 @@ args:
     input: string
     help: The code block or function to review
     default: '{system_clipboard}'
-  - name: to
-    short: 'l'
-    input: string
-    help: Target language (e.g., Russian, English, Chinese)
-    default: Russian
 actions:
   # Analyze code for bugs and generate technical recommendations in the target language
   - tag: tag_review
@@ -27,9 +22,7 @@ actions:
       - If the code has no flaws, output exactly one word: PERFECT.
       - Format each issue as a clear block: standard bullet point for the description, followed by a new line with a prefix "  Fix: " and the exact 1-line code patch.
       - Do NOT write explanation inside the fix line, provide ONLY the clean code patch.
-
-      [User]
-      {to}
+      - Language: {system_language}
 
       [Code to Review]
       {query}

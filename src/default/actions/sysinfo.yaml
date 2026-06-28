@@ -1,0 +1,22 @@
+name: sysinfo
+about: Generate a human-readable system report
+clipboard: false
+actions:
+  - tag: tag_report
+    run: small
+    expect: string
+    action: |
+      [Task]
+      Generate a short system report using the data below.
+      Format as bullet points. Language: {system_language}.
+
+      [Data]
+      OS: {system_os}
+      System Language: {system_language}
+      User: {system_user}
+      Date: {system_date}
+      Time: {system_time}
+      Process ID: {system_pid}
+      Home: {system_home}
+      Working directory: {system_pwd}
+      Temp directory: {system_temp}

@@ -1,0 +1,7 @@
+name: system-home
+about: Test system_home tag
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{system_home}'

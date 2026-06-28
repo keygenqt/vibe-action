@@ -1,0 +1,7 @@
+name: system-time
+about: Test system_time tag
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{system_time}'

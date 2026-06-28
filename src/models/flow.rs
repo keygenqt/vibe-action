@@ -3,19 +3,20 @@
 
 use anyhow::Result;
 use clap::ArgMatches;
-use image::ImageEncoder;
-use image::codecs::png::PngEncoder;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::fs;
 use std::path::PathBuf;
 
-use crate::configs::app::AppConfig;
+use crate::engine::parser::TagIterator;
 use crate::models::action::ActionModel;
 use crate::models::arg::ArgActionModel;
 use crate::models::arg::ArgInput;
 use crate::models::context::ContextModel;
+use crate::system::system::SystemKey;
+use crate::system::system::SystemRegistry;
 use crate::utils;
 use crate::validate::ValidateTrait;
 
@@ -53,7 +54,7 @@ impl FlowModel {
         let flow: Self = yaml_serde::from_str(&content)
             .map_err(|e| anyhow::anyhow!("Failed to parse {}: {}", path.display(), e))?;
         flow.validate()?;
-        Ok(flow.apply_system_tags())
+        Ok(flow)
     }
 
     /// Resolve CLI arguments and store them in state.
@@ -70,8 +71,8 @@ impl FlowModel {
                         self.input_tags
                             .insert(arg.name.clone(), ContextModel::String(value.to_string()));
                     } else if let Some(default) = &arg.default {
-                        self.input_tags
-                            .insert(arg.name.clone(), ContextModel::String(default.clone()));
+                        let resolved = Self::resolve_default(default, &self.input_tags);
+                        self.input_tags.insert(arg.name.clone(), resolved);
                     }
                 }
                 ArgInput::Path => {
@@ -81,11 +82,7 @@ impl FlowModel {
                         self.input_tags
                             .insert(arg.name.clone(), ContextModel::String(path_str));
                     } else if let Some(default) = &arg.default {
-                        let resolved = self
-                            .input_tags
-                            .get(default.trim_start_matches('{').trim_end_matches('}'))
-                            .cloned()
-                            .unwrap_or_else(|| ContextModel::String(default.clone()));
+                        let resolved = Self::resolve_default(default, &self.input_tags);
                         self.input_tags.insert(arg.name.clone(), resolved);
                     }
                 }
@@ -113,8 +110,8 @@ impl FlowModel {
                         self.input_tags
                             .insert(arg.name.clone(), ContextModel::List(validated));
                     } else if let Some(default) = &arg.default {
-                        self.input_tags
-                            .insert(arg.name.clone(), ContextModel::String(default.clone()));
+                        let resolved = Self::resolve_default(default, &self.input_tags);
+                        self.input_tags.insert(arg.name.clone(), resolved);
                     }
                 }
                 ArgInput::String => {
@@ -122,12 +119,7 @@ impl FlowModel {
                         self.input_tags
                             .insert(arg.name.clone(), ContextModel::String(value.clone()));
                     } else if let Some(default) = &arg.default {
-                        let tag = default.trim_start_matches('{').trim_end_matches('}');
-                        let resolved = self
-                            .input_tags
-                            .get(tag)
-                            .cloned()
-                            .unwrap_or_else(|| ContextModel::String(default.clone()));
+                        let resolved = Self::resolve_default(default, &self.input_tags);
                         self.input_tags.insert(arg.name.clone(), resolved);
                     }
                 }
@@ -136,101 +128,45 @@ impl FlowModel {
         Ok(self)
     }
 
+    /// Resolve a default value, supporting {system_*} tags.
+    fn resolve_default(default: &str, input_tags: &HashMap<String, ContextModel>) -> ContextModel {
+        let tag = default.trim_start_matches('{').trim_end_matches('}');
+        if tag.starts_with("system_") {
+            let registry = SystemRegistry::new();
+            let system_key = SystemKey::all().iter().find(|k| k.as_str() == tag);
+            if let Some(key) = system_key {
+                if let Ok(value) = registry.resolve(*key) {
+                    return value;
+                }
+            }
+        }
+        input_tags
+            .get(tag)
+            .cloned()
+            .unwrap_or_else(|| ContextModel::String(default.to_string()))
+    }
+
     /// Add system tags to input arguments.
-    fn apply_system_tags(mut self) -> Self {
-        self.input_tags.insert(
-            "system_pwd".into(),
-            ContextModel::String(
-                std::env::current_dir()
-                    .map(|p| p.display().to_string())
-                    .unwrap_or_default(),
-            ),
-        );
-        self.input_tags.insert(
-            "system_os".into(),
-            ContextModel::String(std::env::consts::OS.into()),
-        );
-        self.input_tags.insert(
-            "system_user".into(),
-            ContextModel::String(std::env::var("USER").unwrap_or_default()),
-        );
-        self.input_tags.insert(
-            "system_home".into(),
-            ContextModel::String(std::env::var("HOME").unwrap_or_default()),
-        );
-        self.input_tags.insert(
-            "system_date".into(),
-            ContextModel::String(chrono::Local::now().format("%Y-%m-%d").to_string()),
-        );
-        self.input_tags.insert(
-            "system_time".into(),
-            ContextModel::String(chrono::Local::now().format("%H:%M:%S").to_string()),
-        );
-        self.input_tags.insert(
-            "system_clipboard".into(),
-            ContextModel::String(self.get_clipboard_text().unwrap_or_default()),
-        );
-        if let Ok(image_base64) = self.get_clipboard_image() {
-            self.input_tags.insert(
-                "system_clipboard_image".into(),
-                ContextModel::String(image_base64),
-            );
-        }
-        self.input_tags.insert(
-            "system_pid".into(),
-            ContextModel::String(std::process::id().to_string()),
-        );
-        self.input_tags.insert(
-            "system_temp".into(),
-            ContextModel::String(std::env::temp_dir().display().to_string()),
-        );
-        self
-    }
+    pub fn apply_system_tags(mut self) -> Result<Self> {
+        let registry = SystemRegistry::new();
+        let mut needed_tags = HashSet::new();
 
-    /// Get clipboard text with validation.
-    pub fn get_clipboard_text(&self) -> Result<String> {
-        let mut clipboard = arboard::Clipboard::new()
-            .map_err(|e| anyhow::anyhow!("Failed to access clipboard: {}", e))?;
-        let text = clipboard
-            .get_text()
-            .map_err(|_| anyhow::anyhow!("Clipboard is empty or contains non-text data."))?;
-        let bpe = tiktoken_rs::cl100k_base().unwrap();
-        let tokens = bpe.encode_with_special_tokens(&text).len();
-        let config = AppConfig::instance()?;
-        let max_ctx = config
-            .cluster
-            .iter()
-            .map(|c| c.num_ctx)
-            .max()
-            .unwrap_or(4096);
-        if tokens > max_ctx {
-            anyhow::bail!(
-                "Clipboard text is too large ({} tokens). Max context size is {} tokens.",
-                tokens,
-                max_ctx
-            );
+        for action in &self.actions {
+            for text in action.actions() {
+                for mat in TagIterator::new(text) {
+                    if mat.base_tag.starts_with("system_") {
+                        needed_tags.insert(mat.base_tag.clone());
+                    }
+                }
+            }
         }
-        Ok(text)
-    }
-
-    /// Get clipboard image as base64 PNG string.
-    pub fn get_clipboard_image(&self) -> Result<String> {
-        let mut clipboard = arboard::Clipboard::new()
-            .map_err(|e| anyhow::anyhow!("Failed to access clipboard: {}", e))?;
-        let img = clipboard
-            .get_image()
-            .map_err(|_| anyhow::anyhow!("Clipboard does not contain an image."))?;
-        let mut png_bytes = Vec::new();
-        let encoder = PngEncoder::new(&mut png_bytes);
-        encoder
-            .write_image(
-                &img.bytes,
-                img.width as u32,
-                img.height as u32,
-                image::ExtendedColorType::Rgba8,
-            )
-            .map_err(|e| anyhow::anyhow!("Failed to encode PNG: {}", e))?;
-        use base64::Engine;
-        Ok(base64::engine::general_purpose::STANDARD.encode(&png_bytes))
+        for tag in needed_tags {
+            let system_key = SystemKey::all().iter().find(|k| k.as_str() == tag.as_str());
+            if let Some(key) = system_key {
+                let value = registry.resolve(*key)?;
+                self.input_tags.insert(tag, value);
+            }
+        }
+        Ok(self)
     }
 }

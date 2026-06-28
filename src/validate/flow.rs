@@ -10,6 +10,7 @@ use regex::Regex;
 
 use crate::models::action::ActionValue;
 use crate::models::flow::FlowModel;
+use crate::system::system::SystemKey;
 use crate::validate::ValidateTrait;
 
 impl ValidateTrait for FlowModel {
@@ -75,8 +76,10 @@ impl ValidateTrait for FlowModel {
 
 /// Check that all {tag} references in text point to valid tags.
 fn validate_tag_references(text: &str, valid_tags: &HashSet<&str>) -> Result<()> {
-    // Stream unescaped tokens natively through the unified parser layer
     for mat in crate::engine::parser::TagIterator::new(text) {
+        if SystemKey::from_str(&mat.base_tag).is_some() {
+            continue;
+        }
         if !valid_tags.contains(mat.base_tag.as_str()) {
             anyhow::bail!("Unknown tag '{{{}}}' referenced in action", mat.base_tag);
         }

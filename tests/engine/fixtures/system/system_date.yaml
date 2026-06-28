@@ -1,0 +1,7 @@
+name: system-date
+about: Test system_date tag
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{system_date}'

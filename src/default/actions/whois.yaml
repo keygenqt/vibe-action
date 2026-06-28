@@ -8,11 +8,6 @@ args:
     input: string
     help: Path or URL to image (or use clipboard)
     default: '{system_clipboard_image}'
-  - name: to
-    short: 'l'
-    input: string
-    help: Language for explanation
-    default: Russian
 actions:
   # Identify and analyze tech figures in the image
   - tag: tag_identity
@@ -29,7 +24,7 @@ actions:
       - Remove any metadata or inline hints.
       - No introduction, conclusion, or conversational fluff.
       - At the beginning, add a brief description of the historical photo or event.
-      - Language: {to}.
+      - Language: {system_language}.
 
       [Example]
       brief description of the photo or event

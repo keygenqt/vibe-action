@@ -100,6 +100,10 @@ benchmarks:
     # Converts a technical text manifest file layout into Chinese
     - cargo run -- translate-fast -f ./fixtures/README.md -l 'Chinese'
 
+  sysinfo:
+    # @todo
+    - cargo run -- sysinfo
+
   describe:
     # Describe a photo of a cat
     - cargo run -- describe -i ./fixtures/screenshot_1.png

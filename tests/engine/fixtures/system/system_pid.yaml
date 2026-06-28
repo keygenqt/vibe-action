@@ -1,0 +1,7 @@
+name: system-pid
+about: Test system_pid tag
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{system_pid}'

@@ -91,7 +91,9 @@ impl Engine {
             .ctx
             .get(&self.output)
             .map(|v| v.to_string())
-            .unwrap_or_default();
+            .unwrap_or_default()
+            .trim()
+            .to_string();
 
         if let Some(re) = &self.check_regex {
             if !re.is_match(&value) {
