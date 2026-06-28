@@ -45,7 +45,7 @@ $ vibe-action --help
 This creates:
 
 - `~/.vibe-action/config.yaml` — configuration
-- `~/.vibe-action/actions/` — 17 built-in actions
+- `~/.vibe-action/actions/` — 19 built-in actions
 
 ## Configure Cluster
 
@@ -88,6 +88,12 @@ vibe-action extract -f app.log -q "find all errors"
 # Describe a screenshot
 vibe-action describe -f screenshot.png
 
+# Fetch and summarize a web page
+vibe-action fetch -s https://example.com
+
+# System report
+vibe-action sysinfo
+
 # Ask about Vibe Action itself
 vibe-action faq -q "как использовать модификаторы?"
 
@@ -112,3 +118,4 @@ Shows each pipeline step: original command, resolved template, and result.
 - [Custom Actions](./custom-actions.md) — write your own
 - [Tag System](./tag-system.md) — understand {tag} references
 - [Modifiers](./modifiers.md) — transform output with pipe modifiers
+- [System Tags](./system-tags.md) — built-in environment variables

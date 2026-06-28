@@ -122,6 +122,7 @@ Actions are stored in `~/.vibe-action/actions/`. The directory is created on fir
     ├── explain.yaml
     ├── extract.yaml
     ├── faq.yaml
+    ├── fetch.yaml
     ├── find.yaml
     ├── mock.yaml
     ├── naming.yaml
@@ -129,6 +130,7 @@ Actions are stored in `~/.vibe-action/actions/`. The directory is created on fir
     ├── review.yaml
     ├── spellcheck.yaml
     ├── synonyms.yaml
+    ├── sysinfo.yaml
     ├── tone.yaml
     ├── translate-fast.yaml
     ├── translate-deep.yaml
