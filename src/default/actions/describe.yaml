@@ -4,9 +4,9 @@ clipboard: true
 notify: true
 args:
   - name: image
-    short: 'f'
-    input: path
-    help: Path to screenshot (or use clipboard)
+    short: 'i'
+    input: string
+    help: Path or URL to screenshot (or use clipboard)
     default: '{system_clipboard_image}'
 actions:
   # Extract raw visual description from the screenshot
@@ -14,6 +14,8 @@ actions:
     run: vision
     expect: string
     action: |
+      {image|load|text}
+
       [Task]
       Describe this screenshot in rich detail.
       This is a screenshot of an application interface, not a code extraction task.

@@ -1,0 +1,33 @@
+name: fetch
+about: Fetch a web page and describe its content
+clipboard: true
+notify: true
+args:
+  - name: url
+    short: u
+    input: string
+    help: URL of the page to fetch
+  - name: to
+    short: 'l'
+    input: string
+    help: Language for explanation
+    default: Russian
+actions:
+  - tag: tag_content
+    run: value
+    expect: string
+    action: '{url|load|text}'
+  - tag: tag_description
+    run: small
+    expect: string
+    action: |
+      [Task]
+      Write a summary strictly in {to} language based on the web page content below.
+
+      Requirements:
+      1. Length: 2-5 sentences maximum.
+      2. Focus: Explain the purpose, site type, and core utility.
+      3. Details: Extract essential specific tools, key features, and file paths mentioned in the text.
+
+      [Content]
+      {tag_content}

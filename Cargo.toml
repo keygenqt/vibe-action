@@ -21,6 +21,9 @@ inquire = "0.9.4"
 tokio = { version = "1", features = ["full"] }
 tokio-stream = "0.1"
 
+# Http client
+reqwest = { version = "0.13", features = ["json"] }
+
 # Serialization
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -42,6 +45,10 @@ termimad = "0.34"
 syntect = "5.3"
 image = "0.25"
 base64 = "0.22"
+html2text = "0.17"
+pdf-extract = "0.12"
+tempfile = "3.27"
+mime2ext = "0.1.54"
 
 # Debug logging (--debug flag)
 tracing = "0.1"

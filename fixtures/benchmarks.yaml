@@ -20,7 +20,7 @@ benchmarks:
 
   faq:
     # List all available commands with descriptions
-    - cargo run -- faq -q "какие команды есть и зачем?"
+    - cargo run -- faq -q 'какие команды есть и зачем?'
     # Ask how to use modifiers
     - cargo run -- faq -q 'как использовать модификаторы?'
     # Ask about list expansion mechanics
@@ -35,6 +35,12 @@ benchmarks:
     - cargo run -- faq -q 'дай ссылку на доки по кастомным экшенам'
     # Ask for the global CLI shortcuts setup configuration rules
     - cargo run -- faq -q 'где почитать про настройку горячих клавиш или IDE?'
+
+  fetch:
+    # Test fetch with landing page
+    - cargo run -- fetch -u 'https://vibe-action.keygenqt.com/'
+    # Test fetch with documentation page
+    - cargo run -- fetch -u 'https://vibe-action.keygenqt.com/docs/ide-vscode.html'
 
   find:
     # Discovers a specific technical macro across the codebase
@@ -94,10 +100,14 @@ benchmarks:
 
   describe:
     # Describe a photo of a cat
-    - cargo run -- describe -f ./fixtures/screenshot_1.png
+    - cargo run -- describe -i ./fixtures/screenshot_1.png
     # Describe a screenshot of application interface
-    - cargo run -- describe -f ./fixtures/screenshot_2.png
+    - cargo run -- describe -i ./fixtures/screenshot_2.png
+    # Describe an image from URL
+    - cargo run -- describe -i https://vibe-action.keygenqt.com/assets/images/favicon.png
+    # Describe image from clipboard
+    - cargo run -- describe
 
   whois:
     # Identify tech figures in a historical photo
-    - cargo run -- whois -f ./fixtures/photo_1.jpg
+    - cargo run -- whois -i ./fixtures/photo_1.jpg

@@ -76,26 +76,14 @@ impl FlowModel {
                 }
                 ArgInput::Path => {
                     if let Some(value) = matches.get_one::<String>(&arg.name) {
-                        let resolved = utils::path::resolve(value)
-                            .map_err(|e| anyhow::anyhow!("Invalid path '{}': {}", value, e))?;
+                        let resolved = utils::path::resolve(value)?;
                         let path_str = resolved.display().to_string();
-                        match utils::path::is_image(&path_str) {
-                            Ok(true) => {
-                                let b64 = Self::resolve_image(&path_str);
-                                self.input_tags
-                                    .insert(arg.name.clone(), ContextModel::String(b64));
-                            }
-                            Err(e) => return Err(e),
-                            Ok(false) => {
-                                self.input_tags
-                                    .insert(arg.name.clone(), ContextModel::String(path_str));
-                            }
-                        }
+                        self.input_tags
+                            .insert(arg.name.clone(), ContextModel::String(path_str));
                     } else if let Some(default) = &arg.default {
-                        let tag = default.trim_start_matches('{').trim_end_matches('}');
                         let resolved = self
                             .input_tags
-                            .get(tag)
+                            .get(default.trim_start_matches('{').trim_end_matches('}'))
                             .cloned()
                             .unwrap_or_else(|| ContextModel::String(default.clone()));
                         self.input_tags.insert(arg.name.clone(), resolved);
@@ -146,27 +134,6 @@ impl FlowModel {
             }
         }
         Ok(self)
-    }
-
-    /// Convert image file path to base64, or return as-is if already base64.
-    fn resolve_image(value: &str) -> String {
-        // Already base64
-        if value.starts_with("data:") || value.starts_with("iVBOR") || value.starts_with("/9j/") {
-            return value.to_string();
-        }
-        // Try as file path — resolve ~, ., ..
-        let resolved = crate::utils::path::resolve(value).unwrap_or_else(|_| PathBuf::from(value));
-        if resolved.exists() {
-            std::fs::read(&resolved)
-                .ok()
-                .map(|bytes| {
-                    use base64::Engine;
-                    base64::engine::general_purpose::STANDARD.encode(&bytes)
-                })
-                .unwrap_or_else(|| value.to_string())
-        } else {
-            value.to_string()
-        }
     }
 
     /// Add system tags to input arguments.
@@ -265,24 +232,5 @@ impl FlowModel {
             .map_err(|e| anyhow::anyhow!("Failed to encode PNG: {}", e))?;
         use base64::Engine;
         Ok(base64::engine::general_purpose::STANDARD.encode(&png_bytes))
-    }
-
-    /// Get images from flow input tags (for vision actions).
-    pub fn get_images(&self) -> Option<Vec<String>> {
-        let images: Vec<String> = self
-            .args
-            .iter()
-            .filter(|a| a.input == ArgInput::Path)
-            .filter_map(|a| self.input_tags.get(&a.name))
-            .filter_map(|v| match v {
-                ContextModel::String(s) if s.len() > 100 => Some(s.clone()),
-                _ => None,
-            })
-            .collect();
-        if images.is_empty() {
-            None
-        } else {
-            Some(images)
-        }
     }
 }

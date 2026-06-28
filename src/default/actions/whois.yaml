@@ -4,9 +4,9 @@ clipboard: true
 notify: true
 args:
   - name: image
-    short: 'f'
-    input: path
-    help: Path to image (or use clipboard)
+    short: 'i'
+    input: string
+    help: Path or URL to image (or use clipboard)
     default: '{system_clipboard_image}'
   - name: to
     short: 'l'
@@ -19,6 +19,8 @@ actions:
     run: vision
     expect: string
     action: |
+      {image|load|text}
+
       [Task]
       Identify and analyze all public tech figures in this image from left to right.
 

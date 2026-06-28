@@ -68,6 +68,9 @@ pub fn default_flows() -> Vec<Box<dyn DefaultFlow>> {
             yaml: include_str!("actions/faq.yaml"),
         }),
         Box::new(BuiltinFlow {
+            yaml: include_str!("actions/fetch.yaml"),
+        }),
+        Box::new(BuiltinFlow {
             yaml: include_str!("actions/find.yaml"),
         }),
         Box::new(BuiltinFlow {

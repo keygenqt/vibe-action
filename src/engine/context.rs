@@ -9,6 +9,7 @@ use crate::engine::parser;
 use crate::models::action::ActionRun;
 use crate::models::context::ContextModel;
 use crate::modifier::modifier::ModifierRegistry;
+use crate::utils;
 
 /// Result of expanding a template with context values.
 pub struct ExpandedTemplate {
@@ -115,6 +116,9 @@ impl Context {
                         let mut final_string = processed_value.to_string();
                         if is_encode {
                             final_string = shell_words::quote(&final_string).to_string();
+                        }
+                        if utils::image::is_image(&final_string) {
+                            final_string = format!(" {} ", final_string);
                         }
                         for current in results.iter_mut() {
                             *current = current.replace(placeholder, &final_string);

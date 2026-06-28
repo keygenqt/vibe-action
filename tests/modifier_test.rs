@@ -43,12 +43,14 @@ mod modifier {
     mod is_dir_test;
     mod is_file_test;
     mod join_test;
+    mod load_test;
     mod resolve_test;
     mod reverse_test;
     mod size_test;
     mod sort_test;
     mod split_test;
     mod take_test;
+    mod text_test;
     mod transform_test;
     mod trim_test;
 }

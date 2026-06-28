@@ -1,0 +1,11 @@
+name: text-html
+about: Test text modifier extracts text from HTML
+actions:
+  - tag: tag_input
+    run: value
+    expect: string
+    action: '<html><body><p>Hello World</p></body></html>'
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{tag_input|text}'

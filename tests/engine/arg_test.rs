@@ -1,22 +1,6 @@
 use crate::app_test_engine;
 
 #[test]
-fn test_arg_path_image() {
-    let output = app_test_engine("arg-path-image -i tests/engine/fixtures/data/photo_1.jpg");
-    assert!(output.status.success());
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    // JPEG base64 starts with /9j/
-    assert!(stdout.contains("/9j/"));
-}
-
-#[test]
-fn test_arg_path_image_unsupported() {
-    let output =
-        app_test_engine("arg-path-image-unsupported -i tests/engine/fixtures/data/test.bmp");
-    assert!(!output.status.success());
-}
-
-#[test]
 fn test_arg_string() {
     let output = app_test_engine("arg-string -t hello");
     assert!(output.status.success());

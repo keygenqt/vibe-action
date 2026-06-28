@@ -15,6 +15,7 @@ pub enum ModifierKey {
     IsDir,
     IsFile,
     Join,
+    Load,
     Lower,
     Resolve,
     Reverse,
@@ -22,6 +23,7 @@ pub enum ModifierKey {
     Sort,
     Split,
     Take,
+    Text,
     Trim,
     Uniq,
     Upper,
@@ -38,6 +40,7 @@ impl ModifierKey {
             "is_dir" => Some(Self::IsDir),
             "is_file" => Some(Self::IsFile),
             "join" => Some(Self::Join),
+            "load" => Some(Self::Load),
             "lower" => Some(Self::Lower),
             "resolve" => Some(Self::Resolve),
             "reverse" => Some(Self::Reverse),
@@ -45,6 +48,7 @@ impl ModifierKey {
             "sort" => Some(Self::Sort),
             "split" => Some(Self::Split),
             "take" => Some(Self::Take),
+            "text" => Some(Self::Text),
             "trim" => Some(Self::Trim),
             "uniq" => Some(Self::Uniq),
             "upper" => Some(Self::Upper),
@@ -77,6 +81,7 @@ impl ModifierRegistry {
         registry.register(Box::new(super::is_dir::IsDirModifier));
         registry.register(Box::new(super::is_file::IsFileModifier));
         registry.register(Box::new(super::join::JoinModifier));
+        registry.register(Box::new(super::load::LoadModifier));
         registry.register(Box::new(super::lower::LowerModifier));
         registry.register(Box::new(super::resolve::ResolveModifier));
         registry.register(Box::new(super::reverse::ReverseModifier));
@@ -84,6 +89,7 @@ impl ModifierRegistry {
         registry.register(Box::new(super::sort::SortModifier));
         registry.register(Box::new(super::split::SplitModifier));
         registry.register(Box::new(super::take::TakeModifier));
+        registry.register(Box::new(super::text::TextModifier));
         registry.register(Box::new(super::trim::TrimModifier));
         registry.register(Box::new(super::uniq::UniqModifier));
         registry.register(Box::new(super::upper::UpperModifier));

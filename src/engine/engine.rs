@@ -16,6 +16,7 @@ use crate::models::context::ContextModel;
 use crate::models::flow::FlowModel;
 use crate::modifier::modifier::ModifierRegistry;
 use crate::print_trace;
+use crate::utils;
 
 /// Pipeline execution engine — resolves dependencies, executes actions, manages context.
 pub struct Engine {
@@ -31,8 +32,6 @@ pub struct Engine {
     check_regex: Option<Regex>,
     /// Default system prompt for all LLM requests.
     pub system: String,
-    /// Images for vision actions (base64).
-    pub images: Option<Vec<String>>,
     /// Number of retries for failed LLM steps (default: 0).
     pub retries: u32,
 }
@@ -62,7 +61,6 @@ impl Engine {
                 None => None,
             },
             system: system.to_string(),
-            images: flow.get_images(),
             retries,
         })
     }
@@ -182,12 +180,23 @@ impl Engine {
                 }
             }
             ActionRun::Vision => {
+                let mut all_images = Vec::new();
+                let mut cleaned_items = Vec::new();
+                for item in &expanded.items {
+                    let (cleaned, images) = utils::format::format_image_prompt(item);
+                    cleaned_items.push(cleaned);
+                    all_images.extend(images);
+                }
                 let cluster_outputs = Cluster::exec(
                     &self.system,
                     self.retries,
                     &action.run,
-                    &expanded.items,
-                    self.images.clone(),
+                    &cleaned_items,
+                    if all_images.is_empty() {
+                        None
+                    } else {
+                        Some(all_images)
+                    },
                 )
                 .await?;
                 for cluster_res in cluster_outputs {

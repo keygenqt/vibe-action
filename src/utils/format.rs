@@ -55,3 +55,25 @@ pub fn format_bytes(bytes: usize) -> String {
         format!("{}B", bytes)
     }
 }
+
+/// Extract base64 images from resolved prompt text.
+/// Returns cleaned prompt and list of extracted images.
+pub fn format_image_prompt(prompt: &str) -> (String, Vec<String>) {
+    let mut images = Vec::new();
+    let mut cleaned = prompt.to_string();
+    let prefixes = crate::utils::image::image_base64_prefixes();
+
+    for prefix in prefixes {
+        while let Some(pos) = cleaned.find(prefix) {
+            let end = cleaned[pos..]
+                .find(|c: char| c.is_whitespace())
+                .map(|p| pos + p)
+                .unwrap_or(cleaned.len());
+
+            images.push(cleaned[pos..end].to_string());
+            cleaned.replace_range(pos..end, "");
+        }
+    }
+
+    (cleaned.trim().to_string(), images)
+}
