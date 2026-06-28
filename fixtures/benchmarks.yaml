@@ -38,9 +38,11 @@ benchmarks:
 
   fetch:
     # Test fetch with landing page
-    - cargo run -- fetch -u 'https://vibe-action.keygenqt.com/'
+    - cargo run -- fetch -s 'https://vibe-action.keygenqt.com/'
     # Test fetch with documentation page
-    - cargo run -- fetch -u 'https://vibe-action.keygenqt.com/docs/ide-vscode.html'
+    - cargo run -- fetch -s 'https://vibe-action.keygenqt.com/docs/ide-vscode.html'
+    # Test fetch with PDF
+    - cargo run -- fetch -s 'https://pdfobject.com/pdf/sample.pdf'
 
   find:
     # Discovers a specific technical macro across the codebase

@@ -3,7 +3,6 @@ use super::modifier::{Modifier, ModifierKey};
 use crate::models::context::ContextModel;
 use crate::utils;
 use anyhow::{Result, anyhow};
-use std::io::Write;
 use std::path::{Path, PathBuf};
 use tokio::runtime::Handle;
 use tokio::task::block_in_place;
@@ -11,7 +10,7 @@ use tokio::task::block_in_place;
 pub struct LoadModifier;
 
 impl LoadModifier {
-    /// Download remote stream directly into a safe temp file layout and return its absolute path.
+    /// Download remote stream into a deterministic temp file and return its absolute path.
     async fn download_to_temp(url: &str) -> Result<PathBuf> {
         let client = reqwest::Client::builder()
             .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
@@ -19,40 +18,38 @@ impl LoadModifier {
             .build()
             .map_err(|e| anyhow!("Failed to build HTTP client: {}", e))?;
 
-        // Immediately dispatch GET request and fetch the stream response bytes
         let response = client
             .get(url)
             .send()
             .await
             .map_err(|e| anyhow!("Failed to fetch URL '{}': {}", url, e))?;
 
-        // Extract content type descriptor from incoming response headers block
         let content_type = response
             .headers()
             .get(reqwest::header::CONTENT_TYPE)
             .and_then(|v| v.to_str().ok())
             .unwrap_or("");
 
-        // Dynamically resolve proper file extension suffix mapping utilizing mime2ext lookup db
         let ext = mime2ext::mime2ext(content_type).unwrap_or("tmp");
-        let suffix = format!(".{}", ext);
+
+        // Deterministic file name from URL hash
+        let url_hash = md5::compute(url.as_bytes());
+        let file_name = format!("vibe-{:x}.{}", url_hash, ext);
+        let temp_path = std::env::temp_dir().join(file_name);
+
+        // Return cached file if exists
+        if temp_path.exists() {
+            return Ok(temp_path);
+        }
 
         let bytes = response
             .bytes()
             .await
             .map_err(|e| anyhow!("Failed to read stream bytes from '{}': {}", url, e))?;
 
-        // Create a temporary file that survives after the NamedTempFile object is dropped
-        let temp_file = tempfile::Builder::new()
-            .prefix("vibe-")
-            .suffix(&suffix)
-            .tempfile()?;
+        std::fs::write(&temp_path, &bytes)?;
 
-        let (mut file, path_buf) = temp_file.keep()?;
-        file.write_all(&bytes)?;
-        file.flush()?;
-
-        Ok(path_buf)
+        Ok(temp_path)
     }
 }
 

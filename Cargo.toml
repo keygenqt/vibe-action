@@ -45,9 +45,9 @@ termimad = "0.34"
 syntect = "5.3"
 image = "0.25"
 base64 = "0.22"
+md5 = "0.8"
 html2text = "0.17"
 pdf-extract = "0.12"
-tempfile = "3.27"
 mime2ext = "0.1.54"
 
 # Debug logging (--debug flag)
