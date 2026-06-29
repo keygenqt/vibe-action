@@ -5,6 +5,11 @@
 - **Ollama** (recommended), **DeepSeek API key**, or **Qwen** — for LLM inference
 - **Rust** (if building from source)
 
+### Supported Platforms
+
+- **macOS** — full support
+- **Linux** — full support
+
 ### Install Ollama
 
 ```bash
@@ -45,7 +50,7 @@ $ vibe-action --help
 This creates:
 
 - `~/.vibe-action/config.yaml` — configuration
-- `~/.vibe-action/actions/` — 19 built-in actions
+- `~/.vibe-action/actions/` — 20 built-in actions
 
 ## Configure Cluster
 
@@ -77,7 +82,7 @@ cluster:
 vibe-action commit -p .
 
 # Translate a file
-vibe-action translate-fast -f README.md -l Russian
+vibe-action translate-fast -f README.md
 
 # Rewrite tone from clipboard
 vibe-action tone
@@ -93,6 +98,9 @@ vibe-action fetch -s https://example.com
 
 # System report
 vibe-action sysinfo
+
+# Export project codebase as JSON
+vibe-action project-export
 
 # Ask about Vibe Action itself
 vibe-action faq -q "как использовать модификаторы?"

@@ -126,6 +126,7 @@ Actions are stored in `~/.vibe-action/actions/`. The directory is created on fir
     ├── find.yaml
     ├── mock.yaml
     ├── naming.yaml
+    ├── project-export.yaml
     ├── regex.yaml
     ├── review.yaml
     ├── spellcheck.yaml

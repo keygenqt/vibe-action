@@ -1,6 +1,6 @@
 # Built-in Actions
 
-Vibe Action ships with 19 ready-to-use actions. They are written to `~/.vibe-action/actions/` on first run and can be customized.
+Vibe Action ships with 20 ready-to-use actions. They are written to `~/.vibe-action/actions/` on first run and can be customized.
 
 ## comment
 
@@ -84,6 +84,15 @@ Generate code naming suggestions based on a description.
 
 ```bash
 vibe-action naming -q "function to sort actions by dependency"
+```
+
+## project-export
+
+Export project codebase as structured JSON via AST parsing.
+
+```bash
+vibe-action project-export
+vibe-action project-export -p src/engine
 ```
 
 ## regex

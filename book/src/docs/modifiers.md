@@ -5,32 +5,35 @@ All modifiers work with both strings and lists.
 
 ## Summary Table
 
-| Modifier   | Syntax              | Description                                                   |
-| ---------- | ------------------- | ------------------------------------------------------------- |
-| `ast`      | `{tag\|ast:rs}`     | Parse source code to JSON AST (14 languages)                  |
-| `contains` | `{tag\|contains:X}` | Check if contains substring (predicate, supports `:not`)      |
-| `empty`    | `{tag\|empty}`      | Check if string or list is empty (predicate, supports `:not`) |
-| `equals`   | `{tag\|equals:X}`   | Check if equals value (predicate, supports `:not`)            |
-| `is_dir`   | `{tag\|is_dir}`     | Check if path is a directory (predicate, supports `:not`)     |
-| `is_file`  | `{tag\|is_file}`    | Check if path is a file (predicate, supports `:not`)          |
-| `join`     | `{tag\|join}`       | Join list with `\n`                                           |
-| `join`     | `{tag\|join:X}`     | Join list with custom separator                               |
-| `load`     | `{tag\|load}`       | Fetch URL or resolve local file path                          |
-| `lower`    | `{tag\|lower}`      | Transform to lowercase                                        |
-| `resolve`  | `{tag\|resolve}`    | Resolve path to absolute form (`~`, `.`, `..`)                |
-| `reverse`  | `{tag\|reverse}`    | Reverse string or list order                                  |
-| `size`     | `{tag\|size}`       | Length of string or element count of list                     |
-| `sort`     | `{tag\|sort}`       | Sort characters (string) or elements (list) ascending         |
-| `sort`     | `{tag\|sort:asc}`   | Sort ascending                                                |
-| `sort`     | `{tag\|sort:desc}`  | Sort descending                                               |
-| `split`    | `{tag\|split}`      | Split string to list by `\n`                                  |
-| `split`    | `{tag\|split:X}`    | Split string to list by separator X                           |
-| `take`     | `{tag\|take:N}`     | Take first N characters or elements                           |
-| `text`     | `{tag\|text}`       | Extract text from HTML/PDF or convert image to base64         |
-| `trim`     | `{tag\|trim}`       | Strip whitespace, drop empty list elements                    |
-| `trim`     | `{tag\|trim:chars}` | Strip custom characters, drop matching list elements          |
-| `uniq`     | `{tag\|uniq}`       | Remove duplicate characters (string) or elements (list)       |
-| `upper`    | `{tag\|upper}`      | Transform to UPPERCASE                                        |
+| Modifier   | Syntax               | Description                                                        |
+| ---------- | -------------------- | ------------------------------------------------------------------ |
+| `ast`      | `{tag\|ast}`         | Parse source file to JSON AST (auto-detects language)              |
+| `ast`      | `{tag\|ast:rs}`      | Parse source code with explicit language (14 languages)            |
+| `contains` | `{tag\|contains:X}`  | Check if contains substring (predicate, supports `:not`)           |
+| `empty`    | `{tag\|empty}`       | Check if string or list is empty (predicate, supports `:not`)      |
+| `equals`   | `{tag\|equals:X}`    | Check if equals value (predicate, supports `:not`)                 |
+| `format`   | `{tag\|format:json}` | Convert between json, json5, yaml, toml formats                    |
+| `is_dir`   | `{tag\|is_dir}`      | Check if path is a directory (predicate, supports `:not`)          |
+| `is_file`  | `{tag\|is_file}`     | Check if path is a file (predicate, supports `:not`)               |
+| `join`     | `{tag\|join}`        | Join list with `\n`                                                |
+| `join`     | `{tag\|join:X}`      | Join list with custom separator                                    |
+| `load`     | `{tag\|load}`        | Fetch URL to temp file, resolve local path, or pass through base64 |
+| `lower`    | `{tag\|lower}`       | Transform to lowercase                                             |
+| `resolve`  | `{tag\|resolve}`     | Resolve path to absolute form (`~`, `.`, `..`)                     |
+| `reverse`  | `{tag\|reverse}`     | Reverse string or list order                                       |
+| `scan`     | `{tag\|scan}`        | Scan directory and return list of file paths (via vibe-fs)         |
+| `size`     | `{tag\|size}`        | Length of string or element count of list                          |
+| `sort`     | `{tag\|sort}`        | Sort ascending (default)                                           |
+| `sort`     | `{tag\|sort:asc}`    | Sort ascending                                                     |
+| `sort`     | `{tag\|sort:desc}`   | Sort descending                                                    |
+| `split`    | `{tag\|split}`       | Split string to list by `\n`                                       |
+| `split`    | `{tag\|split:X}`     | Split string to list by separator X                                |
+| `take`     | `{tag\|take:N}`      | Take first N characters or elements                                |
+| `text`     | `{tag\|text}`        | Extract text from HTML/PDF or convert image to base64              |
+| `trim`     | `{tag\|trim}`        | Strip whitespace, drop empty list elements                         |
+| `trim`     | `{tag\|trim:chars}`  | Strip custom characters, drop matching list elements               |
+| `uniq`     | `{tag\|uniq}`        | Remove duplicate characters (string) or elements (list)            |
+| `upper`    | `{tag\|upper}`       | Transform to UPPERCASE                                             |
 
 ## Escape Mnemonics
 

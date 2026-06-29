@@ -6,13 +6,15 @@ Vibe Action is a command router that executes shell commands and LLM prompts via
 
 - ⚡ **One command = complex pipeline** — chain shell scripts and LLM calls into a single action
 - 🔗 **Tag system** — connect steps via `{tag}` references with automatic dependency graph
-- 🔧 **Modifiers** — powerful inline value transformations with arguments
+- 🔧 **Modifiers** — 20+ inline value transformations with arguments
 - 🔀 **When/Then** — conditional execution in YAML without shell scripts
-- 🌳 **AST parsing** — `{tag|ast:rs}` extract code structure for smarter prompts
-- 🖥️ **System tags** — `{system_clipboard}`, `{system_pwd}`, `{system_os}` and more
-- 👁️ **Vision support** — `{system_clipboard_image}`, screenshot description, person identification
+- 🌳 **AST parsing** — `{tag|ast}` auto-detects language from file, `{tag|ast:rs}` for explicit
+- 🖥️ **System tags** — 15 built-in tags: `{system_clipboard}`, `{system_dir_pwd}`, `{system_os}` and more
+- 👁️ **Vision support** — screenshot description, person identification, image from URL or clipboard
+- 🌐 **Fetch** — load and summarize web pages, PDFs, images via `load` and `text` modifiers
+- 📦 **Project export** — scan codebase and export AST as structured JSON
 - 🤖 **Batch LLM** — parallel execution across cluster nodes with role-based routing (tiny, small, medium, large, vision)
-- ✅ **Type-safe** — validate outputs with `expect` types and regex `check`
+- ✅ **Type-safe** — validate outputs with `expect: string | list` and regex `check`
 - 🔔 **Notifications** — optional desktop notifications on completion
 - 🔐 **Confirmations** — ask before executing dangerous commands
 - 💬 **Self-documenting** — built-in `faq` command answers questions about Vibe Action itself
@@ -93,7 +95,7 @@ Access environment context anywhere in your pipelines:
   action: |
     User: {system_user}
     OS: {system_os}
-    PWD: {system_pwd}
+    PWD: {system_dir_pwd}
     Date: {system_date}
 ```
 

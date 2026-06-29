@@ -5,7 +5,6 @@ Create your own actions by adding `.yaml` files to `~/.vibe-action/actions/`. An
 ## Hello World
 
 ```yaml
-# ~/.vibe-action/actions/hello.yaml
 name: hello
 about: Say hello
 actions:
@@ -15,17 +14,9 @@ actions:
     action: Hello, World!
 ```
 
-```bash
-$ vibe-action hello
-── success ──
-Hello, World!
-─────────────
-```
-
 ## Shell Command
 
 ```yaml
-# ~/.vibe-action/actions/disk.yaml
 name: disk
 about: Show disk usage
 actions:
@@ -38,7 +29,6 @@ actions:
 ## With Arguments
 
 ```yaml
-# ~/.vibe-action/actions/greet.yaml
 name: greet
 about: Greet someone
 args:
@@ -56,7 +46,7 @@ actions:
 
 ## Using System Tags
 
-System tags provide context from your environment:
+System tags provide context from your environment. See [System Tags](./system-tags.md) for the full list.
 
 ```yaml
 actions:
@@ -66,11 +56,9 @@ actions:
     action: |
       User: {system_user}
       OS: {system_os}
-      PWD: {system_pwd}
+      PWD: {system_dir_pwd}
       Date: {system_date}
 ```
-
-Available system tags: `{system_arch}`, `{system_clipboard}`, `{system_clipboard_image}`, `{system_date}`, `{system_home}`, `{system_hostname}`, `{system_language}`, `{system_os}`, `{system_pid}`, `{system_pwd}`, `{system_shell}`, `{system_temp}`, `{system_time}`, `{system_user}`.
 
 ## LLM Call
 
@@ -79,7 +67,6 @@ args:
   - name: query
     short: q
     input: string
-    help: What to explain
 actions:
   - tag: tag_answer
     run: small
@@ -121,6 +108,39 @@ actions:
     action: |
       Summarize this document:
       {source|load|text}
+```
+
+## Project Export
+
+```yaml
+name: my-export
+about: Export project codebase as JSON
+args:
+  - name: path
+    short: p
+    input: string
+    default: .
+actions:
+  - tag: tag_validate
+    run: cmd
+    expect: string
+    action:
+      - when: '{path|is_dir}'
+        then: echo "{path}"
+      - when: '{path|is_dir:not}'
+        then: echo "'{path}' is not a directory" && exit 1
+  - tag: tag_resolve
+    run: value
+    expect: string
+    action: '{tag_validate|resolve}'
+  - tag: tag_ast
+    run: value
+    expect: list
+    action: '{tag_resolve|scan|ast}'
+  - tag: tag_json
+    run: value
+    expect: string
+    action: '{tag_ast|format:json}'
 ```
 
 ## Conditional Actions (When/Then)
@@ -167,4 +187,5 @@ actions:
 - **Debugging:** set `VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug` to see each step's input and output
 - **Clipboard:** use `default: '{system_clipboard}'` to read from clipboard
 - **Images:** use `{image|load|text}` for vision flows — works with files, URLs, and clipboard
+- **System tags:** see [System Tags](./system-tags.md) for all available environment variables
 - **Notifications:** add `notify: true` to show desktop notification on completion
