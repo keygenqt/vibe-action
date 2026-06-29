@@ -40,12 +40,14 @@ mod modifier {
     mod contains_test;
     mod empty_test;
     mod equals_test;
+    mod format_test;
     mod is_dir_test;
     mod is_file_test;
     mod join_test;
     mod load_test;
     mod resolve_test;
     mod reverse_test;
+    mod scan_test;
     mod size_test;
     mod sort_test;
     mod split_test;

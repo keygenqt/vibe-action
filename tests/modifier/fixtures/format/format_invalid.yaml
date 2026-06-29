@@ -1,0 +1,11 @@
+name: format-invalid
+about: Test format modifier fails on invalid input
+actions:
+  - tag: tag_input
+    run: value
+    expect: string
+    action: '{invalid:json'
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{tag_input|format:json}'

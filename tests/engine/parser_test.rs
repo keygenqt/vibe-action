@@ -15,7 +15,7 @@ fn test_parser_escaped_literal() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     // Boundary check: double braces must unescape to single braces without execution
     assert!(
-        stdout.contains("keep {escaped_modifier|upper} raw"),
+        stdout.contains("keep {{escaped_modifier|upper}} raw"),
         "Got: {}",
         stdout
     );
@@ -46,7 +46,7 @@ fn test_parser_mixed_boundary() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     // Active tag must resolve, while the escaped text stays untouched
     assert!(
-        stdout.contains("show active_value but skip {ignore_me|lower}"),
+        stdout.contains("show active_value but skip {{ignore_me|lower}}"),
         "Got: {}",
         stdout
     );

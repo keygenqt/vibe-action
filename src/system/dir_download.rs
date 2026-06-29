@@ -1,20 +1,20 @@
-//! System provider for `{system_pwd}` — current working directory.
+//! System provider for `{system_dir_download}` — user downloads directory.
 
 use crate::models::context::ContextModel;
 use crate::system::system::{SystemKey, SystemProvider};
 use anyhow::Result;
 
-pub struct SystemPwdProvider;
+pub struct SystemDirDownloadProvider;
 
-impl SystemProvider for SystemPwdProvider {
+impl SystemProvider for SystemDirDownloadProvider {
     fn key(&self) -> SystemKey {
-        SystemKey::Pwd
+        SystemKey::DirDownload
     }
 
     fn resolve(&self) -> Result<ContextModel> {
-        let pwd = std::env::current_dir()
+        let dir = dirs::download_dir()
             .map(|p| p.display().to_string())
             .unwrap_or_default();
-        Ok(ContextModel::String(pwd))
+        Ok(ContextModel::String(dir))
     }
 }

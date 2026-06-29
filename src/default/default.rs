@@ -78,6 +78,9 @@ pub fn default_flows() -> Vec<Box<dyn DefaultFlow>> {
             yaml: include_str!("actions/naming.yaml"),
         }),
         Box::new(BuiltinFlow {
+            yaml: include_str!("actions/project-export.yaml"),
+        }),
+        Box::new(BuiltinFlow {
             yaml: include_str!("actions/regex.yaml"),
         }),
         Box::new(BuiltinFlow {

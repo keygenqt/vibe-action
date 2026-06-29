@@ -12,14 +12,15 @@ pub enum SystemKey {
     Clipboard,
     ClipboardImage,
     Date,
-    Home,
+    DirDownload,
+    DirHome,
+    DirPwd,
+    DirTemp,
     Hostname,
     Language,
     Os,
     Pid,
-    Pwd,
     Shell,
-    Temp,
     Time,
     User,
 }
@@ -31,14 +32,15 @@ impl SystemKey {
             SystemKey::Clipboard => "system_clipboard",
             SystemKey::ClipboardImage => "system_clipboard_image",
             SystemKey::Date => "system_date",
-            SystemKey::Home => "system_home",
+            SystemKey::DirDownload => "system_dir_download",
+            SystemKey::DirHome => "system_dir_home",
+            SystemKey::DirPwd => "system_dir_pwd",
+            SystemKey::DirTemp => "system_dir_temp",
             SystemKey::Hostname => "system_hostname",
             SystemKey::Language => "system_language",
             SystemKey::Os => "system_os",
             SystemKey::Pid => "system_pid",
-            SystemKey::Pwd => "system_pwd",
             SystemKey::Shell => "system_shell",
-            SystemKey::Temp => "system_temp",
             SystemKey::Time => "system_time",
             SystemKey::User => "system_user",
         }
@@ -50,14 +52,15 @@ impl SystemKey {
             "system_clipboard" => Some(SystemKey::Clipboard),
             "system_clipboard_image" => Some(SystemKey::ClipboardImage),
             "system_date" => Some(SystemKey::Date),
-            "system_home" => Some(SystemKey::Home),
+            "system_dir_download" => Some(SystemKey::DirDownload),
+            "system_dir_home" => Some(SystemKey::DirHome),
+            "system_dir_pwd" => Some(SystemKey::DirPwd),
+            "system_dir_temp" => Some(SystemKey::DirTemp),
             "system_hostname" => Some(SystemKey::Hostname),
             "system_language" => Some(SystemKey::Language),
             "system_os" => Some(SystemKey::Os),
             "system_pid" => Some(SystemKey::Pid),
-            "system_pwd" => Some(SystemKey::Pwd),
             "system_shell" => Some(SystemKey::Shell),
-            "system_temp" => Some(SystemKey::Temp),
             "system_time" => Some(SystemKey::Time),
             "system_user" => Some(SystemKey::User),
             _ => None,
@@ -70,14 +73,15 @@ impl SystemKey {
             SystemKey::Clipboard,
             SystemKey::ClipboardImage,
             SystemKey::Date,
-            SystemKey::Home,
+            SystemKey::DirDownload,
+            SystemKey::DirHome,
+            SystemKey::DirPwd,
+            SystemKey::DirTemp,
             SystemKey::Hostname,
             SystemKey::Language,
             SystemKey::Os,
             SystemKey::Pid,
-            SystemKey::Pwd,
             SystemKey::Shell,
-            SystemKey::Temp,
             SystemKey::Time,
             SystemKey::User,
         ]
@@ -107,14 +111,15 @@ impl SystemRegistry {
             super::clipboard_image::SystemClipboardImageProvider,
         ));
         registry.register(Box::new(super::date::SystemDateProvider));
-        registry.register(Box::new(super::home::SystemHomeProvider));
+        registry.register(Box::new(super::dir_download::SystemDirDownloadProvider));
+        registry.register(Box::new(super::dir_home::SystemDirHomeProvider));
+        registry.register(Box::new(super::dir_pwd::SystemDirPwdProvider));
+        registry.register(Box::new(super::dir_temp::SystemDirTempProvider));
         registry.register(Box::new(super::hostname::SystemHostnameProvider));
         registry.register(Box::new(super::language::SystemLanguageProvider));
         registry.register(Box::new(super::os::SystemOsProvider));
         registry.register(Box::new(super::pid::SystemPidProvider));
-        registry.register(Box::new(super::pwd::SystemPwdProvider));
         registry.register(Box::new(super::shell::SystemShellProvider));
-        registry.register(Box::new(super::temp::SystemTempProvider));
         registry.register(Box::new(super::time::SystemTimeProvider));
         registry.register(Box::new(super::user::SystemUserProvider));
         registry

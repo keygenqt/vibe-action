@@ -12,6 +12,7 @@ pub enum ModifierKey {
     Contains,
     Empty,
     Equals,
+    Format,
     IsDir,
     IsFile,
     Join,
@@ -19,6 +20,7 @@ pub enum ModifierKey {
     Lower,
     Resolve,
     Reverse,
+    Scan,
     Size,
     Sort,
     Split,
@@ -37,6 +39,7 @@ impl ModifierKey {
             "contains" => Some(Self::Contains),
             "empty" => Some(Self::Empty),
             "equals" => Some(Self::Equals),
+            "format" => Some(Self::Format),
             "is_dir" => Some(Self::IsDir),
             "is_file" => Some(Self::IsFile),
             "join" => Some(Self::Join),
@@ -44,6 +47,7 @@ impl ModifierKey {
             "lower" => Some(Self::Lower),
             "resolve" => Some(Self::Resolve),
             "reverse" => Some(Self::Reverse),
+            "scan" => Some(Self::Scan),
             "size" => Some(Self::Size),
             "sort" => Some(Self::Sort),
             "split" => Some(Self::Split),
@@ -78,6 +82,7 @@ impl ModifierRegistry {
         registry.register(Box::new(super::contains::ContainsModifier));
         registry.register(Box::new(super::empty::EmptyModifier));
         registry.register(Box::new(super::equals::EqualsModifier));
+        registry.register(Box::new(super::format::FormatModifier));
         registry.register(Box::new(super::is_dir::IsDirModifier));
         registry.register(Box::new(super::is_file::IsFileModifier));
         registry.register(Box::new(super::join::JoinModifier));
@@ -85,6 +90,7 @@ impl ModifierRegistry {
         registry.register(Box::new(super::lower::LowerModifier));
         registry.register(Box::new(super::resolve::ResolveModifier));
         registry.register(Box::new(super::reverse::ReverseModifier));
+        registry.register(Box::new(super::scan::ScanModifier));
         registry.register(Box::new(super::size::SizeModifier));
         registry.register(Box::new(super::sort::SortModifier));
         registry.register(Box::new(super::split::SplitModifier));

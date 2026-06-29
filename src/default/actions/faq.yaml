@@ -23,29 +23,37 @@ actions:
         explain        - Explain complex code structures, logic architecture, or errors
         extract        - Parse and isolate entities, tokens, or structures from chaotic data
         faq            - Interactive LLM-powered assistant regarding Vibe Action usage (this tool)
+        fetch          - Fetch and summarize web page or PDF content from URL
         find           - Advanced routing filter to locate specific workspace markers or entities
         mock           - Generate synthetic structural test data or mock objects using blueprints
         naming         - Suggest clean, expressive, and idiomatic variables or function names
+        project-export - Export project codebase as structured JSON via AST parsing
         regex          - Generate, interpret, or validate complex regular expression strings
         review         - Perform automated static code review, catching bugs and performance flaws
         spellcheck     - Detect and auto-correct grammar mistakes and structural typos in text
         synonyms       - Suggest a rich contextual list of matching linguistic alternatives
+        sysinfo        - Generate a human-readable system report
         tone           - Adjust text parameters matching specific structural emotional constraints
         translate-deep - Perform heavy semantic multi-node text translation workflows
         translate-fast - Perform immediate high-speed target localization translation tasks
         whois          - Identify historical tech figures or contextual data from inputs
 
       Built-in System Context Tags (Runtime Environment Variables):
+        {{system_arch}}            - CPU architecture (e.g., aarch64, x86_64)
         {{system_clipboard}}       - Current system clipboard raw text content
         {{system_clipboard_image}} - Current clipboard image as base64-encoded PNG
-        {{system_pwd}}             - Current working directory absolute path
-        {{system_os}}              - Active operating system string name (e.g., macos, linux, windows)
-        {{system_user}}            - Current operating system user name
-        {{system_home}}            - Absolute path to the user's home directory
         {{system_date}}            - Current local system date formatted as ISO 8601 (YYYY-MM-DD)
-        {{system_time}}            - Current local system time formatted as HH:MM:SS
+        {{system_dir_download}}    - Absolute path to the user's downloads directory
+        {{system_dir_home}}        - Absolute path to the user's home directory
+        {{system_dir_pwd}}         - Current working directory absolute path
+        {{system_dir_temp}}        - Absolute path to the operating system temporary directory
+        {{system_hostname}}        - Machine hostname
+        {{system_language}}        - System language from LANG env (e.g., en, ru, zh)
+        {{system_os}}              - Active operating system string name (e.g., macos, linux)
         {{system_pid}}             - Current execution process ID identifier number
-        {{system_temp}}            - Absolute path to the operating system temporary directory
+        {{system_shell}}           - Current shell (e.g., zsh, bash, fish)
+        {{system_time}}            - Current local system time formatted as HH:MM:SS
+        {{system_user}}            - Current operating system user name
 
       System Tag Usage Example:
         - To write a flow analyzing the clipboard context natively, declare your step like:
@@ -103,28 +111,33 @@ actions:
             then: 'echo "No errors detected."'
 
       Built-in Modifiers Spacers & Transformers:
-        {{tag|upper}}       - Any   : transform text block to UPPERCASE
-        {{tag|lower}}       - Any   : transform text block to lowercase
-        {{tag|reverse}}     - Any   : reverse string sequence or list layout order
-        {{tag|sort}}        - Any   : sort characters (string) or elements (list) ascending
-        {{tag|sort:asc}}    - Any   : sort ascending (default)
-        {{tag|sort:desc}}   - Any   : sort descending
-        {{tag|take:N}}      - Any   : extract first N characters (string) or elements (list)
-        {{tag|trim}}        - Any   : strip surrounding whitespace, drop empty list elements
-        {{tag|trim:chars}}  - Any   : strip custom characters, drop list elements matching arg string
-        {{tag|uniq}}        - Any   : remove duplicate characters (string) or duplicate elements (list)
-        {{tag|join}}        - Any   : join list elements with newline, string passes through unchanged
-        {{tag|join:X}}      - Any   : join list elements with custom separator X
-        {{tag|split}}       - Any   : split string into list by newline, list passes through unchanged
-        {{tag|split:X}}     - Any   : split string into list by custom separator X
-        {{tag|ast:lang}}    - String: compile source code to JSON AST (rs, py, ts, js, kt, dart, sh, bat, ...)
+        {{tag|ast}}         - Any   : parse source file to JSON AST (auto-detects language from extension)
+        {{tag|ast:lang}}    - String: parse source code to JSON AST with explicit language (rs, py, ts, js, ...)
         {{tag|contains:X}}  - Any   : check if sequence contains substring X (returns "true"/"false", supports :not)
         {{tag|empty}}       - Any   : check if targeted value is empty (returns "true"/"false", supports :not)
         {{tag|equals:X}}    - Any   : check if text strictly equals payload X (returns "true"/"false", supports :not)
-        {{tag|is_file}}     - Any   : check if provided string path is an existing file (returns "true"/"false", supports :not)
+        {{tag|format:json}} - Any   : convert between json, json5, yaml, toml formats
         {{tag|is_dir}}      - Any   : check if provided string path is an existing directory (returns "true"/"false", supports :not)
-        {{tag|size}}        - Any   : calculate character length of string or element count of list
+        {{tag|is_file}}     - Any   : check if provided string path is an existing file (returns "true"/"false", supports :not)
+        {{tag|join}}        - Any   : join list elements with newline, string passes through unchanged
+        {{tag|join:X}}      - Any   : join list elements with custom separator X
+        {{tag|load}}        - Any   : fetch URL to temp file, resolve local path, or pass through base64
+        {{tag|lower}}       - Any   : transform text block to lowercase
         {{tag|resolve}}     - Any   : expand relative path string boundaries to absolute (~, ., .. resolved)
+        {{tag|reverse}}     - Any   : reverse string sequence or list layout order
+        {{tag|scan}}        - Any   : scan directory and return list of file paths (via vibe-fs)
+        {{tag|size}}        - Any   : calculate character length of string or element count of list
+        {{tag|sort}}        - Any   : sort characters (string) or elements (list) ascending
+        {{tag|sort:asc}}    - Any   : sort ascending (default)
+        {{tag|sort:desc}}   - Any   : sort descending
+        {{tag|split}}       - Any   : split string into list by newline, list passes through unchanged
+        {{tag|split:X}}     - Any   : split string into list by custom separator X
+        {{tag|take:N}}      - Any   : extract first N characters (string) or elements (list)
+        {{tag|text}}        - Any   : extract plain text from HTML/PDF or convert image to base64
+        {{tag|trim}}        - Any   : strip surrounding whitespace, drop empty list elements
+        {{tag|trim:chars}}  - Any   : strip custom characters, drop list elements matching arg string
+        {{tag|uniq}}        - Any   : remove duplicate characters (string) or duplicate elements (list)
+        {{tag|upper}}       - Any   : transform text block to UPPERCASE
 
       Special Spacing Escape Mnemonics inside Modifiers:
         \n     - Represents a real newline control byte (0x0A)

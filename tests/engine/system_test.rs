@@ -17,16 +17,16 @@ fn test_system_os() {
 }
 
 #[test]
-fn test_system_pwd() {
-    let output = app_test_engine("system-pwd");
+fn test_system_dir_pwd() {
+    let output = app_test_engine("system-dir-pwd");
     assert!(output.status.success());
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.starts_with("/"));
 }
 
 #[test]
-fn test_system_home() {
-    let output = app_test_engine("system-home");
+fn test_system_dir_home() {
+    let output = app_test_engine("system-dir-home");
     assert!(output.status.success());
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.starts_with("/"));
@@ -57,11 +57,19 @@ fn test_system_pid() {
 }
 
 #[test]
-fn test_system_temp() {
-    let output = app_test_engine("system-temp");
+fn test_system_dir_temp() {
+    let output = app_test_engine("system-dir-temp");
     assert!(output.status.success());
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.contains("/") || stdout.contains("\\"));
+}
+
+#[test]
+fn test_system_dir_download() {
+    let output = app_test_engine("system-dir-download");
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(!stdout.trim().is_empty());
 }
 
 #[test]

@@ -1,0 +1,7 @@
+name: system-dir-download
+about: Test system_dir_download tag
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{system_dir_download}'

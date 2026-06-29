@@ -1,0 +1,7 @@
+name: system-dir-pwd
+about: Test system_dir_pwd tag
+actions:
+  - tag: tag_result
+    run: value
+    expect: string
+    action: '{system_dir_pwd}'

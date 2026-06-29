@@ -117,3 +117,9 @@ benchmarks:
   whois:
     # Identify tech figures in a historical photo
     - cargo run -- whois -i ./fixtures/photo_1.jpg
+
+  project-export:
+    # Export project codebase as JSON
+    - cargo run -- project-export
+    # Export specific directory
+    - cargo run -- project-export -p src/engine

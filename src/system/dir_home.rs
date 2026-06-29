@@ -4,11 +4,11 @@ use crate::models::context::ContextModel;
 use crate::system::system::{SystemKey, SystemProvider};
 use anyhow::Result;
 
-pub struct SystemHomeProvider;
+pub struct SystemDirHomeProvider;
 
-impl SystemProvider for SystemHomeProvider {
+impl SystemProvider for SystemDirHomeProvider {
     fn key(&self) -> SystemKey {
-        SystemKey::Home
+        SystemKey::DirHome
     }
 
     fn resolve(&self) -> Result<ContextModel> {

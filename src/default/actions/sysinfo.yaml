@@ -20,6 +20,5 @@ actions:
       Date: {system_date}
       Time: {system_time}
       Process ID: {system_pid}
-      Home: {system_home}
-      Working directory: {system_pwd}
-      Temp directory: {system_temp}
+      Home: {system_dir_home}
+      Working directory: {system_dir_pwd}

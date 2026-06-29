@@ -57,6 +57,11 @@ cluster:
 cargo install vibe-action
 ```
 
+## Supported Platforms
+
+- **macOS** — full support
+- **Linux** — full support
+
 ## Dependencies
 
 - [Ollama](https://ollama.com), [DeepSeek](https://deepseek.com), or [Qwen](https://qwen.ai)

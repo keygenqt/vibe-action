@@ -2,6 +2,7 @@
 
 use anyhow::Result;
 use vibe_ast::Language;
+use vibe_ast::parse_file;
 use vibe_ast::parse_text;
 
 use super::modifier::Modifier;
@@ -38,16 +39,32 @@ impl Modifier for AstModifier {
     }
 
     fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
-        let lang = Self::lang_from_arg(arg)?;
         match value {
-            ContextModel::String(code) => {
-                let nodes = parse_text(code, lang)
-                    .map_err(|e| anyhow::anyhow!("AST parse error: {}", e))?;
-                let json = serde_json::to_string(&nodes)
-                    .map_err(|e| anyhow::anyhow!("JSON serialize error: {}", e))?;
-                Ok(ContextModel::String(json))
+            ContextModel::String(s) => {
+                if arg.is_empty() {
+                    match parse_file(s) {
+                        Ok(nodes) => Ok(ContextModel::String(serde_json::to_string(&nodes)?)),
+                        Err(_) => Ok(ContextModel::String(String::new())),
+                    }
+                } else {
+                    let lang = Self::lang_from_arg(arg)?;
+                    let nodes = parse_text(s, lang)?;
+                    let json = serde_json::to_string(&nodes)?;
+                    Ok(ContextModel::String(json))
+                }
             }
-            _ => anyhow::bail!("Modifier 'ast' expects a string (source code)"),
+            ContextModel::List(files) => {
+                let results: Vec<String> = files
+                    .iter()
+                    .map(
+                        |path| match self.apply(&ContextModel::String(path.clone()), "")? {
+                            ContextModel::String(json) => Ok(json),
+                            _ => unreachable!(),
+                        },
+                    )
+                    .collect::<Result<Vec<_>>>()?;
+                Ok(ContextModel::List(results))
+            }
         }
     }
 }

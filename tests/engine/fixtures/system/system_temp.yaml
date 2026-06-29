@@ -1,7 +1,0 @@
-name: system-temp
-about: Test system_temp tag
-actions:
-  - tag: tag_result
-    run: value
-    expect: string
-    action: '{system_temp}'

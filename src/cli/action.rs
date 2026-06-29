@@ -152,7 +152,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
                 .body(&format!(
                     "{} completed in {}",
                     flow.name,
-                    utils::time::format_duration(start_time.elapsed())
+                    utils::format::format_duration(start_time.elapsed())
                 ))
                 .show();
         }

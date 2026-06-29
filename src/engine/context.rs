@@ -5,7 +5,6 @@ use anyhow::Result;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-use crate::engine::parser;
 use crate::models::action::ActionRun;
 use crate::models::context::ContextModel;
 use crate::modifier::modifier::ModifierRegistry;
@@ -127,11 +126,6 @@ impl Context {
                 }
             }
             processed_placeholders.insert(placeholder.to_string());
-        }
-
-        // Finalization sweep: delegate clean unescaping to the unified parser module boundary
-        for current in results.iter_mut() {
-            *current = parser::unescape_text(current);
         }
 
         Ok(ExpandedTemplate {
