@@ -1,6 +1,5 @@
 name: whois
 about: Identify a person from a screenshot
-clipboard: true
 notify: true
 args:
   - name: image
@@ -32,3 +31,8 @@ actions:
       1. **Full Name**
          Role: contribution
          Impact: one sentence about their impact
+  # Copy result to clipboard and output
+  - tag: tag_clipboard
+    run: value
+    expect: string
+    action: '{tag_identity|clipboard}'

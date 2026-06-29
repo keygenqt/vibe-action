@@ -1,6 +1,5 @@
 name: translate-fast
 about: Translate text or files to another language
-clipboard: true
 notify: true
 args:
   - name: text
@@ -44,3 +43,8 @@ actions:
 
       [Text]
       {tag_content}
+  # Copy result to clipboard and output
+  - tag: tag_clipboard
+    run: value
+    expect: string
+    action: '{tag_translated|clipboard}'

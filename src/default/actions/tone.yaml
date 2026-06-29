@@ -1,6 +1,5 @@
 name: tone
 about: Change the tone of a text based on your instructions
-clipboard: true
 notify: true
 args:
   - name: query
@@ -10,7 +9,7 @@ args:
     default: '{system_clipboard}'
 actions:
   # LLM transforms rude/aggressive language into professional tone
-  - tag: tag_rewritten_text
+  - tag: tag_rewritten
     run: medium
     expect: string
     action: |
@@ -27,3 +26,8 @@ actions:
 
       [Input]
       {query}
+  # Copy result to clipboard and output
+  - tag: tag_clipboard
+    run: value
+    expect: string
+    action: '{tag_rewritten|clipboard}'

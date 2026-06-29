@@ -1,7 +1,6 @@
 //! Dynamic action command handler.
 //! Looks up a YAML-defined action by name and runs it with the given arguments.
 
-use arboard::Clipboard;
 use clap::ArgMatches;
 use inquire::Confirm;
 
@@ -101,15 +100,6 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
 
     print_debug!("Flow completed: {}", flow.name);
     let result = engine.result().unwrap_or_else(|e| exit_error!("{}", e));
-
-    if flow.clipboard {
-        if let Ok(mut clipboard) = Clipboard::new() {
-            clipboard
-                .set_text(&result)
-                .unwrap_or_else(|e| print_warning!("{}", e));
-            print_info!("Text copied to clipboard");
-        }
-    }
 
     print_info!(
         "completed in {}",

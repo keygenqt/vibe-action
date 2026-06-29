@@ -1,6 +1,5 @@
 name: comment
 about: Replace TODO with a meaningful comment
-clipboard: true
 notify: true
 args:
   - name: query
@@ -26,3 +25,8 @@ actions:
 
       [Code]
       {query}
+  # Copy result to clipboard and output
+  - tag: tag_clipboard
+    run: value
+    expect: string
+    action: '{tag_comment|clipboard}'

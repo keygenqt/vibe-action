@@ -1,6 +1,5 @@
 name: fetch
 about: Fetch a web page or PDF and describe its content
-clipboard: true
 notify: true
 args:
   - name: source
@@ -23,3 +22,8 @@ actions:
 
       [Content]
       {source|load|text}
+  # Copy result to clipboard and output
+  - tag: tag_clipboard
+    run: value
+    expect: string
+    action: '{tag_description|clipboard}'

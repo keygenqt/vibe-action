@@ -9,6 +9,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ModifierKey {
     Ast,
+    Clipboard,
     Contains,
     Empty,
     Equals,
@@ -36,6 +37,7 @@ impl ModifierKey {
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
             "ast" => Some(Self::Ast),
+            "clipboard" => Some(Self::Clipboard),
             "contains" => Some(Self::Contains),
             "empty" => Some(Self::Empty),
             "equals" => Some(Self::Equals),
@@ -79,6 +81,7 @@ impl ModifierRegistry {
             modifiers: HashMap::new(),
         };
         registry.register(Box::new(super::ast::AstModifier));
+        registry.register(Box::new(super::clipboard::ClipboardModifier));
         registry.register(Box::new(super::contains::ContainsModifier));
         registry.register(Box::new(super::empty::EmptyModifier));
         registry.register(Box::new(super::equals::EqualsModifier));

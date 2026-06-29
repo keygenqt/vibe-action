@@ -1,6 +1,5 @@
 name: spellcheck
 about: Check and fix spelling in text or files
-clipboard: true
 notify: true
 args:
   - name: text
@@ -55,3 +54,8 @@ actions:
 
       [Text]
       {tag_check_errors_filter}
+  # Copy result to clipboard and output
+  - tag: tag_clipboard
+    run: value
+    expect: string
+    action: '{tag_checked|clipboard}'

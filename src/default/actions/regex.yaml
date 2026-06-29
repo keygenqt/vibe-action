@@ -1,6 +1,5 @@
 name: regex
 about: Generate a regular expression pattern based on your description
-clipboard: true
 args:
   - name: query
     short: 'q'
@@ -27,8 +26,8 @@ actions:
 
       [Example]
       {example}
-  # Strip backticks if model wrapped output in them
-  - tag: tag_value
+  # Copy result to clipboard and output
+  - tag: tag_clipboard
     run: value
     expect: string
-    action: '{tag_regex|trim:`}'
+    action: '{tag_regex|trim:`|clipboard}'

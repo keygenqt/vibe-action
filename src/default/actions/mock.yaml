@@ -1,6 +1,5 @@
 name: mock
 about: Generate realistic mock data arrays (JSON, YAML, CSV) for testing
-clipboard: true
 args:
   - name: query
     short: 'q'
@@ -28,3 +27,8 @@ actions:
 
       [Query]
       {query}
+  # Copy result to clipboard and output
+  - tag: tag_clipboard
+    run: value
+    expect: string
+    action: '{tag_mock|clipboard}'

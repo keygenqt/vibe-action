@@ -1,6 +1,5 @@
 name: translate-deep
 about: Deep two-stage translation using local drafting and cloud polishing
-clipboard: true
 notify: true
 args:
   - name: text
@@ -59,3 +58,8 @@ actions:
 
       [Rough Draft]
       {tag_draft}
+  # Copy result to clipboard and output
+  - tag: tag_clipboard
+    run: value
+    expect: string
+    action: '{tag_translated|clipboard}'

@@ -30,9 +30,6 @@ pub struct FlowModel {
     /// Optional regex validation for the result.
     #[serde(default)]
     pub check: Option<String>,
-    /// Automatically copy the final terminal output to the clipboard.
-    #[serde(default)]
-    pub clipboard: bool,
     /// Show system notification on completion.
     #[serde(default)]
     pub notify: bool,

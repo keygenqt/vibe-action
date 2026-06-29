@@ -1,6 +1,5 @@
 name: review
 about: Critically analyze code for bugs and flaws using a powerful model
-clipboard: true
 notify: true
 args:
   - name: query
@@ -26,3 +25,8 @@ actions:
 
       [Code to Review]
       {query}
+  # Copy result to clipboard and output
+  - tag: tag_clipboard
+    run: value
+    expect: string
+    action: '{tag_review|clipboard}'

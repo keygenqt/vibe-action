@@ -1,6 +1,5 @@
 name: describe
 about: Describe screenshot for text-only LLM understanding
-clipboard: true
 notify: true
 args:
   - name: image
@@ -39,3 +38,8 @@ actions:
 
       [Input]
       {tag_raw}
+  # Copy result to clipboard and output
+  - tag: tag_clipboard
+    run: value
+    expect: string
+    action: '{tag_md|clipboard}'

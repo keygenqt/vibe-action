@@ -2,6 +2,7 @@
 //! Each modifier implements the Modifier trait and is registered in ModifierRegistry.
 
 pub mod ast;
+pub mod clipboard;
 pub mod contains;
 pub mod empty;
 pub mod equals;
