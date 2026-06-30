@@ -28,7 +28,6 @@ Hello, World!
 name: my-action # CLI subcommand name
 about: Description # Help text
 check: '^[a-z]+$' # Optional: regex validation for final output
-clipboard: true # Optional: copy result to clipboard
 notify: true # Optional: show system notification on completion
 args: # Optional: CLI arguments
   - name: input
@@ -133,4 +132,15 @@ actions:
   run: cmd
   confirm: true
   action: git commit -m "feat: something"
+```
+
+## Clipboard
+
+Use the `clipboard` modifier to copy values during pipeline execution:
+
+```yaml
+- tag: tag_result
+  run: value
+  expect: string
+  action: '{tag_data|format:json|clipboard}'
 ```

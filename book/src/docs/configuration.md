@@ -120,22 +120,7 @@ Actions are stored in `~/.vibe-action/actions/`. The directory is created on fir
     ├── commit.yaml
     ├── describe.yaml
     ├── explain.yaml
-    ├── extract.yaml
-    ├── faq.yaml
-    ├── fetch.yaml
-    ├── find.yaml
-    ├── mock.yaml
-    ├── naming.yaml
-    ├── project-export.yaml
-    ├── regex.yaml
-    ├── review.yaml
-    ├── spellcheck.yaml
-    ├── synonyms.yaml
-    ├── sysinfo.yaml
-    ├── tone.yaml
-    ├── translate-fast.yaml
-    ├── translate-deep.yaml
-    └── whois.yaml
+    ├── ...
 ```
 
 Add your own `.yaml` files here — they will be loaded automatically.

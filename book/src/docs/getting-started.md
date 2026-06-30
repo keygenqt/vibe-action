@@ -99,8 +99,8 @@ vibe-action fetch -s https://example.com
 # System report
 vibe-action sysinfo
 
-# Export project codebase as JSON
-vibe-action project-export
+# Scan project codebase as JSON
+vibe-action scan
 
 # Ask about Vibe Action itself
 vibe-action faq -q "как использовать модификаторы?"

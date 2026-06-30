@@ -1,5 +1,5 @@
-name: project-export
-about: Export project codebase as structured JSON
+name: scan
+about: Scan project codebase and export as structured JSON
 notify: true
 args:
   - name: path

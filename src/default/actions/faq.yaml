@@ -27,9 +27,9 @@ actions:
         find           - Advanced routing filter to locate specific workspace markers or entities
         mock           - Generate synthetic structural test data or mock objects using blueprints
         naming         - Suggest clean, expressive, and idiomatic variables or function names
-        project-export - Export project codebase as structured JSON via AST parsing
         regex          - Generate, interpret, or validate complex regular expression strings
         review         - Perform automated static code review, catching bugs and performance flaws
+        scan           - Scan project codebase and export as structured JSON via AST parsing
         spellcheck     - Detect and auto-correct grammar mistakes and structural typos in text
         synonyms       - Suggest a rich contextual list of matching linguistic alternatives
         sysinfo        - Generate a human-readable system report
@@ -111,8 +111,11 @@ actions:
             then: 'echo "No errors detected."'
 
       Built-in Modifiers Spacers & Transformers:
-        {{tag|ast}}         - Any   : parse source file to JSON AST (auto-detects language from extension)
-        {{tag|ast:lang}}    - String: parse source code to JSON AST with explicit language (rs, py, ts, js, ...)
+        {{tag|ast}}         - Any   : parse source file to JSON AST, brief by default (auto-detects language)
+        {{tag|ast:brief}}   - Any   : parse source file, brief output (signatures only, no bodies)
+        {{tag|ast:full}}    - Any   : parse source file, full output with bodies and imports
+        {{tag|ast:lang}}    - String: parse source code with explicit language (rs, py, ts, js, ...)
+        {{tag|clipboard}}   - Any   : copy value to system clipboard (pass-through)
         {{tag|contains:X}}  - Any   : check if sequence contains substring X (returns "true"/"false", supports :not)
         {{tag|empty}}       - Any   : check if targeted value is empty (returns "true"/"false", supports :not)
         {{tag|equals:X}}    - Any   : check if text strictly equals payload X (returns "true"/"false", supports :not)

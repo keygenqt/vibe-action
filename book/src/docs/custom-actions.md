@@ -110,11 +110,11 @@ actions:
       {source|load|text}
 ```
 
-## Project Export
+## Scan Codebase
 
 ```yaml
-name: my-export
-about: Export project codebase as JSON
+name: my-scan
+about: Scan project codebase as JSON
 args:
   - name: path
     short: p
@@ -136,11 +136,22 @@ actions:
   - tag: tag_ast
     run: value
     expect: list
-    action: '{tag_resolve|scan|ast}'
+    action: '{tag_resolve|scan|ast:brief}'
   - tag: tag_json
     run: value
     expect: string
     action: '{tag_ast|format:json}'
+```
+
+## Clipboard
+
+Use the `clipboard` modifier to copy values at any pipeline step:
+
+```yaml
+- tag: tag_copy
+  run: value
+  expect: string
+  action: '{tag_data|format:json|clipboard}'
 ```
 
 ## Conditional Actions (When/Then)
@@ -185,7 +196,7 @@ actions:
 - **Dependencies:** the engine sorts steps by `{tag}` references, not YAML order
 - **Validation:** add `check: ".+"` to ensure non-empty output
 - **Debugging:** set `VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug` to see each step's input and output
-- **Clipboard:** use `default: '{system_clipboard}'` to read from clipboard
+- **Clipboard:** use `{tag|clipboard}` to copy any value to clipboard mid-pipeline
 - **Images:** use `{image|load|text}` for vision flows — works with files, URLs, and clipboard
 - **System tags:** see [System Tags](./system-tags.md) for all available environment variables
 - **Notifications:** add `notify: true` to show desktop notification on completion

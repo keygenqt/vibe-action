@@ -86,15 +86,6 @@ Generate code naming suggestions based on a description.
 vibe-action naming -q "function to sort actions by dependency"
 ```
 
-## project-export
-
-Export project codebase as structured JSON via AST parsing.
-
-```bash
-vibe-action project-export
-vibe-action project-export -p src/engine
-```
-
 ## regex
 
 Generate regular expression patterns.
@@ -110,6 +101,15 @@ Critically analyze code for bugs and flaws.
 ```bash
 vibe-action review -q "your code"
 vibe-action review
+```
+
+## scan
+
+Scan project codebase and export as structured JSON via AST parsing.
+
+```bash
+vibe-action scan
+vibe-action scan -p src/engine
 ```
 
 ## spellcheck

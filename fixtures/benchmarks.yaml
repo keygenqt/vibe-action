@@ -38,9 +38,7 @@ benchmarks:
 
   fetch:
     # Test fetch with landing page
-    - cargo run -- fetch -s 'https://vibe-action.keygenqt.com/'
-    # Test fetch with documentation page
-    - cargo run -- fetch -s 'https://vibe-action.keygenqt.com/docs/ide-vscode.html'
+    - cargo run -- fetch -s 'https://keygenqt.github.io/aurora-cli/'
     # Test fetch with PDF
     - cargo run -- fetch -s 'https://pdfobject.com/pdf/sample.pdf'
 
@@ -118,8 +116,8 @@ benchmarks:
     # Identify tech figures in a historical photo
     - cargo run -- whois -i ./fixtures/photo_1.jpg
 
-  project-export:
+  scan:
     # Export project codebase as JSON
-    - cargo run -- project-export
+    - cargo run -- scan
     # Export specific directory
-    - cargo run -- project-export -p src/engine
+    - cargo run -- scan -p src/engine

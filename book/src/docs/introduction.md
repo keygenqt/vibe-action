@@ -12,7 +12,7 @@ Vibe Action is a command router that executes shell commands and LLM prompts via
 - 🖥️ **System tags** — 15 built-in tags: `{system_clipboard}`, `{system_dir_pwd}`, `{system_os}` and more
 - 👁️ **Vision support** — screenshot description, person identification, image from URL or clipboard
 - 🌐 **Fetch** — load and summarize web pages, PDFs, images via `load` and `text` modifiers
-- 📦 **Project export** — scan codebase and export AST as structured JSON
+- 📦 **Scan** — scan codebase and export AST as structured JSON
 - 🤖 **Batch LLM** — parallel execution across cluster nodes with role-based routing (tiny, small, medium, large, vision)
 - ✅ **Type-safe** — validate outputs with `expect: string | list` and regex `check`
 - 🔔 **Notifications** — optional desktop notifications on completion
