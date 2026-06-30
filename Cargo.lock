@@ -4565,7 +4565,9 @@ dependencies = [
 
 [[package]]
 name = "vibe-ast"
-version = "0.0.12"
+version = "0.0.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "62b6f2fc5460ed105fbec75379a8af39d40f871d9aea3335d72c8ec86bf0a528"
 dependencies = [
  "dunce",
  "regex",

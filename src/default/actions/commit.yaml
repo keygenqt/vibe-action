@@ -12,7 +12,7 @@ actions:
     run: cmd
     expect: list
     check: .+
-    action: cd {path|resolve} && git diff --cached -U0 --name-only --relative
+    action: cd {path|resolve} && git diff HEAD -U0 --name-only --relative
   # Diff each changed file
   - tag: tag_file_diff
     run: cmd
@@ -20,7 +20,7 @@ actions:
     action: |
       cd {path}
       if [ -f "{tag_changed_files}" ]; then
-        git diff --cached -- "{tag_changed_files}"
+        git diff HEAD -- "{tag_changed_files}"
       fi
   # LLM summarizes each diff in one sentence
   - tag: tag_file_summary
