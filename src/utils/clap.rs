@@ -1,7 +1,11 @@
+use clap::Command;
+
+use crate::utils::app;
+
+/// System commands displayed in a separate section.
+const SYSTEM_COMMANDS: &[&str] = &["refresh", "status"];
+
 /// Builds the full hierarchical CLI command tree including dynamic YAML actions.
-///
-/// This macro dynamically extends the `action` subcommand with commands
-/// loaded from the user's YAML action files at runtime.
 #[macro_export]
 macro_rules! build_app {
     ($config:expr) => {{
@@ -21,4 +25,60 @@ macro_rules! build_app {
         }
         app
     }};
+}
+
+/// Print custom colored help with grouped sections.
+pub fn print_custom_help(app_builder: &Command) {
+    use colored::Colorize;
+
+    let max_len = app_builder
+        .get_subcommands()
+        .filter(|s| !SYSTEM_COMMANDS.contains(&s.get_name()))
+        .map(|s| s.get_name().len())
+        .max()
+        .unwrap_or(15)
+        + 1;
+
+    println!("{}", app::app_about());
+    println!(
+        "{} {} {}\n",
+        "Usage:".bright_green().bold(),
+        app::app_name().cyan().bold(),
+        "[COMMAND]".cyan()
+    );
+
+    println!("{}", "Actions:".bright_green().bold());
+    for sub in app_builder.get_subcommands() {
+        let name = sub.get_name();
+        if !SYSTEM_COMMANDS.contains(&name) {
+            let about = sub.get_about().unwrap_or_default();
+            println!(
+                "  {:<width$} {}",
+                name.cyan().bold(),
+                about,
+                width = max_len
+            );
+        }
+    }
+
+    println!("\n{}", "Commands:".bright_green().bold());
+    for cmd_name in SYSTEM_COMMANDS {
+        if cmd_name != &"help" {
+            if let Some(cmd) = app_builder.find_subcommand(cmd_name) {
+                println!(
+                    "  {:<15} {}",
+                    cmd.get_name().cyan().bold(),
+                    cmd.get_about().unwrap_or_default(),
+                );
+            }
+        }
+    }
+
+    println!("\n{}", "Options:".bright_green().bold());
+    println!("  {:<15} {}", "-h, --help".cyan().bold(), "Print help");
+    println!(
+        "  {:<15} {}",
+        "-V, --version".cyan().bold(),
+        "Print version"
+    );
 }

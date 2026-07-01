@@ -4,9 +4,16 @@
 use clap::builder::Styles;
 use colored::Colorize;
 
+use crate::utils::constants::CONFIG_VERSION;
+
 /// Returns the application version from Cargo.toml
 pub fn app_version() -> &'static str {
     env!("CARGO_PKG_VERSION")
+}
+
+/// Config version from constants.
+pub fn config_version() -> &'static str {
+    CONFIG_VERSION
 }
 
 /// Returns the application name for CLI usage.
@@ -23,11 +30,11 @@ pub fn app_name_pretty() -> &'static str {
 pub fn app_about() -> String {
     format!(
         r#"
-
 {} - command router for shell and LLM tasks via YAML pipelines
 
-{}"#,
-        "Vibe Action".bright_green().bold(),
+{}
+"#,
+        app_name_pretty().bright_green().bold(),
         "Part of Vibe tools ecosystem".italic()
     )
 }
