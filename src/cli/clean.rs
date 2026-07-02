@@ -16,6 +16,6 @@ pub async fn execute() {
     }
 
     // Clean context
-    print_info!("Context cache cleaned");
+    // print_info!("Context cache cleaned");
     // @todo
 }
