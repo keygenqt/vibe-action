@@ -18,7 +18,6 @@ use crate::models::context::ContextModel;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemRegistry;
 use crate::utils;
-use crate::validate::ValidateTrait;
 
 /// One action flow: name, mode, steps, result source.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -50,7 +49,6 @@ impl FlowModel {
         let content = fs::read_to_string(path)?;
         let flow: Self = yaml_serde::from_str(&content)
             .map_err(|e| anyhow::anyhow!("Failed to parse {}: {}", path.display(), e))?;
-        flow.validate()?;
         Ok(flow)
     }
 

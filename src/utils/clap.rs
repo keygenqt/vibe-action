@@ -3,7 +3,7 @@ use clap::Command;
 use crate::utils::app;
 
 /// System commands displayed in a separate section.
-const SYSTEM_COMMANDS: &[&str] = &["refresh", "status"];
+const SYSTEM_COMMANDS: &[&str] = &["clean", "status"];
 
 /// Builds the full hierarchical CLI command tree including dynamic YAML actions.
 #[macro_export]
@@ -31,9 +31,14 @@ macro_rules! build_app {
 pub fn print_custom_help(app_builder: &Command) {
     use colored::Colorize;
 
-    let max_len = app_builder
+    let mut actions: Vec<_> = app_builder
         .get_subcommands()
         .filter(|s| !SYSTEM_COMMANDS.contains(&s.get_name()))
+        .collect();
+    actions.sort_by_key(|s| s.get_name());
+
+    let max_len = actions
+        .iter()
         .map(|s| s.get_name().len())
         .max()
         .unwrap_or(15)
@@ -48,17 +53,15 @@ pub fn print_custom_help(app_builder: &Command) {
     );
 
     println!("{}", "Actions:".bright_green().bold());
-    for sub in app_builder.get_subcommands() {
+    for sub in &actions {
         let name = sub.get_name();
-        if !SYSTEM_COMMANDS.contains(&name) {
-            let about = sub.get_about().unwrap_or_default();
-            println!(
-                "  {:<width$} {}",
-                name.cyan().bold(),
-                about,
-                width = max_len
-            );
-        }
+        let about = sub.get_about().unwrap_or_default();
+        println!(
+            "  {:<width$} {}",
+            name.cyan().bold(),
+            about,
+            width = max_len
+        );
     }
 
     println!("\n{}", "Commands:".bright_green().bold());

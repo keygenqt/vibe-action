@@ -18,8 +18,10 @@ impl Modifier for ScanModifier {
                 if !resolved.is_dir() {
                     anyhow::bail!("Not a directory: '{}'", path);
                 }
-                let files: Vec<String> = vibe_fs::scan(path, true)
-                    .map_err(|e| anyhow::anyhow!("Failed to scan '{}': {}", path, e))?
+                let result = vibe_fs::scan(path, true, None, None)
+                    .map_err(|e| anyhow::anyhow!("Failed to scan '{}': {}", path, e))?;
+                let files: Vec<String> = result
+                    .changed
                     .into_iter()
                     .map(|p| p.display().to_string())
                     .collect();

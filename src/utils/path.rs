@@ -17,6 +17,11 @@ pub fn config_dir() -> PathBuf {
     home.join(CONFIG_DIR_NAME)
 }
 
+/// Get var directory for runtime data (cache, contexts).
+pub fn cache_dir() -> PathBuf {
+    config_dir().join("cache")
+}
+
 /// Get actions directory path (env VIBE_ACTION_PATH or default).
 pub fn actions_dir() -> PathBuf {
     std::env::var("VIBE_ACTION_PATH")

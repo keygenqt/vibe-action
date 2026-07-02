@@ -3,7 +3,7 @@
 
 use clap::{Parser, Subcommand};
 
-use crate::{cli::refresh::RefreshArgs, configs::app::AppConfig};
+use crate::configs::app::AppConfig;
 
 mod cli;
 mod configs;
@@ -30,9 +30,8 @@ struct App {
 enum Commands {
     /// Show system status
     Status,
-
-    /// Refresh actions or context
-    Refresh(RefreshArgs),
+    /// Remove all cache
+    Clean,
 }
 
 #[tokio::main]
@@ -58,7 +57,7 @@ async fn main() {
     match app {
         Ok(app) => match app.command {
             Some(Commands::Status) => cli::status::execute().await,
-            Some(Commands::Refresh(args)) => cli::refresh::execute(args).await,
+            Some(Commands::Clean) => cli::clean::execute().await,
             _ => utils::clap::print_custom_help(&app_builder),
         },
         Err(_) => {

@@ -4611,9 +4611,7 @@ dependencies = [
 
 [[package]]
 name = "vibe-fs"
-version = "0.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f68029f99e37c0943484551b1eb2d100b3513d0df07420cda30777a9fca06559"
+version = "0.0.4"
 dependencies = [
  "blake3",
  "dirs",

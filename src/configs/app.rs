@@ -116,9 +116,7 @@ impl AppConfig {
         config.validate()?;
 
         // Load flows.
-        let actions_path = &path::actions_dir();
-        let is_save_default = std::env::var("VIBE_ACTION_PATH").is_err();
-        config.flows = Some(FlowsModel::load(&actions_path, is_save_default)?);
+        config.flows = Some(FlowsModel::load()?);
 
         // Cache globally.
         GLOBAL_CONFIG.set(config).ok();

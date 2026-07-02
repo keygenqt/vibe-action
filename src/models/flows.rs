@@ -4,11 +4,10 @@
 use anyhow::Result;
 use std::fs;
 use std::path::PathBuf;
-use walkdir::WalkDir;
 
 use crate::default::default::default_flows;
 use crate::models::flow::FlowModel;
-use crate::print_warning;
+use crate::utils;
 use crate::validate::ValidateTrait;
 
 /// Aggregated actions from all sources.
@@ -24,39 +23,41 @@ impl FlowsModel {
         self.flows.iter().find(|f| f.name == name)
     }
 
-    /// Load flows from a directory (recursively reads all .yaml files).
-    /// If `is_save_default` is true, saves default flows before loading.
-    pub fn load(path: &PathBuf, is_save_default: bool) -> Result<Self> {
-        // Save default flows if needed (creates directory and files).
-        if is_save_default {
-            Self::save_defaults(path)?;
+    /// Load flows from actions directory.
+    /// Uses cache for validated files, falls back to defaults on first run.
+    pub fn load() -> Result<Self> {
+        let path = utils::path::actions_dir();
+        let cache_dir = utils::path::cache_dir();
+
+        fs::create_dir_all(&path)?;
+        fs::create_dir_all(&cache_dir)?;
+
+        let scan = vibe_fs::scan(&path, false, Some(&cache_dir), Some(&["yaml", "yml"]))?;
+
+        // First run — no files, no snapshot: create defaults
+        if scan.changed.is_empty() && scan.unchanged.is_empty() {
+            Self::save_defaults(&path)?;
+            return Self::load();
         }
 
-        // Load existing flows from the directory.
-        let mut actions = Self { flows: vec![] };
-        if path.is_dir() {
-            for entry in WalkDir::new(path).follow_links(true) {
-                let entry = entry?;
-                let file_path = entry.path();
-                if file_path
-                    .extension()
-                    .map_or(false, |e| e == "yaml" || e == "yml")
-                {
-                    if let Ok(flow) = FlowModel::load(&file_path.to_path_buf()) {
-                        actions.flows.push(flow);
-                    } else if let Err(e) = FlowModel::load(&file_path.to_path_buf()) {
-                        print_warning!("Failed to load {}: {}", file_path.display(), e);
-                    }
-                }
+        // Validate changed files, update snapshot on success
+        if !scan.changed.is_empty() {
+            for file_path in &scan.changed {
+                let flow = FlowModel::load(file_path)?;
+                flow.validate().map_err(|e| {
+                    vibe_fs::clean(&path, Some(&cache_dir)).ok();
+                    anyhow::anyhow!("Validation failed for {}: {}", file_path.display(), e)
+                })?;
             }
-        } else if path.is_file() {
-            let flow = FlowModel::load(&path.to_path_buf())?;
-            actions.flows.push(flow);
-        } else {
-            anyhow::bail!("Actions path not found: {}", path.display());
         }
 
-        actions.validate()?;
+        // Load all valid files (changed just validated, unchanged already valid)
+        let mut actions = Self { flows: vec![] };
+        for file_path in scan.changed.iter().chain(scan.unchanged.iter()) {
+            let flow = FlowModel::load(file_path)?;
+            actions.flows.push(flow);
+        }
+
         Ok(actions)
     }
 
