@@ -8,7 +8,7 @@ Command router for shell and LLM tasks via YAML pipelines.
 - 🔗 **Tag system** — auto-dependency graph via `{tag}`
 - 🔧 **Modifiers** — 20+ inline value transformations
 - 🔀 **When/Then** — conditional execution in YAML
-- 🖥️ **System tags** — `{system_clipboard}`, `{system_os}`, `{system_language}` and more
+- 🖥️ **System tags** — `{system_clipboard}`, `{system_os}` and more
 - 👁️ **Vision** — screenshot description, person identification
 - 🌐 **Fetch** — load and summarize web pages, PDFs, images
 - 🤖 **Batch LLM** — role-based routing (tiny, small, medium, large, vision)

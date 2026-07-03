@@ -4533,6 +4533,7 @@ dependencies = [
  "hostname",
  "html2text",
  "image",
+ "indexmap",
  "inquire",
  "json5",
  "md5",

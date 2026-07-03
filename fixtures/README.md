@@ -1,7 +1,6 @@
 # Vibe Action
 
 AI-nativ command routr. Execut shell commands and LLM promts via simple YAML actions.
-Just say what the fuck you want — it figurs out the rest.
 
 ## Featurs
 

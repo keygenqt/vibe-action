@@ -11,7 +11,7 @@ args:
     short: 'f'
     input: string
     default: ''
-    help: File to translate
+    help: File or URL to translate
   - name: to
     short: 'l'
     input: string
@@ -27,7 +27,7 @@ actions:
       - when: '{file|empty}'
         then: echo "{text}"
       - when: '{file|empty:not}'
-        then: cat "{file|resolve}"
+        then: cat "{file|load}"
   # LLM translates text, preserving code and proper names
   - tag: tag_translated
     run: small

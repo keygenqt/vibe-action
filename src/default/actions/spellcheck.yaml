@@ -10,7 +10,7 @@ args:
   - name: file
     short: 'f'
     input: string
-    help: File to check
+    help: File or URL to check
     default: ''
 actions:
   # Read input from file or text argument
@@ -22,7 +22,7 @@ actions:
       - when: '{file|empty}'
         then: echo "{text}"
       - when: '{file|empty:not}'
-        then: cat "{file|resolve}"
+        then: cat "{file|load}"
   # LLM checks if text contains any errors
   - tag: tag_check_errors
     run: small

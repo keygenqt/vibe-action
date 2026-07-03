@@ -3,8 +3,9 @@
 
 use clap::{Parser, Subcommand};
 
-use crate::configs::app::AppConfig;
+use crate::{cli::bench::BenchArgs, configs::app::AppConfig};
 
+mod bench;
 mod cli;
 mod configs;
 mod default;
@@ -32,6 +33,8 @@ enum Commands {
     Status,
     /// Remove all cache
     Clean,
+    /// Run benchmarks
+    Bench(BenchArgs),
 }
 
 #[tokio::main]
@@ -58,6 +61,7 @@ async fn main() {
         Ok(app) => match app.command {
             Some(Commands::Status) => cli::status::execute().await,
             Some(Commands::Clean) => cli::clean::execute().await,
+            Some(Commands::Bench(args)) => cli::bench::execute(args).await,
             _ => utils::clap::print_custom_help(&app_builder),
         },
         Err(_) => {

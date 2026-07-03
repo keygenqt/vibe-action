@@ -1,9 +1,10 @@
 use clap::Command;
+use colored::Colorize;
 
 use crate::utils::app;
 
 /// System commands displayed in a separate section.
-const SYSTEM_COMMANDS: &[&str] = &["clean", "status"];
+pub const SYSTEM_COMMANDS: &[&str] = &["clean", "status", "bench"];
 
 /// Builds the full hierarchical CLI command tree including dynamic YAML actions.
 #[macro_export]
@@ -29,8 +30,6 @@ macro_rules! build_app {
 
 /// Print custom colored help with grouped sections.
 pub fn print_custom_help(app_builder: &Command) {
-    use colored::Colorize;
-
     let mut actions: Vec<_> = app_builder
         .get_subcommands()
         .filter(|s| !SYSTEM_COMMANDS.contains(&s.get_name()))

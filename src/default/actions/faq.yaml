@@ -17,26 +17,31 @@ actions:
       Each action is a YAML manifest loaded recursively from configuration directories to build CLI subcommands.
 
       Built-in Action Ecosystem (Available CLI Subcommands):
-        comment        - Generate automated clean code comments and documentation headers
-        commit         - Analyze workspace git diff state to generate Conventional Commit logs
-        describe       - Analyze visual/text context to describe interfaces or environments
-        explain        - Explain complex code structures, logic architecture, or errors
-        extract        - Parse and isolate entities, tokens, or structures from chaotic data
-        faq            - Interactive LLM-powered assistant regarding Vibe Action usage (this tool)
-        fetch          - Fetch and summarize web page or PDF content from URL
-        find           - Advanced routing filter to locate specific workspace markers or entities
-        mock           - Generate synthetic structural test data or mock objects using blueprints
-        naming         - Suggest clean, expressive, and idiomatic variables or function names
-        regex          - Generate, interpret, or validate complex regular expression strings
-        review         - Perform automated static code review, catching bugs and performance flaws
-        scan           - Scan project codebase and export as structured JSON via AST parsing
-        spellcheck     - Detect and auto-correct grammar mistakes and structural typos in text
-        synonyms       - Suggest a rich contextual list of matching linguistic alternatives
+        comment        - Replace TODO with a meaningful comment
+        commit         - AI-generated commit message
+        describe       - Describe screenshot for text-only LLM understanding
+        explain        - Explain what the selected code does in simple terms
+        extract        - Extract structured data or matching lines from text and logs
+        faq            - Ask a question about Vibe Action — YAML structure, fields, modifiers, or usage
+        fetch          - Fetch a web page or PDF and describe its content
+        find           - Semantic file finder — finds files by meaning, not just name
+        mock           - Generate realistic mock data arrays (JSON, YAML, CSV) for testing
+        naming         - Generate code naming suggestions based on a description
+        regex          - Generate a regular expression pattern based on your description
+        review         - Critically analyze code for bugs and flaws using a powerful model
+        scan           - Scan project codebase and export as structured JSON
+        spellcheck     - Check and fix spelling in text or files
+        synonyms       - Find programming/technical synonyms for a word
         sysinfo        - Generate a human-readable system report
-        tone           - Adjust text parameters matching specific structural emotional constraints
-        translate-deep - Perform heavy semantic multi-node text translation workflows
-        translate-fast - Perform immediate high-speed target localization translation tasks
-        whois          - Identify historical tech figures or contextual data from inputs
+        tone           - Change the tone of a text based on your instructions
+        translate-deep - Deep two-stage translation using local drafting and cloud polishing
+        translate-fast - Translate text or files to another language
+        whois          - Identify a person from a screenshot
+
+      System Commands:
+        clean          - Remove all cache
+        status         - Show system status
+        bench          - Run benchmarks
 
       Built-in System Context Tags (Runtime Environment Variables):
         {{system_arch}}            - CPU architecture (e.g., aarch64, x86_64)

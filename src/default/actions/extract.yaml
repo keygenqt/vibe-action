@@ -5,7 +5,7 @@ args:
   - name: file
     short: 'f'
     input: string
-    help: Path to the log or text file
+    help: Path or URL to the log or text file
   - name: query
     short: 'q'
     input: string
@@ -15,7 +15,7 @@ actions:
   - tag: tag_lines
     run: cmd
     expect: list
-    action: cat {file}
+    action: echo {file|load|text}
   # LLM checks each line against the query, outputs matching lines or "-"
   - tag: tag_content
     run: small
