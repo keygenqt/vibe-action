@@ -4,10 +4,7 @@
 use clap::Args;
 use std::time::Instant;
 
-use crate::{
-    bench::runner::Bench, exit_error, print_info, print_progress, print_success, print_warning,
-    utils,
-};
+use crate::{bench::runner::Bench, exit_error, print_info, print_progress, print_success, utils};
 
 #[derive(Args)]
 pub struct BenchArgs {
@@ -84,7 +81,7 @@ pub async fn execute(args: BenchArgs) {
                     if args.verbose {
                         print_info!("{} {}", action, args_str);
                         if output.is_empty() {
-                            print_warning!("Empty response");
+                            print_info!("No matches found.");
                         } else {
                             print_success!("{}", output);
                         }
