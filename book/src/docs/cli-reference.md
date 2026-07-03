@@ -40,6 +40,15 @@ vibe-action tone   # reads from clipboard
 vibe-action --help
 ```
 
+System commands:
+
+```bash
+vibe-action clean              # Remove all cache and temp files
+vibe-action status             # Show version and actions count
+vibe-action bench              # Run all benchmarks
+vibe-action bench -a faq -v    # Run benchmarks for specific action with output
+```
+
 ## Action Arguments
 
 Each action defines its own arguments in YAML. Use `--help` to see available options:

@@ -13,6 +13,8 @@ Vibe Action is a command router that executes shell commands and LLM prompts via
 - 👁️ **Vision support** — screenshot description, person identification, image from URL or clipboard
 - 🌐 **Fetch** — load and summarize web pages, PDFs, images via `load` and `text` modifiers
 - 📦 **Scan** — scan codebase and export AST as structured JSON
+- 🧪 **Benchmarks** — automatic testing of all actions with timing and output validation
+- ⚡ **Action cache** — instant startup via snapshot-based validation
 - 🤖 **Batch LLM** — parallel execution across cluster nodes with role-based routing (tiny, small, medium, large, vision)
 - ✅ **Type-safe** — validate outputs with `expect: string | list` and regex `check`
 - 🔔 **Notifications** — optional desktop notifications on completion

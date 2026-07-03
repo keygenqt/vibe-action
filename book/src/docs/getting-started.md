@@ -105,6 +105,16 @@ vibe-action scan
 # Ask about Vibe Action itself
 vibe-action faq -q "как использовать модификаторы?"
 
+# Check version and status
+vibe-action status
+
+# Clear all cache
+vibe-action clean
+
+# Run benchmarks
+vibe-action bench
+vibe-action bench -a faq -v
+
 # See all available actions
 vibe-action --help
 ```
