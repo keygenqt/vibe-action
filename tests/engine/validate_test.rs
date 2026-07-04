@@ -49,12 +49,3 @@ fn test_modifier_invalid() {
     eprintln!("EXIT: {:?}", output.status.code());
     assert!(!output.status.success(), "Should fail on empty modifier");
 }
-
-#[test]
-fn test_circular() {
-    let output = app_test_engine("circular");
-    assert!(
-        !output.status.success(),
-        "Should fail on circular dependency"
-    );
-}

@@ -12,9 +12,13 @@ impl Output for PlainOutput {
         OutputLevel::Plain
     }
     /// Ignored in plain mode.
-    fn error(&self, _msg: &str) {}
+    fn error(&self, msg: &str) {
+        eprintln!("{}", msg);
+    }
     /// Ignored in plain mode.
-    fn warning(&self, _msg: &str) {}
+    fn warning(&self, msg: &str) {
+        eprintln!("{}", msg);
+    }
     /// Ignored in plain mode.
     fn info(&self, _msg: &str) {}
     /// Prints result only.

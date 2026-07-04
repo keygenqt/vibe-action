@@ -2,6 +2,7 @@
 //! Loads all flows from configured directories and provides lookup.
 
 use anyhow::Result;
+use fs2::FileExt;
 use std::fs;
 use std::path::PathBuf;
 
@@ -25,37 +26,61 @@ impl FlowsModel {
 
     /// Load flows from actions directory.
     /// Uses cache for validated files, falls back to defaults on first run.
+    /// Acquires an exclusive file lock to prevent concurrent cache corruption.
     pub fn load() -> Result<Self> {
         let path = utils::path::actions_dir();
         let cache_dir = utils::path::cache_dir();
 
+        // Ensure directories exist before any operations
         fs::create_dir_all(&path)?;
         fs::create_dir_all(&cache_dir)?;
 
-        let scan = vibe_fs::scan(&path, false, Some(&cache_dir), Some(&["yaml", "yml"]))?;
+        // Prevent concurrent scans from corrupting the snapshot
+        let lock_file = cache_dir.join(".lock");
+        let _lock = std::fs::File::create(&lock_file)?;
+        _lock.lock_exclusive()?;
 
-        // First run — no files, no snapshot: create defaults
+        // Delegate to inner to keep lock held during recursion
+        Self::load_inner(&path, &cache_dir).map_err(|e| {
+            // Wipe cache on any error to force clean reload next time
+            vibe_fs::clean(&path, Some(&cache_dir)).ok();
+            e
+        })
+    }
+
+    /// Inner loader — lock is already held by caller.
+    fn load_inner(path: &PathBuf, cache_dir: &PathBuf) -> Result<Self> {
+        let scan = vibe_fs::scan(path, false, Some(cache_dir), Some(&["yaml", "yml"]))?;
+
+        // No files on disk and nothing in snapshot — first run
         if scan.changed.is_empty() && scan.unchanged.is_empty() {
-            Self::save_defaults(&path)?;
-            return Self::load();
+            Self::save_defaults(path)?;
+            // Force scan to populate snapshot with defaults
+            vibe_fs::scan(path, true, Some(cache_dir), Some(&["yaml", "yml"]))?;
+            return Self::load_inner(path, cache_dir);
         }
 
-        // Validate changed files, update snapshot on success
-        if !scan.changed.is_empty() {
+        // Validate only the files that changed since last snapshot
+        let has_changes = !scan.changed.is_empty();
+        if has_changes {
             for file_path in &scan.changed {
                 let flow = FlowModel::load(file_path)?;
                 flow.validate().map_err(|e| {
-                    vibe_fs::clean(&path, Some(&cache_dir)).ok();
                     anyhow::anyhow!("Validation failed for {}: {}", file_path.display(), e)
                 })?;
             }
         }
 
-        // Load all valid files (changed just validated, unchanged already valid)
+        // Load all valid files (changed just validated, unchanged already in cache)
         let mut actions = Self { flows: vec![] };
         for file_path in scan.changed.iter().chain(scan.unchanged.iter()) {
             let flow = FlowModel::load(file_path)?;
             actions.flows.push(flow);
+        }
+
+        // Re-validate whole model if new files were added
+        if has_changes {
+            actions.validate()?;
         }
 
         Ok(actions)

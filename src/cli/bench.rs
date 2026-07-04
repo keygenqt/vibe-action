@@ -66,7 +66,9 @@ pub async fn execute(args: BenchArgs) {
                         .map(|(_, v)| v.split_whitespace().collect::<Vec<_>>().join(" "))
                         .collect::<Vec<_>>()
                         .join(", ");
-                    let args_display = if args_str.chars().count() > 100 {
+                    let args_display = if args_str.is_empty() {
+                        "(no args)".to_string()
+                    } else if args_str.chars().count() > 100 {
                         format!("{}...", args_str.chars().take(100).collect::<String>())
                     } else {
                         args_str.clone()
@@ -79,7 +81,7 @@ pub async fn execute(args: BenchArgs) {
                         utils::format::format_duration(duration),
                     );
                     if args.verbose {
-                        print_info!("{} {}", action, args_str);
+                        print_info!("{} {}", action, args_display);
                         if output.is_empty() {
                             print_info!("No matches found.");
                         } else {

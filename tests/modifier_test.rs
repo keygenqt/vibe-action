@@ -2,25 +2,12 @@
 //!
 //! cargo test --test modifier_test # -- --test-threads=1 --nocapture
 
-use std::sync::Once;
-
-static INIT: Once = Once::new();
-
-pub fn setup() {
-    INIT.call_once(|| {
-        // SAFETY: called once before any tests run, no other threads access env vars.
-        unsafe {
-            std::env::set_var("VIBE_CONFIG", "tests/config.yaml");
-            std::env::set_var("VIBE_ACTION_PATH", "tests/modifier/fixtures");
-            std::env::set_var("VIBE_LOG_TYPE", "plain");
-        }
-    });
-}
-
 pub fn app_test_modifier(name: &str) -> std::process::Output {
-    setup();
-    let output = std::process::Command::new("cargo")
-        .args(&["run", "--", name])
+    let output = std::process::Command::new("./target/debug/vibe-action")
+        .args(&[name])
+        .env("VIBE_CONFIG", "tests/config.yaml")
+        .env("VIBE_ACTION_PATH", "tests/modifier/fixtures")
+        .env("VIBE_LOG_TYPE", "plain")
         .output()
         .unwrap();
     let stderr = String::from_utf8_lossy(&output.stderr);
