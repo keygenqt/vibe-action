@@ -2,7 +2,26 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
-## [Unreleased]
+## [0.1.1] - 2026-07-04
+
+### 🐛 Fixes
+
+- Bump vibe-ast version and use head diff
+- Disable context cache cleaning message
+
+### 📚 Documentation
+
+- Add system commands, benchmarks, and version bump
+
+### 🚀 Features
+
+- Add cli subcommands, modules, config version, and custom help
+- Add clean command and refactor flow loading
+- Add benchmark command and update dependencies
+- Add temp file cleanup
+- Add file locking and error handling for flow loading
+
+## [0.1.0] - 2026-06-30
 
 ### ⚡ Refactoring
 
@@ -56,6 +75,7 @@ All notable changes to Vibe Action will be documented in this file.
 - Improve README and add new features.
 - Add new section on IDE integration
 - Update documentation and commit action
+- Add changelog config and update changelog
 
 ### 🚀 Features
 
