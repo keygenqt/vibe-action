@@ -15,7 +15,8 @@ use crate::models::action::ActionValue;
 use crate::models::context::ContextModel;
 use crate::models::flow::FlowModel;
 use crate::modifier::modifier::ModifierRegistry;
-use crate::print_trace;
+use crate::output::output::OutputKind;
+use crate::print_template;
 use crate::utils;
 
 /// Pipeline execution engine — resolves dependencies, executes actions, manages context.
@@ -265,27 +266,28 @@ impl Engine {
         let preview_original: String = original.chars().take(size).collect();
         let preview_resolved: String = resolved.chars().take(size).collect();
         let preview_result: String = result.chars().take(size).collect();
-        print_trace!(
-            r#"[{}] ({})
-------------- original (len:{})
-{}
-------------- resolved (len:{})
-{}
-------------- result (len:{})
-{}
+        print_template!(
+            OutputKind::Trace,
+            r#"[{tag}] ({run})
+------------- original (len:{orig_len})
+{preview_original}
+------------- resolved (len:{resolved_len})
+{preview_resolved}
+------------- result (len:{result_len})
+{preview_result}
 -------------"#,
-            tag,
-            match run {
+            "tag" => tag,
+            "run" => match run {
                 ActionRun::Cmd => "cmd",
                 ActionRun::Value => "val",
                 _ => "llm",
             },
-            original.len(),
-            preview_original,
-            resolved.len(),
-            preview_resolved,
-            result.len(),
-            preview_result,
+            "orig_len" => original.len().to_string(),
+            "preview_original" => preview_original,
+            "resolved_len" => resolved.len().to_string(),
+            "preview_resolved" => preview_resolved,
+            "result_len" => result.len().to_string(),
+            "preview_result" => preview_result,
         );
     }
 }

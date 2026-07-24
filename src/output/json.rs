@@ -1,78 +1,63 @@
 //! JSON output — all messages as JSON objects.
 
-use crate::output::output::OutputLevel;
+use crate::output::{format::FormatOutput, msg::OutputMsg, output::OutputType};
 
 use super::output::Output;
-use serde::Serialize;
 
-#[derive(Serialize)]
-struct JsonMessage {
-    level: String,
-    message: String,
+pub struct JsonOutput {
+    formatter: FormatOutput,
 }
 
-pub struct JsonOutput;
+impl JsonOutput {
+    /// Creates a new JSON output strategy with an injected formatter.
+    pub fn new(formatter: FormatOutput) -> Self {
+        Self { formatter }
+    }
+}
 
 impl Output for JsonOutput {
-    /// Returns the output level.
-    fn level(&self) -> OutputLevel {
-        OutputLevel::Json
+    /// Returns the output type.
+    fn output_type(&self) -> OutputType {
+        OutputType::Json
+    }
+
+    /// Prints plain message.
+    fn plain(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
     }
 
     /// Prints error as JSON.
-    fn error(&self, msg: &str) {
-        println!(
-            "{}",
-            serde_json::to_string(&JsonMessage {
-                level: "error".into(),
-                message: msg.to_string()
-            })
-            .unwrap()
-        );
+    fn error(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
     }
 
     /// Prints warning as JSON.
-    fn warning(&self, msg: &str) {
-        println!(
-            "{}",
-            serde_json::to_string(&JsonMessage {
-                level: "warning".into(),
-                message: msg.to_string()
-            })
-            .unwrap()
-        );
+    fn warning(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
     }
 
     /// Prints info as JSON.
-    fn info(&self, msg: &str) {
-        println!(
-            "{}",
-            serde_json::to_string(&JsonMessage {
-                level: "info".into(),
-                message: msg.to_string()
-            })
-            .unwrap()
-        );
+    fn info(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
     }
 
     /// Prints success as JSON.
-    fn success(&self, msg: &str) {
-        println!(
-            "{}",
-            serde_json::to_string(&JsonMessage {
-                level: "success".into(),
-                message: msg.to_string()
-            })
-            .unwrap()
-        );
+    fn success(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
     }
 
-    /// Ignored in JSON mode.
-    fn debug(&self, _msg: &str) {}
+    /// Formats and prints debug messages as clean JSON to stdout.
+    fn debug(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
+    }
 
-    /// Ignored in JSON mode.
-    fn trace(&self, _msg: &str) {}
+    /// Formats and prints trace messages as clean JSON to stdout.
+    fn trace(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
+    }
 
-    /// Ignored in JSON mode.
-    fn progress(&self, _msg: &str) {}
+    /// Formats and prints progress indicators as clean JSON to stdout.
+    fn progress(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
+    }
 }

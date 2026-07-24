@@ -1,105 +1,46 @@
 //! CLI output with ANSI colors and progress bar.
 
-use syntect::easy::HighlightLines;
-use syntect::highlighting::ThemeSet;
-use syntect::parsing::SyntaxSet;
-
-use crate::output::output::OutputLevel;
+use crate::output::{msg::OutputMsg, output::OutputType};
 
 use super::output::Output;
 
+use crate::output::format::FormatOutput;
+
 pub struct CliOutput {
+    formatter: FormatOutput,
     last_had_newline: std::sync::Mutex<bool>,
 }
 
 impl CliOutput {
-    pub fn new() -> Self {
+    /// Creates a new CLI output strategy with an injected formatter.
+    pub fn new(formatter: FormatOutput) -> Self {
         Self {
+            formatter,
             last_had_newline: std::sync::Mutex::new(true),
-        }
-    }
-
-    /// Format a message for display.
-    pub fn format_msg(s: &str) -> String {
-        let s = s
-            .strip_prefix("tag_")
-            .or_else(|| s.strip_prefix("tag-"))
-            .unwrap_or(s);
-        let s = if s.ends_with('.') && !s.ends_with("..") {
-            s.strip_suffix('.').unwrap_or(s)
-        } else {
-            s
-        };
-        let mut chars = s.chars();
-        match chars.next() {
-            None => String::new(),
-            Some(c) => c.to_lowercase().to_string() + chars.as_str(),
-        }
-    }
-
-    /// Renders markdown text to the terminal with syntax highlighting for code blocks.
-    fn render_markdown(&self, text: &str, max_width: usize) {
-        let skin = termimad::MadSkin::default();
-        let ps = SyntaxSet::load_defaults_newlines();
-        let ts = ThemeSet::load_defaults();
-        let theme = &ts.themes["base16-eighties.dark"];
-
-        let mut in_code_block = false;
-        let mut highlighter: Option<HighlightLines> = None;
-
-        for line in syntect::util::LinesWithEndings::from(text) {
-            let trimmed = line.trim_start();
-
-            if trimmed.starts_with("```") {
-                if !in_code_block {
-                    in_code_block = true;
-                    let lang_token = trimmed.trim_start_matches('`').trim();
-                    let syntax = if lang_token.is_empty() {
-                        ps.find_syntax_plain_text()
-                    } else {
-                        ps.find_syntax_by_token(lang_token)
-                            .unwrap_or_else(|| ps.find_syntax_plain_text())
-                    };
-                    highlighter = Some(HighlightLines::new(syntax, theme));
-                } else {
-                    in_code_block = false;
-                    highlighter = None;
-                    print!("\x1b[0m");
-                }
-            } else if in_code_block {
-                if let Some(ref mut h) = highlighter {
-                    match h.highlight_line(line, &ps) {
-                        Ok(regions) => {
-                            for (style, raw_text) in regions {
-                                let c = style.foreground;
-                                print!("\x1b[38;2;{};{};{}m{}", c.r, c.g, c.b, raw_text);
-                            }
-                            print!("\x1b[0m");
-                        }
-                        Err(_) => {
-                            print!("{}", line);
-                        }
-                    }
-                } else {
-                    print!("{}", line);
-                }
-            } else {
-                let text_view = skin.text(line, Some(max_width));
-                print!("{}", text_view);
-            }
         }
     }
 }
 
 impl Output for CliOutput {
-    /// Returns the output level.
-    fn level(&self) -> OutputLevel {
-        OutputLevel::Cli
+    /// Returns the output type.
+    fn output_type(&self) -> OutputType {
+        OutputType::Cli
+    }
+
+    /// Prints plain message.
+    fn plain(&self, msg: &OutputMsg) {
+        let msg = self.formatter.format(msg);
+        let mut last = self.last_had_newline.lock().unwrap();
+        if !*last {
+            println!();
+        }
+        println!("{}", msg);
+        *last = true;
     }
 
     /// Prints red error message.
-    fn error(&self, msg: &str) {
-        let msg = Self::format_msg(msg);
+    fn error(&self, msg: &OutputMsg) {
+        let msg = self.formatter.format(msg);
         let mut last = self.last_had_newline.lock().unwrap();
         if !*last {
             println!();
@@ -109,8 +50,8 @@ impl Output for CliOutput {
     }
 
     /// Prints yellow warning message.
-    fn warning(&self, msg: &str) {
-        let msg = Self::format_msg(msg);
+    fn warning(&self, msg: &OutputMsg) {
+        let msg = self.formatter.format(msg);
         let mut last = self.last_had_newline.lock().unwrap();
         if !*last {
             println!();
@@ -120,8 +61,8 @@ impl Output for CliOutput {
     }
 
     /// Prints blue info message.
-    fn info(&self, msg: &str) {
-        let msg = Self::format_msg(msg);
+    fn info(&self, msg: &OutputMsg) {
+        let msg = self.formatter.format(msg);
         let mut last = self.last_had_newline.lock().unwrap();
         if !*last {
             println!();
@@ -131,15 +72,22 @@ impl Output for CliOutput {
     }
 
     /// Prints framed success block with text wrapping and Markdown highlighting.
-    fn success(&self, msg: &str) {
+    fn success(&self, msg: &OutputMsg) {
         let mut last = self.last_had_newline.lock().unwrap();
         if !*last {
             println!();
         }
 
+        // Extract the raw Markdown text from the message template
+        let raw_markdown = &msg.template;
+
         let (term_width, _) = termimad::terminal_size();
         let term_width = (term_width as usize).min(120);
-        let longest_line = msg.lines().map(|l| l.chars().count()).max().unwrap_or(0);
+        let longest_line = raw_markdown
+            .lines()
+            .map(|l| l.chars().count())
+            .max()
+            .unwrap_or(0);
         let max_width = if longest_line <= term_width {
             longest_line.max(13)
         } else {
@@ -150,21 +98,19 @@ impl Output for CliOutput {
         let bottom = "─".repeat(max_width);
 
         println!("\x1b[1m\x1b[32m{}\x1b[0m", top);
-        self.render_markdown(msg, max_width);
+
+        // Pass the extracted clean string to the markdown engine
+        let rendered_markdown = self.formatter.format_markdown(raw_markdown, max_width);
+        print!("{}", rendered_markdown);
+
         println!("\x1b[1m\x1b[32m{}\x1b[0m", bottom);
 
         *last = true;
     }
 
-    /// Ignored in CLI mode.
-    fn debug(&self, _msg: &str) {}
-
-    /// Ignored in CLI mode.
-    fn trace(&self, _msg: &str) {}
-
     /// Prints cyan progress message with carriage return.
-    fn progress(&self, msg: &str) {
-        let msg = Self::format_msg(msg);
+    fn progress(&self, msg: &OutputMsg) {
+        let msg = self.formatter.format(msg);
         let mut last = self.last_had_newline.lock().unwrap();
         if msg.contains('%') {
             print!("\r\x1b[1m\x1b[36mprogress\x1b[0m: {}\x1b[K", msg);
@@ -178,4 +124,8 @@ impl Output for CliOutput {
         }
         std::io::Write::flush(&mut std::io::stdout()).unwrap();
     }
+
+    /// Ignored in CLI mode.
+    fn debug(&self, _msg: &OutputMsg) {}
+    fn trace(&self, _msg: &OutputMsg) {}
 }

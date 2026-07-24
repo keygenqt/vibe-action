@@ -3,7 +3,7 @@
 
 use clap::{Parser, Subcommand};
 
-use crate::{cli::bench::BenchArgs, configs::app::AppConfig};
+use crate::{cli::bench::BenchArgs, configs::app::AppConfig, output::output::OutputKind};
 
 mod bench;
 mod cli;
@@ -40,12 +40,16 @@ enum Commands {
 #[tokio::main]
 async fn main() {
     if let Err(e) = AppConfig::init() {
-        exit_error!("{}", e);
+        print_text!(OutputKind::Error, "{}", e);
+        std::process::exit(1);
     }
 
     let config = match AppConfig::instance() {
         Ok(v) => v,
-        Err(e) => exit_error!("{}", e),
+        Err(e) => {
+            print_text!(OutputKind::Error, "{}", e);
+            std::process::exit(1);
+        }
     };
 
     let app_builder = build_app!(&config);

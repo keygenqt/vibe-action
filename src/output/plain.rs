@@ -1,34 +1,63 @@
 //! Plain output — no ANSI, no formatting, just the message. For tests and CI.
 
-use crate::output::output::OutputLevel;
+use crate::output::{format::FormatOutput, msg::OutputMsg, output::OutputType};
 
 use super::output::Output;
 
-pub struct PlainOutput;
+pub struct PlainOutput {
+    formatter: FormatOutput,
+}
+
+impl PlainOutput {
+    /// Creates a new plain text output strategy with an injected formatter.
+    pub fn new(formatter: FormatOutput) -> Self {
+        Self { formatter }
+    }
+}
 
 impl Output for PlainOutput {
-    /// Returns the output level.
-    fn level(&self) -> OutputLevel {
-        OutputLevel::Plain
+    /// Returns the output type.
+    fn output_type(&self) -> OutputType {
+        OutputType::Plain
     }
-    /// Ignored in plain mode.
-    fn error(&self, msg: &str) {
-        eprintln!("{}", msg);
+
+    /// Prints plain message.
+    fn plain(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
     }
-    /// Ignored in plain mode.
-    fn warning(&self, msg: &str) {
-        eprintln!("{}", msg);
+
+    /// Formats and prints error message to stderr.
+    fn error(&self, msg: &OutputMsg) {
+        eprintln!("{}", self.formatter.format(msg));
     }
-    /// Ignored in plain mode.
-    fn info(&self, _msg: &str) {}
-    /// Prints result only.
-    fn success(&self, msg: &str) {
-        println!("{}", msg);
+
+    /// Formats and prints warning message to stderr.
+    fn warning(&self, msg: &OutputMsg) {
+        eprintln!("{}", self.formatter.format(msg));
     }
+
     /// Ignored in plain mode.
-    fn debug(&self, _msg: &str) {}
+    fn info(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
+    }
+
+    /// Formats and prints successful result to stdout.
+    fn success(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
+    }
+
     /// Ignored in plain mode.
-    fn trace(&self, _msg: &str) {}
+    fn debug(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
+    }
+
     /// Ignored in plain mode.
-    fn progress(&self, _msg: &str) {}
+    fn trace(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
+    }
+
+    /// Ignored in plain mode.
+    fn progress(&self, msg: &OutputMsg) {
+        println!("{}", self.formatter.format(msg));
+    }
 }

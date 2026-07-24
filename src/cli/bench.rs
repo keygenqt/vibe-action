@@ -4,7 +4,7 @@
 use clap::Args;
 use std::time::Instant;
 
-use crate::{bench::runner::Bench, exit_error, print_info, print_progress, print_success, utils};
+use crate::{bench::runner::Bench, output::output::OutputKind, print_template, print_text, utils};
 
 #[derive(Args)]
 pub struct BenchArgs {
@@ -21,7 +21,10 @@ pub struct BenchArgs {
 pub async fn execute(args: BenchArgs) {
     let bench = match Bench::load() {
         Ok(b) => b,
-        Err(e) => exit_error!("{}", e),
+        Err(e) => {
+            print_text!(OutputKind::Error, "{}", e);
+            std::process::exit(1);
+        }
     };
 
     let actions: Vec<_> = if let Some(ref filter) = args.action {
@@ -36,7 +39,7 @@ pub async fn execute(args: BenchArgs) {
     };
 
     if actions.is_empty() {
-        print_info!("No benchmark found");
+        print_text!(OutputKind::Info, "No benchmark found");
         return;
     }
 
@@ -46,14 +49,21 @@ pub async fn execute(args: BenchArgs) {
     let total: usize = actions.iter().map(|(_, cases)| cases.len()).sum();
     let start_time = Instant::now();
 
-    print_info!("Start execute task benchmarks ({} cases)", total);
+    print_template!(
+        OutputKind::Info,
+        "Start execute task benchmarks ({total} cases)",
+        "total" => total
+    );
 
     for (action, cases) in &actions {
-        print_info!("Start {}...", action);
+        print_template!(
+            OutputKind::Info,
+            "Start {action}...",
+            "action" => action
+        );
 
         for case in cases.iter() {
             index += 1;
-
             let start = Instant::now();
 
             match bench.run(action, case).await {
@@ -66,50 +76,73 @@ pub async fn execute(args: BenchArgs) {
                         .map(|(_, v)| v.split_whitespace().collect::<Vec<_>>().join(" "))
                         .collect::<Vec<_>>()
                         .join(", ");
+
                     let args_display = if args_str.is_empty() {
                         "(no args)".to_string()
                     } else if args_str.chars().count() > 100 {
-                        format!("{}...", args_str.chars().take(100).collect::<String>())
+                        let mut take_chars = args_str.chars().take(100).collect::<String>();
+                        take_chars.push_str("...");
+                        take_chars
                     } else {
-                        args_str.clone()
+                        args_str
                     };
-                    print_progress!(
-                        "{:.0}% ({}/{}) | {}",
-                        (index as f32 / total as f32) * 100.0,
-                        index,
-                        total,
-                        utils::format::format_duration(duration),
-                    );
+
                     if args.verbose {
-                        print_info!("{} {}", action, args_display);
+                        print_template!(
+                            OutputKind::Progress,
+                            "{percent}% ({current}/{total}) | {duration} | {action} {args_display}",
+                            "percent" => format!("{:.0}", (index as f32 / total as f32) * 100.0),
+                            "current" => index.to_string(),
+                            "total" => total.to_string(),
+                            "duration" => utils::format::format_duration(duration),
+                            "action" => action,
+                            "args_display" => args_display
+                        );
+
                         if output.is_empty() {
-                            print_info!("No matches found.");
+                            print_text!(OutputKind::Info, "No matches found.");
                         } else {
-                            print_success!("{}", output);
+                            print_template!(
+                                OutputKind::Success,
+                                "{output}",
+                                "output" => output
+                            );
                         }
                     } else {
-                        print_progress!("└─ {}", args_display);
+                        // Стандартный плоский вывод прогресса
+                        print_template!(
+                            OutputKind::Progress,
+                            "{percent}% ({current}/{total}) | {duration} | └─ {args_display}",
+                            "percent" => format!("{:.0}", (index as f32 / total as f32) * 100.0),
+                            "current" => index.to_string(),
+                            "total" => total.to_string(),
+                            "duration" => utils::format::format_duration(duration),
+                            "args_display" => args_display
+                        );
                     }
                 }
                 Err(e) => {
                     failed += 1;
                     let duration = start.elapsed();
-                    print_progress!(
-                        "└─ {}/{} | {} | FAIL: {}",
-                        index,
-                        total,
-                        utils::format::format_duration(duration),
-                        e
+                    print_template!(
+                        OutputKind::Progress,
+                        "└─ {current}/{total} | {duration} | FAIL: {error}",
+                        "current" => index.to_string(),
+                        "total" => total.to_string(),
+                        "duration" => utils::format::format_duration(duration),
+                        "error" => e.to_string()
                     );
                 }
             }
         }
     }
 
-    print_info!(
-        "{} passed, {} failed in {}",
-        passed,
-        failed,
-        utils::format::format_duration(start_time.elapsed())
+    // Исправлено: точные строковые плейсхолдеры для итогового лога
+    print_template!(
+        OutputKind::Info,
+        "{passed} passed, {failed} failed in {duration}",
+        "passed" => passed.to_string(),
+        "failed" => failed.to_string(),
+        "duration" => utils::format::format_duration(start_time.elapsed())
     );
 }

@@ -1,24 +1,62 @@
 //! Output trait, registry, and level enum.
 
-/// Output level key.
+use serde::{Deserialize, Serialize};
+
+use crate::output::{
+    cli::CliOutput, json::JsonOutput, msg::OutputMsg, plain::PlainOutput, test::TestOutput,
+    tracing::TracingOutput,
+};
+
+/// Output type key.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum OutputLevel {
+pub enum OutputType {
     Cli,
     Tracing,
     Plain,
     Json,
+    Test,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[serde(rename_all = "lowercase")]
+pub enum OutputKind {
+    Plain,
+    Info,
+    Success,
+    Warning,
+    Error,
+    Debug,
+    Trace,
+    Progress,
+}
+
+/// Export context for plugin integration.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ExportContext {
+    Actions,
+    Status,
+}
+
+impl ExportContext {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Actions => "actions",
+            Self::Status => "status",
+        }
+    }
 }
 
 /// Output trait.
 pub trait Output: Send + Sync {
-    fn level(&self) -> OutputLevel;
-    fn error(&self, msg: &str);
-    fn warning(&self, msg: &str);
-    fn info(&self, msg: &str);
-    fn success(&self, msg: &str);
-    fn debug(&self, msg: &str);
-    fn trace(&self, msg: &str);
-    fn progress(&self, msg: &str);
+    fn output_type(&self) -> OutputType;
+    fn plain(&self, msg: &OutputMsg);
+    fn error(&self, msg: &OutputMsg);
+    fn warning(&self, msg: &OutputMsg);
+    fn info(&self, msg: &OutputMsg);
+    fn success(&self, msg: &OutputMsg);
+    fn debug(&self, msg: &OutputMsg);
+    fn trace(&self, msg: &OutputMsg);
+    fn progress(&self, msg: &OutputMsg);
 }
 
 /// Registry of outputs with a single active output.
@@ -29,38 +67,41 @@ pub struct OutputRegistry {
 impl OutputRegistry {
     /// Create registry based on VIBE_LOG_TYPE and VIBE_TRACE_LEVEL.
     pub fn new(log_type: &str, trace_level: &str) -> Self {
-        let current: Box<dyn Output> = match log_type {
-            "cli" => Box::new(super::cli::CliOutput::new()),
-            "tracing" => Box::new(super::tracing::TracingOutput::new(trace_level)),
-            "plain" => Box::new(super::plain::PlainOutput),
-            "json" => Box::new(super::json::JsonOutput),
-            _ => Box::new(super::cli::CliOutput::new()),
+        let output_type = match log_type {
+            "cli" => OutputType::Cli,
+            "tracing" => OutputType::Tracing,
+            "plain" => OutputType::Plain,
+            "json" => OutputType::Json,
+            "test" => OutputType::Test,
+            _ => OutputType::Cli,
         };
+        let formatter = super::format::FormatOutput::new(output_type);
+        let current: Box<dyn Output> = match output_type {
+            OutputType::Cli => Box::new(CliOutput::new(formatter)),
+            OutputType::Tracing => Box::new(TracingOutput::new(trace_level, formatter)),
+            OutputType::Plain => Box::new(PlainOutput::new(formatter)),
+            OutputType::Json => Box::new(JsonOutput::new(formatter)),
+            OutputType::Test => Box::new(TestOutput::new(formatter)),
+        };
+
         Self { current }
     }
 
-    pub fn level(&self) -> OutputLevel {
-        self.current.level()
+    /// Universally dispatches any structural log message to its specific strategy method.
+    pub fn write(&self, msg: &OutputMsg) {
+        match msg.kind {
+            OutputKind::Plain => self.current.plain(msg),
+            OutputKind::Info => self.current.info(msg),
+            OutputKind::Success => self.current.success(msg),
+            OutputKind::Warning => self.current.warning(msg),
+            OutputKind::Error => self.current.error(msg),
+            OutputKind::Debug => self.current.debug(msg),
+            OutputKind::Trace => self.current.trace(msg),
+            OutputKind::Progress => self.current.progress(msg),
+        }
     }
-    pub fn error(&self, msg: &str) {
-        self.current.error(msg);
-    }
-    pub fn warning(&self, msg: &str) {
-        self.current.warning(msg);
-    }
-    pub fn info(&self, msg: &str) {
-        self.current.info(msg);
-    }
-    pub fn success(&self, msg: &str) {
-        self.current.success(msg);
-    }
-    pub fn debug(&self, msg: &str) {
-        self.current.debug(msg);
-    }
-    pub fn trace(&self, msg: &str) {
-        self.current.trace(msg);
-    }
-    pub fn progress(&self, msg: &str) {
-        self.current.progress(msg);
+
+    pub fn output_type(&self) -> OutputType {
+        self.current.output_type()
     }
 }

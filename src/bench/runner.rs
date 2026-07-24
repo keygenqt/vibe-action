@@ -32,7 +32,7 @@ impl Bench {
     pub async fn run(&self, action: &str, case: &BenchmarkCase) -> anyhow::Result<String> {
         let mut cmd = Command::new(std::env::current_exe()?);
         cmd.arg(action);
-        cmd.env("VIBE_LOG_TYPE", "plain");
+        cmd.env("VIBE_LOG_TYPE", "test");
         cmd.stdout(std::process::Stdio::piped());
         cmd.stderr(std::process::Stdio::piped());
 

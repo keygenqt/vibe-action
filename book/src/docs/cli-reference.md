@@ -6,7 +6,7 @@
 | ------------------ | -------------------------------------------------------- | ---------------------------- |
 | `VIBE_CONFIG`      | Path to config file                                      | `~/.vibe-action/config.yaml` |
 | `VIBE_ACTION_PATH` | Path to actions directory                                | `~/.vibe-action/actions/`    |
-| `VIBE_LOG_TYPE`    | Output mode: `cli`, `plain`, `json`, `tracing`           | `cli`                        |
+| `VIBE_LOG_TYPE`    | Output mode: `cli`, `plain`, `json`, `tracing`, `test`   | `cli`                        |
 | `VIBE_TRACE_LEVEL` | Tracing level: `error`, `warn`, `info`, `debug`, `trace` | `info`                       |
 
 ## Output Modes

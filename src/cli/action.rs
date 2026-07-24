@@ -6,15 +6,9 @@ use inquire::Confirm;
 
 use crate::configs::app::AppConfig;
 use crate::engine::engine::Engine;
-use crate::exit_error;
-use crate::output::cli::CliOutput;
-use crate::output::output::OutputLevel;
-use crate::print_debug;
-use crate::print_info;
-use crate::print_progress;
-use crate::print_success;
-use crate::print_warning;
-use crate::utils;
+use crate::output::format::FormatOutput;
+use crate::output::output::{OutputKind, OutputType};
+use crate::{print_template, print_text, utils};
 
 /// Execute a dynamic action command.
 pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig) {
@@ -22,21 +16,35 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
 
     let flow = config
         .find_flow(name)
-        .unwrap_or_else(|e| exit_error!("{}", e))
+        .unwrap_or_else(|e| {
+            print_text!(OutputKind::Error, "{}", e);
+            std::process::exit(1);
+        })
         .apply_system_tags()
-        .unwrap_or_else(|e| exit_error!("{}", e))
+        .unwrap_or_else(|e| {
+            print_text!(OutputKind::Error, "{}", e);
+            std::process::exit(1);
+        })
         .apply_args(action_matches)
-        .unwrap_or_else(|e| exit_error!("{}", e));
+        .unwrap_or_else(|e| {
+            print_text!(OutputKind::Error, "{}", e);
+            std::process::exit(1);
+        });
 
     let mut engine = Engine::new(&config.action.system, config.action.retries, &flow)
-        .unwrap_or_else(|e| exit_error!("{}", e));
+        .unwrap_or_else(|e| {
+            print_text!(OutputKind::Error, "{}", e);
+            std::process::exit(1);
+        });
+
     let actions = engine.actions().to_vec();
     let total = actions.len();
 
-    print_info!(
-        "Found action '{}' ({} steps), starting...",
-        flow.name,
-        total
+    print_template!(
+        OutputKind::Info,
+        "Found action '{name}' ({steps} steps), starting...",
+        "name" => flow.name,
+        "steps" => total
     );
 
     // Warn if flow uses roles not available in cluster
@@ -52,66 +60,86 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         }
     }
 
-    print_debug!("Flow: {} ({} steps)", flow.name, total);
+    print_text!(OutputKind::Debug, "Flow: {} ({} steps)", flow.name, total);
 
     // Execute all actions.
     for (i, action) in actions.iter().enumerate() {
-        print_debug!("[{}/{}] Running: {}", i + 1, total, action.tag);
+        print_template!(
+            OutputKind::Debug,
+            "[{current}/{total}] Running: {tag}",
+            "current" => (i + 1).to_string(),
+            "total" => total.to_string(),
+            "tag" => action.tag
+        );
 
-        print_progress!(
-            "{} ({})... {:.0}% ({}/{})",
-            action.tag,
-            action.run.to_string(),
-            ((i + 1) as f32 / total as f32) * 100.0,
-            i + 1,
-            total
+        print_template!(
+            OutputKind::Progress,
+            "{tag} ({run})... {percent}% ({current}/{total})",
+            "tag" => action.tag,
+            "run" => action.run.to_string(),
+            "percent" => format!("{:.0}", ((i + 1) as f32 / total as f32) * 100.0),
+            "current" => (i + 1).to_string(),
+            "total" => total.to_string()
         );
 
         if action.confirm {
-            print_info!(
-                "completed in {}",
-                utils::format::format_duration(start_time.elapsed())
+            print_template!(
+                OutputKind::Info,
+                "completed in {duration}",
+                "duration" => utils::format::format_duration(start_time.elapsed())
             );
-            let query = format!("Execute '{}'?", CliOutput::format_msg(&action.tag));
-            let resolve = engine
-                .action_display(&action)
-                .unwrap_or_else(|e| exit_error!("{}", e));
+            let query = format!("Execute '{}'?", FormatOutput::format_msg(&action.tag));
+            let resolve = engine.action_display(&action).unwrap_or_else(|e| {
+                print_text!(OutputKind::Error, "{}", e);
+                std::process::exit(1);
+            });
+
             let ans = Confirm::new(&query)
                 .with_default(false)
                 .with_placeholder(&format!("\n{}", resolve))
                 .prompt();
             match ans {
                 Ok(true) => {
-                    engine
-                        .exec_action(action)
-                        .await
-                        .unwrap_or_else(|e| exit_error!("{}", e));
+                    engine.exec_action(action).await.unwrap_or_else(|e| {
+                        print_text!(OutputKind::Error, "{}", e);
+                        std::process::exit(1);
+                    });
                 }
                 Ok(false) => return,
                 Err(_) => return,
             }
         } else {
-            engine
-                .exec_action(action)
-                .await
-                .unwrap_or_else(|e| exit_error!("{}", e));
+            engine.exec_action(action).await.unwrap_or_else(|e| {
+                print_text!(OutputKind::Error, "{}", e);
+                std::process::exit(1);
+            });
         }
     }
 
-    print_debug!("Flow completed: {}", flow.name);
-    let result = engine.result().unwrap_or_else(|e| exit_error!("{}", e));
+    print_template!(
+        OutputKind::Debug,
+        "Flow completed: {name}",
+        "name" => flow.name
+    );
 
-    print_info!(
-        "completed in {}",
-        utils::format::format_duration(start_time.elapsed())
+    let result = engine.result().unwrap_or_else(|e| {
+        print_text!(OutputKind::Error, "{}", e);
+        std::process::exit(1);
+    });
+
+    print_template!(
+        OutputKind::Info,
+        "completed in {duration}",
+        "duration" => utils::format::format_duration(start_time.elapsed())
     );
 
     if result.is_empty() {
-        print_info!("No matches found.")
+        print_text!(OutputKind::Info, "No matches found.");
     } else {
-        print_success!("{}", &result)
+        print_text!(OutputKind::Success, "{}", &result);
     }
-    if flow.notify && AppConfig::output().level() == OutputLevel::Cli {
+
+    if flow.notify && AppConfig::output().output_type() == OutputType::Cli {
         #[cfg(target_os = "macos")]
         {
             match std::process::Command::new("terminal-notifier")
@@ -129,7 +157,8 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             {
                 Ok(_) => {}
                 Err(_) => {
-                    print_warning!(
+                    print_text!(
+                        OutputKind::Warning,
                         "terminal-notifier not found. Install: brew install terminal-notifier"
                     );
                 }

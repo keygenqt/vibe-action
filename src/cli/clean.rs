@@ -1,7 +1,7 @@
 //! Refresh command handler.
 //! Manages refreshing actions cache and resetting context.
 
-use crate::{print_error, print_info, utils};
+use crate::{output::output::OutputKind, print_template, print_text, utils};
 
 /// Execute the `refresh` command.
 pub async fn execute() {
@@ -10,9 +10,13 @@ pub async fn execute() {
 
     // Clean actions cache
     if let Err(e) = vibe_fs::clean(&actions_dir, Some(&cache_dir)) {
-        print_error!("Failed to clean actions cache: {}", e);
+        print_template!(
+            OutputKind::Error,
+            "Failed to clean actions cache: {error}",
+            "error" => e.to_string()
+        );
     } else {
-        print_info!("Actions cache cleaned");
+        print_text!(OutputKind::Info, "Actions cache cleaned");
     }
 
     // Clean temp files created by load modifier
@@ -29,7 +33,11 @@ pub async fn execute() {
                 }
             }
             if count > 0 {
-                print_info!("Temp files cleaned: {}", count);
+                print_template!(
+                    OutputKind::Info,
+                    "Temp files cleaned: {count}",
+                    "count" => count
+                );
             }
         }
         Err(_) => {}

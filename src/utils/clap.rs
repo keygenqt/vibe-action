@@ -1,7 +1,7 @@
 use clap::Command;
 use colored::Colorize;
 
-use crate::utils::app;
+use crate::{output::output::OutputKind, print_template, print_text, utils::app};
 
 /// System commands displayed in a separate section.
 pub const SYSTEM_COMMANDS: &[&str] = &["clean", "status", "bench"];
@@ -43,44 +43,58 @@ pub fn print_custom_help(app_builder: &Command) {
         .unwrap_or(15)
         + 1;
 
-    println!("{}", app::app_about());
-    println!(
-        "{} {} {}\n",
-        "Usage:".bright_green().bold(),
-        app::app_name().cyan().bold(),
-        "[COMMAND]".cyan()
+    print_text!(OutputKind::Plain, "{}", app::app_about());
+    print_template!(
+        OutputKind::Plain,
+        "{usage} {app_name} {command}\n",
+        "usage" => "Usage:".bright_green().bold(),
+        "app_name" => app::app_name().cyan().bold(),
+        "command" => "[COMMAND]".cyan()
     );
 
-    println!("{}", "Actions:".bright_green().bold());
+    print_text!(OutputKind::Plain, "{}", "Actions:".bright_green().bold());
     for sub in &actions {
         let name = sub.get_name();
         let about = sub.get_about().unwrap_or_default();
-        println!(
-            "  {:<width$} {}",
-            name.cyan().bold(),
-            about,
-            width = max_len
+
+        let formatted_name = format!("  {:<width$}", name.cyan().bold(), width = max_len);
+
+        print_template!(
+            ExportContext::Actions,
+            OutputKind::Plain,
+            "{name} {about}",
+            "name" => formatted_name,
+            "about" => about
         );
     }
 
-    println!("\n{}", "Commands:".bright_green().bold());
+    print_text!(OutputKind::Plain, "\n{}", "Commands:".bright_green().bold());
     for cmd_name in SYSTEM_COMMANDS {
         if cmd_name != &"help" {
             if let Some(cmd) = app_builder.find_subcommand(cmd_name) {
-                println!(
-                    "  {:<15} {}",
-                    cmd.get_name().cyan().bold(),
-                    cmd.get_about().unwrap_or_default(),
+                let formatted_name = format!("  {:<15}", cmd.get_name().cyan().bold());
+
+                print_template!(
+                    OutputKind::Plain,
+                    "{name} {about}",
+                    "name" => formatted_name,
+                    "about" => cmd.get_about().unwrap_or_default()
                 );
             }
         }
     }
 
-    println!("\n{}", "Options:".bright_green().bold());
-    println!("  {:<15} {}", "-h, --help".cyan().bold(), "Print help");
-    println!(
-        "  {:<15} {}",
-        "-V, --version".cyan().bold(),
-        "Print version"
+    print_text!(OutputKind::Plain, "\n{}", "Options:".bright_green().bold());
+    print_template!(
+        OutputKind::Plain,
+        "{flag} {desc}",
+        "flag" => format!("  {:<15}", "-h, --help".cyan().bold()),
+        "desc" => "Print help"
+    );
+    print_template!(
+        OutputKind::Plain,
+        "{flag} {desc}",
+        "flag" => format!("  {:<15}", "-V, --version".cyan().bold()),
+        "desc" => "Print version"
     );
 }

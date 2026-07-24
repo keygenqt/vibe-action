@@ -10,9 +10,8 @@ use vibe_cluster::Prompt;
 use crate::configs::app::AppConfig;
 use crate::engine::parser;
 use crate::models::action::ActionRun;
-use crate::output::output::OutputLevel;
-use crate::print_info;
-use crate::print_progress;
+use crate::output::output::OutputKind;
+use crate::print_template;
 use crate::utils;
 
 /// Distributed cluster execution response payload.
@@ -88,31 +87,17 @@ impl Cluster {
                     utils::format::format_duration(Duration::from_millis(result.duration_ms));
 
                 // Print result info
-                if AppConfig::output().level() == OutputLevel::Cli {
-                    print_progress!(
-                        "└─ [{}] node batch: {:>width$}/{} | {} finished in {} ({} tokens{})",
-                        role_label,
-                        current,
-                        total,
-                        result.model,
-                        duration_ms,
-                        user_tokens + system_tokens,
-                        image_info,
-                        width = total.to_string().len()
-                    );
-                } else {
-                    print_info!(
-                        "[{}] node batch: {:>width$}/{} | {} finished in {} ({} tokens{})",
-                        role_label,
-                        current,
-                        total,
-                        result.model,
-                        duration_ms,
-                        user_tokens + system_tokens,
-                        image_info,
-                        width = total.to_string().len()
-                    );
-                }
+                print_template!(
+                    OutputKind::Progress,
+                    "└─ [{role}] node batch: {current}/{total} | {model} finished in {duration} ({tokens} tokens{image})",
+                    "role" => role_label,
+                    "current" => format!("{:>width$}", current, width = total.to_string().len()),
+                    "total" => total.to_string(),
+                    "model" => result.model,
+                    "duration" => duration_ms,
+                    "tokens" => (user_tokens + system_tokens).to_string(),
+                    "image" => image_info,
+                );
             })
             .await
             .map_err(|e| anyhow::anyhow!("Cluster batch call failed: {}", e))?;

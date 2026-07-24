@@ -8,7 +8,7 @@ pub fn app_test_engine(args: &str) -> std::process::Output {
         .args(&parts)
         .env("VIBE_CONFIG", "tests/config.yaml")
         .env("VIBE_ACTION_PATH", "tests/engine/fixtures")
-        .env("VIBE_LOG_TYPE", "plain")
+        .env("VIBE_LOG_TYPE", "test")
         .output()
         .unwrap();
     let stderr = String::from_utf8_lossy(&output.stderr);

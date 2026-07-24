@@ -1,55 +1,65 @@
 //! Tracing output — structured logs via tracing crate.
 
-use crate::output::output::OutputLevel;
+use crate::output::{format::FormatOutput, msg::OutputMsg, output::OutputType};
 
 use super::output::Output;
 
-pub struct TracingOutput;
+pub struct TracingOutput {
+    formatter: FormatOutput,
+}
 
 impl TracingOutput {
-    pub fn new(level: &str) -> Self {
+    /// Initializes the global tracing subscriber and stores the formatter.
+    pub fn new(level: &str, formatter: FormatOutput) -> Self {
         let filter = format!("vibe_action={}", level);
         let _ = tracing_subscriber::fmt().with_env_filter(filter).try_init();
-        Self
+        Self { formatter }
     }
 }
 
 impl Output for TracingOutput {
-    /// Returns the output level.
-    fn level(&self) -> OutputLevel {
-        OutputLevel::Tracing
+    /// Returns the output type.
+    fn output_type(&self) -> OutputType {
+        OutputType::Tracing
+    }
+
+    /// Prints plain message.
+    fn plain(&self, msg: &OutputMsg) {
+        tracing::info!("{}", self.formatter.format(msg));
     }
 
     /// Maps to tracing::error!
-    fn error(&self, msg: &str) {
-        tracing::error!("{}", msg);
+    fn error(&self, msg: &OutputMsg) {
+        tracing::error!("{}", self.formatter.format(msg));
     }
 
     /// Maps to tracing::warn!
-    fn warning(&self, msg: &str) {
-        tracing::warn!("{}", msg);
+    fn warning(&self, msg: &OutputMsg) {
+        tracing::warn!("{}", self.formatter.format(msg));
     }
 
     /// Maps to tracing::info!
-    fn info(&self, msg: &str) {
-        tracing::info!("{}", msg);
+    fn info(&self, msg: &OutputMsg) {
+        tracing::info!("{}", self.formatter.format(msg));
     }
 
     /// Maps to tracing::info!
-    fn success(&self, msg: &str) {
-        tracing::info!("{}", msg);
+    fn success(&self, msg: &OutputMsg) {
+        tracing::info!("{}", self.formatter.format(msg));
     }
 
     /// Maps to tracing::debug!
-    fn debug(&self, msg: &str) {
-        tracing::debug!("{}", msg);
+    fn debug(&self, msg: &OutputMsg) {
+        tracing::debug!("{}", self.formatter.format(msg));
     }
 
     /// Maps to tracing::trace!
-    fn trace(&self, msg: &str) {
-        tracing::trace!("{}", msg);
+    fn trace(&self, msg: &OutputMsg) {
+        tracing::trace!("{}", self.formatter.format(msg));
     }
 
-    /// Ignored in tracing mode.
-    fn progress(&self, _msg: &str) {}
+    /// Maps progress to tracing::trace! for granular pipeline diagnostics.
+    fn progress(&self, msg: &OutputMsg) {
+        tracing::trace!("{}", self.formatter.format(msg));
+    }
 }
