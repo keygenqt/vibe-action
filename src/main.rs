@@ -39,6 +39,13 @@ enum Commands {
 
 #[tokio::main]
 async fn main() {
+    // @todo - new env
+    let _active = if std::env::var_os("VIBE_SKIP_LOCK").is_some() {
+        None
+    } else {
+        Some(utils::active_run::ActiveRun::acquire().expect("Failed to acquire exclusive lock"))
+    };
+
     if let Err(e) = AppConfig::init() {
         print_text!(OutputKind::Error, "{}", e);
         std::process::exit(1);

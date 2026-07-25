@@ -33,6 +33,7 @@ impl Bench {
         let mut cmd = Command::new(std::env::current_exe()?);
         cmd.arg(action);
         cmd.env("VIBE_LOG_TYPE", "test");
+        cmd.env("VIBE_SKIP_LOCK", "1");
         cmd.stdout(std::process::Stdio::piped());
         cmd.stderr(std::process::Stdio::piped());
 

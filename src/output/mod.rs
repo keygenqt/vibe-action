@@ -4,7 +4,6 @@
 pub mod cli;
 pub mod format;
 pub mod json;
-pub mod macros;
 pub mod msg;
 pub mod output;
 pub mod plain;

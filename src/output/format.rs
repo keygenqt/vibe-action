@@ -58,7 +58,7 @@ impl FormatOutput {
                 }
                 let mut envelope = serde_json::Map::new();
                 envelope.insert("level".to_string(), serde_json::json!(kind_str));
-                envelope.insert("message".to_string(), serde_json::Value::Object(inner_map));
+                envelope.insert("value".to_string(), serde_json::Value::Object(inner_map));
                 serde_json::Value::Object(envelope).to_string()
             }
         }

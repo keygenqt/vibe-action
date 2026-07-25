@@ -9,8 +9,10 @@ pub fn app_test_engine(args: &str) -> std::process::Output {
         .env("VIBE_CONFIG", "tests/config.yaml")
         .env("VIBE_ACTION_PATH", "tests/engine/fixtures")
         .env("VIBE_LOG_TYPE", "test")
+        .env("VIBE_SKIP_LOCK", "1")
         .output()
         .unwrap();
+
     let stderr = String::from_utf8_lossy(&output.stderr);
     let stdout = String::from_utf8_lossy(&output.stdout);
     eprintln!(

@@ -8,6 +8,7 @@ pub fn app_test_modifier(name: &str) -> std::process::Output {
         .env("VIBE_CONFIG", "tests/config.yaml")
         .env("VIBE_ACTION_PATH", "tests/modifier/fixtures")
         .env("VIBE_LOG_TYPE", "test")
+        .env("VIBE_SKIP_LOCK", "1")
         .output()
         .unwrap();
     let stderr = String::from_utf8_lossy(&output.stderr);
