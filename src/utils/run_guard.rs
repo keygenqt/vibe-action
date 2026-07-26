@@ -24,13 +24,25 @@ impl RunGuard {
         fs::create_dir_all(&cache_dir)?;
 
         // Prevent concurrent startup by acquiring an exclusive lock file.
-        let startup_lock = Self::acquire_startup_lock(&cache_dir)?;
+        let _startup_lock = Self::acquire_startup_lock(&cache_dir)?;
+
+        // Create a single System instance to reuse across all process checks,
+        // avoiding repeated expensive initializations inside loops.
+        let mut sys = System::new();
 
         // Remove stale files (process no longer alive) before doing anything else
-        Self::pre_clean(&cache_dir);
+        Self::pre_clean(&cache_dir, &mut sys);
 
         // Notify all running instances by renaming their *.pid → *.pid.stop
-        Self::notify_all_instances(&cache_dir, pid);
+        let has_notified = Self::notify_all_instances(&cache_dir, pid, &mut sys);
+
+        // Inform the user that we are waiting for the previous instance(s) to stop
+        if has_notified {
+            print_text!(
+                OutputKind::Warning,
+                "Waiting for running instances to exit..."
+            );
+        }
 
         // Create our PID file to signal that we are the active instance.
         let pid_path = cache_dir.join(format!("{}.pid", pid));
@@ -39,19 +51,20 @@ impl RunGuard {
         // Start a background thread that watches for our *.pid.stop and exits when it appears.
         Self::start_stop_monitor(cache_dir.clone(), pid);
 
-        // Wait until all *.pid.stop files disappear (or timeout).
-        Self::wait_for_instances(&cache_dir, pid);
+        if has_notified {
+            // Wait until all *.pid.stop files disappear (or timeout).
+            Self::wait_for_instances(&cache_dir, pid);
 
-        // Forcefully terminate any instances that ignored the shutdown notification and remove their stop files.
-        Self::kill_stale_instances(&cache_dir, pid);
+            // Forcefully terminate any instances that ignored the shutdown notification and remove their stop files.
+            Self::kill_stale_instances(&cache_dir, pid, &mut sys);
+        }
 
         // The guard will delete the pid file on drop (normal or exit)
-        drop(startup_lock);
         Ok(RunGuard { pid_path })
     }
 
     /// Remove *.pid / *.pid.stop files belonging to dead processes.
-    fn pre_clean(cache_dir: &PathBuf) {
+    fn pre_clean(cache_dir: &PathBuf, sys: &mut System) {
         if let Ok(entries) = fs::read_dir(cache_dir) {
             for entry in entries.flatten() {
                 let path = entry.path();
@@ -80,7 +93,7 @@ impl RunGuard {
                 };
 
                 if let Some(pid) = pid {
-                    if !Self::pid_exists(pid) {
+                    if !Self::pid_exists(pid, sys) {
                         let _ = fs::remove_file(&path);
                     }
                 } else {
@@ -92,34 +105,56 @@ impl RunGuard {
     }
 
     /// Check if a process with given PID exists.
-    fn pid_exists(pid: u32) -> bool {
-        let mut sys = System::new();
-        let target = Pid::from(pid as usize);
+    fn pid_exists(current_pid: u32, sys: &mut System) -> bool {
+        let target = Pid::from(current_pid as usize);
         // true ensures dead processes are removed from cache immediately
         sys.refresh_processes(ProcessesToUpdate::Some(&[target]), true);
         sys.process(target).is_some()
     }
 
     /// Rename all *.pid files to *.pid.stop to notify running instances to shut down.
-    fn notify_all_instances(cache_dir: &PathBuf, current_pid: u32) {
-        if let Ok(entries) = std::fs::read_dir(&cache_dir) {
+    /// Only notifies alive processes that belong to our executable.
+    /// Removes dead or foreign PID files to keep the cache directory clean.
+    fn notify_all_instances(cache_dir: &PathBuf, current_pid: u32, sys: &mut System) -> bool {
+        let mut has_notified = false;
+
+        if let Ok(entries) = std::fs::read_dir(cache_dir) {
             for entry in entries.flatten() {
                 let path = entry.path();
+
+                // Interested only in files with ".pid" extension
                 if path.extension().map_or(false, |ext| ext == "pid") {
+                    // Try to parse PID from filename (e.g., "123.pid")
                     if let Some(pid) = path
                         .file_stem()
                         .and_then(|s| s.to_str())
                         .and_then(|s| s.parse::<u32>().ok())
                     {
+                        // Skip our own PID file (just created)
                         if pid == current_pid {
                             continue;
                         }
+
+                        // Check if it's a living process of our application
+                        if Self::is_our_process(pid, sys) {
+                            // Alive and ours — notify by renaming to .pid.stop
+                            let stop_path = path.with_extension("pid.stop");
+                            if std::fs::rename(&path, &stop_path).is_ok() {
+                                has_notified = true;
+                            }
+                        } else {
+                            // Dead or foreign process — this file is junk, remove it
+                            let _ = std::fs::remove_file(&path);
+                        }
+                    } else {
+                        // Malformed file name — just clean up
+                        let _ = std::fs::remove_file(&path);
                     }
-                    let stop_path = path.with_extension("pid.stop");
-                    let _ = std::fs::rename(&path, &stop_path);
                 }
             }
         }
+
+        has_notified
     }
 
     /// Wait until all *.pid.stop files disappear or timeout (3 seconds) expires.
@@ -146,16 +181,16 @@ impl RunGuard {
             if !any_stop {
                 break;
             }
-            if std::time::Instant::now() > deadline {
+            if Instant::now() > deadline {
                 break;
             }
-            std::thread::sleep(std::time::Duration::from_millis(200));
+            std::thread::sleep(Duration::from_millis(200));
         }
     }
 
     /// Forcefully kill processes that ignored the shutdown notification and remove their stop files.
-    fn kill_stale_instances(cache_dir: &PathBuf, current_pid: u32) {
-        if let Ok(entries) = std::fs::read_dir(&cache_dir) {
+    fn kill_stale_instances(cache_dir: &PathBuf, current_pid: u32, sys: &mut System) {
+        if let Ok(entries) = std::fs::read_dir(cache_dir) {
             for entry in entries.flatten() {
                 let path = entry.path();
                 if path.extension().map_or(false, |ext| ext == "stop")
@@ -167,13 +202,10 @@ impl RunGuard {
                         if pid == current_pid {
                             continue;
                         }
-                        if Self::is_our_process(pid) {
-                            let mut sys = System::new();
+                        // is_our_process already refreshed info for this PID,
+                        // so we can directly fetch the process from the cache.
+                        if Self::is_our_process(pid, sys) {
                             let target_pid = Pid::from(pid as usize);
-                            sys.refresh_processes(
-                                sysinfo::ProcessesToUpdate::Some(&[target_pid]),
-                                true,
-                            );
                             if let Some(process) = sys.process(target_pid) {
                                 process.kill();
                             }
@@ -186,14 +218,17 @@ impl RunGuard {
     }
 
     /// Spawn a background thread that watches for our stop file and exits the process when it appears.
-    fn start_stop_monitor(cache_dir: PathBuf, pid: u32) {
+    fn start_stop_monitor(cache_dir: PathBuf, current_pid: u32) {
         std::thread::spawn(move || {
-            let stop_path = cache_dir.join(format!("{}.pid.stop", pid));
-            let pid_path = cache_dir.join(format!("{}.pid", pid));
+            let stop_path = cache_dir.join(format!("{}.pid.stop", current_pid));
+            let pid_path = cache_dir.join(format!("{}.pid", current_pid));
             loop {
-                std::thread::sleep(std::time::Duration::from_millis(200));
+                std::thread::sleep(Duration::from_millis(200));
                 if stop_path.exists() {
-                    print_text!(OutputKind::Warning, "A new instance requested shutdown.");
+                    print_text!(
+                        OutputKind::Warning,
+                        "Another instance is starting; shutting down."
+                    );
                     let _ = std::fs::remove_file(&stop_path);
                     let _ = std::fs::remove_file(&pid_path);
                     std::process::exit(0);
@@ -203,7 +238,7 @@ impl RunGuard {
     }
 
     /// Check if a process with the given PID is our own executable by comparing base file names (case-insensitive).
-    fn is_our_process(pid: u32) -> bool {
+    fn is_our_process(current_pid: u32, sys: &mut System) -> bool {
         let our_name = match std::env::current_exe()
             .ok()
             .and_then(|p| p.file_name().map(|n| n.to_string_lossy().into_owned()))
@@ -214,8 +249,7 @@ impl RunGuard {
         if our_name.is_empty() {
             return false;
         }
-        let mut sys = System::new();
-        let target = Pid::from(pid as usize);
+        let target = Pid::from(current_pid as usize);
         sys.refresh_processes(ProcessesToUpdate::Some(&[target]), true);
         sys.process(target)
             .map(|proc| {
