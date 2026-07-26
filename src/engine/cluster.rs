@@ -89,7 +89,7 @@ impl Cluster {
                 // Print result info
                 print_template!(
                     OutputKind::Progress,
-                    "└─ [{role}] node batch: {current}/{total} | {model} finished in {duration} ({tokens} tokens{image})",
+                    "[{role}] node batch: {current}/{total} | {model} finished in {duration} ({tokens} tokens{image})",
                     "role" => role_label,
                     "current" => format!("{:>width$}", current, width = total.to_string().len()),
                     "total" => total.to_string(),

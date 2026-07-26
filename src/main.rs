@@ -31,19 +31,43 @@ struct App {
 enum Commands {
     /// Show system status
     Status,
-    /// Remove all cache
-    Clean,
     /// Run benchmarks
     Bench(BenchArgs),
+    /// Remove all cache
+    Clean,
 }
 
 #[tokio::main]
 async fn main() {
-    // @todo - new env
-    let _active = if std::env::var_os("VIBE_SKIP_LOCK").is_some() {
-        None
+    // Singleton guard: only one command runs at a time.
+    //
+    // Every invocation works with shared state (cache files, LLM cluster
+    // under tight local limits), so parallel commands are not allowed.
+    // RunGuard::start() enforces this:
+    //   1. takes a startup lock so two instances can't start concurrently;
+    //   2. removes stale pid files left by dead processes;
+    //   3. signals the previous instance to shut down (renames its pid file
+    //      to *.pid.stop, which that instance's monitor thread watches for);
+    //   4. waits for it to exit, then force-kills it if it didn't;
+    //   5. registers us as the active instance and spawns our own stop
+    //      monitor, so the *next* invocation can replace us the same way.
+    //
+    // The guard must live until the end of main: on drop it deletes our pid
+    // file. The underscore prefix keeps it alive without "unused" warnings.
+    //
+    // VIBE_SKIP_LOCK bypasses the guard entirely (dev escape hatch). Such a
+    // run is invisible to the protocol: it doesn't replace the active
+    // instance and can't be stopped by the next invocation.
+    let _guard = if std::env::var_os("VIBE_SKIP_LOCK").is_none() {
+        match utils::active_run::RunGuard::start() {
+            Ok(guard) => Some(guard),
+            Err(e) => {
+                print_text!(OutputKind::Error, "{}", e);
+                std::process::exit(1);
+            }
+        }
     } else {
-        Some(utils::active_run::ActiveRun::acquire().expect("Failed to acquire exclusive lock"))
+        None
     };
 
     if let Err(e) = AppConfig::init() {
@@ -60,7 +84,6 @@ async fn main() {
     };
 
     let app_builder = build_app!(&config);
-
     let args: Vec<String> = std::env::args().collect();
     if args.len() == 1 || args.len() == 2 && (args[1] == "-h" || args[1] == "--help") {
         utils::clap::print_custom_help(&app_builder);

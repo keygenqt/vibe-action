@@ -112,7 +112,7 @@ pub async fn execute(args: BenchArgs) {
                         // Стандартный плоский вывод прогресса
                         print_template!(
                             OutputKind::Progress,
-                            "{percent}% ({current}/{total}) | {duration} | └─ {args_display}",
+                            "{percent}% ({current}/{total}) | {duration} | {args_display}",
                             "percent" => format!("{:.0}", (index as f32 / total as f32) * 100.0),
                             "current" => index.to_string(),
                             "total" => total.to_string(),
@@ -126,7 +126,7 @@ pub async fn execute(args: BenchArgs) {
                     let duration = start.elapsed();
                     print_template!(
                         OutputKind::Progress,
-                        "└─ {current}/{total} | {duration} | FAIL: {error}",
+                        "{current}/{total} | {duration} | FAIL: {error}",
                         "current" => index.to_string(),
                         "total" => total.to_string(),
                         "duration" => utils::format::format_duration(duration),
