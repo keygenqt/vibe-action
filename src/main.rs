@@ -59,7 +59,7 @@ async fn main() {
     // run is invisible to the protocol: it doesn't replace the active
     // instance and can't be stopped by the next invocation.
     let _guard = if std::env::var_os("VIBE_SKIP_LOCK").is_none() {
-        match utils::active_run::RunGuard::start() {
+        match utils::run_guard::RunGuard::start() {
             Ok(guard) => Some(guard),
             Err(e) => {
                 print_text!(OutputKind::Error, "{}", e);
