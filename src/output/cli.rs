@@ -79,7 +79,7 @@ impl Output for CliOutput {
         }
 
         // Extract the raw Markdown text from the message template
-        let raw_markdown = &msg.template;
+        let raw_markdown = &self.formatter.format(msg);
 
         let (term_width, _) = termimad::terminal_size();
         let term_width = (term_width as usize).min(120);
