@@ -136,7 +136,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
     print_template!(
         ExportContext::Success,
         OutputKind::Success,
-        "{}",
+        "{message}",
         "message" => if result.is_empty() { "No matches found." } else { &result },
     );
 
