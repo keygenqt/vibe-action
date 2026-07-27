@@ -44,26 +44,6 @@ async fn main() {
         std::process::exit(1);
     }
 
-    // Singleton guard – stops the previous command when a new one starts,
-    // instead of failing with an error. This keeps the shared state
-    // (cache, local LLMs) predictable for beginners.
-    //
-    // On drop, the guard removes our pid file to allow clean shutdown.
-    //
-    // VIBE_SKIP_LOCK disables the guard: the process runs without affecting
-    // other instances (useful for parallel API clusters).
-    let _guard = if std::env::var_os("VIBE_SKIP_LOCK").is_none() {
-        match utils::run_guard::RunGuard::start() {
-            Ok(guard) => Some(guard),
-            Err(e) => {
-                print_text!(OutputKind::Error, "{}", e);
-                std::process::exit(1);
-            }
-        }
-    } else {
-        None
-    };
-
     let config = match AppConfig::instance() {
         Ok(v) => v,
         Err(e) => {
@@ -88,6 +68,25 @@ async fn main() {
             _ => utils::clap::print_custom_help(&app_builder),
         },
         Err(_) => {
+            // Singleton guard – stops the previous command when a new one starts,
+            // instead of failing with an error. This keeps the shared state
+            // (cache, local LLMs) predictable for beginners.
+            //
+            // On drop, the guard removes our pid file to allow clean shutdown.
+            //
+            // VIBE_SKIP_LOCK disables the guard: the process runs without affecting
+            // other instances (useful for parallel API clusters).
+            let _guard = if std::env::var_os("VIBE_SKIP_LOCK").is_none() {
+                match utils::run_guard::RunGuard::start() {
+                    Ok(guard) => Some(guard),
+                    Err(e) => {
+                        print_text!(OutputKind::Error, "{}", e);
+                        std::process::exit(1);
+                    }
+                }
+            } else {
+                None
+            };
             let matches = app_builder.clone().get_matches();
             match matches.subcommand() {
                 Some((cmd_name, action_matches)) => {

@@ -39,7 +39,9 @@ impl FormatOutput {
                         Self::format_msg(&rendered).trim().to_string()
                     }
                 } else {
-                    Self::strip_ansi(&rendered).trim().to_string()
+                    Self::strip_outer_markdown_blocks(&Self::strip_ansi(&rendered))
+                        .trim()
+                        .to_string()
                 }
             }
 
@@ -48,12 +50,14 @@ impl FormatOutput {
                 let mut inner_map = serde_json::Map::new();
                 let kind_str = format!("{:?}", msg.kind).to_lowercase();
                 if msg.fields.is_empty() {
-                    let clean_msg = Self::strip_ansi(&Self::collapse_spaces(&msg.template));
-                    inner_map.insert("message".to_string(), serde_json::json!(clean_msg.trim()));
+                    let clean_msg = Self::strip_ansi(&msg.template);
+                    let final_msg = Self::strip_outer_markdown_blocks(&clean_msg);
+                    inner_map.insert("message".to_string(), serde_json::json!(final_msg.trim()));
                 } else {
                     for (key, value) in &msg.fields {
-                        let clean_val = Self::strip_ansi(&Self::collapse_spaces(value));
-                        inner_map.insert(key.clone(), serde_json::json!(clean_val.trim()));
+                        let clean_val = Self::strip_ansi(value);
+                        let final_val = Self::strip_outer_markdown_blocks(&clean_val);
+                        inner_map.insert(key.clone(), serde_json::json!(final_val.trim()));
                     }
                 }
                 let mut envelope = serde_json::Map::new();
@@ -152,23 +156,18 @@ impl FormatOutput {
         re.replace_all(text, "").into_owned()
     }
 
-    /// Replaces all tabs, unicode spaces, and consecutive spaces into a single space.
-    pub fn collapse_spaces(s: &str) -> String {
-        let mut result = String::with_capacity(s.len());
-        let mut in_space = false;
-
-        for c in s.chars() {
-            // Check for any kind of unicode whitespace (including NBSP, tabs, etc.)
-            if c.is_whitespace() {
-                if !in_space {
-                    result.push(' ');
-                    in_space = true;
+    /// Strips leading and trailing markdown code block markers from the text edges.
+    pub fn strip_outer_markdown_blocks(text: &str) -> String {
+        let clean = text.trim();
+        if clean.starts_with("```") {
+            if let Some(first_newline_idx) = clean.find('\n') {
+                let body = &clean[first_newline_idx + 1..];
+                if body.ends_with("```") {
+                    let end_idx = body.len() - 3;
+                    return body[..end_idx].trim().to_string();
                 }
-            } else {
-                result.push(c);
-                in_space = false;
             }
         }
-        result
+        text.to_string()
     }
 }

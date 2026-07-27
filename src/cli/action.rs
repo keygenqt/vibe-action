@@ -82,7 +82,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             "total" => total.to_string()
         );
 
-        if action.confirm {
+        if action.confirm && AppConfig::output().output_type() == OutputType::Cli {
             print_template!(
                 OutputKind::Info,
                 "completed in {duration}",
@@ -133,11 +133,12 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         "duration" => utils::format::format_duration(start_time.elapsed())
     );
 
-    if result.is_empty() {
-        print_text!(OutputKind::Info, "No matches found.");
-    } else {
-        print_text!(OutputKind::Success, "{}", &result);
-    }
+    print_template!(
+        ExportContext::Success,
+        OutputKind::Success,
+        "{}",
+        "message" => if result.is_empty() { "No matches found." } else { &result },
+    );
 
     if flow.notify && AppConfig::output().output_type() == OutputType::Cli {
         #[cfg(target_os = "macos")]

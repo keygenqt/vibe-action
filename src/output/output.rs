@@ -35,6 +35,7 @@ pub enum OutputKind {
 pub enum ExportContext {
     Actions,
     Status,
+    Success,
 }
 
 impl ExportContext {
@@ -42,6 +43,7 @@ impl ExportContext {
         match self {
             Self::Actions => "actions",
             Self::Status => "status",
+            Self::Success => "success",
         }
     }
 }
