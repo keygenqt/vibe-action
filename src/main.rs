@@ -19,7 +19,6 @@ mod validate;
 
 #[derive(Parser)]
 #[command(name = utils::app::app_name())]
-#[command(about = utils::app::app_about())]
 #[command(styles = utils::app::app_styles())]
 #[command(version = utils::app::app_version())]
 struct App {
@@ -55,7 +54,7 @@ async fn main() {
     let app_builder = build_app!(&config);
     let args: Vec<String> = std::env::args().collect();
     if args.len() == 1 || args.len() == 2 && (args[1] == "-h" || args[1] == "--help") {
-        utils::clap::print_custom_help(&app_builder);
+        utils::clap::print_custom_help(&app_builder, &config);
         return;
     }
 
@@ -65,7 +64,7 @@ async fn main() {
             Some(Commands::Status) => cli::status::execute().await,
             Some(Commands::Clean) => cli::clean::execute().await,
             Some(Commands::Bench(args)) => cli::bench::execute(args).await,
-            _ => utils::clap::print_custom_help(&app_builder),
+            _ => utils::clap::print_custom_help(&app_builder, &config),
         },
         Err(_) => {
             // Singleton guard – stops the previous command when a new one starts,
@@ -92,7 +91,7 @@ async fn main() {
                 Some((cmd_name, action_matches)) => {
                     cli::action::execute(cmd_name, action_matches, config).await;
                 }
-                _ => utils::clap::print_custom_help(&app_builder),
+                _ => utils::clap::print_custom_help(&app_builder, &config),
             }
         }
     }

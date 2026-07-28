@@ -2,6 +2,7 @@
 //! ActionModel, FlowModel, ActionsModel.
 
 pub mod action;
+pub mod api;
 pub mod arg;
 pub mod context;
 pub mod flow;

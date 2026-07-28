@@ -9,8 +9,8 @@ pub struct OutputMsg {
     pub kind: OutputKind,
     /// The layout template for human-readable outputs
     pub template: String,
-    /// The raw data fields map for machine-readable JSON outputs
-    pub fields: HashMap<String, String>,
+    /// @todo
+    pub fields: HashMap<String, serde_json::Value>,
 }
 
 impl OutputMsg {
@@ -23,9 +23,12 @@ impl OutputMsg {
         }
     }
 
-    /// Builder method to inject a styled value bound to a placeholder key.
-    pub fn field(mut self, key: &str, value: &str) -> Self {
-        self.fields.insert(key.to_string(), value.to_string());
+    /// @todo
+    pub fn field<T: Serialize + ?Sized>(mut self, key: &str, value: &T) -> Self {
+        self.fields.insert(
+            key.to_string(),
+            serde_json::to_value(value).unwrap_or(serde_json::Value::Null),
+        );
         self
     }
 }
@@ -37,7 +40,7 @@ macro_rules! print_template {
         let mut t = $crate::output::msg::OutputMsg::new($kind, $template);
         t = t.field("export", $crate::output::output::ExportContext::$variant.as_str());
         $(
-            t = t.field($key, &$val.to_string());
+            t = t.field($key, &$val);
         )*
         $crate::configs::app::AppConfig::output().write(&t);
     }};
@@ -45,7 +48,7 @@ macro_rules! print_template {
     ($kind:expr, $template:expr, $($key:expr => $val:expr),* $(,)?) => {{
         let mut t = $crate::output::msg::OutputMsg::new($kind, $template);
         $(
-            t = t.field($key, &$val.to_string());
+            t = t.field($key, &$val);
         )*
         $crate::configs::app::AppConfig::output().write(&t);
     }};

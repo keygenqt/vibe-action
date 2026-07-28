@@ -12,6 +12,7 @@ use std::path::PathBuf;
 
 use crate::engine::parser::TagIterator;
 use crate::models::action::ActionModel;
+use crate::models::api::FlowApiModel;
 use crate::models::arg::ArgActionModel;
 use crate::models::arg::ArgInput;
 use crate::models::context::ContextModel;
@@ -19,7 +20,7 @@ use crate::system::system::SystemKey;
 use crate::system::system::SystemRegistry;
 use crate::utils;
 
-/// One action flow: name, mode, steps, result source.
+/// One action flow: name, steps, result source, and CLI arguments.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FlowModel {
     /// Action name (used as CLI subcommand).
@@ -35,6 +36,9 @@ pub struct FlowModel {
     /// CLI arguments.
     #[serde(default)]
     pub args: Vec<ArgActionModel>,
+    /// IDE plugin integration metadata (ignored by CLI runtime).
+    #[serde(default)]
+    pub api: Option<FlowApiModel>,
     /// Preparation steps.
     #[serde(default)]
     pub actions: Vec<ActionModel>,

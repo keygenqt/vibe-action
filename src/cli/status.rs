@@ -1,8 +1,6 @@
 //! Status command handler.
 //! Shows system status: version, config paths, context state.
 
-use colored::Colorize;
-
 use crate::configs::app::AppConfig;
 use crate::output::output::OutputKind;
 use crate::utils::app::{app_version, config_version};
@@ -20,16 +18,14 @@ pub async fn execute() {
     print_template!(
         ExportContext::Status,
         OutputKind::Info,
-        "actions - {actions}, version - {version}, config - {config}",
+        "actions - {actions|cyan}, version - {version|cyan}, config - {config|cyan}",
         "actions" => config
             .flows
             .as_ref()
             .map(|f| f.flows.len())
-            .unwrap_or(0)
-            .to_string()
-            .cyan(),
-        "version" => format!("v{}", app_version()).cyan(),
-        "config" => format!("v{}", config_version()).cyan(),
+            .unwrap_or(0),
+        "version" => format!("v{}", app_version()),
+        "config" => format!("v{}", config_version()),
         "actions_path" => utils::path::actions_dir().display().to_string(),
     );
 }

@@ -7,6 +7,10 @@ args:
     input: string
     help: The line to comment
     default: '{system_clipboard}'
+# IDE plugin integration: maps argument names to IDE contexts (e.g., selection, clipboard)
+api:
+  args:
+    query: selection
 actions:
   # Replace TODO placeholders with intelligent technical comments
   - tag: tag_comment

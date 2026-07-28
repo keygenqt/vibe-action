@@ -2,7 +2,6 @@
 //! Provides version info, help text formatting, and CLI styling configuration.
 
 use clap::builder::Styles;
-use colored::Colorize;
 
 use crate::utils::constants::CONFIG_VERSION;
 
@@ -24,19 +23,6 @@ pub fn app_name() -> &'static str {
 /// Returns the pretty application name for notifications and UI.
 pub fn app_name_pretty() -> &'static str {
     "Vibe Action"
-}
-
-/// Returns the application about text with styling.
-pub fn app_about() -> String {
-    format!(
-        r#"
-{} - command router for shell and LLM tasks via YAML pipelines
-
-{}
-"#,
-        app_name_pretty().bright_green().bold(),
-        "Part of Vibe tools ecosystem".italic()
-    )
 }
 
 /// Returns CLI styling configuration
