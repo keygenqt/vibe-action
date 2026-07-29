@@ -7,6 +7,13 @@ args:
     input: string
     help: The code to explain
     default: '{system_clipboard}'
+# IDE plugin integration: maps argument names to IDE contexts
+api:
+  # Target for the final result (replace | clipboard | dialog)
+  output: replace
+  # Maps argument for json output (selection | clipboard)
+  args:
+    query: selection
 actions:
   # Add summary and detailed comments to the code
   - tag: tag_explanation
@@ -14,16 +21,13 @@ actions:
     expect: string
     action: |
       [Task]
-        1. Add a general summary in plain text.
-        2. Keep the code logic identical, but add comments above EACH logical block.
-        3. Inside each comment, briefly explain the language-specific constructs, macros, or types used.
-        4. Split comments into multiple lines using the "// " symbol.
-        5. Use Markdown formatting, and place the code inside code blocks.
-        6. Language for comments and summary: {system_language}
+        1. Keep the code logic identical, but add comments above EACH logical block.
+        2. Inside each comment, briefly explain the language-specific constructs, macros, or types used.
+        3. Split comments into multiple lines using the "// " symbol.
+        4. Use Markdown formatting, and place the code inside code blocks.
+        5. Language for comments: {system_language}
 
       [Example]
-      <summary>
-
       ```rust
       <code>
       ```

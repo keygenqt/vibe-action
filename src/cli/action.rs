@@ -12,6 +12,7 @@ use crate::{print_template, print_text, utils};
 
 /// Execute a dynamic action command.
 pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig) {
+    let is_output_cli = AppConfig::output().output_type() == OutputType::Cli;
     let start_time = std::time::Instant::now();
 
     let flow = config
@@ -82,7 +83,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             "total" => total.to_string()
         );
 
-        if action.confirm && AppConfig::output().output_type() == OutputType::Cli {
+        if action.confirm && is_output_cli {
             print_template!(
                 OutputKind::Info,
                 "completed in {duration}",
@@ -137,10 +138,10 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         ExportContext::Success,
         OutputKind::Success,
         "{message}",
-        "message" => if result.is_empty() { "No matches found." } else { &result },
+        "message" => if result.is_empty() && is_output_cli { "No matches found." } else { &result },
     );
 
-    if flow.notify && AppConfig::output().output_type() == OutputType::Cli {
+    if flow.notify && is_output_cli {
         #[cfg(target_os = "macos")]
         {
             match std::process::Command::new("terminal-notifier")

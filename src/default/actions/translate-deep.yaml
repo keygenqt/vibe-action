@@ -16,7 +16,14 @@ args:
     short: 'l'
     input: string
     help: Target language (e.g., Russian, English, Chinese)
-    default: '{system_language}'
+    default: 'Russian'
+# IDE plugin integration: maps argument names to IDE contexts
+api:
+  # Target for the final result (replace | clipboard | dialog)
+  output: replace
+  # Maps argument for json output (selection | clipboard)
+  args:
+    text: selection
 actions:
   # Read input from file or text argument
   - tag: tag_content
@@ -30,7 +37,7 @@ actions:
         then: cat "{file|load}"
   # Local model generates a raw text translation
   - tag: tag_draft
-    run: small
+    run: medium
     expect: string
     action: |
       [Task]
@@ -43,23 +50,24 @@ actions:
 
       [Text]
       {tag_content}
+  # @todo
   # Powerful cloud model polishes and refines the draft without original context
-  - tag: tag_translated
-    run: large
-    expect: string
-    action: |
-      [Task]
-      Act as an expert native editor and senior technical writer.
-      Review, polish, and fix the IT slang and phrasing in this rough draft translated into the language specified in [User].
-      Keep formatting, code blocks, and proper names intact. Output ONLY the polished final text.
+  # - tag: tag_translated
+  #   run: large
+  #   expect: string
+  #   action: |
+  #     [Task]
+  #     Act as an expert native editor and senior technical writer.
+  #     Review, polish, and fix the IT slang and phrasing in this rough draft translated into the language specified in [User].
+  #     Keep formatting, code blocks, and proper names intact. Output ONLY the polished final text.
 
-      [User]
-      {to}
+  #     [User]
+  #     {to}
 
-      [Rough Draft]
-      {tag_draft}
+  #     [Rough Draft]
+  #     {tag_draft}
   # Copy result to clipboard and output
   - tag: tag_clipboard
     run: value
     expect: string
-    action: '{tag_translated|clipboard}'
+    action: '{tag_draft|clipboard}'
