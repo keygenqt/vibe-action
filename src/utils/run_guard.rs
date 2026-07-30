@@ -9,6 +9,11 @@ use crate::output::output::OutputKind;
 use crate::print_text;
 use crate::utils::path::cache_dir;
 
+/// Exit code used when this instance shuts down because a newer one took over.
+/// 128 + SIGINT(2) by convention. CommandProvider maps it to coroutine
+/// cancellation, so the UI reports "cancelled" instead of "failed".
+const EXIT_SUPERSEDED: i32 = 130;
+
 pub struct RunGuard {
     pid_path: PathBuf,
 }
@@ -231,7 +236,7 @@ impl RunGuard {
                     );
                     let _ = std::fs::remove_file(&stop_path);
                     let _ = std::fs::remove_file(&pid_path);
-                    std::process::exit(0);
+                    std::process::exit(EXIT_SUPERSEDED);
                 }
             }
         });
@@ -260,14 +265,31 @@ impl RunGuard {
     }
 
     /// Acquire the startup lock.
+    ///
+    /// The lock is held for the whole startup sequence, including waiting for
+    /// the previous instance to exit (up to ~3s). A single try_lock would
+    /// therefore fail in the common "cancel → immediately re-run" flow, so we
+    /// retry until the previous startup finishes.
     fn acquire_startup_lock(cache_dir: &PathBuf) -> Result<File> {
         let lock_path = cache_dir.join(".run_lock");
         let file =
             File::create(&lock_path).map_err(|e| anyhow!("Failed to open lock file: {}", e))?;
-        file.try_lock_exclusive()
-            .map_err(|_| anyhow!("Another vibe-action instance is already starting"))?;
 
-        Ok(file)
+        let deadline = Instant::now() + Duration::from_secs(15);
+        loop {
+            match file.try_lock_exclusive() {
+                Ok(()) => return Ok(file),
+                Err(e) => {
+                    if Instant::now() >= deadline {
+                        return Err(anyhow!(
+                            "Another vibe-action instance is still starting: {}",
+                            e
+                        ));
+                    }
+                    std::thread::sleep(Duration::from_millis(100));
+                }
+            }
+        }
     }
 }
 

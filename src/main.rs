@@ -3,7 +3,10 @@
 
 use clap::{Parser, Subcommand};
 
-use crate::{cli::bench::BenchArgs, configs::app::AppConfig, output::output::OutputKind};
+use crate::{
+    cli::bench::BenchArgs, configs::app::AppConfig, output::output::OutputKind,
+    utils::run_guard::RunGuard,
+};
 
 mod bench;
 mod cli;
@@ -38,6 +41,20 @@ enum Commands {
     Stop,
 }
 
+/// Acquires the singleton guard: notifies the previous instance (if any),
+/// waits for it to exit, force-kills it on timeout, then registers this
+/// process as the active one and arms the stop monitor.
+/// On drop, the guard removes our pid file to allow clean shutdown.
+fn acquire_run_guard() -> RunGuard {
+    match RunGuard::start() {
+        Ok(guard) => guard,
+        Err(e) => {
+            print_text!(OutputKind::Error, "{}", e);
+            std::process::exit(1);
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
     if let Err(e) = AppConfig::init() {
@@ -64,18 +81,20 @@ async fn main() {
     match app {
         Ok(app) => match app.command {
             Some(Commands::Status) => cli::status::execute().await,
-            Some(Commands::Clean) => cli::clean::execute().await,
-            Some(Commands::Stop) => match utils::run_guard::RunGuard::start() {
-                Ok(_) => {
-                    print_text!(OutputKind::Info, "Stopping running processes...");
-                    std::process::exit(0)
-                }
-                Err(e) => {
-                    print_text!(OutputKind::Error, "{}", e);
-                    std::process::exit(1);
-                }
-            },
-            Some(Commands::Bench(args)) => cli::bench::execute(args).await,
+            Some(Commands::Clean) => {
+                // Clean wipes the shared cache — must own the singleton,
+                // otherwise it races a running action using that cache.
+                let _guard = acquire_run_guard();
+                cli::clean::execute().await
+            }
+            Some(Commands::Stop) => {
+                let _guard = acquire_run_guard();
+                print_text!(OutputKind::Info, "All running processes stopped");
+            }
+            Some(Commands::Bench(args)) => {
+                let _guard = acquire_run_guard();
+                cli::bench::execute(args).await
+            }
             _ => utils::clap::print_custom_help(&app_builder, &config),
         },
         Err(_) => {
@@ -83,21 +102,12 @@ async fn main() {
             // instead of failing with an error. This keeps the shared state
             // (cache, local LLMs) predictable for beginners.
             //
-            // On drop, the guard removes our pid file to allow clean shutdown.
-            //
             // VIBE_SKIP_LOCK disables the guard: the process runs without affecting
             // other instances (useful for parallel API clusters).
-            let _guard = if std::env::var_os("VIBE_SKIP_LOCK").is_none() {
-                match utils::run_guard::RunGuard::start() {
-                    Ok(guard) => Some(guard),
-                    Err(e) => {
-                        print_text!(OutputKind::Error, "{}", e);
-                        std::process::exit(1);
-                    }
-                }
-            } else {
-                None
-            };
+            let _guard = std::env::var_os("VIBE_SKIP_LOCK")
+                .is_none()
+                .then(acquire_run_guard);
+
             let matches = app_builder.clone().get_matches();
             match matches.subcommand() {
                 Some((cmd_name, action_matches)) => {

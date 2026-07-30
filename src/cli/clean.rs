@@ -42,8 +42,4 @@ pub async fn execute() {
         }
         Err(_) => {}
     }
-
-    // Clean context
-    // print_info!("Context cache cleaned");
-    // @todo
 }
