@@ -37,7 +37,7 @@ actions:
         then: cat "{file|load}"
   # Local model generates a raw text translation
   - tag: tag_draft
-    run: medium
+    run: small
     expect: string
     action: |
       [Task]
@@ -50,22 +50,21 @@ actions:
 
       [Text]
       {tag_content}
-  # @todo
   # Powerful cloud model polishes and refines the draft without original context
-  # - tag: tag_translated
-  #   run: large
-  #   expect: string
-  #   action: |
-  #     [Task]
-  #     Act as an expert native editor and senior technical writer.
-  #     Review, polish, and fix the IT slang and phrasing in this rough draft translated into the language specified in [User].
-  #     Keep formatting, code blocks, and proper names intact. Output ONLY the polished final text.
+  - tag: tag_translated
+    run: medium
+    expect: string
+    action: |
+      [Task]
+      Act as an expert native editor and senior technical writer.
+      Review, polish, and fix the IT slang and phrasing in this rough draft translated into the language specified in [User].
+      Keep formatting, code blocks, and proper names intact. Output ONLY the polished final text.
 
-  #     [User]
-  #     {to}
+      [User]
+      {to}
 
-  #     [Rough Draft]
-  #     {tag_draft}
+      [Rough Draft]
+      {tag_draft}
   # Copy result to clipboard and output
   - tag: tag_clipboard
     run: value

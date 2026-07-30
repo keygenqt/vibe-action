@@ -4638,9 +4638,7 @@ dependencies = [
 
 [[package]]
 name = "vibe-cluster"
-version = "0.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80fd113cf8b13f824287c98d72d55e017bea761a7484f54651025393dbfb29da"
+version = "0.0.6"
 dependencies = [
  "async-trait",
  "futures",

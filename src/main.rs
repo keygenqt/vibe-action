@@ -34,6 +34,8 @@ enum Commands {
     Bench(BenchArgs),
     /// Remove all cache
     Clean,
+    /// Stop all running processes
+    Stop,
 }
 
 #[tokio::main]
@@ -63,6 +65,16 @@ async fn main() {
         Ok(app) => match app.command {
             Some(Commands::Status) => cli::status::execute().await,
             Some(Commands::Clean) => cli::clean::execute().await,
+            Some(Commands::Stop) => match utils::run_guard::RunGuard::start() {
+                Ok(_) => {
+                    print_text!(OutputKind::Info, "Stopping running processes...");
+                    std::process::exit(0)
+                }
+                Err(e) => {
+                    print_text!(OutputKind::Error, "{}", e);
+                    std::process::exit(1);
+                }
+            },
             Some(Commands::Bench(args)) => cli::bench::execute(args).await,
             _ => utils::clap::print_custom_help(&app_builder, &config),
         },

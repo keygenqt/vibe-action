@@ -27,5 +27,7 @@ pub async fn execute() {
         "version" => format!("v{}", app_version()),
         "config" => format!("v{}", config_version()),
         "actions_path" => utils::path::actions_dir().display().to_string(),
+        "config_path" => utils::path::config_path().display().to_string(),
+        "cache_path" => utils::path::cache_dir().display().to_string(),
     );
 }

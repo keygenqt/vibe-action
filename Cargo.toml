@@ -65,6 +65,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Vibe
-vibe-cluster = "0.0.5"
+# vibe-cluster = "0.0.6" # 0.0.5 -> 0.0.6
+vibe-cluster = { path = "/Users/keygenqt/Documents/Gitcode/Projects/vibe-cluster" }
 vibe-ast = "0.0.13"
 vibe-fs = "0.0.4"

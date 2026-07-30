@@ -65,8 +65,10 @@ impl Cluster {
                     .unwrap_or_default();
 
                 // Get size token
-                let bpe = tiktoken_rs::cl100k_base().unwrap();
+                let bpe = tiktoken_rs::o200k_base().unwrap();
+                // Approximate token count for non-OpenAI models
                 let user_tokens = bpe.encode_with_special_tokens(&result.prompt.user).len();
+
                 let system_tokens = result
                     .prompt
                     .system
@@ -89,7 +91,7 @@ impl Cluster {
                 // Print result info
                 print_template!(
                     OutputKind::Progress,
-                    "[{role}] node batch: {current}/{total} | {model} finished in {duration} ({tokens} tokens{image})",
+                    "[{role}] node batch: {current}/{total} | {model} finished in {duration} (~{tokens} tokens{image})",
                     "role" => role_label,
                     "current" => format!("{:>width$}", current, width = total.to_string().len()),
                     "total" => total.to_string(),

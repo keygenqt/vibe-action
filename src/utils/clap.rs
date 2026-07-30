@@ -3,7 +3,7 @@ use clap::Command;
 use crate::{configs::app::AppConfig, output::output::OutputKind, print_template, utils::app};
 
 /// System commands displayed in a separate section.
-pub const SYSTEM_COMMANDS: &[&str] = &["clean", "status", "bench"];
+pub const SYSTEM_COMMANDS: &[&str] = &["clean", "status", "bench", "stop"];
 
 /// Builds the full hierarchical CLI command tree including dynamic YAML actions.
 #[macro_export]

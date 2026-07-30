@@ -145,7 +145,7 @@ impl AppConfig {
                 vec![
                     "LLM cluster nodes (local and cloud models).",
                     "",
-                    "provider - Provider type: ollama, deepseek, qwen",
+                    "provider - Provider type: ollama, deepseek, qwen, kimi, zhipu",
                     "host - API endpoint",
                     "model - LLM model name",
                     "role - Node role: small, medium, large (optional, default: all)",
@@ -229,6 +229,8 @@ impl AppConfig {
                     "ollama" => Provider::Ollama,
                     "deepseek" => Provider::DeepSeek,
                     "qwen" => Provider::Qwen,
+                    "kimi" => Provider::Kimi,
+                    "zhipu" => Provider::Zhipu,
                     other => anyhow::bail!("Unknown provider: {}", other),
                 };
                 Ok(ConnectionParams {
