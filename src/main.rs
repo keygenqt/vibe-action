@@ -62,6 +62,15 @@ async fn main() {
         std::process::exit(1);
     }
 
+    let log_type = std::env::var("VIBE_LOG_TYPE").unwrap_or_else(|_| "cli".to_string());
+    if std::env::var("VIBE_TRACE_LEVEL").is_ok() && log_type != "tracing" {
+        print_text!(
+            OutputKind::Error,
+            "VIBE_TRACE_LEVEL can only be used when VIBE_LOG_TYPE is 'tracing'."
+        );
+        std::process::exit(1);
+    }
+
     let config = match AppConfig::instance() {
         Ok(v) => v,
         Err(e) => {

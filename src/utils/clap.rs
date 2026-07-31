@@ -1,6 +1,11 @@
+use std::collections::HashSet;
+
 use clap::Command;
 
-use crate::{configs::app::AppConfig, output::output::OutputKind, print_template, utils::app};
+use crate::{
+    configs::app::AppConfig, default::default::default_flows, output::output::OutputKind,
+    print_template, utils::app,
+};
 
 /// System commands displayed in a separate section.
 pub const SYSTEM_COMMANDS: &[&str] = &["clean", "status", "bench", "stop"];
@@ -42,6 +47,12 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
         .unwrap_or(15)
         + 1;
 
+    // Collect built-in flow names to distinguish custom actions.
+    let builtin_names: HashSet<String> = default_flows()
+        .iter()
+        .filter_map(|f| f.name().ok())
+        .collect();
+
     print_template!(
         OutputKind::Plain,
         "\n{app_name|bright_green|bold} - command router for shell and LLM tasks via YAML pipelines\n\n{ecosystem|italic}\n\n{usage|bright_green|bold} {app_name_cli|cyan|bold} {command|cyan}\n",
@@ -61,8 +72,8 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
     for sub in &actions {
         let name = sub.get_name();
         let about = sub.get_about().unwrap_or_default().to_string();
-
         let formatted_name = format!("  {:<width$}", name, width = max_len);
+        let is_custom = !builtin_names.contains(name);
 
         if let Some(flow) = config.flows.as_ref().and_then(|f| f.find(name)) {
             print_template!(
@@ -72,7 +83,8 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
                 "name" => formatted_name,
                 "about" => about,
                 "args" => &flow.args,
-                "api" => &flow.api
+                "api" => &flow.api,
+                "is_custom" => is_custom
             );
         } else {
             print_template!(
@@ -80,7 +92,7 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
                 OutputKind::Plain,
                 "{name|cyan|bold} {about}",
                 "name" => formatted_name,
-                "about" => about
+                "about" => about,
             );
         }
     }

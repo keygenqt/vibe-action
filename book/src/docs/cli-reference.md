@@ -2,23 +2,26 @@
 
 ## Environment Variables
 
-| Variable           | Description                                              | Default                      |
-| ------------------ | -------------------------------------------------------- | ---------------------------- |
-| `VIBE_CONFIG`      | Path to config file                                      | `~/.vibe-action/config.yaml` |
-| `VIBE_ACTION_PATH` | Path to actions directory                                | `~/.vibe-action/actions/`    |
-| `VIBE_LOG_TYPE`    | Output mode: `cli`, `plain`, `json`, `tracing`, `test`   | `cli`                        |
-| `VIBE_TRACE_LEVEL` | Tracing level: `error`, `warn`, `info`, `debug`, `trace` | `info`                       |
+| Variable           | Description                                                                                            | Default                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------ | ---------------------------- |
+| `VIBE_CONFIG`      | Path to config file                                                                                    | `~/.vibe-action/config.yaml` |
+| `VIBE_ACTION_PATH` | Path to actions directory                                                                              | `~/.vibe-action/actions/`    |
+| `VIBE_LOG_TYPE`    | Output mode: `cli`, `plain`, `json`, `tracing`, `test`                                                 | `cli`                        |
+| `VIBE_TRACE_LEVEL` | Tracing level: `error`, `warn`, `info`, `debug`, `trace` (**Only works when `VIBE_LOG_TYPE=tracing`**) | `info`                       |
 
 ## Output Modes
 
-| Mode      | Description                                    |
-| --------- | ---------------------------------------------- |
-| `cli`     | ANSI colors, progress bar, framed results      |
-| `plain`   | Result only, no formatting (for tests/CI)      |
-| `json`    | JSON objects `{"level":"...","message":"..."}` |
-| `tracing` | Structured logs with timestamps and log levels |
+| Mode      | Description                                                                    |
+| --------- | ------------------------------------------------------------------------------ |
+| `cli`     | ANSI colors, progress bar, framed results (default)                            |
+| `plain`   | Result only, no formatting (for tests/CI)                                      |
+| `json`    | JSON objects `{"level":"...","message":"..."}` (for IDE/extension integration) |
+| `tracing` | Structured logs with timestamps and log levels (supports `VIBE_TRACE_LEVEL`)   |
+| `test`    | Internal testing mode                                                          |
 
 ## Trace Levels
+
+_Note: `VIBE_TRACE_LEVEL` is only respected when `VIBE_LOG_TYPE` is set to `tracing`. Using it with other modes will cause an error._
 
 | Level   | Description               |
 | ------- | ------------------------- |
@@ -67,7 +70,7 @@ vibe-action extract --help
 
 ## Debug Mode
 
-Set `VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug` for detailed logs:
+Set `VIBE_LOG_TYPE=tracing` and `VIBE_TRACE_LEVEL=debug` (or `trace`) for detailed logs:
 
 ```bash
 VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug vibe-action commit -p .
