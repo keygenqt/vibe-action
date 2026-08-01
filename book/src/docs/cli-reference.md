@@ -8,6 +8,7 @@
 | `VIBE_ACTION_PATH` | Path to actions directory                                                                              | `~/.vibe-action/actions/`    |
 | `VIBE_LOG_TYPE`    | Output mode: `cli`, `plain`, `json`, `tracing`, `test`                                                 | `cli`                        |
 | `VIBE_TRACE_LEVEL` | Tracing level: `error`, `warn`, `info`, `debug`, `trace` (**Only works when `VIBE_LOG_TYPE=tracing`**) | `info`                       |
+| `VIBE_SKIP_LOCK`   | Disables the singleton guard allowing multiple instances to run in parallel (e.g., for API clusters)   | _Not set (guard enabled)_    |
 
 ## Output Modes
 
@@ -38,7 +39,7 @@ Execute a YAML-defined action directly:
 ```bash
 vibe-action <name> [args...]
 vibe-action commit -p .
-vibe-action translate-fast -f README.md -l Russian
+vibe-action translate-small -f README.md -l Russian
 vibe-action tone   # reads from clipboard
 vibe-action --help
 ```
@@ -48,6 +49,7 @@ System commands:
 ```bash
 vibe-action clean              # Remove all cache and temp files
 vibe-action status             # Show version and actions count
+vibe-action stop               # Stop all running processes
 vibe-action bench              # Run all benchmarks
 vibe-action bench -a faq -v    # Run benchmarks for specific action with output
 ```
@@ -67,6 +69,7 @@ vibe-action extract --help
 | ---- | ---------------------------------------------------------- |
 | 0    | Success                                                    |
 | 1    | Error (validation failed, shell command failed, LLM error) |
+| 130  | Instance superseded by a newer run (auto-cancelled)        |
 
 ## Debug Mode
 

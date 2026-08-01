@@ -35,6 +35,10 @@ args: # Optional: CLI arguments
     input: string # string | bool | number | path | list<string> | list<bool> | list<number> | list<path>
     help: Input text
     default: 'default' # Optional: makes argument non-required
+api: # Optional: IDE plugin integration
+  output: replace # replace | clipboard | dialog
+  args:
+    input: selection # selection | clipboard
 actions: # Pipeline steps (executed in order of dependencies)
   - tag: tag_step1
     run: cmd # cmd | value | small | medium | large | vision | tiny
@@ -77,6 +81,13 @@ actions: # Pipeline steps (executed in order of dependencies)
 | `list`   | List of strings, triggers loop |
 
 Omit `expect` for steps with no expected output.
+
+## IDE Plugin Integration (`api`)
+
+The optional `api` block configures how IDE plugins (like VS Code or IntelliJ) interact with the action.
+
+- `output`: Defines how the final result is presented (`replace` selected text, send to `clipboard`, or show in a `dialog`).
+- `args`: Maps action arguments to IDE contexts (e.g., automatically pass the `selection` or `clipboard` to the argument).
 
 ## Conditional Actions (When/Then)
 

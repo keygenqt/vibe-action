@@ -6,6 +6,7 @@
 
 - [Introduction](./docs/introduction.md)
 - [Quick Start](./docs/getting-started.md)
+- [IDE Integration](./docs/vibe-action-cross.md)
 
 # YAML Actions
 
@@ -15,11 +16,6 @@
 - [System Tags](./docs/system-tags.md)
 - [Built-in Actions](./docs/built-in-actions.md)
 - [Custom Actions](./docs/custom-actions.md)
-
-# IDE Integration
-
-- [VS Code](./docs/ide-vscode.md)
-- [IntelliJ IDEA](./docs/ide-intellij.md)
 
 # Reference
 

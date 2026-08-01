@@ -111,3 +111,7 @@ Circular references are detected at startup and reported as errors:
 ```
 Error: Circular dependency detected involving tag: 'tag_a'
 ```
+
+## Invalid Modifiers
+
+Using a pipe `|` without specifying a modifier name (e.g., `{tag|}`) will cause a fatal validation error, and the pipeline will halt immediately. Always ensure modifiers are properly named (e.g., `{tag|upper}`) or remove the pipe.

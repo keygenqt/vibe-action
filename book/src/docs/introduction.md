@@ -21,7 +21,9 @@ Vibe Action is a command router that executes shell commands and LLM prompts via
 - 🔐 **Confirmations** — ask before executing dangerous commands
 - 💬 **Self-documenting** — built-in `faq` command answers questions about Vibe Action itself
 - 🎯 **CLI-first** — no browser, no context switching. Everything in the terminal
-- 🔒 **Local & free** — open source, local models via Ollama. No subscriptions
+- 🔌 **IDE Integration** — built-in `api` block for seamless VS Code and IntelliJ plugin support
+- ⏱️ **Process Guard** — new runs automatically supersede previous ones, keeping state predictable
+- 🔒 **Open & Flexible** — open source. Use local models via Ollama or cloud APIs (DeepSeek, Qwen, Kimi, Zhipu)
 - 🦀 **Fast** — built in Rust
 
 ## Key Concepts

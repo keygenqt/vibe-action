@@ -1,6 +1,6 @@
 # Built-in Actions
 
-Vibe Action ships with 20 ready-to-use actions. They are written to `~/.vibe-action/actions/` on first run and can be customized.
+Vibe Action ships with 21 ready-to-use actions. They are written to `~/.vibe-action/actions/` on first run and can be customized.
 
 ## comment
 
@@ -139,27 +139,35 @@ vibe-action sysinfo
 
 ## tone
 
-Rewrite text with professional, calm tone.
+Transform rude or aggressive text into a professional tone.
 
 ```bash
 vibe-action tone -q "How fucking long do I have to wait?"
 vibe-action tone
 ```
 
-## translate-fast
+## translate-deep
+
+Deep two-stage translation using local drafting and cloud polishing.
+
+```bash
+vibe-action translate-deep -f README.md
+```
+
+## translate-large
+
+One step translation using a large model.
+
+```bash
+vibe-action translate-large -f README.md
+```
+
+## translate-small
 
 Fast single-model translation.
 
 ```bash
-vibe-action translate-fast -f README.md
-```
-
-## translate-deep
-
-Two-stage translation with local drafting and cloud polishing.
-
-```bash
-vibe-action translate-deep -f README.md
+vibe-action translate-small -f README.md
 ```
 
 ## whois

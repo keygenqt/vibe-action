@@ -41,19 +41,19 @@ cluster:
 
 ### Cluster Node Fields
 
-| Field          | Type    | Description                                  |
-| -------------- | ------- | -------------------------------------------- |
-| `provider`     | string  | `ollama`, `deepseek`, `qwen`                 |
-| `host`         | string  | API endpoint URL                             |
-| `model`        | string  | Model name                                   |
-| `role`         | string  | `tiny`, `small`, `medium`, `large`, `vision` |
-| `timeout_secs` | integer | Request timeout in seconds                   |
-| `temperature`  | float   | 0.0-2.0, lower = more deterministic          |
-| `seed`         | integer | Random seed for reproducibility              |
-| `num_ctx`      | integer | Context window size in tokens                |
-| `num_predict`  | integer | Max tokens to generate                       |
-| `api_key`      | string  | API key for cloud providers (optional)       |
-| `parallel`     | integer | Concurrent connections (default: 1)          |
+| Field          | Type    | Description                                   |
+| -------------- | ------- | --------------------------------------------- |
+| `provider`     | string  | `ollama`, `deepseek`, `qwen`, `kimi`, `zhipu` |
+| `host`         | string  | API endpoint URL                              |
+| `model`        | string  | Model name                                    |
+| `role`         | string  | `tiny`, `small`, `medium`, `large`, `vision`  |
+| `timeout_secs` | integer | Request timeout in seconds                    |
+| `temperature`  | float   | 0.0-2.0, lower = more deterministic           |
+| `seed`         | integer | Random seed for reproducibility               |
+| `num_ctx`      | integer | Context window size in tokens                 |
+| `num_predict`  | integer | Max tokens to generate                        |
+| `api_key`      | string  | API key for cloud providers (optional)        |
+| `parallel`     | integer | Concurrent connections (default: 1)           |
 
 ### Multi-Node Cluster with Roles
 
@@ -68,6 +68,18 @@ cluster:
     seed: 42
     num_ctx: 4096
     num_predict: 512
+    parallel: 2
+
+  - provider: zhipu
+    host: https://open.bigmodel.cn/api/paas/v4
+    model: glm-4-flash
+    role: small
+    timeout_secs: 60
+    temperature: 0.1
+    seed: 42
+    num_ctx: 8192
+    num_predict: 2048
+    api_key: sk-...
     parallel: 2
 
   - provider: ollama
@@ -92,6 +104,18 @@ cluster:
     num_predict: 8192
     api_key: sk-...
     parallel: 2
+
+  - provider: kimi
+    host: https://api.moonshot.cn/v1
+    model: moonshot-v1-8k
+    role: large
+    timeout_secs: 120
+    temperature: 0.1
+    seed: 42
+    num_ctx: 8192
+    num_predict: 2048
+    api_key: sk-...
+    parallel: 1
 
   - provider: ollama
     host: http://localhost:11434

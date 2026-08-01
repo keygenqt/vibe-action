@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Ollama** (recommended), **DeepSeek API key**, or **Qwen** — for LLM inference
+- **Ollama** (recommended), or API keys for **DeepSeek**, **Qwen**, **Kimi**, or **Zhipu** — for LLM inference
 - **Rust** (if building from source)
 
 ### Supported Platforms
@@ -50,7 +50,7 @@ $ vibe-action --help
 This creates:
 
 - `~/.vibe-action/config.yaml` — configuration
-- `~/.vibe-action/actions/` — 20 built-in actions
+- `~/.vibe-action/actions/` — 21 built-in actions
 
 ## Configure Cluster
 
@@ -82,7 +82,8 @@ cluster:
 vibe-action commit -p .
 
 # Translate a file
-vibe-action translate-fast -f README.md
+vibe-action translate-small -f README.md
+vibe-action translate-large -f README.md
 
 # Rewrite tone from clipboard
 vibe-action tone
@@ -110,6 +111,9 @@ vibe-action status
 
 # Clear all cache
 vibe-action clean
+
+# Stop all running processes
+vibe-action stop
 
 # Run benchmarks
 vibe-action bench

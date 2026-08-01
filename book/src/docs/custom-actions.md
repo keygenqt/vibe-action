@@ -143,6 +143,29 @@ actions:
     action: '{tag_ast|format:json}'
 ```
 
+## IDE Integration (VS Code / IntelliJ)
+
+Define how IDE plugins should handle your action using the `api` block. This example replaces the selected text with its uppercase version:
+
+```yaml
+name: upper
+about: Convert text to UPPERCASE
+api:
+  output: replace # replace | clipboard | dialog
+  args:
+    text: selection # automatically pass selected text to 'text' arg
+args:
+  - name: text
+    short: t
+    input: string
+    default: '{system_clipboard}'
+actions:
+  - tag: tag_upper
+    run: value
+    expect: string
+    action: '{text|upper}'
+```
+
 ## Clipboard
 
 Use the `clipboard` modifier to copy values at any pipeline step:
