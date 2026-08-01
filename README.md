@@ -12,6 +12,9 @@ Command router for shell and LLM tasks via YAML pipelines.
 - 👁️ **Vision** — screenshot description, person identification
 - 🌐 **Fetch** — load and summarize web pages, PDFs, images
 - 🤖 **Batch LLM** — role-based routing (tiny, small, medium, large, vision)
+- ⏱️ **Process Guard** — new runs auto-cancel previous ones
+- 🔌 **IDE Integration** — built-in `api` block for VS Code & IntelliJ
+- 🔒 **Open & Flexible** — local models via Ollama or cloud APIs (DeepSeek, Qwen, Kimi, Zhipu)
 - 🎯 **CLI-first** — no browser, just terminal
 - 🦀 **Fast** — built in Rust
 
@@ -25,10 +28,7 @@ vibe-action faq -q "какие команды есть и зачем?"
 vibe-action faq -q "как использовать модификаторы?"
 ```
 
-## IDE Integration
-
-- [VS Code](https://vibe-action.keygenqt.com/docs/ide-vscode.html) — Tasks + Task Notifier
-- [IntelliJ IDEA](https://vibe-action.keygenqt.com/docs/ide-intellij.html) — External Tools
+[IDE Integration](https://vibe-action.keygenqt.com/docs/vibe-action-cross.html)
 
 ## Configuration
 
@@ -42,12 +42,25 @@ action:
 cluster:
   - provider: ollama
     host: http://localhost:11434
-    model: qwen2.5-coder:14b-instruct
+    model: qwen2.5-coder:3b-instruct
+    role: small
+    timeout_secs: 30
+    temperature: 0.0
+    seed: 42
+    num_ctx: 4096
+    num_predict: 512
+    parallel: 2
+
+  - provider: zhipu
+    host: https://open.bigmodel.cn/api/paas/v4
+    model: glm-4-flash
+    role: medium
     timeout_secs: 60
     temperature: 0.1
     seed: 42
-    num_ctx: 4096
+    num_ctx: 8192
     num_predict: 2048
+    api_key: sk-...
     parallel: 1
 ```
 
@@ -64,5 +77,5 @@ cargo install vibe-action
 
 ## Dependencies
 
-- [Ollama](https://ollama.com), [DeepSeek](https://deepseek.com), or [Qwen](https://qwen.ai)
+- [Ollama](https://ollama.com) (recommended), [DeepSeek](https://deepseek.com), [Qwen](https://qwen.ai), [Kimi](https://moonshot.cn), or [Zhipu](https://open.bigmodel.cn/)
 - [terminal-notifier](https://github.com/julienXX/terminal-notifier) (macOS, optional)
