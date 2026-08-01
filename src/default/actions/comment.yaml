@@ -1,12 +1,14 @@
 name: comment
 about: Replace TODO with a meaningful comment
 notify: true
+
 args:
   - name: query
     short: 'q'
     input: string
-    help: The line to comment
     default: '{system_clipboard}'
+    help: The line to comment
+
 # IDE plugin integration: maps argument names to IDE contexts
 api:
   # Target for the final result (replace | clipboard | dialog)
@@ -14,6 +16,7 @@ api:
   # Maps argument for JSON output (selection | clipboard)
   args:
     query: selection
+
 actions:
   # Replace TODO placeholders with intelligent technical comments
   - tag: tag_comment
@@ -26,12 +29,13 @@ actions:
       [Rules]
       1. Do NOT modify, reformat, or optimize any actual programming code. Your only task is to update the TODO comments.
       2. For file/module placeholders (`//!`), write a high-level summary strictly in TWO short sentences (one per line). Start each sentence directly with an action verb or noun (do NOT use "This module...", "It...").
-      3. For structures, fields, or methods below, write a brief description (max 7 words). Do NOT start with "Represents...", "The...".
+      3. For structures, fields, or methods, write a brief description (max 7 words). Do NOT start with "Represents...", "The...".
       4. Keep the exact same comment syntax (`//!`, `///`, `//`, `#`).
       5. Output the ENTIRE code block with placeholders replaced.
 
       [Code]
       {query}
+
   # Copy result to clipboard and output
   - tag: tag_clipboard
     run: value

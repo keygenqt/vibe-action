@@ -1,12 +1,14 @@
 name: scan
 about: Scan project codebase and export as structured JSON
 notify: true
+
 args:
   - name: path
     short: p
     input: string
-    help: Project path
     default: .
+    help: Project path
+
 actions:
   # Validate path is a directory
   - tag: tag_validate
@@ -17,21 +19,25 @@ actions:
         then: echo "{path}"
       - when: '{path|is_dir:not}'
         then: echo "'{path}' is not a directory" && exit 1
+
   # Resolve to absolute path
   - tag: tag_resolve
     run: value
     expect: string
     action: '{tag_validate|resolve}'
+
   # Scan project files and parse AST
   - tag: tag_ast
     run: value
     expect: list
     action: '{tag_resolve|scan|ast}'
+
   # Format as JSON array
   - tag: tag_json
     run: value
     expect: string
     action: '{tag_ast|format:json}'
+
   # Save to file with timestamp
   - tag: tag_save
     run: cmd

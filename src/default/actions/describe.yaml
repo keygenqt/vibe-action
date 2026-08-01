@@ -1,12 +1,19 @@
 name: describe
-about: Describe screenshot for text-only LLM understanding
+about: Describe a screenshot from clipboard for text-only LLMs (Cmd+Shift+Ctrl+4, Ctrl+Print)
 notify: true
+
 args:
   - name: image
     short: 'i'
     input: string
-    help: Path or URL to screenshot (or use clipboard)
     default: '{system_clipboard_image}'
+    help: Path or URL to screenshot (or use clipboard)
+
+# IDE plugin integration: maps argument names to IDE contexts
+api:
+  # Target for the final result (replace | clipboard | dialog)
+  output: dialog
+
 actions:
   # Extract raw visual description from the screenshot
   - tag: tag_raw
@@ -24,6 +31,7 @@ actions:
       - What is happening in the screenshot
       - Colors: list each distinct color with its hex code, and what it is used for
       Be thorough.
+
   # Format the raw description into clean Markdown
   - tag: tag_md
     run: small
@@ -38,6 +46,7 @@ actions:
 
       [Input]
       {tag_raw}
+
   # Copy result to clipboard and output
   - tag: tag_clipboard
     run: value

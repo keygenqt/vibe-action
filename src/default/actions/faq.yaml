@@ -2,11 +2,14 @@ name: faq
 about: Ask a question about Vibe Action — YAML structure, fields, modifiers, or usage
 clipboard: false
 notify: false
+
 args:
   - name: query
     short: 'q'
     input: string
+    default: '{system_clipboard}'
     help: Your question about Vibe Action
+
 actions:
   - tag: tag_faq
     run: small
@@ -17,31 +20,41 @@ actions:
       Each action is a YAML manifest loaded recursively from configuration directories to build CLI subcommands.
 
       Built-in Action Ecosystem (Available CLI Subcommands):
-        comment        - Replace TODO with a meaningful comment
-        commit         - AI-generated commit message
-        describe       - Describe screenshot for text-only LLM understanding
-        explain        - Explain what the selected code does in simple terms
-        extract        - Extract structured data or matching lines from text and logs
-        faq            - Ask a question about Vibe Action — YAML structure, fields, modifiers, or usage
-        fetch          - Fetch a web page or PDF and describe its content
-        find           - Semantic file finder — finds files by meaning, not just name
-        mock           - Generate realistic mock data arrays (JSON, YAML, CSV) for testing
-        naming         - Generate code naming suggestions based on a description
-        regex          - Generate a regular expression pattern based on your description
-        review         - Critically analyze code for bugs and flaws using a powerful model
-        scan           - Scan project codebase and export as structured JSON
-        spellcheck     - Check and fix spelling in text or files
-        synonyms       - Find programming/technical synonyms for a word
-        sysinfo        - Generate a human-readable system report
-        tone           - Change the tone of a text based on your instructions
-        translate-deep - Deep two-stage translation using local drafting and cloud polishing
-        translate-fast - Translate text or files to another language
-        whois          - Identify a person from a screenshot
+        comment         - Replace TODO with a meaningful comment
+        commit          - AI-generated commit message
+        describe        - Describe screenshot for text-only LLM understanding
+        explain         - Explain what the selected code does in simple terms
+        extract         - Extract structured data or matching lines from text and logs
+        faq             - Ask a question about Vibe Action — YAML structure, fields, modifiers, or usage
+        fetch           - Fetch a web page or PDF and describe its content
+        find            - Semantic file finder — finds files by meaning, not just name
+        mock            - Generate realistic mock data arrays (JSON, YAML, CSV) for testing
+        naming          - Generate code naming suggestions based on a description
+        regex           - Generate a regular expression pattern based on your description
+        review          - Critically analyze code for bugs and flaws using a powerful model
+        scan            - Scan project codebase and export as structured JSON
+        spellcheck      - Check and fix spelling in text or files
+        synonyms        - Find programming/technical synonyms for a word
+        sysinfo         - Generate a human-readable system report
+        tone            - Transform rude or aggressive text into a professional tone
+        translate-deep  - Deep two-stage translation using local drafting and cloud polishing
+        translate-large - One step translation using large model
+        translate-small - Translate text or files to another language
+        whois           - Identify a person from a screenshot
+
+      IDE Plugin Exclusions (CLI-Only Context):
+        Certain actions are excluded from the IDE plugin by design because they operate outside the inline code-editing context:
+        - Project & Filesystem Scope (`scan`, `find`): Operate on entire directories, returning large lists or exporting JSON files. Best suited for terminal workflows.
+        - Shell & Git Execution (`commit`): Requires direct shell-level Git execution and repository history traversal.
+        - Log Parsing (`extract`): Optimized for reading raw log files line-by-line via command line.
+        - System & Diagnostics (`sysinfo`, `faq`): Provide terminal environment reports and self-documentation.
+        - Non-Code Media (`whois`, `describe`): Focus on image/screenshot analysis, falling outside standard text-editing workflows.
 
       System Commands:
         clean          - Remove all cache
         status         - Show system status
         bench          - Run benchmarks
+        stop           - Stop all running processes
 
       Built-in System Context Tags (Runtime Environment Variables):
         {{system_arch}}            - CPU architecture (e.g., aarch64, x86_64)
@@ -178,9 +191,9 @@ actions:
       [RULES]
       1. Use '\s' mnemonic for spaces inside modifier brackets, never literal whitespace.
       2. Chain operations in a single tag with pipes when possible (e.g., use '{{tag|trim|upper|uniq|join}}').
-      4. Never use quotes for TEXT answers, lists, and general descriptions.
-      5. Output YAML ONLY if explicitly asked for a configuration example.
-      6. If the response contains YAML, wrap it in a ```yaml code block.
+      3. Never use quotes for TEXT answers, lists, and general descriptions.
+      4. Output YAML ONLY if explicitly asked for a configuration example.
+      5. If the response contains YAML, wrap it in a ```yaml code block.
 
       [STRICT RULES]
       1. Answer STRICTLY in the same language as the [Query]. NO mixed languages.

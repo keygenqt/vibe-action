@@ -1,7 +1,15 @@
+---
 name: sysinfo
 about: Generate a human-readable system report
 clipboard: false
+
+# IDE plugin integration: maps argument names to IDE contexts
+api:
+  # Target for the final result (replace | clipboard | dialog)
+  output: dialog
+
 actions:
+  # Generate system report
   - tag: tag_report
     run: small
     expect: string

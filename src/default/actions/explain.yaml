@@ -1,12 +1,14 @@
 name: explain
 about: Explain what the selected code does in simple terms
 notify: true
+
 args:
   - name: query
     short: 'q'
     input: string
-    help: The code to explain
     default: '{system_clipboard}'
+    help: The code to explain
+
 # IDE plugin integration: maps argument names to IDE contexts
 api:
   # Target for the final result (replace | clipboard | dialog)
@@ -14,6 +16,7 @@ api:
   # Maps argument for JSON output (selection | clipboard)
   args:
     query: selection
+
 actions:
   # Add summary and detailed comments to the code
   - tag: tag_explanation
@@ -21,19 +24,22 @@ actions:
     expect: string
     action: |
       [Task]
-        1. Keep the code logic identical, but add comments above EACH logical block.
-        2. Inside each comment, briefly explain the language-specific constructs, macros, or types used.
-        3. Split comments into multiple lines using the "// " symbol.
-        4. Use Markdown formatting, and place the code inside code blocks.
-        5. Language for comments: {system_language}
+      1. Keep the code logic identical, but add comments above EACH logical block.
+      2. Inside each comment, briefly explain the language-specific constructs, macros, or types used.
+      3. Split comments into multiple lines using the appropriate comment syntax for the selected language (e.g., `// ` or `# `).
+      4. Use Markdown formatting, and place the code inside code blocks.
+      5. Language for comments: {system_language}
 
       [Example]
       ```rust
-      <code>
+      // This is a comment
+      // Explaining the code below
+      let x = 5;
       ```
 
       [Code]
       {query}
+
   # Copy result to clipboard and output
   - tag: tag_clipboard
     run: value

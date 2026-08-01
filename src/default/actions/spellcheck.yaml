@@ -1,17 +1,27 @@
 name: spellcheck
 about: Check and fix spelling in text or files
 notify: true
+
 args:
   - name: text
     short: 't'
     input: string
-    help: Text to check
     default: '{system_clipboard}'
+    help: Text to check
   - name: file
     short: 'f'
     input: string
-    help: File or URL to check
     default: ''
+    help: File or URL to check
+
+# IDE plugin integration: maps argument names to IDE contexts
+api:
+  # Target for the final result (replace | clipboard | dialog)
+  output: replace
+  # Maps argument for JSON output (selection | clipboard)
+  args:
+    text: selection
+
 actions:
   # Read input from file or text argument
   - tag: tag_content
@@ -23,6 +33,7 @@ actions:
         then: echo "{text}"
       - when: '{file|empty:not}'
         then: cat "{file|load}"
+
   # LLM checks if text contains any errors
   - tag: tag_check_errors
     run: small
@@ -30,10 +41,11 @@ actions:
     action: |
       [Task]
       Analyze the text below for typos, spelling mistakes, and grammar errors.
-      If errors exist, reply strictly with "DIRTY". If no errors exist, reply strictly with "CLEAR"
+      If errors exist, reply strictly with "DIRTY". If no errors exist, reply strictly with "CLEAR".
 
       [Text]
       {tag_content}
+
   # If errors found, pass text through; otherwise return "No errors found."
   - tag: tag_check_errors_filter
     run: cmd
@@ -43,6 +55,7 @@ actions:
         then: echo "{tag_content}"
       - when: '{tag_check_errors|contains:CLEAR}'
         then: echo "No errors found."
+
   # LLM fixes all errors while preserving formatting
   - tag: tag_checked
     run: small
@@ -54,6 +67,7 @@ actions:
 
       [Text]
       {tag_check_errors_filter}
+
   # Copy result to clipboard and output
   - tag: tag_clipboard
     run: value

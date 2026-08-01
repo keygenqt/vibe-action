@@ -1,12 +1,22 @@
 name: review
 about: Critically analyze code for bugs and flaws using a powerful model
 notify: true
+
 args:
   - name: query
     short: 'q'
     input: string
-    help: The code block or function to review
     default: '{system_clipboard}'
+    help: The code block or function to review
+
+# IDE plugin integration: maps argument names to IDE contexts
+api:
+  # Target for the final result (replace | clipboard | dialog)
+  output: dialog
+  # Maps argument for JSON output (selection | clipboard)
+  args:
+    query: selection
+
 actions:
   # Analyze code for bugs and generate technical recommendations in the target language
   - tag: tag_review
@@ -25,6 +35,7 @@ actions:
 
       [Code to Review]
       {query}
+
   # Copy result to clipboard and output
   - tag: tag_clipboard
     run: value

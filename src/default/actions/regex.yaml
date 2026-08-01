@@ -1,33 +1,43 @@
-name: regex
-about: Generate a regular expression pattern based on your description
+name: review
+about: Critically analyze code for bugs and flaws using a powerful model
+notify: true
+
 args:
   - name: query
     short: 'q'
     input: string
-    help: What the regex should match (e.g., 'extract domain from email')
-  - name: example
-    short: 'e'
-    input: string
-    help: Optional example string to test the pattern against
-    default: ''
+    default: '{system_clipboard}'
+    help: The code block or function to review
+
+# IDE plugin integration: maps argument names to IDE contexts
+api:
+  # Target for the final result (replace | clipboard | dialog)
+  output: dialog
+  # Maps argument for JSON output (selection | clipboard)
+  args:
+    query: selection
+
 actions:
-  # LLM generates regex pattern, optionally testing against example
-  - tag: tag_regex
-    run: small
+  # Analyze code for bugs and generate technical recommendations in the target language
+  - tag: tag_review
+    run: large
     expect: string
     action: |
       [Task]
-      Generate a valid regular expression pattern based on the user's [Query].
-      If an [Example] string is provided, ensure the generated regex matches it correctly.
-      Output exactly 1 line.
+      Analyze the provided code for logic flaws, concurrency bugs, memory leaks, and performance bottlenecks.
 
-      [Query]
+      [Rules]
+      - Write strictly in the language specified in [User]. Keep feedback concise, blunt, and highly technical.
+      - If the code has no flaws, output exactly one word: PERFECT.
+      - Format each issue as a clear block: standard bullet point for the description, followed by a new line with a prefix "  Fix: " and the exact 1-line code patch.
+      - Do NOT write explanation inside the fix line, provide ONLY the clean code patch.
+      - Language: {system_language}
+
+      [Code to Review]
       {query}
 
-      [Example]
-      {example}
   # Copy result to clipboard and output
   - tag: tag_clipboard
     run: value
     expect: string
-    action: '{tag_regex|trim:`|clipboard}'
+    action: '{tag_review|clipboard}'

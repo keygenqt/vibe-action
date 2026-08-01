@@ -1,6 +1,7 @@
-name: translate-fast
+name: translate-small
 about: Translate text or files to another language
 notify: true
+
 args:
   - name: text
     short: 't'
@@ -15,8 +16,17 @@ args:
   - name: to
     short: 'l'
     input: string
+    default: 'Russian'
     help: Target language (e.g., Russian, English, Chinese)
-    default: '{system_language}'
+
+# IDE plugin integration: maps argument names to IDE contexts
+api:
+  # Target for the final result (replace | clipboard | dialog)
+  output: replace
+  # Maps argument for JSON output (selection | clipboard)
+  args:
+    text: selection
+
 actions:
   # Read input from file or text argument
   - tag: tag_content
@@ -28,6 +38,7 @@ actions:
         then: echo "{text}"
       - when: '{file|empty:not}'
         then: cat "{file|load}"
+
   # LLM translates text, preserving code and proper names
   - tag: tag_translated
     run: small
@@ -43,6 +54,7 @@ actions:
 
       [Text]
       {tag_content}
+
   # Copy result to clipboard and output
   - tag: tag_clipboard
     run: value

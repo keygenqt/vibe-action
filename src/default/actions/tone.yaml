@@ -1,12 +1,22 @@
 name: tone
-about: Change the tone of a text based on your instructions
+about: Transform rude or aggressive text into a professional tone
 notify: true
+
 args:
   - name: query
     short: 'q'
     input: string
-    help: "The text to rewrite along with tone instructions (e.g., 'make it formal: hi friend')"
     default: '{system_clipboard}'
+    help: 'The text to rewrite into a professional and polite tone'
+
+# IDE plugin integration: maps argument names to IDE contexts
+api:
+  # Target for the final result (replace | clipboard | dialog)
+  output: replace
+  # Maps argument for JSON output (selection | clipboard)
+  args:
+    query: selection
+
 actions:
   # LLM transforms rude/aggressive language into professional tone
   - tag: tag_rewritten
@@ -26,6 +36,7 @@ actions:
 
       [Input]
       {query}
+
   # Copy result to clipboard and output
   - tag: tag_clipboard
     run: value

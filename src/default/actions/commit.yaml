@@ -1,11 +1,13 @@
 name: commit
 about: AI-generated commit message
+
 args:
   - name: path
     short: 'p'
     input: string
-    help: 'Path to git repository (default: current directory)'
     default: .
+    help: 'Path to git repository (default: current directory)'
+
 actions:
   # Get list of changed files
   - tag: tag_changed_files
@@ -13,6 +15,7 @@ actions:
     expect: list
     check: .+
     action: cd {path|resolve} && git diff HEAD -U0 --name-only --relative
+
   # Diff each changed file
   - tag: tag_file_diff
     run: cmd
@@ -22,24 +25,26 @@ actions:
       if [ -f "{tag_changed_files}" ]; then
         git diff HEAD -- "{tag_changed_files}"
       fi
+
   # LLM summarizes each diff in one sentence
   - tag: tag_file_summary
     run: small
     expect: list
     action: |
       [Task]
-        1. Read the git diff below.
-        2. Find the file path in the header (lines starting with --- and +++).
-        3. Count the number of changed blocks (@@ sections).
-        4. Write a single phrase describing the most important changes.
-        5. Reply in format: <path> (<N> changes): <phrase>
-        6. Ignore trivial changes like imports or formatting.
+      1. Read the git diff below.
+      2. Find the file path in the header (lines starting with --- and +++).
+      3. Count the number of changed blocks (@@ sections).
+      4. Write a single phrase describing the most important changes.
+      5. Reply in format: <path> (<N> changes): <phrase>
+      6. Ignore trivial changes like imports or formatting.
 
       [Example]
       src/main.rs (3 changes): fix CLI argument parsing
 
       [Diff]
       {tag_file_diff}
+
   # LLM combines all summaries into one commit message
   - tag: tag_commit_message
     run: medium
@@ -52,6 +57,7 @@ actions:
 
       [Summaries]
       {tag_file_summary|uniq|join}
+
   # Execute git commit (asks for confirmation)
   - tag: tag_commit
     run: cmd

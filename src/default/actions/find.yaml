@@ -1,22 +1,25 @@
 name: find
 about: Semantic file finder — finds files by meaning, not just name
 clipboard: false
+
 args:
   - name: path
     short: 'p'
     input: string
-    help: 'Directory to search in (default: current)'
     default: .
+    help: 'Directory to search in (default: current)'
   - name: query
     short: 'q'
     input: string
     help: What to find — describe in natural language
+
 actions:
   # Collect all text files in the directory
   - tag: tag_files
     run: cmd
     expect: list
     action: find {path} -type f -exec grep -Iq . {} \; -print
+
   # Build prompt with file path and content for each file
   - tag: tag_content
     run: cmd
@@ -39,16 +42,19 @@ actions:
       [File]
       {tag_files}
       EOF
+
   # LLM evaluates each file against the query
   - tag: tag_matches
     run: small
     expect: list
     action: '{tag_content}'
+
   # Filter out non-matching entries
   - tag: tag_filtered
     run: value
     expect: string
     action: '{tag_matches|trim:<->|resolve}'
+
   # Join matching file paths, remove duplicates
   - tag: tag_find
     run: value

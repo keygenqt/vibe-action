@@ -1,12 +1,14 @@
 name: whois
 about: Identify a person from a screenshot
 notify: true
+
 args:
   - name: image
     short: 'i'
     input: string
-    help: Path or URL to image (or use clipboard)
     default: '{system_clipboard_image}'
+    help: Path or URL to image (or use clipboard)
+
 actions:
   # Identify and analyze tech figures in the image
   - tag: tag_identity
@@ -31,6 +33,7 @@ actions:
       1. **Full Name**
          Role: contribution
          Impact: one sentence about their impact
+
   # Copy result to clipboard and output
   - tag: tag_clipboard
     run: value

@@ -1,5 +1,6 @@
 name: mock
 about: Generate realistic mock data arrays (JSON, YAML, CSV) for testing
+
 args:
   - name: query
     short: 'q'
@@ -8,8 +9,9 @@ args:
   - name: format
     short: 'f'
     input: string
-    help: 'Output format: json, yaml, csv (default: json)'
     default: json
+    help: 'Output format: json, yaml, csv (default: json)'
+
 actions:
   # LLM generates structured mock data in the requested format
   - tag: tag_mock
@@ -27,6 +29,7 @@ actions:
 
       [Query]
       {query}
+
   # Copy result to clipboard and output
   - tag: tag_clipboard
     run: value

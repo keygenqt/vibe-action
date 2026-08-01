@@ -1,6 +1,7 @@
 name: extract
 about: Extract structured data or matching lines from text and logs
 clipboard: false
+
 args:
   - name: file
     short: 'f'
@@ -10,12 +11,14 @@ args:
     short: 'q'
     input: string
     help: Extraction criteria (e.g., 'find all errors')
+
 actions:
   # Read the file line by line
   - tag: tag_lines
     run: cmd
     expect: list
     action: echo {file|load|text}
+
   # LLM checks each line against the query, outputs matching lines or "-"
   - tag: tag_content
     run: small
@@ -32,11 +35,13 @@ actions:
 
       [Line]
       {tag_lines}
+
   # Remove lines that became empty after filtering
   - tag: tag_clean
     run: value
     expect: string
     action: '{tag_content|trim:-}'
+
   # Join remaining lines, remove duplicates
   - tag: tag_extract
     run: value
