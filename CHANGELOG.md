@@ -2,6 +2,32 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.1.2] - 2026-08-01
+
+### ⚡ Refactoring
+
+- Improve process management and error handling
+- Update message formatting
+- Update markdown formatting
+
+### 📚 Documentation
+
+- Update documentation for v0.1.2 release
+
+### 🚀 Features
+
+- Add test output mode and refactor output system
+- Add vibe_skip_lock and active run support
+- Add singleton guard, update deps, fix progress
+- Add run_guard module and update path
+- Add conditional clipboard, markdown stripping, output export
+- Implement api config and styled placeholders
+- Add cli output check, api target, ide config
+- Add stop and upgrade status
+- Exit with code 130 when superseded, retry startup lock, and run clean under the run guard
+- Improve cli status, help output, and trace validation
+- Add ide plugin api integration across action configs
+
 ## [0.1.1] - 2026-07-04
 
 ### 🐛 Fixes
@@ -104,4 +130,3 @@ All notable changes to Vibe Action will be documented in this file.
 - Add project-export action and various enhancements
 - Add clipboard support to multiple actions
 - Add clipboard modifier and rename project-export to scan
-
