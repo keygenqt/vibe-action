@@ -2,6 +2,12 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.1.3] - 2026-08-07
+
+### 🚀 Features
+
+- Add file input and enhance output formatting
+
 ## [0.1.2] - 2026-08-01
 
 ### ⚡ Refactoring
