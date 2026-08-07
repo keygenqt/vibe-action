@@ -2,6 +2,12 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.1.4] - 2026-08-07
+
+### 🐛 Fixes
+
+- Enable zune-jpeg log feature to fix cargo install (0.1.4)
+
 ## [0.1.3] - 2026-08-07
 
 ### 🚀 Features
@@ -136,3 +142,4 @@ All notable changes to Vibe Action will be documented in this file.
 - Add project-export action and various enhancements
 - Add clipboard support to multiple actions
 - Add clipboard modifier and rename project-export to scan
+
