@@ -16,11 +16,11 @@ impl Shell {
             .map_err(|e| anyhow::anyhow!("Shell command failed: {}", e))?;
 
         if !output.status.success() {
-            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
-            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
             let msg = if !stdout.is_empty() { stdout } else { stderr };
             return Err(anyhow::anyhow!("{}", msg));
         }
-        Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
     }
 }

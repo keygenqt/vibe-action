@@ -79,8 +79,9 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
             print_template!(
                 ExportContext::Actions,
                 OutputKind::Plain,
-                "{name|cyan|bold} {about}",
-                "name" => formatted_name,
+                "{formatted_name|cyan|bold} {about}",
+                "formatted_name" => formatted_name,
+                "name" => name,
                 "about" => about,
                 "args" => &flow.args,
                 "api" => &flow.api,

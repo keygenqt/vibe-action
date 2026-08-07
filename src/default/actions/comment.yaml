@@ -3,11 +3,16 @@ about: Replace TODO with a meaningful comment
 notify: true
 
 args:
-  - name: query
+  - name: text
     short: 'q'
     input: string
     default: '{system_clipboard}'
     help: The line to comment
+  - name: file
+    short: 'f'
+    input: string
+    default: ''
+    help: File or URL to comment
 
 # IDE plugin integration: maps argument names to IDE contexts
 api:
@@ -15,9 +20,20 @@ api:
   output: replace
   # Maps argument for JSON output (selection | clipboard)
   args:
-    query: selection
+    text: selection
 
 actions:
+  # Read input from file or text argument
+  - tag: tag_content
+    run: cmd
+    expect: string
+    check: .+
+    action:
+      - when: '{file|empty}'
+        then: echo "{text}"
+      - when: '{file|empty:not}'
+        then: cat "{file|load}"
+
   # Replace TODO placeholders with intelligent technical comments
   - tag: tag_comment
     run: small
@@ -26,15 +42,30 @@ actions:
       [Task]
       Replace EVERY "TODO" or "@todo" placeholder in the code with an intelligent technical comment in English.
 
+      [Supported Languages]
+      Most likely languages: Rust, Python, TypeScript, JavaScript, Java, Go, C#, Kotlin, Swift, Dart, Bash, Batch, ArkTS, Markdown.
+      If you are certain the code is in another language, specify it.
+
       [Rules]
       1. Do NOT modify, reformat, or optimize any actual programming code. Your only task is to update the TODO comments.
-      2. For file/module placeholders (`//!`), write a high-level summary strictly in TWO short sentences (one per line). Start each sentence directly with an action verb or noun (do NOT use "This module...", "It...").
-      3. For structures, fields, or methods, write a brief description (max 7 words). Do NOT start with "Represents...", "The...".
-      4. Keep the exact same comment syntax (`//!`, `///`, `//`, `#`).
-      5. Output the ENTIRE code block with placeholders replaced.
+      2. For file/module placeholders, write a high-level summary strictly in TWO short sentences (one per line).
+      3. Start each sentence directly with an action verb or noun (do NOT use "This module...", "It...").
+      4. For structures, fields, or methods, write a brief description (max 7 words). Do NOT start with "Represents...", "The...".
+      5. Keep the exact same comment syntax and structure used around the TODO placeholder.
+      6. Output the ENTIRE code block strictly wrapped in a markdown code fence, starting with ```language (e.g., ```java) and ending with ```.
+         Use the language name from the [Supported Languages] list. If unknown, use generic ```.
+
+      [Example]
+      ```language
+      // Short description of the module.
+      // Second sentence with details.
+
+      /// Brief description of the function.
+      function doSomething() { ... }
+      ```
 
       [Code]
-      {query}
+      {tag_content}
 
   # Copy result to clipboard and output
   - tag: tag_clipboard

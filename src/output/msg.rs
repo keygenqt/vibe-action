@@ -9,7 +9,7 @@ pub struct OutputMsg {
     pub kind: OutputKind,
     /// The layout template for human-readable outputs
     pub template: String,
-    /// @todo
+    /// Holds arbitrary JSON key-value pairs.
     pub fields: HashMap<String, serde_json::Value>,
 }
 
@@ -23,7 +23,7 @@ impl OutputMsg {
         }
     }
 
-    /// @todo
+    /// Inserts a serialized field into the output.
     pub fn field<T: Serialize + ?Sized>(mut self, key: &str, value: &T) -> Self {
         self.fields.insert(
             key.to_string(),

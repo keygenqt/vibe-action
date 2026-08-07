@@ -4,9 +4,21 @@ use colored::Colorize;
 use regex::Captures;
 use regex::Regex;
 use serde_json::Value;
+use std::sync::LazyLock;
 use std::sync::OnceLock;
 use std::{collections::HashMap, fmt::Write as _};
+use syntect::highlighting::Theme;
+use syntect::parsing::SyntaxReference;
 use syntect::{easy::HighlightLines, highlighting::ThemeSet, parsing::SyntaxSet};
+
+/// Loads syntax definitions for code highlighting.
+/// Maps language tokens to SyntaxSet entries.
+static SYNTAX_SET: LazyLock<SyntaxSet> = LazyLock::new(two_face::syntax::extra_newlines);
+
+/// Loads the base16 eighties dark theme.
+/// Provides default colors for syntax rendering.
+static THEME: LazyLock<Theme> =
+    LazyLock::new(|| ThemeSet::load_defaults().themes["base16-eighties.dark"].clone());
 
 use crate::output::{
     msg::OutputMsg,
@@ -59,12 +71,12 @@ impl FormatOutput {
 
                 if msg.fields.is_empty() {
                     let final_msg = Self::strip_outer_markdown_blocks(&msg.template);
-                    inner_map.insert("message".to_string(), serde_json::json!(final_msg.trim()));
+                    inner_map.insert("message".to_string(), serde_json::json!(final_msg));
                 } else {
                     for (key, value) in &msg.fields {
                         let final_val = match value {
                             serde_json::Value::String(s) => {
-                                serde_json::json!(Self::strip_outer_markdown_blocks(s).trim())
+                                serde_json::json!(Self::strip_outer_markdown_blocks(s))
                             }
                             _ => value.clone(),
                         };
@@ -174,9 +186,8 @@ impl FormatOutput {
     /// Internal helper that processes markdown layout and highlights code syntax.
     fn render_markdown(&self, text: &str, max_width: usize) -> String {
         let skin = termimad::MadSkin::default();
-        let ps = SyntaxSet::load_defaults_newlines();
-        let ts = ThemeSet::load_defaults();
-        let theme = &ts.themes["base16-eighties.dark"];
+        let ps = &*SYNTAX_SET;
+        let theme = &*THEME;
 
         let mut output = String::with_capacity(text.len());
         let mut in_code_block = false;
@@ -189,12 +200,7 @@ impl FormatOutput {
                 if !in_code_block {
                     in_code_block = true;
                     let lang_token = trimmed.trim_start_matches('`').trim();
-                    let syntax = if lang_token.is_empty() {
-                        ps.find_syntax_plain_text()
-                    } else {
-                        ps.find_syntax_by_token(lang_token)
-                            .unwrap_or_else(|| ps.find_syntax_plain_text())
-                    };
+                    let syntax = self.resolve_syntax(lang_token);
                     highlighter = Some(HighlightLines::new(syntax, theme));
                 } else {
                     in_code_block = false;
@@ -230,15 +236,37 @@ impl FormatOutput {
         output
     }
 
+    /// Resolves language token to syntax reference.
+    fn resolve_syntax(&self, lang_token: &str) -> &'static SyntaxReference {
+        let ps = &*SYNTAX_SET;
+        let lowered = lang_token.to_lowercase();
+        let token = match lowered.as_str() {
+            "arkts" | "ets" => "typescript",
+            "csharp" | "c#" => "cs",
+            "batch" | "cmd" => "bat",
+            "shell" | "sh" | "zsh" => "bash",
+            "golang" => "go",
+            "c++" => "cpp",
+            "py" => "python",
+            "ts" => "typescript",
+            "js" => "javascript",
+            other => other,
+        };
+        if token.is_empty() {
+            return ps.find_syntax_plain_text();
+        }
+        ps.find_syntax_by_token(token)
+            .unwrap_or_else(|| ps.find_syntax_plain_text())
+    }
+
     /// Strips leading and trailing markdown code block markers from the text edges.
     pub fn strip_outer_markdown_blocks(text: &str) -> String {
         let clean = text.trim();
         if clean.starts_with("```") {
             if let Some(first_newline_idx) = clean.find('\n') {
                 let body = &clean[first_newline_idx + 1..];
-                if body.ends_with("```") {
-                    let end_idx = body.len() - 3;
-                    return body[..end_idx].trim().to_string();
+                if let Some(rest) = body.strip_suffix("```") {
+                    return rest.trim_end().to_string();
                 }
             }
         }
