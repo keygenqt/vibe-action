@@ -1,6 +1,6 @@
 [package]
 name = "vibe-action"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 license = "Apache-2.0"
 description = "Command router — execute shell commands and LLM prompts via simple YAML actions."
@@ -11,6 +11,9 @@ keywords = ["cli", "llm", "pipeline", "automation"]
 readme = "README.md"
 
 [dependencies]
+# fix
+zune-jpeg = { version = "0.5", features = ["log"] }
+
 # CLI
 clap = { version = "4.6", features = ["derive", "string"] }
 clap-cargo = "0.18"
