@@ -2,6 +2,12 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.1.5] - 2026-08-08
+
+### 🚀 Features
+
+- Conditional step execution, file inputs, and dry-run
+
 ## [0.1.4] - 2026-08-07
 
 ### 🐛 Fixes
