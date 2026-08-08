@@ -1,19 +1,30 @@
 #!/bin/bash
 
-# Set root dir to fixtures/
-cd "$( dirname -- "${BASH_SOURCE[0]}"; )";
+# Set root dir to the script's own location (fixtures/)
+cd "$(dirname -- "${BASH_SOURCE[0]}")" || exit 1
 
-# Setup reports directory and timestamped file
+# Setup reports directory and timestamped report file
 mkdir -p reports
 REPORT_FILE="reports/report_$(date +%Y-%m-%d_%H-%M-%S).txt"
 
 # Iterate over all subdirectories and execute their run.sh
+# tee mirrors output to the terminal (colors preserved) and to the report file (raw)
 for dir in */; do
     if [ -f "${dir}run.sh" ]; then
         echo "--- Fixture: ${dir} ---" | tee -a "$REPORT_FILE"
         bash "${dir}run.sh" 2>&1 | tee -a "$REPORT_FILE"
-        echo -e "\n" | tee -a "$REPORT_FILE"
+        printf '\n\n' | tee -a "$REPORT_FILE"
     fi
 done
 
-echo "Report saved to: $REPORT_FILE"
+# Strip ANSI escape codes from the report file for clean LLM ingestion.
+# Terminal output above is unaffected - only the file gets cleaned.
+ESC=$(printf '\033')  # real ESC byte; "\x1b" doesn't work in BSD sed (macOS)
+CR=$(printf '\r')
+sed -i.bak \
+    -e "s/${ESC}\[[0-9;?]*[a-zA-Z]//g" \
+    -e "s/.*${CR}//" \
+    "$REPORT_FILE"
+rm -f "${REPORT_FILE}.bak"
+
+echo "Report saved and cleaned: $REPORT_FILE"

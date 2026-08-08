@@ -1,0 +1,1893 @@
+--- Fixture: comment/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.53s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/arkts_sample.ets`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 4.75s (~368 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 6.20s
+── success ────────────────────────────────────────────
+/**
+ * Provides utilities for API interactions.
+ * Exposes data retrieval methods for remote resources.
+ */
+
+// Retrieves data from the given URL.
+function fetchData(url: string): Promise<any> {
+    return fetch(url);
+}
+───────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.44s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/bash_sample.sh`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 12.57s (~365 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 13.78s
+── success ───────────────────────────────────
+## Calculate metrics from provided input data.
+## Output results to standard output.
+
+## Compute and display metrics.
+function calculate_metrics() {
+    # Print calculated metrics.
+    echo "metrics"
+}
+──────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/batch_sample.bat`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 11.01s (~362 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 12.23s
+── success ───────────────────────────────
+:: Prints user information to console.
+:: Defines PrintInfo subroutine for reuse.
+
+:: Displays user text on screen.
+:PrintInfo
+@echo User
+goto :eof
+──────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/csharp_sample.cs`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 11.93s (~381 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 13.17s
+── success ────────────────────────────────
+/// Defines a user account entity.
+
+/// Stores and manages user profile data.
+public class UserAccount {
+    /// Prints user account details.
+    public void PrintInfo() {
+        // Outputs the user to the console.
+        Console.WriteLine("User");
+    }
+}
+───────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/dart_sample.dart`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 22.64s (~377 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 23.97s
+── success ──────────────────────────────────────────────
+/// Manages user authentication and profile data.
+/// Supports login, signup, and account recovery.
+
+/// Handles account-specific permissions and preferences.
+class UserAccount {
+    /// Prints account information to output.
+    void printInfo() {
+        // Prints user's name.
+        print('User');
+    }
+}
+─────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.55s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/go_sample.go`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 11.40s (~368 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 12.74s
+── success ────────────────────────────────────────
+// Handles data processing for external callers.
+// Exposes conversion and transformation utilities.
+
+func ProcessData(data []byte) []byte {
+    // Returns input unchanged for now.
+    return data
+}
+───────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/java_sample.java`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 7.97s (~390 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 9.27s
+── success ────────────────────────────────────────────
+/**
+ * Defines the user account domain model.
+ * Handles account state and user interactions.
+
+/**
+ * Manages authentication and profile details.
+ * Exposes operations for account lifecycle management.
+ */
+public class UserAccount {
+    /**
+     * Prints user information to output.
+     */
+    public void printInfo() {
+        // Displays the user's account details.
+        System.out.println("User");
+    }
+}
+───────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/js_sample.js`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 4.49s (~363 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 5.85s
+── success ──────────────────────────────────────────
+/**
+ * Fetch data from a provided URL.
+ * Return a promise resolving to the server response.
+ */
+
+// Fetch data from the given URL.
+function fetchData(url) {
+  return fetch(url)
+}
+─────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/kotlin_sample.kt`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 8.65s (~405 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 9.91s
+── success ─────────────────────────────────────
+/**
+ * Defines the user account domain model.
+ * Holds identification and display name fields.
+ */
+
+/**
+ * User account entity with id and name.
+ */
+class UserAccount(
+    val id: String,
+    val name: String
+) {
+    /**
+     * Prints user's name and identifier.
+     */
+    fun printInfo() {
+        // Logs current user details to console.
+        println("User: $name ($id)")
+    }
+}
+────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/python_sample.py`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 9.73s (~373 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 10.99s
+── success ────────────────────────────────────────────────
+"""
+Provide utilities for data analysis pipelines.
+Focus on metrics computation and DataFrame transformations.
+"""
+
+"""
+Contain helper functions for feature engineering.
+Ensure consistent data validation across modules.
+"""
+
+
+def calculate_metrics(df):
+    """
+    Calculate key performance metrics from DataFrame.
+    """
+    # Compute metrics and return original data.
+    return df
+───────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/rust_sample.rs`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 4.15s (~395 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 5.42s
+── success ───────────────────────────────────────────────────────
+//! Processes bytes with additive transformation.
+//! Preserves length and returns new owned vector.
+
+/// Encrypts each byte by wrapping addition.
+pub fn process_data(data: Vec<u8>) -> Vec<u8> {
+    // Apply wrapping increment to every byte.
+    let result = data.iter().map(|b| b.wrapping_add(1)).collect();
+    result
+}
+──────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/swift_sample.swift`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 8.44s (~377 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 10.69s
+── success ────────────────────────────────────────
+/// Defines a simple user account model.
+/// Provides methods for displaying user info.
+
+/// Manages user account data and interactions.
+class UserAccount {
+    /// Prints user information to standard output.
+    func printInfo() {
+        // Print user information to console.
+        print("User")
+    }
+}
+───────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action comment -f ./fixtures/comment/ts_sample.ts`
+info: found action 'comment' (3 steps), starting...
+progress: comment (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 5.07s (~374 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 6.43s
+── success ──────
+No matches found.
+─────────────────
+
+
+--- Fixture: commit/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action commit -p ./fixtures/commit/application -d`
+info: found action 'commit' (6 steps), starting...
+progress: file_summary (small)... 50% (3/6)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 4.04s (~259 tokens)
+progress: commit_message (medium)... 67% (4/6)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 2.89s (~121 tokens)
+progress: [5/6] Skipped: tag_commit_exec (condition false)
+progress: commit (val)... 100% (6/6)
+info: completed in 9.06s
+── success ─────────────────────────
+feat: add current time print feature
+────────────────────────────────────
+
+
+--- Fixture: describe/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action describe -i ./fixtures/describe/screenshot_1.png`
+info: found action 'describe' (3 steps), starting...
+progress: raw (vision)... 33% (1/3)
+progress: [vision] node batch: 1/1 | qwen2.5vl:7b | 6.61s (~129 tokens, 597KB image)
+progress: md (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.48s (~278 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 10.61s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                   Image Description
+
+This image shows a cat sitting on grass. The cat has white fur with gray patches around its ears, back, and tail tip. It
+wears a pink collar with some text that appears to say "Petco" in black font. The cat's paw is raised as if it is
+reaching for something or playing.
+
+Colors
+
+- White (#FFFFFF) — used for the cat's fur
+- Gray (#808080) — used for the gray patches on the cat's ears, back, and tail tip
+- Pink (#FFC0CB) — used for the collar
+- Green (#4CAF50) — used for the grass
+
+Scene
+
+The cat is sitting in a grassy area with some brown leaves scattered around. The background is slightly out of focus,
+emphasizing the cat as the main subject.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running `target/debug/vibe-action describe -i ./fixtures/describe/screenshot_2.png`
+info: found action 'describe' (3 steps), starting...
+progress: raw (vision)... 33% (1/3)
+progress: [vision] node batch: 1/1 | qwen2.5vl:7b | 5.06s (~129 tokens, 315KB image)
+progress: md (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 4.17s (~431 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 10.70s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Screenshot Description
+
+This image shows a settings interface from an application, specifically within the "Appearance & Behavior > Appearance"
+section.
+
+Layout
+
+- The left side has a sidebar menu with various options under categories such as Appearance & Behavior, Menus and
+Toolbars, System Settings, etc.
+- The right side displays detailed settings for appearance and behavior.
+- At the bottom are buttons labeled "Cancel", "Apply", and "OK."
+
+UI Elements
+
+- Theme selection: "Islands Dark" is selected from a dropdown menu.
+- Editor color scheme: Set to "Dark."
+- Accessibility options include zoom level, font size, custom fonts, support for screen readers, contrast scrollbars,
+and more.
+- UI Options section includes compact mode, smooth scrolling, enable mnemonics in controls, etc.
+
+Colors
+
+1. Black (Hex Code #000000): Used as the background color of the sidebar menu.
+2. Dark Gray (Hex Code #333333): Used for text and some UI elements.
+3. Light Gray (Hex Code #CCCCCC): Used for certain UI elements, such as checkboxes.
+4. White (Hex Code #FFFFFF): Used for text in the settings area.
+
+What Is Happening
+
+The screenshot shows a user configuring appearance settings within an application. The theme and editor color scheme are
+set to dark mode. Accessibility options like font size adjustment and support for screen readers are also visible,
+indicating customization capabilities for users with different needs.
+
+Task
+
+No further actions needed as the task was to describe the screenshot in rich detail.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action describe -i 'https://vibe-action.keygenqt.com/assets/images/favicon.png'`
+info: found action 'describe' (3 steps), starting...
+progress: raw (vision)... 33% (1/3)
+progress: [vision] node batch: 1/1 | qwen2.5vl:7b | 2.80s (~129 tokens, 1KB image)
+progress: md (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.37s (~255 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 7.19s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                   Image Description
+
+This image shows a pixelated lightning bolt icon against a black background.
+
+Details
+
+- Text: None.
+- Layout/UI Elements: A single pixelated lightning bolt graphic.
+- Objects: The lightning bolt itself.
+- Colors:
+  - Black (#000000): Used for the background color, creating contrast with the lightning bolt.
+  - Cyan/Teal (#00CED1): Used for the lightning bolt icon.
+
+Description
+
+The image is a simple representation of a lightning bolt using pixel art. It appears to be part of an application
+interface or a logo, given its minimalistic and iconic nature. The use of contrasting colors (black background with cyan
+lightning bolt) makes it visually striking.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+--- Fixture: explain/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/arkts_sample.ets`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 11.32s (~232 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 12.58s
+── success ───────────────────────────────────────────────────
+// @Component decorator declares a custom UI component
+// that can be reused and has reactive capabilities.
+@Component
+struct Counter {
+  // @State decorator marks a reactive variable;
+  // its changes will trigger a re-render of the UI.
+  @State count: number = 0
+
+  // build method is required in every component;
+  // it defines the component's UI structure.
+  build() {
+    // Column is a layout container that arranges
+    // its children in a vertical direction.
+    Column() {
+      // Text component displays the current count value.
+      // Interpolation `${this.count}` embeds the state value.
+      Text(`Count: ${this.count}`)
+        // .fontSize sets the font size of the text.
+        .fontSize(24)
+
+      // Button component with a label 'Increment'.
+      // The .onClick callback is invoked when tapped.
+      Button('Increment')
+        .onClick(() => {
+          // Increment the reactive state immediately,
+          // triggering a UI update.
+          this.count++
+        })
+    }
+  }
+}
+──────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/bash_sample.sh`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 8.26s (~225 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 9.51s
+── success ────────────────────────────────────────────────────────────────────────
+# Define a function named 'cleanup' that performs housekeeping tasks
+# The function uses 'rm -f' to forcefully remove temporary files matching a pattern
+# The 'exit 0' command terminates the script with a success status
+cleanup() {
+    echo "Cleaning up temporary files..."
+    rm -f /tmp/myapp_*
+    exit 0
+}
+
+# Set up traps to catch SIGINT (Ctrl+C) and SIGTERM signals
+# When either signal is received, the 'cleanup' function is executed
+# This ensures that temporary files are removed before exit
+trap cleanup SIGINT SIGTERM
+
+# Run an infinite loop to simulate a long‑running process
+# 'while true; do' creates a loop that never terminates on its own
+# 'sleep 5' pauses execution for 5 seconds before repeating the cycle
+while true; do
+    echo "Running..."
+    sleep 5
+done
+───────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/batch_sample.bat`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 12.08s (~225 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 13.31s
+── success ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+REM Turn off command echoing to avoid cluttering the output
+REM '@echo off' is a batch command that prevents command lines from being printed to the console
+@echo off
+
+REM Enable delayed environment variable expansion
+REM 'setlocal' localizes changes to environment variables; 'enabledelayedexpansion' allows
+REM variables to be expanded at execution time using !var! instead of %var%, which is crucial inside loops
+setlocal enabledelayedexpansion
+
+REM Initialize a counter variable to zero
+REM 'set' defines an environment variable; 'count=0' assigns the value 0
+set count=0
+
+REM Loop through all .txt files in the current directory
+REM 'for %%f in (*.txt) do' iterates over the file set; in batch scripts, loop variables use double percent signs (%%)
+REM '(*.txt)' is a wildcard pattern that matches all text files
+for %%f in (*.txt) do (
+    REM Increment the counter using arithmetic expansion
+    REM 'set /a' performs arithmetic; 'count+=1' adds 1 to the current value of count
+    set /a count+=1
+
+    REM Output the current file number and name
+    REM 'echo' displays a message; '!count!' is delayed expansion to get the updated value inside the loop
+    echo File !count!: %%f
+)
+
+REM Display the total number of text files processed
+REM Since we are outside the loop, we can use !count! or %count% because delayed expansion is enabled
+echo Total text files: !count!
+
+REM End local environment and revert to previous settings
+REM 'endlocal' restores the original environment before setlocal was called, discarding changes
+endlocal
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/csharp_sample.cs`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 8.78s (~247 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 10.04s
+── success ──────────────────────────────────────────────────────────────────────────────────────
+// A generic class that wraps a value and notifies subscribers when it changes.
+// The type parameter T allows the class to work with any data type.
+public class ObservableProperty<T>
+{
+    // Backing field to store the value of type T.
+    private T _value;
+
+    // An event that notifies listeners when the value changes.
+    // Action<T> is a predefined delegate that takes a parameter of type T and returns void.
+    public event Action<T> ValueChanged;
+
+    // Property that exposes the value and triggers the event on change.
+    // Expression-bodied get accessor (=>) returns the backing field.
+    public T Value
+    {
+        get => _value;
+        set
+        {
+            // Checks for actual change using a type-safe default equality comparer.
+            // EqualityComparer<T>.Default retrieves the default comparer for type T,
+            // ensuring proper comparison even for custom or reference types.
+            if (!EqualityComparer<T>.Default.Equals(_value, value))
+            {
+                // Updates the backing field with the new value.
+                _value = value;
+
+                // Raises the event if there are subscribers.
+                // The null-conditional operator (?.) prevents calling Invoke on a null delegate.
+                ValueChanged?.Invoke(_value);
+            }
+        }
+    }
+}
+─────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/dart_sample.dart`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 18.98s (~275 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 20.23s
+── success ────────────────────────────────────────────────────────────────────────────────
+// Abstract class 'Animal' defines a contract for all animals
+// It uses the 'abstract' keyword to prevent direct instantiation
+// and declares an abstract getter and abstract method that subclasses must implement
+abstract class Animal {
+  // Getter 'name' returns the animal's name; no implementation here
+  // because it's abstract—subclasses must provide a concrete getter
+  String get name;
+
+  // Abstract method 'makeSound' returns the sound the animal makes
+  // The absence of a body forces subclasses to override it
+  String makeSound();
+}
+
+// 'Dog' class extends 'Animal' to provide concrete implementations
+// The '@override' annotation indicates intentional overriding of inherited members
+class Dog extends Animal {
+  // Override the abstract getter 'name' with a final field
+  // 'final' means the field can only be set once, here via the constructor
+  @override
+  final String name;
+
+  // Constructor uses 'this.name' shorthand to directly assign the parameter
+  // to the field of the same name, avoiding explicit assignment in the body
+  Dog(this.name);
+
+  // Override 'makeSound' with a concrete implementation using arrow syntax
+  // Arrow syntax ('=>') is a concise way to write a single-expression function body
+  @override
+  String makeSound() => 'Woof';
+}
+
+// 'AnimalShelter' class represents a shelter that can hold multiple animals
+// It maintains an internal list of 'Animal' objects
+class AnimalShelter {
+  // List of animals, typed with generic 'List<Animal>' to ensure type safety
+  // It is initialized as an empty list and declared 'final' so the reference cannot change
+  final List<Animal> animals = [];
+
+  // 'admit' method accepts any object that is an 'Animal' (including subclasses)
+  // and adds it to the shelter's list
+  void admit(Animal animal) {
+    // 'add' is a standard List method that appends the element to the end of the list
+    animals.add(animal);
+  }
+
+  // 'allSounds' method returns a list of sounds produced by all animals in the shelter
+  // It demonstrates functional-style operations: 'map' and 'toList'
+  List<String> allSounds() {
+    // 'map' transforms each element using a function, returning an Iterable
+    // The closure '(a) => a.makeSound()' calls makeSound on each animal
+    // 'toList()' collects the Iterable into a new List
+    return animals.map((a) => a.makeSound()).toList();
+  }
+}
+───────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/go_sample.go`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 14.83s (~288 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 16.09s
+── success ─────────────────────────────────────────────────────────────────
+// Define a function that processes jobs from a channel and sends results.
+// `id int` is a unique identifier for the worker, `jobs <-chan int` is a
+// receive-only channel of integers (the worker can only read from it),
+// `results chan<- int` is a send-only channel of integers (the worker can
+// only write to it). The channels are typed to enforce this direction.
+func worker(id int, jobs <-chan int, results chan<- int) {
+    // Use a range loop on the jobs channel. The loop continues until the
+    // channel is closed and all values are received, then exits.
+    for j := range jobs {
+        // Pause for one second to simulate work using the time.Second
+        // constant, which represents one second of type time.Duration.
+        time.Sleep(time.Second)
+        // Send the doubled value j * 2 into the results channel. The
+        // arrow `<-` sends the value; the send will block until the
+        // channel has room (if unbuffered) or another goroutine is ready.
+        results <- j * 2
+    }
+}
+
+func main() {
+    // Create a buffered channel of integers with a capacity of 100.
+    // `make(chan int, 100)` allocates a channel that can hold up to 100
+    // values before blocking senders. Both channels are bidirectional
+    // but will be passed with directional restrictions to worker.
+    jobs := make(chan int, 100)
+    results := make(chan int, 100)
+
+    // Launch three goroutines that run concurrently. Each call to `worker`
+    // is prefixed with `go`, beginning a new lightweight thread of
+    // execution. The arguments (id, jobs, results) are evaluated and passed
+    // to the goroutine immediately; the channel directions are coerced.
+    for w := 1; w <= 3; w++ {
+        go worker(w, jobs, results)
+    }
+
+    // Send five job integers (1..5) into the jobs channel. Because the
+    // channel is buffered with capacity 100, these sends will not block.
+    for j := 1; j <= 5; j++ {
+        jobs <- j
+    }
+    // Close the jobs channel to signal that no more jobs will be sent.
+    // Workers using `range jobs` will eventually receive all values and
+    // then exit their loops. Closing is only done by the sender.
+    close(jobs)
+}
+────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/java_sample.java`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 11.33s (~255 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 12.69s
+── success ───────────────────────────────────────────────────────────────────────────
+// Defines a generic LRU cache that extends LinkedHashMap
+// Uses LinkedHashMap's access-order mode to automatically
+// evict the least recently used entry when capacity is exceeded
+// The generic type parameters K and V represent the types of keys and values
+public class LRUCache<K, V> extends LinkedHashMap<K, V> {
+    // Holds the maximum capacity for the cache, declared final to prevent mutation
+    private final int capacity;
+
+    // Constructor that configures the LinkedHashMap with initial capacity,
+    // load factor 0.75f (default), and access-order set to true for LRU ordering
+    // The super call initializes the LinkedHashMap with given capacity
+    public LRUCache(int capacity) {
+        super(capacity, 0.75f, true);
+        this.capacity = capacity;
+    }
+
+    // Override removeEldestEntry to evict the eldest entry when size exceeds capacity
+    // This method is called after each put/putAll operation
+    // The @Override annotation indicates this method overrides a superclass method
+    @Override
+    protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+        return size() > capacity;
+    }
+}
+──────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/js_sample.js`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 12.46s (~220 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 13.69s
+── success ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Define a debounce function that accepts a callback and a delay in milliseconds.
+// The function creates a closure over `timerId` to track the pending timeout.
+function debounce(fn, delay) {
+  // Declare a local variable to hold the identifier of the scheduled timeout.
+  // The initial value `null` signals that no timer is currently set.
+  let timerId = null
+  // The debounced function is returned, accepting any number of arguments.
+  // The rest parameter syntax `...args` collects all arguments into an array.
+  return function (...args) {
+    // Cancel the previously pending invocation, if any.
+    // `clearTimeout` stops the timer associated with the given ID, preventing execution of the scheduled callback.
+    clearTimeout(timerId)
+    // Schedule a new timer that will call the original function after the delay.
+    // `setTimeout` returns a new timer ID that is stored for future cancellations.
+    // The arrow function preserves the lexical `this` and captures the current `args` array.
+    // `fn.apply(this, args)` invokes `fn` with the captured context and arguments,
+    // ensuring `this` inside `fn` refers to the same value as when the debounced function was called.
+    timerId = setTimeout(() => {
+      fn.apply(this, args)
+    }, delay)
+  }
+}
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/kotlin_sample.kt`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 21.38s (~248 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 22.61s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────
+// Defines a sealed class that represents a computation result,
+// parameterized with an out-projected type T to allow covariance.
+// Sealed classes restrict inheritance to the same file and enable exhaustive when expressions.
+sealed class Result<out T> {
+    // A data class representing a successful result, holding a value of type T.
+    // 'data class' automatically generates equals(), hashCode(), toString(), and copy().
+    data class Success<T>(val value: T) : Result<T>()
+    // A data class representing a failure, containing an error message.
+    // It extends Result<Nothing>, which fits any Result<T> due to Nothing being a subtype of all types.
+    data class Failure(val error: String) : Result<Nothing>()
+
+    // An inline extension function that transforms the value inside Success using the provided lambda.
+    // 'inline' reduces overhead by inlining the lambda at call sites.
+    // 'R' is a new type parameter for the transformed result type.
+    // The 'when' expression pattern matches on 'this' and uses smart casts:
+    // - If this is Success, it applies transform and wraps the result in a new Success.
+    // - If this is Failure, it returns itself unchanged.
+    inline fun <R> map(transform: (T) -> R): Result<R> = when (this) {
+        is Success -> Success(transform(value))
+        is Failure -> this
+    }
+}
+────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/python_sample.py`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 14.44s (~254 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 15.81s
+── success ────────────────────────────────────────────────────────────────────────────────────
+# Define a function named quicksort taking a single argument 'arr', expected to be a list.
+# The colon ends the function signature and begins the indented body block.
+def quicksort(arr):
+    # Use the built-in len() function to get the number of elements in the list.
+    # <= 1 checks for empty or single-element lists – the recursion base case.
+    if len(arr) <= 1:
+        # An empty or single-element list is already sorted; return it immediately.
+        return arr
+    # Compute the middle index using integer floor division // to ensure a valid index.
+    # Select the pivot element from the list at that middle index.
+    pivot = arr[len(arr) // 2]
+    # List comprehension: iterate over arr, include x if x is less than the pivot.
+    # This creates a new list of elements strictly smaller than the pivot.
+    left = [x for x in arr if x < pivot]
+    # List comprehension: include elements equal to the pivot.
+    # This handles duplicate values, preserving stability through a separate middle list.
+    middle = [x for x in arr if x == pivot]
+    # List comprehension: include elements greater than the pivot.
+    right = [x for x in arr if x > pivot]
+    # Recursively sort the left and right partitions, then concatenate left, middle, and right.
+    # The + operator for lists performs concatenation in the given order.
+    # Return the fully sorted list.
+    return quicksort(left) + middle + quicksort(right)
+───────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/rust_sample.rs`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 11.33s (~274 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 12.55s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// This function returns a closure that computes Fibonacci numbers with memoization.
+// `fn` defines a named function; `impl Fn(u32) -> u64` means it returns an opaque type
+// that implements the `Fn` trait, which describes a non-mutating closure taking `u32` and returning `u64`.
+fn memoized_fib() -> impl Fn(u32) -> u64 {
+    // `let mut` declares a mutable variable; `vec!` is a macro that creates a `Vec` (dynamic array)
+    // initialized with values `0u64` and `1u64` (unsigned 64-bit integers).
+    let mut cache = vec![0u64, 1u64];
+    // `move` keyword transfers ownership of captured variables (like `cache`) into the closure.
+    // `|n: u32|` declares the closure parameter with type annotation; `-> u64` is the return type.
+    move |n: u32| -> u64 {
+        // `n as usize` is a safe numeric cast from `u32` to `usize` (platform-dependent size type).
+        // `cache.len()` returns the number of elements.
+        if (n as usize) < cache.len() {
+            // Index into the vector: `cache[index]` (no bounds check crash, panic if out of bounds).
+            cache[n as usize]
+        } else {
+            // Recursive call: `memoized_fib()` creates a new closure each time (not optimal, but as original).
+            // `(n - 1)` and `(n - 2)` are `u32` subtractions (could underflow if n < 2, but n is >=2 here due to cache check).
+            let val = memoized_fib()(n - 1) + memoized_fib()(n - 2);
+            // `cache.push(val)` appends the computed value to the vector.
+            cache.push(val);
+            // The last expression in a block is the return value (no semicolon).
+            val
+        }
+    }
+}
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/swift_sample.swift`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 13.32s (~236 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 14.61s
+── success ────────────────────────────────────────────────────────────────────────────────
+// Declares a generic structure named Stack.
+// The <Element> placeholder allows the stack to hold values of any specific type,
+// determined when an instance is created.
+struct Stack<Element> {
+    // A stored property that persists within each Stack instance.
+    // 'private' restricts access so the array can only be modified from inside the struct.
+    // The array’s element type matches the generic Element placeholder.
+    private var items: [Element] = []
+
+    // Adds an item to the top of the stack.
+    // The 'mutating' keyword is required because a method on a value type (struct)
+    // that modifies a stored property must be marked as mutating.
+    // The '_' before 'item' hides the external parameter name when calling push.
+    mutating func push(_ item: Element) {
+        items.append(item)  // Uses the array’s method to add the element.
+    }
+
+    // Removes and returns the top item from the stack.
+    // Returns an Optional<Element> (Element?) because the stack might be empty.
+    // The 'mutating' keyword again signals that the method modifies the struct’s state.
+    mutating func pop() -> Element? {
+        // popLast() is a standard library method on Array that removes and returns
+        // the last element as an optional.
+        return items.popLast()
+    }
+
+    // A computed property that provides read-only access to the top item of the stack.
+    // Because it only has a getter, it is an implicit read-only property.
+    // The return type is an optional Element, matching the array’s 'last' property,
+    // which is nil when the array is empty.
+    var peek: Element? {
+        return items.last
+    }
+}
+───────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action explain -f ./fixtures/explain/ts_sample.ts`
+info: found action 'explain' (3 steps), starting...
+progress: explanation (medium)... 67% (2/3)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 17.85s (~257 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 19.32s
+── success ─────────────────────────────────────────────────────────────────────────────
+// EventBus class encapsulates event management
+// Uses TypeScript's class syntax with private members and type annotations
+class EventBus {
+    // Private handlers map stores arrays of callback functions keyed by event name
+    // TypeScript's Map<string, Function[]> ensures strong typing for keys and handlers
+    private handlers: Map<string, Function[]> = new Map();
+
+    // Registers a handler function for a given event
+    // Uses TypeScript's void return type to indicate no return value
+    on(event: string, handler: Function): void {
+        // Check if the event key does not exist in the map
+        if (!this.handlers.has(event)) {
+            // Initialize an empty array for this event to store handlers
+            this.handlers.set(event, []);
+        }
+        // Retrieve the array and push the new handler
+        // Non-null assertion '!' is used because we just ensured the key exists
+        this.handlers.get(event)!.push(handler);
+    }
+
+    // Emits an event, calling all registered handlers with the provided data
+    // Uses TypeScript's unknown type for data to allow any type safely
+    emit(event: string, data: unknown): void {
+        // Optional chaining '?.' ensures safe access if no handlers exist for the event
+        this.handlers.get(event)?.forEach(h => h(data));
+    }
+}
+────────────────────────────────────────────────────────────────────────────────────────
+
+
+--- Fixture: extract/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action extract -f ./fixtures/extract/server.log -q 'extract all ERROR lines'`
+info: found action 'extract' (4 steps), starting...
+progress: content (small)... 50% (2/4)
+progress: [small] node batch: 1/8 | deepseek-v4-flash | 998ms (~151 tokens)
+progress: [small] node batch: 2/8 | deepseek-v4-flash | 1.04s (~154 tokens)
+progress: [small] node batch: 3/8 | deepseek-v4-flash | 975ms (~151 tokens)
+progress: [small] node batch: 4/8 | deepseek-v4-flash | 1.55s (~151 tokens)
+progress: [small] node batch: 5/8 | deepseek-v4-flash | 1.06s (~152 tokens)
+progress: [small] node batch: 6/8 | deepseek-v4-flash | 1.10s (~155 tokens)
+progress: [small] node batch: 7/8 | deepseek-v4-flash | 1.00s (~152 tokens)
+progress: [small] node batch: 8/8 | deepseek-v4-flash | 1.50s (~153 tokens)
+progress: extract (val)... 100% (4/4)
+info: completed in 7.54s
+── success ───────────────────────────────────────────────────────
+2023-10-25 08:01:22 ERROR Failed to connect to database
+2023-10-25 08:03:45 ERROR Timeout while processing request #123
+2023-10-25 08:06:30 ERROR NullPointerException in module user_auth
+──────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action extract -f ./fixtures/extract/transactions.csv -q 'extract all failed transactions'`
+info: found action 'extract' (4 steps), starting...
+progress: content (small)... 50% (2/4)
+progress: [small] node batch: 1/7 | deepseek-v4-flash | 1.23s (~156 tokens)
+progress: [small] node batch: 2/7 | deepseek-v4-flash | 1.54s (~141 tokens)
+progress: [small] node batch: 3/7 | deepseek-v4-flash | 1.35s (~156 tokens)
+progress: [small] node batch: 4/7 | deepseek-v4-flash | 1.35s (~156 tokens)
+progress: [small] node batch: 5/7 | deepseek-v4-flash | 1.83s (~156 tokens)
+progress: [small] node batch: 6/7 | deepseek-v4-flash | 2.03s (~156 tokens)
+progress: [small] node batch: 7/7 | deepseek-v4-flash | 1.68s (~156 tokens)
+progress: extract (val)... 100% (4/4)
+info: completed in 8.31s
+── success ───────────────────────────────
+103,120.00,USD,failed,2023-10-25T10:10:00Z
+105,200.00,USD,failed,2023-10-25T10:20:00Z
+──────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running `target/debug/vibe-action extract -f ./fixtures/extract/config.env -q 'extract all database connection settings'`
+info: found action 'extract' (4 steps), starting...
+progress: content (small)... 50% (2/4)
+progress: [small] node batch:  1/11 | deepseek-v4-flash | 1.67s (~137 tokens)
+progress: [small] node batch:  2/11 | deepseek-v4-flash | 1.72s (~138 tokens)
+progress: [small] node batch:  3/11 | deepseek-v4-flash | 1.54s (~139 tokens)
+progress: [small] node batch:  4/11 | deepseek-v4-flash | 1.55s (~137 tokens)
+progress: [small] node batch:  5/11 | deepseek-v4-flash | 1.68s (~138 tokens)
+progress: [small] node batch:  6/11 | deepseek-v4-flash | 1.80s (~139 tokens)
+progress: [small] node batch:  7/11 | deepseek-v4-flash | 1.69s (~138 tokens)
+progress: [small] node batch:  8/11 | deepseek-v4-flash | 1.93s (~138 tokens)
+progress: [small] node batch:  9/11 | deepseek-v4-flash | 1.60s (~137 tokens)
+progress: [small] node batch: 10/11 | deepseek-v4-flash | 1.75s (~144 tokens)
+progress: [small] node batch: 11/11 | deepseek-v4-flash | 1.66s (~139 tokens)
+progress: extract (val)... 100% (4/4)
+info: completed in 13.18s
+── success ───────
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=admin
+DB_PASSWORD=secret
+──────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action extract -f ./fixtures/extract/crash_report.txt -q 'find lines containing NullReferenceException'`
+info: found action 'extract' (4 steps), starting...
+progress: content (small)... 50% (2/4)
+progress: [small] node batch: 2/9 | deepseek-v4-flash | 1.51s (~140 tokens)
+progress: [small] node batch: 1/9 | deepseek-v4-flash | 1.50s (~143 tokens)
+progress: [small] node batch: 3/9 | deepseek-v4-flash | 1.47s (~137 tokens)
+progress: [small] node batch: 4/9 | deepseek-v4-flash | 1.56s (~145 tokens)
+progress: [small] node batch: 5/9 | deepseek-v4-flash | 1.49s (~156 tokens)
+progress: [small] node batch: 6/9 | deepseek-v4-flash | 1.58s (~159 tokens)
+progress: [small] node batch: 7/9 | deepseek-v4-flash | 1.51s (~150 tokens)
+progress: [small] node batch: 8/9 | deepseek-v4-flash | 1.64s (~159 tokens)
+progress: [small] node batch: 9/9 | deepseek-v4-flash | 1.55s (~155 tokens)
+progress: extract (val)... 100% (4/4)
+info: completed in 10.28s
+── success ─────────────────────────────────────────────────────────────────────────
+System.NullReferenceException: Object reference not set to an instance of an object.
+────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action extract -f ./fixtures/extract/server.log -q 'find all CRITICAL errors'`
+info: found action 'extract' (4 steps), starting...
+progress: content (small)... 50% (2/4)
+progress: [small] node batch: 1/8 | deepseek-v4-flash | 1.54s (~152 tokens)
+progress: [small] node batch: 2/8 | deepseek-v4-flash | 1.57s (~155 tokens)
+progress: [small] node batch: 3/8 | deepseek-v4-flash | 1.54s (~152 tokens)
+progress: [small] node batch: 4/8 | deepseek-v4-flash | 1.57s (~152 tokens)
+progress: [small] node batch: 5/8 | deepseek-v4-flash | 1.55s (~156 tokens)
+progress: [small] node batch: 6/8 | deepseek-v4-flash | 1.60s (~153 tokens)
+progress: [small] node batch: 7/8 | deepseek-v4-flash | 1.52s (~153 tokens)
+progress: [small] node batch: 8/8 | deepseek-v4-flash | 1.58s (~154 tokens)
+progress: extract (val)... 100% (4/4)
+info: completed in 9.62s
+── success ──────
+No matches found.
+─────────────────
+
+
+--- Fixture: faq/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action faq -q 'How to use the '\''contains'\'' modifier?'`
+info: found action 'faq' (1 steps), starting...
+progress: faq (small)... 100% (1/1)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 5.57s (~2913 tokens)
+info: completed in 6.61s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Use the contains modifier to test whether a tag's value includes a specific substring. It returns the string true or
+false, which works well inside when/then conditional branching.
+
+Syntax: {tag|contains:X}
+
+Example:
+{tag_check|contains:DIRTY} checks if the output of tag_check contains the substring DIRTY and returns true if found,
+otherwise false.
+
+The modifier also supports :not to invert the check. Chain it with other modifiers when needed, for example:
+{tag|trim|contains:ERROR}
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action faq -q 'какие команды есть и зачем?'`
+info: found action 'faq' (1 steps), starting...
+progress: faq (small)... 100% (1/1)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 4.95s (~2911 tokens)
+info: completed in 5.99s
+── success ────────────────────────────────────────────────────────────────────
+Вот команды Vibe Action и их назначение:
+
+Встроенные действия (CLI-подкоманды):
+- comment — заменяет TODO осмысленным комментарием
+- commit — генерирует сообщение коммита через ИИ
+- describe — описывает скриншот для понимания текстовыми LLM
+- explain — объясняет простыми словами, что делает выбранный код
+- extract — извлекает структурированные данные или строки из текста и логов
+- faq — отвечает на вопросы о Vibe Action (YAML-структура, поля, модификаторы)
+- fetch — загружает веб-страницу или PDF и описывает содержимое
+- find — семантический поиск файлов по смыслу, а не по имени
+- mock — генерирует реалистичные массивы мок-данных (JSON, YAML, CSV)
+- naming — предлагает варианты имен в коде по описанию
+- regex — генерирует регулярное выражение по описанию
+- review — критически анализирует код на баги и ошибки
+- scan — сканирует проект и экспортирует структуру в JSON
+- spellcheck — проверяет и исправляет орфографию в тексте или файлах
+- synonyms — подбирает технические синонимы для слова
+- sysinfo — формирует читаемый системный отчёт
+- tone — превращает грубый или агрессивный текст в профессиональный
+- translate-deep — двухэтапный перевод: локальное черновик + облачная полировка
+- translate-large — перевод за один шаг через большую модель
+- translate-small — перевод текста или файлов на другой язык
+- whois — определяет человека по скриншоту
+
+Исключены из IDE-плагина (только для терминала):
+- scan, find — работают с целыми директориями и большими списками
+- commit — требует прямого выполнения git в shell
+- extract — оптимизирован для чтения логов построчно
+- sysinfo, faq — отчёты окружения и самодокументация
+- whois, describe — анализ изображений вне текстового редактирования
+
+Системные команды:
+- clean — очищает весь кэш
+- status — показывает статус системы
+- bench — запускает бенчмарки
+- stop — останавливает все запущенные процессы
+───────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action faq -q 'как использовать модификаторы?'`
+info: found action 'faq' (1 steps), starting...
+progress: faq (small)... 100% (1/1)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 4.21s (~2911 tokens)
+info: completed in 5.35s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Модификаторы применяются к тегам через пайп внутри фигурных скобок: {tag|modifier}.
+
+Они позволяют преобразовывать вывод шага перед передачей дальше. Например:
+
+- {files|join} — склеить список в одну строку
+- {text|trim|upper} — обрезать пробелы и привести к верхнему регистру
+- {text|split:,\s|uniq|join:\n} — разбить по запятой с пробелом, убрать дубликаты, склеить по новой строке
+- {path|resolve|is_file} — превратить путь в абсолютный и проверить, что это файл
+- {data|contains:ERROR} — вернуть true или false для условной логики
+- {content|format:json} — сконвертировать формат между json, yaml, toml и json5
+- {html|text} — извлечь чистый текст из HTML или PDF
+- {num|take:5} — взять первые 5 символов или элементов списка
+
+Проверки возвращают строку true/false и используются в when/then матрицах для ветвления. Для отрицания добавляется :not,
+например {tag|empty:not} — проверка, что значение не пустое.
+
+Пайплайн можно строить цепочкой: {tag|trim|split:\n|sort|uniq|join:\s}.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running `target/debug/vibe-action faq -q '如何使用标签系统？'`
+info: found action 'faq' (1 steps), starting...
+progress: faq (small)... 100% (1/1)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 5.64s (~2909 tokens)
+info: completed in 6.65s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+标签系统是所有 YAML 管线的核心。用花括号引用标签，引擎会自动解析依赖并构建 DAG。
+
+把某一步骤的 tag 写入另一个步骤的 action 字段即可引用它的输出。例如步骤 a 的 tag 是 content，后续步骤写 {content}
+就会被替换为 a 的输出。
+
+执行顺序不由 YAML 中的排布顺序决定。引擎扫描所有 {tag} 引用，用 Kahn
+算法做拓扑排序，父标签全部解析完成后才执行子步骤。循环依赖会在启动时报错。
+
+一个步骤可以引用多个标签，例如 比较 {tag_a} 和
+{tag_b}。若某步骤收到列表输入但期望字符串，会触发列表展开，对每个元素独立执行一次。用 |join 或 |join:\s
+折叠列表可防止继续展开。
+
+修饰符可自由串联，例如 {tag|trim|upper|uniq|join:\s} 会去掉空白、转大写、去重、再用空格合并。
+
+条件分支用 when/then 矩阵实现，{tag|contains:DIRTY} 这类判断返回 true 或 false，命中的第一个 then 作为该步骤输出。
+
+系统标签直接可用，例如 {system_clipboard} 代表剪贴板文本，{system_os} 代表当前系统，{system_dir_pwd}
+代表当前目录。内置步骤也支持扫描、AST 解析、格式转换等修饰能力，完整列表见修饰符手册。
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+--- Fixture: fetch/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action fetch -s 'https://keygenqt.github.io/aurora-cli/'`
+info: found action 'fetch' (2 steps), starting...
+progress: description (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 3.23s (~1521 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 5.04s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Aurora CLI is a developer tool for Aurora OS, available on GitHub and PyPI, designed to simplify setup and daily work in
+the Aurora ecosystem. It enables one-command terminal installation of Aurora SDK, Aurora Platform SDK, Flutter SDK with
+Aurora OS platform support, an emulator, and related tools. The CLI provides commands for managing apps, devices,
+emulators, SDK packages, Flutter/Platform SDK projects, SSH copying, uploads, screenshots, recordings, sudoers
+configuration, settings, and VS Code tuning. It supports Linux distributions with Python 3.8, such as Ubuntu 20.04+ and
+ALT Linux 10+, and a graphical companion app called Aurora Toolbox is also available.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action fetch -s 'https://pdfobject.com/pdf/sample.pdf'`
+info: found action 'fetch' (2 steps), starting...
+progress: description (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 3.32s (~1093 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 4.89s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+This document is a sample PDF file intended for testing or demonstration purposes. Its core content includes the title
+"Sample PDF," a brief note stating "This is a simple PDF file. Fun fun fun," and extensive Lorem ipsum placeholder text.
+The document is primarily a basic PDF example with no specific tools or advanced features mentioned.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+--- Fixture: find/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action find -p ./fixtures/find/mock_project -q 'authentication or login logic'`
+info: found action 'find' (5 steps), starting...
+progress: matches (small)... 60% (3/5)
+progress: [small] node batch: 1/4 | deepseek-v4-flash | 1.43s (~149 tokens)
+progress: [small] node batch: 2/4 | deepseek-v4-flash | 1.51s (~155 tokens)
+progress: [small] node batch: 3/4 | deepseek-v4-flash | 1.69s (~165 tokens)
+progress: [small] node batch: 4/4 | deepseek-v4-flash | 1.68s (~148 tokens)
+progress: find (val)... 100% (5/5)
+info: completed in 4.70s
+── success ───────────────────────────────────────────────────────────────────────────────────
+/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/find/mock_project/rust/auth.rs
+──────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action find -p ./fixtures/find/mock_project -q 'database connection or query'`
+info: found action 'find' (5 steps), starting...
+progress: matches (small)... 60% (3/5)
+progress: [small] node batch: 1/4 | deepseek-v4-flash | 1.63s (~149 tokens)
+progress: [small] node batch: 2/4 | deepseek-v4-flash | 1.72s (~155 tokens)
+progress: [small] node batch: 3/4 | deepseek-v4-flash | 1.65s (~148 tokens)
+progress: [small] node batch: 4/4 | deepseek-v4-flash | 2.06s (~165 tokens)
+progress: find (val)... 100% (5/5)
+info: completed in 5.16s
+── success ─────────────────────────────────────────────────────────────────────────────────────────
+/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/find/mock_project/python/database.py
+────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action find -p ./fixtures/find/mock_project -q 'utility functions for formatting'`
+info: found action 'find' (5 steps), starting...
+progress: matches (small)... 60% (3/5)
+progress: [small] node batch: 1/4 | deepseek-v4-flash | 1.46s (~155 tokens)
+progress: [small] node batch: 2/4 | deepseek-v4-flash | 2.21s (~149 tokens)
+progress: [small] node batch: 3/4 | deepseek-v4-flash | 1.57s (~165 tokens)
+progress: [small] node batch: 4/4 | deepseek-v4-flash | 1.63s (~148 tokens)
+progress: find (val)... 100% (5/5)
+info: completed in 5.31s
+── success ──────────────────────────────────────────────────────────────────────────────────
+/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/find/mock_project/js/utils.js
+─────────────────────────────────────────────────────────────────────────────────────────────
+
+
+--- Fixture: mock/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action mock -q '5 users with id, name, email, and active status'`
+info: found action 'mock' (2 steps), starting...
+progress: mock (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.50s (~105 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 3.52s
+── success ────────────────────────────────────────────────────────────────────────────────
+[
+  {"id": 1, "name": "Alice Johnson", "email": "alice.johnson@example.com", "active": true},
+  {"id": 2, "name": "Bob Smith", "email": "bob.smith@example.com", "active": false},
+  {"id": 3, "name": "Carol White", "email": "carol.white@example.com", "active": true},
+  {"id": 4, "name": "David Brown", "email": "david.brown@example.com", "active": true},
+  {"id": 5, "name": "Eva Green", "email": "eva.green@example.com", "active": false}
+]
+───────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action mock -q '3 products with sku, name, price, and stock quantity' -f yaml`
+info: found action 'mock' (2 steps), starting...
+progress: mock (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.14s (~105 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 3.19s
+── success ────────────────
+- sku: SKU-1001
+  name: Wireless Mouse
+  price: 24.99
+  stock_quantity: 150
+- sku: SKU-1002
+  name: Mechanical Keyboard
+  price: 89.50
+  stock_quantity: 42
+- sku: SKU-1003
+  name: USB-C Hub
+  price: 39.00
+  stock_quantity: 0
+───────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action mock -q '4 books with isbn, title, author, and publication year' -f csv`
+info: found action 'mock' (2 steps), starting...
+progress: mock (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.59s (~105 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 3.63s
+── success ────────────────────────────────────────────
+isbn,title,author,publication_year
+9780141036144,1984,George Orwell,1949
+9780060850524,Brave New World,Aldous Huxley,1932
+9780156012195,Fahrenheit 451,Ray Bradbury,1953
+9780743273565,The Great Gatsby,F. Scott Fitzgerald,1925
+───────────────────────────────────────────────────────
+
+
+--- Fixture: naming/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action naming -q 'function to sort actions by dependency for Rust'`
+info: found action 'naming' (1 steps), starting...
+progress: name_suggestions (small)... 100% (1/1)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.21s (~112 tokens)
+info: completed in 3.22s
+── success ───────────────────
+sort_actions_by_dependency
+topological_sort_actions
+sort_actions_topologically
+order_actions_by_dependencies
+resolve_action_order
+dependency_sorted_actions
+sort_actions_with_dependencies
+actions_topological_order
+sort_by_dependency_chain
+order_actions_dependency_first
+──────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running `target/debug/vibe-action naming -q 'a class that manages a pool of database connections'`
+info: found action 'naming' (1 steps), starting...
+progress: name_suggestions (small)... 100% (1/1)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.02s (~113 tokens)
+info: completed in 3.08s
+── success ─────────────
+ConnectionPool
+DatabaseConnectionPool
+DbConnectionPool
+ConnectionPoolManager
+PooledConnectionFactory
+DatabasePool
+DbPoolManager
+ConnectionLeaseManager
+ConnectionPoolRegistry
+PooledConnectionRegistry
+────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action naming -q 'a constant for the maximum retry attempts'`
+info: found action 'naming' (1 steps), starting...
+progress: name_suggestions (small)... 100% (1/1)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 3.02s (~111 tokens)
+info: completed in 4.08s
+── success ─────────
+MAX_RETRY_ATTEMPTS
+MAX_RETRIES
+MAX_RETRY_COUNT
+RETRY_LIMIT
+MAX_ATTEMPTS
+DEFAULT_MAX_RETRIES
+RETRY_ATTEMPTS_LIMIT
+MAX_NUM_RETRIES
+────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running `target/debug/vibe-action naming -q 'a variable holding the current user session token'`
+info: found action 'naming' (1 steps), starting...
+progress: name_suggestions (small)... 100% (1/1)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.89s (~112 tokens)
+info: completed in 2.90s
+── success ────────────
+currentUserSessionToken
+sessionToken
+userSessionToken
+activeSessionToken
+currentSessionToken
+authSessionToken
+userAuthToken
+currentAuthToken
+sessionAccessToken
+liveSessionToken
+───────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running `target/debug/vibe-action naming -q 'a boolean flag to check if the cache is enabled for Kotlin'`
+info: found action 'naming' (1 steps), starting...
+progress: name_suggestions (small)... 100% (1/1)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.77s (~116 tokens)
+info: completed in 2.80s
+── success ─────
+isCacheEnabled
+cacheEnabled
+isCacheActive
+cacheActive
+cacheOn
+useCache
+cacheFlag
+cacheEnabledFlag
+isCachingEnabled
+enableCache
+────────────────
+
+
+--- Fixture: regex/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action regex -q 'match an email address' -e 'user@example.com'`
+info: found action 'regex' (2 steps), starting...
+progress: regex (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.67s (~140 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 2.79s
+── success ────────────
+[^\s@]+@[^\s@]+\.[^\s@]
+───────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running `target/debug/vibe-action regex -q 'extract domain name from a URL' -e 'https://www.example.com/path'`
+info: found action 'regex' (2 steps), starting...
+progress: regex (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 5.18s (~145 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 6.22s
+── success ────────────────────────────────────────────
+(?:https?:\/\/)?(?:www\.)?([a-z0-9-]+(?:\.[a-z0-9-]+)+)
+───────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running `target/debug/vibe-action regex -q 'match a valid IPv4 address' -e 192.168.1.1`
+info: found action 'regex' (2 steps), starting...
+progress: regex (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 3.42s (~146 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 4.48s
+── success ────────────────────────────────────────────────────────────────────────────────────
+^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}$
+───────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action regex -q 'match a date in YYYY-MM-DD format'`
+info: found action 'regex' (2 steps), starting...
+progress: regex (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.28s (~140 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 3.35s
+── success ──────
+\d{4}-\d{2}-\d{2}
+─────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action regex -q 'match a US phone number' -e '(123) 456-7890'`
+info: found action 'regex' (2 steps), starting...
+progress: regex (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.21s (~146 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 3.24s
+── success ────────────
+^\(\d{3}\) \d{3}-\d{4}$
+───────────────────────
+
+
+--- Fixture: review/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action review -f ./fixtures/review/rust_unsafe.rs`
+info: found action 'review' (3 steps), starting...
+progress: review (large)... 67% (2/3)
+progress: [large] node batch: 1/1 | glm-5.2 | 3.54s (~254 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 5.65s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+- Arc<Vec<i32>> does not allow mutation; push calls will not compile. You need interior mutability via Mutex for
+thread-safe mutation.
+  Fix: let mut data = Arc::new(std::sync::Mutex::new(vec![1, 2, 3]));
+
+- Concurrent push from two threads without locking is a data race; both threads must lock the Mutex before mutating.
+  Fix: let cloned = Arc::clone(&data); let handle = thread::spawn(move || { cloned.lock().unwrap().push(4); });
+
+- data.push(5) on the main thread also needs to acquire the lock to avoid a data race.
+  Fix: data.lock().unwrap().push(5);
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action review -f ./fixtures/review/python_memory.py`
+info: found action 'review' (3 steps), starting...
+progress: review (large)... 67% (2/3)
+progress: [large] node batch: 1/1 | glm-5.2 | 3.63s (~264 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 5.67s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+- Logic flaw: result = result + [temp] duplicates the last appended item and creates an unnecessary full list copy when
+len(result) > 1000.
+  Fix: result.append(temp)
+
+- Performance bottleneck: find_user uses range(len(users)) with index access instead of direct iteration.
+  Fix: for user in users:
+
+- Performance bottleneck: find_user should use a dict lookup for O(1) access if called repeatedly.
+  Fix: users = {u.id: u for u in users}
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action review -f ./fixtures/review/java_concurrency.java`
+info: found action 'review' (3 steps), starting...
+progress: review (large)... 67% (2/3)
+progress: [large] node batch: 1/1 | glm-5.2 | 3.12s (~330 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 5.88s
+── success ───────────────────────────────────────────────────────────────────────────────────────
+- count++ is not atomic; concurrent increments cause lost updates (expected 20000, likely less).
+  Fix: private AtomicInteger count = new AtomicInteger(0);
+
+- increment() must use atomic operation to avoid read-modify-write race.
+  Fix: public void increment() { count.incrementAndGet(); }
+
+- getCount() must return the atomic value consistently.
+  Fix: public int getCount() { return count.get(); }
+──────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+--- Fixture: scan/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action scan -p ./fixtures/scan/kotlin`
+info: found action 'scan' (5 steps), starting...
+progress: save (cmd)... 100% (5/5)
+info: completed in 31ms
+── success ──────────────────────────────────────────────
+Saved to /Users/keygenqt/Downloads/vibe-export-52770.json
+─────────────────────────────────────────────────────────
+--- JSON content ---
+[{"markdown":{"headings":[{"level":1,"title":"Fixture Kotlin"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/kotlin/README.md"},{"batch":{"functions":[{"signature":":findJavaFromJavaHome"},{"signature":":execute"},{"signature":":end"},{"signature":":fail"},{"signature":":mainEnd"},{"signature":":omega"}],"variables":[{"signature":"DIRNAME=%~dp0"},{"signature":"APP_BASE_NAME=%~n0"},{"signature":"APP_HOME=%DIRNAME%"},{"signature":"DEFAULT_JVM_OPTS=\"-Xmx64m\" \"-Xms64m\""},{"signature":"JAVA_EXE=java.exe"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/kotlin/gradlew.bat"},{"kotlin":{"functions":[{"comments":["Async function example"],"signature":"suspend fun fetchData(url: String): String"}],"variables":[{"comments":["Global constants"],"signature":"const val MAX_SIZE"},{"signature":"val DEFAULT_TIMEOUT"},{"comments":["Global variables"],"signature":"lateinit var appName: String"},{"signature":"var counter"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/kotlin/src/main/kotlin/com/keygenqt/fixture/utils/Network.kt"},{"kotlin":{"functions":[{"comments":["Module documentation for Kotlin testing"],"signature":"fun main()"},{"comments":["Adds two numbers","@param a First number","@param b Second number","@return Sum of a and b"],"signature":"fun add(a: Int, b: Int): Int"},{"comments":["Multiplies two numbers"],"signature":"fun multiply(a: Int, b: Int): Int"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/kotlin/src/main/kotlin/com/keygenqt/fixture/Main.kt"},{"kotlin":{"classes":[{"comments":["User data class"],"signature":"data class User"}],"enums":[{"comments":["Color enum"],"signature":"enum class Color"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/kotlin/src/main/kotlin/com/keygenqt/fixture/model/Models.kt"},{"kotlin":{"classes":[{"comments":["Service class"],"signature":"class UserService"}],"interfaces":[{"comments":["Repository interface"],"signature":"interface Repository"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/kotlin/src/main/kotlin/com/keygenqt/fixture/service/UserService.kt"}]
+----------------------
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action scan -p ./fixtures/scan/rust`
+info: found action 'scan' (5 steps), starting...
+progress: save (cmd)... 100% (5/5)
+info: completed in 25ms
+── success ──────────────────────────────────────────────
+Saved to /Users/keygenqt/Downloads/vibe-export-52802.json
+─────────────────────────────────────────────────────────
+--- JSON content ---
+[{"markdown":{"headings":[{"level":1,"title":"Fixture Rust"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/rust/README.md"},{"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/rust/src/types.rs","rust":{"enums":[{"comments":["Color enum"],"signature":"pub enum Color"}],"interfaces":[{"comments":["Display trait"],"signature":"pub trait Display"},{"comments":["Debug trait"],"signature":"pub trait Debug"}]}},{"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/rust/src/constants.rs","rust":{"variables":[{"comments":["Global constants"],"signature":"pub const MAX_SIZE: usize"},{"comments":["TEMP: remove after migration"],"signature":"const DEFAULT_TIMEOUT: u64"},{"comments":["Static variables"],"signature":"pub static APP_NAME: &str"},{"comments":["WORKAROUND: mut static for legacy"],"signature":"static mut COUNTER: u32"}]}},{"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/rust/src/models.rs","rust":{"structs":[{"comments":["User structure with fields"],"signature":"pub struct User"},{"comments":["Internal struct"],"signature":"struct Config"}]}},{"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/rust/src/functions.rs","rust":{"functions":[{"comments":["Adds two numbers"],"signature":"fn add(a: i32, b: i32) -> i32"},{"comments":["Multiplies two numbers"],"signature":"pub fn multiply(a: i32, b: i32) -> i32"},{"comments":["Async function example"],"signature":"pub async fn fetch_data(url: &str) -> Result<String, std::io::Error>"},{"comments":["Unsafe function example"],"signature":"pub unsafe fn dangerous()"}]}},{"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/rust/src/utils/path.rs","rust":{"functions":[{"signature":"pub fn validate(p: &Path) -> bool"}]}},{"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/rust/src/main.rs","rust":{"functions":[{"signature":"fn main()"}],"header_comments":["TODO: Module documentation for testing","FIXME: This module contains various Rust constructs"]}}]
+----------------------
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action scan -p ./fixtures/scan/java`
+info: found action 'scan' (5 steps), starting...
+progress: save (cmd)... 100% (5/5)
+info: completed in 30ms
+── success ──────────────────────────────────────────────
+Saved to /Users/keygenqt/Downloads/vibe-export-52836.json
+─────────────────────────────────────────────────────────
+--- JSON content ---
+[{"markdown":{"headings":[{"level":1,"title":"Fixture Java"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/java/README.md"},{"batch":{"functions":[{"signature":":findJavaFromJavaHome"},{"signature":":execute"},{"signature":":end"},{"signature":":fail"},{"signature":":mainEnd"},{"signature":":omega"}],"variables":[{"signature":"DIRNAME=%~dp0"},{"signature":"APP_BASE_NAME=%~n0"},{"signature":"APP_HOME=%DIRNAME%"},{"signature":"DEFAULT_JVM_OPTS=\"-Xmx64m\" \"-Xms64m\""},{"signature":"JAVA_EXE=java.exe"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/java/gradlew.bat"},{"java":{"classes":[{"comments":["Global constants"],"signature":"final class Constants"}],"enums":[{"comments":["Color enum"],"signature":"public enum Color"},{"comments":["Result enum with values"],"signature":"enum Result"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/java/src/main/java/com/keygenqt/fixture/constant/Color.java"},{"java":{"classes":[{"comments":["Main class for calculator operations"],"signature":"public class Main"}],"header_comments":["Module documentation for Java testing"]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/java/src/main/java/com/keygenqt/fixture/Main.java"},{"java":{"classes":[{"comments":["User class"],"signature":"public class User"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/java/src/main/java/com/keygenqt/fixture/model/User.java"},{"java":{"classes":[{"comments":["Service class"],"signature":"public class UserService"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/java/src/main/java/com/keygenqt/fixture/service/UserService.java"},{"java":{"interfaces":[{"comments":["Repository interface"],"signature":"public interface Repository"}]},"path":"/Users/keygenqt/Documents/Gitcode/Projects/vibe-action/fixtures/scan/java/src/main/java/com/keygenqt/fixture/repo/Repository.java"}]
+----------------------
+
+
+--- Fixture: spellcheck/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action spellcheck -f ./fixtures/spellcheck/dirty_english.txt`
+info: found action 'spellcheck' (5 steps), starting...
+progress: check_errors (small)... 40% (2/5)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.88s (~124 tokens)
+progress: checked (small)... 80% (4/5)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.72s (~120 tokens)
+progress: clipboard (val)... 100% (5/5)
+info: completed in 5.85s
+── success ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+This is a sample text with several spelling mistakes and grammar errors. The quick brown fox jumps over the lazy dog.
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running `target/debug/vibe-action spellcheck -f ./fixtures/spellcheck/dirty_russian.txt`
+info: found action 'spellcheck' (5 steps), starting...
+progress: check_errors (small)... 40% (2/5)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.50s (~136 tokens)
+progress: checked (small)... 80% (4/5)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 3.00s (~132 tokens)
+progress: clipboard (val)... 100% (5/5)
+info: completed in 6.76s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Это пример текста с несколькими орфографическими ошибками и грамматическими опечатками. Быстрая рыжая лиса перепрыгивает
+через ленивую собаку.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action spellcheck -f ./fixtures/spellcheck/dirty_markdown.md`
+info: found action 'spellcheck' (5 steps), starting...
+progress: check_errors (small)... 40% (2/5)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 3.29s (~139 tokens)
+progress: checked (small)... 80% (4/5)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.62s (~135 tokens)
+progress: clipboard (val)... 100% (5/5)
+info: completed in 8.22s
+── success ───────────────────────────────────────────────────
+                       Title with Typo
+
+This paragraph has errors. But the code should not be changed:
+
+def helo_wrld():
+    prnt("Helo Wrld")
+──────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running `target/debug/vibe-action spellcheck -f ./fixtures/spellcheck/clean_english.txt`
+info: found action 'spellcheck' (5 steps), starting...
+progress: check_errors (small)... 40% (2/5)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.91s (~110 tokens)
+progress: checked (small)... 80% (4/5)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.13s (~95 tokens)
+progress: clipboard (val)... 100% (5/5)
+info: completed in 6.58s
+── success ─────
+No errors found.
+────────────────
+
+
+--- Fixture: synonyms/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action synonyms -q function`
+info: found action 'synonyms' (2 steps), starting...
+progress: synonyms_list (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.66s (~93 tokens)
+progress: synonyms (val)... 100% (2/2)
+info: completed in 2.70s
+── success ──
+routine
+procedure
+method
+subroutine
+operation
+─────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action synonyms -q variable`
+info: found action 'synonyms' (2 steps), starting...
+progress: synonyms_list (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.71s (~93 tokens)
+progress: synonyms (val)... 100% (2/2)
+info: completed in 2.75s
+── success ──
+identifier
+binding
+symbol
+reference
+slot
+─────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action synonyms -q iterate`
+info: found action 'synonyms' (2 steps), starting...
+progress: synonyms_list (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.49s (~93 tokens)
+progress: synonyms (val)... 100% (2/2)
+info: completed in 2.56s
+── success ──
+loop
+traverse
+enumerate
+recurse
+process
+─────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action synonyms -q callback`
+info: found action 'synonyms' (2 steps), starting...
+progress: synonyms_list (small)... 50% (1/2)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.57s (~93 tokens)
+progress: synonyms (val)... 100% (2/2)
+info: completed in 2.59s
+── success ──
+handler
+delegate
+listener
+notifier
+continuation
+─────────────
+
+
+--- Fixture: sysinfo/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action sysinfo`
+info: found action 'sysinfo' (1 steps), starting...
+progress: report (small)... 100% (1/1)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.96s (~167 tokens)
+info: completed in 3.03s
+── success ────────────────────────────────────────────────────────────────
+- OS: macOS
+- Architecture: aarch64
+- Hostname: Zarubins-Mac-mini-2.local
+- Shell: zsh
+- System Language: en
+- User: keygenqt
+- Date: 2026-08-08
+- Time: 14:19:19
+- Process ID: 53022
+- Home: /Users/keygenqt
+- Working directory: /Users/keygenqt/Documents/Gitcode/Projects/vibe-action
+───────────────────────────────────────────────────────────────────────────
+
+
+--- Fixture: tone/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action tone -q 'This code is complete garbage. Did you even test this before pushing? Fix this mess immediately.'`
+info: found action 'tone' (2 steps), starting...
+progress: rewritten (medium)... 50% (1/2)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 5.20s (~209 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 6.23s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+I have concerns about the quality of this code. Could you confirm whether it was tested before pushing? Let's work
+together to improve it promptly.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action tone -q 'Этот код - полный мусор. Ты вообще это тестировал перед пушем? Исправь этот бардак немедленно.'`
+info: found action 'tone' (2 steps), starting...
+progress: rewritten (medium)... 50% (1/2)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 9.56s (~216 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 10.69s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Этот код, на мой взгляд, нуждается в доработке. Проверяли ли вы его работу перед отправкой? Давайте вместе обсудим, как
+можно улучшить текущий вариант.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action tone -q '这代码真是垃圾。你推送前到底测试过没有？马上把这个烂摊子修好。'`
+info: found action 'tone' (2 steps), starting...
+progress: rewritten (medium)... 50% (1/2)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 4.35s (~216 tokens)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 5.40s
+── success ───────────────────────────────────────────────────────────────────────────────
+这段代码目前看起来还有改进空间。可以和你确认一下推送前的测试情况吗？希望能尽快一起优化它。
+──────────────────────────────────────────────────────────────────────────────────────────
+
+
+--- Fixture: translate-deep/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action translate-deep -f ./fixtures/translate-deep/english_sample.md -l Russian`
+info: found action 'translate-deep' (4 steps), starting...
+progress: draft (small)... 50% (2/4)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.87s (~136 tokens)
+progress: translated (medium)... 75% (3/4)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 6.78s (~163 tokens)
+progress: clipboard (val)... 100% (4/4)
+info: completed in 11.95s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Система использует распределённый кэш для снижения нагрузки на базу данных. При промахе кэша приложение запрашивает
+данные из базы данных и помещает их в кэш с временем жизни 300 секунд.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action translate-deep -f ./fixtures/translate-deep/english_sample.md -l Chinese`
+info: found action 'translate-deep' (4 steps), starting...
+progress: draft (small)... 50% (2/4)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.33s (~136 tokens)
+progress: translated (medium)... 75% (3/4)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 6.76s (~156 tokens)
+progress: clipboard (val)... 100% (4/4)
+info: completed in 11.36s
+── success ──────────────────────────────────────────────────────────────────────────────────────────────────────
+系统采用分布式缓存来降低数据库负载。缓存未命中时，应用程序会查询数据库，并将数据写入缓存且设置 300 秒的生存时间。
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action translate-deep -f ./fixtures/translate-deep/russian_sample.md -l English`
+info: found action 'translate-deep' (4 steps), starting...
+progress: draft (small)... 50% (2/4)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.20s (~144 tokens)
+progress: translated (medium)... 75% (3/4)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 6.00s (~156 tokens)
+progress: clipboard (val)... 100% (4/4)
+info: completed in 10.66s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+The system uses a distributed cache to reduce database load. On a cache miss, the application queries the database and
+then populates the cache, setting a time‑to‑live (TTL) of 300 seconds.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.32s
+     Running `target/debug/vibe-action translate-deep -f ./fixtures/translate-deep/russian_sample.md -l Chinese`
+info: found action 'translate-deep' (4 steps), starting...
+progress: draft (small)... 50% (2/4)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.98s (~144 tokens)
+progress: translated (medium)... 75% (3/4)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 5.81s (~151 tokens)
+progress: clipboard (val)... 100% (4/4)
+info: completed in 10.39s
+── success ──────────────────────────────────────────────────────────────────────────────────────────────────────
+系统采用分布式缓存以降低数据库负载。当缓存未命中时，应用程序会查询数据库并将数据回填至缓存，缓存有效期为 300 秒。
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action translate-deep -f ./fixtures/translate-deep/chinese_sample.md -l English`
+info: found action 'translate-deep' (4 steps), starting...
+progress: draft (small)... 50% (2/4)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.26s (~134 tokens)
+progress: translated (medium)... 75% (3/4)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 8.67s (~155 tokens)
+progress: clipboard (val)... 100% (4/4)
+info: completed in 13.26s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+The system uses a distributed cache to reduce database load. When a cache miss occurs, the application queries the
+database and populates the cache with a time-to-live (TTL) of 300 seconds.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action translate-deep -f ./fixtures/translate-deep/chinese_sample.md -l Russian`
+info: found action 'translate-deep' (4 steps), starting...
+progress: draft (small)... 50% (2/4)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.08s (~134 tokens)
+progress: translated (medium)... 75% (3/4)
+progress: [medium] node batch: 1/1 | deepseek-v4-pro | 9.94s (~162 tokens)
+progress: clipboard (val)... 100% (4/4)
+info: completed in 14.31s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Система использует распределённый кэш для снижения нагрузки на базу данных. Когда запрошенные данные отсутствуют в кэше,
+приложение обращается к базе данных и сохраняет их в кэш с временем жизни 300 секунд.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+--- Fixture: translate-large/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action translate-large -f ./fixtures/translate-large/english_sample.md -l Russian`
+info: found action 'translate-large' (3 steps), starting...
+progress: translated (large)... 67% (2/3)
+progress: [large] node batch: 1/1 | glm-5.2 | 1.85s (~136 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 4.50s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Система использует распределённый кэш для снижения нагрузки на базу данных. При промахе кэша приложение выполняет запрос
+к базе данных и заполняет кэш со временем жизни 300 секунд.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action translate-large -f ./fixtures/translate-large/english_sample.md -l Chinese`
+info: found action 'translate-large' (3 steps), starting...
+progress: translated (large)... 67% (2/3)
+progress: [large] node batch: 1/1 | glm-5.2 | 1.36s (~136 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 3.32s
+── success ────────────────────────────────────────────────────────────────────────────────────────────────
+系统使用分布式缓存来减轻数据库负载。当发生缓存未命中时，应用程序会查询数据库，并以300秒的生存时间填充缓存。
+───────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action translate-large -f ./fixtures/translate-large/russian_sample.md -l English`
+info: found action 'translate-large' (3 steps), starting...
+progress: translated (large)... 67% (2/3)
+progress: [large] node batch: 1/1 | glm-5.2 | 1.35s (~144 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 4.73s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+The system uses a distributed cache to reduce the load on the database. On a cache miss, the application queries the
+database and populates the cache with a time-to-live of 300 seconds.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action translate-large -f ./fixtures/translate-large/russian_sample.md -l Chinese`
+info: found action 'translate-large' (3 steps), starting...
+progress: translated (large)... 67% (2/3)
+progress: [large] node batch: 1/1 | glm-5.2 | 1.37s (~144 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 4.09s
+── success ────────────────────────────────────────────────────────────────────────────────────────────
+系统使用分布式缓存来减轻数据库的负载。当缓存未命中时，应用程序会访问数据库并以300秒的生存时间填充缓存。
+───────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action translate-large -f ./fixtures/translate-large/chinese_sample.md -l English`
+info: found action 'translate-large' (3 steps), starting...
+progress: translated (large)... 67% (2/3)
+progress: [large] node batch: 1/1 | glm-5.2 | 2.03s (~134 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 7.63s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+The system uses distributed caching to reduce database load. When a cache miss occurs, the application queries the
+database and populates the cache with a time-to-live of 300 seconds.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action translate-large -f ./fixtures/translate-large/chinese_sample.md -l Russian`
+info: found action 'translate-large' (3 steps), starting...
+progress: translated (large)... 67% (2/3)
+progress: [large] node batch: 1/1 | glm-5.2 | 1.47s (~134 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 3.65s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Система использует распределённый кэш для снижения нагрузки на базу данных. При промахе кэша приложение выполняет запрос
+к базе данных и заполняет кэш со временем жизни 300 секунд.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+--- Fixture: translate-small/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action translate-small -f ./fixtures/translate-small/english_sample.md -l Russian`
+info: found action 'translate-small' (3 steps), starting...
+progress: translated (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.25s (~135 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 3.47s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Система использует распределённый кэш для снижения нагрузки на базу данных. Когда происходит промах кэша, приложение
+запрашивает базу данных и заполняет кэш с временем жизни 300 секунд.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action translate-small -f ./fixtures/translate-small/english_sample.md -l Chinese`
+info: found action 'translate-small' (3 steps), starting...
+progress: translated (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.58s (~135 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 3.81s
+── success ──────────────────────────────────────────────────────────────────────────────────────────────
+系统使用分布式缓存来减少数据库负载。当发生缓存未命中时，应用程序查询数据库，并以300秒的生存时间填充缓存。
+─────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action translate-small -f ./fixtures/translate-small/russian_sample.md -l English`
+info: found action 'translate-small' (3 steps), starting...
+progress: translated (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 3.05s (~143 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 4.44s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+The system uses a distributed cache to reduce the load on the database. On a cache miss, the application accesses the
+database and populates the cache with a time-to-live of 300 seconds.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/vibe-action translate-small -f ./fixtures/translate-small/russian_sample.md -l Chinese`
+info: found action 'translate-small' (3 steps), starting...
+progress: translated (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.63s (~143 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 3.88s
+── success ────────────────────────────────────────────────────────────────────────────────────────────────
+系统使用分布式缓存来减轻数据库的负载。当缓存未命中时，应用程序会访问数据库并填充缓存，缓存的有效期为300秒。
+───────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action translate-small -f ./fixtures/translate-small/chinese_sample.md -l English`
+info: found action 'translate-small' (3 steps), starting...
+progress: translated (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 1.86s (~133 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 4.23s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+The system uses a distributed cache to reduce database load. When a cache miss occurs, the application queries the
+database and populates the cache with a time-to-live of 300 seconds.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action translate-small -f ./fixtures/translate-small/chinese_sample.md -l Russian`
+info: found action 'translate-small' (3 steps), starting...
+progress: translated (small)... 67% (2/3)
+progress: [small] node batch: 1/1 | deepseek-v4-flash | 2.17s (~133 tokens)
+progress: clipboard (val)... 100% (3/3)
+info: completed in 3.50s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Система использует распределённый кэш для снижения нагрузки на базу данных. При промахе кэша приложение запрашивает базу
+данных и заполняет кэш с временем жизни 300 секунд.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+--- Fixture: whois/ ---
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action whois -i ./fixtures/whois/photo_1.jpg`
+info: found action 'whois' (2 steps), starting...
+progress: identity (vision)... 50% (1/2)
+progress: [vision] node batch: 1/1 | qwen2.5vl:7b | 5.91s (~160 tokens, 92KB image)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 6.39s
+── success ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+The image depicts Bill Gates and Steve Jobs in formal attire against a scenic backdrop, likely from an early interview
+or promotional event for Microsoft and Apple.
+
+1. Bill Gates
+   Role: Co-founder of Microsoft, philanthropist
+   Impact: Founded Microsoft, revolutionized personal computing with Windows operating systems; co-founded the Bill &
+Melinda Gates Foundation to address global health issues.
+
+2. Steve Jobs
+   Role: Co-founder of Apple, designer of user-friendly technology
+   Impact: Led Apple's development of the Macintosh and iPod, popularizing the user interface concept in computing; his
+vision shaped modern tech industry trends.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running `target/debug/vibe-action whois -i ./fixtures/whois/photo_2.jpg`
+info: found action 'whois' (2 steps), starting...
+progress: identity (vision)... 50% (1/2)
+progress: [vision] node batch: 1/1 | qwen2.5vl:7b | 1.47s (~160 tokens, 49KB image)
+progress: clipboard (val)... 100% (2/2)
+info: completed in 1.95s
+── success ──────────────────────────────────────────────────────────────────────────────────────────────
+The image is a historical portrait of Nikola Tesla.
+
+1. Nikola Tesla
+   Role: inventor, electrical engineer
+   Impact: revolutionary contributions to alternating current (AC) power systems and wireless technology.
+─────────────────────────────────────────────────────────────────────────────────────────────────────────

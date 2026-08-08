@@ -3,12 +3,8 @@
 
 use clap::{Parser, Subcommand};
 
-use crate::{
-    cli::bench::BenchArgs, configs::app::AppConfig, output::output::OutputKind,
-    utils::run_guard::RunGuard,
-};
+use crate::{configs::app::AppConfig, output::output::OutputKind, utils::run_guard::RunGuard};
 
-mod bench;
 mod cli;
 mod configs;
 mod default;
@@ -33,8 +29,6 @@ struct App {
 enum Commands {
     /// Show system status
     Status,
-    /// Run benchmarks
-    Bench(BenchArgs),
     /// Remove all cache
     Clean,
     /// Stop all running processes
@@ -99,10 +93,6 @@ async fn main() {
             Some(Commands::Stop) => {
                 let _guard = acquire_run_guard();
                 print_text!(OutputKind::Info, "All running processes stopped");
-            }
-            Some(Commands::Bench(args)) => {
-                let _guard = acquire_run_guard();
-                cli::bench::execute(args).await
             }
             _ => utils::clap::print_custom_help(&app_builder, &config),
         },
