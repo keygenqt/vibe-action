@@ -20,7 +20,7 @@ actions:
     run: vision
     expect: string
     action: |
-      {image|load|text}
+      {image|clipboard:screenshot|load|text}
 
       [Task]
       Describe this screenshot in rich detail.

@@ -14,11 +14,15 @@ impl SystemProvider for SystemClipboardImageProvider {
     }
 
     fn resolve(&self) -> Result<ContextModel> {
-        let mut clipboard = arboard::Clipboard::new()
-            .map_err(|e| anyhow::anyhow!("Failed to access clipboard: {}", e))?;
-        let img = clipboard
-            .get_image()
-            .map_err(|_| anyhow::anyhow!("Clipboard does not contain an image."))?;
+        let mut clipboard = match arboard::Clipboard::new() {
+            Ok(cb) => cb,
+            Err(_) => return Ok(ContextModel::String(String::new())),
+        };
+
+        let img = match clipboard.get_image() {
+            Ok(img) => img,
+            Err(_) => return Ok(ContextModel::String(String::new())),
+        };
 
         let mut png_bytes = Vec::new();
         let encoder = PngEncoder::new(&mut png_bytes);

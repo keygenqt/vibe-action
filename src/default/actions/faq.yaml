@@ -129,36 +129,37 @@ actions:
             then: 'echo "No errors detected."'
 
       Built-in Modifiers Spacers & Transformers:
-        {{tag|ast}}         - Any   : parse source file to JSON AST, brief by default (auto-detects language)
-        {{tag|ast:brief}}   - Any   : parse source file, brief output (signatures only, no bodies)
-        {{tag|ast:full}}    - Any   : parse source file, full output with bodies and imports
-        {{tag|ast:lang}}    - String: parse source code with explicit language (rs, py, ts, js, ...)
-        {{tag|clipboard}}   - Any   : copy value to system clipboard (pass-through)
-        {{tag|contains:X}}  - Any   : check if sequence contains substring X (returns "true"/"false", supports :not)
-        {{tag|empty}}       - Any   : check if targeted value is empty (returns "true"/"false", supports :not)
-        {{tag|equals:X}}    - Any   : check if text strictly equals payload X (returns "true"/"false", supports :not)
-        {{tag|format:json}} - Any   : convert between json, json5, yaml, toml formats
-        {{tag|is_dir}}      - Any   : check if provided string path is an existing directory (returns "true"/"false", supports :not)
-        {{tag|is_file}}     - Any   : check if provided string path is an existing file (returns "true"/"false", supports :not)
-        {{tag|join}}        - Any   : join list elements with newline, string passes through unchanged
-        {{tag|join:X}}      - Any   : join list elements with custom separator X
-        {{tag|load}}        - Any   : fetch URL to temp file, resolve local path, or pass through base64
-        {{tag|lower}}       - Any   : transform text block to lowercase
-        {{tag|resolve}}     - Any   : expand relative path string boundaries to absolute (~, ., .. resolved)
-        {{tag|reverse}}     - Any   : reverse string sequence or list layout order
-        {{tag|scan}}        - Any   : scan directory and return list of file paths (via vibe-fs)
-        {{tag|size}}        - Any   : calculate character length of string or element count of list
-        {{tag|sort}}        - Any   : sort characters (string) or elements (list) ascending
-        {{tag|sort:asc}}    - Any   : sort ascending (default)
-        {{tag|sort:desc}}   - Any   : sort descending
-        {{tag|split}}       - Any   : split string into list by newline, list passes through unchanged
-        {{tag|split:X}}     - Any   : split string into list by custom separator X
-        {{tag|take:N}}      - Any   : extract first N characters (string) or elements (list)
-        {{tag|text}}        - Any   : extract plain text from HTML/PDF or convert image to base64
-        {{tag|trim}}        - Any   : strip surrounding whitespace, drop empty list elements
-        {{tag|trim:chars}}  - Any   : strip custom characters, drop list elements matching arg string
-        {{tag|uniq}}        - Any   : remove duplicate characters (string) or duplicate elements (list)
-        {{tag|upper}}       - Any   : transform text block to UPPERCASE
+        {{tag|ast}}                 - Any   : parse source file to JSON AST, brief by default (auto-detects language)
+        {{tag|ast:brief}}           - Any   : parse source file, brief output (signatures only, no bodies)
+        {{tag|ast:full}}            - Any   : parse source file, full output with bodies and imports
+        {{tag|ast:lang}}            - String: parse source code with explicit language (rs, py, ts, js, ...)
+        {{tag|clipboard}}           - Any   : copy value to system clipboard (pass-through)
+        {{tag|clipboard:screenshot}}- Any   : smart image fallback: get from clipboard, set value as image, or trigger interactive screen capture if empty
+        {{tag|contains:X}}          - Any   : check if sequence contains substring X (returns "true"/"false", supports :not)
+        {{tag|empty}}               - Any   : check if targeted value is empty (returns "true"/"false", supports :not)
+        {{tag|equals:X}}            - Any   : check if text strictly equals payload X (returns "true"/"false", supports :not)
+        {{tag|format:json}}         - Any   : convert between json, json5, yaml, toml formats
+        {{tag|is_dir}}              - Any   : check if provided string path is an existing directory (returns "true"/"false", supports :not)
+        {{tag|is_file}}             - Any   : check if provided string path is an existing file (returns "true"/"false", supports :not)
+        {{tag|join}}                - Any   : join list elements with newline, string passes through unchanged
+        {{tag|join:X}}              - Any   : join list elements with custom separator X
+        {{tag|load}}                - Any   : fetch URL to temp file, resolve local path, or pass through base64
+        {{tag|lower}}               - Any   : transform text block to lowercase
+        {{tag|resolve}}             - Any   : expand relative path string boundaries to absolute (~, ., .. resolved)
+        {{tag|reverse}}             - Any   : reverse string sequence or list layout order
+        {{tag|scan}}                - Any   : scan directory and return list of file paths (via vibe-fs)
+        {{tag|size}}                - Any   : calculate character length of string or element count of list
+        {{tag|sort}}                - Any   : sort characters (string) or elements (list) ascending
+        {{tag|sort:asc}}            - Any   : sort ascending (default)
+        {{tag|sort:desc}}           - Any   : sort descending
+        {{tag|split}}               - Any   : split string into list by newline, list passes through unchanged
+        {{tag|split:X}}             - Any   : split string into list by custom separator X
+        {{tag|take:N}}              - Any   : extract first N characters (string) or elements (list)
+        {{tag|text}}                - Any   : extract plain text from HTML/PDF or convert image to base64
+        {{tag|trim}}                - Any   : strip surrounding whitespace, drop empty list elements
+        {{tag|trim:chars}}          - Any   : strip custom characters, drop list elements matching arg string
+        {{tag|uniq}}                - Any   : remove duplicate characters (string) or duplicate elements (list)
+        {{tag|upper}}               - Any   : transform text block to UPPERCASE
 
       Special Spacing Escape Mnemonics inside Modifiers:
         \n     - Represents a real newline control byte (0x0A)
