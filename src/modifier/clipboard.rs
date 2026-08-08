@@ -1,21 +1,29 @@
 //! Clipboard modifier — copies value to the system clipboard.
 
-use anyhow::{Context, Result, bail};
+use anyhow::Context;
+use anyhow::Result;
+use anyhow::bail;
 use base64::Engine as _;
 use base64::engine::general_purpose::STANDARD as BASE64;
 use image::ImageEncoder;
 use image::codecs::png::PngEncoder;
 use std::borrow::Cow;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::path::PathBuf;
 use std::process::Command;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::Duration;
+use std::time::SystemTime;
+use std::time::UNIX_EPOCH;
 
-use super::modifier::{Modifier, ModifierKey};
+use super::modifier::Modifier;
+use super::modifier::ModifierKey;
 use crate::configs::app::AppConfig;
 use crate::models::context::ContextModel;
 use crate::output::format::FormatOutput;
-use crate::output::output::{OutputKind, OutputType};
-use crate::{print_text, utils};
+use crate::output::output::OutputKind;
+use crate::output::output::OutputType;
+use crate::print_text;
+use crate::utils;
 
 const ARG_SCREENSHOT: &str = "screenshot";
 

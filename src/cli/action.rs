@@ -7,8 +7,11 @@ use inquire::Confirm;
 use crate::configs::app::AppConfig;
 use crate::engine::engine::Engine;
 use crate::output::format::FormatOutput;
-use crate::output::output::{OutputKind, OutputType};
-use crate::{print_template, print_text, utils};
+use crate::output::output::OutputKind;
+use crate::output::output::OutputType;
+use crate::print_template;
+use crate::print_text;
+use crate::utils;
 
 /// Execute a dynamic action command.
 pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig) {

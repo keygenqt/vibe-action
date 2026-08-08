@@ -2,10 +2,11 @@ use std::collections::HashSet;
 
 use clap::Command;
 
-use crate::{
-    configs::app::AppConfig, default::default::default_flows, output::output::OutputKind,
-    print_template, utils::app,
-};
+use crate::configs::app::AppConfig;
+use crate::default::default::default_flows;
+use crate::output::output::OutputKind;
+use crate::print_template;
+use crate::utils::app;
 
 /// System commands displayed in a separate section.
 pub const SYSTEM_COMMANDS: &[&str] = &["clean", "status", "bench", "stop"];

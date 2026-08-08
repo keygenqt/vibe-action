@@ -1,6 +1,8 @@
 //! Tracing output — structured logs via tracing crate.
 
-use crate::output::{format::FormatOutput, msg::OutputMsg, output::OutputType};
+use crate::output::format::FormatOutput;
+use crate::output::msg::OutputMsg;
+use crate::output::output::OutputType;
 
 use super::output::Output;
 

@@ -4,8 +4,11 @@
 use crate::configs::app::AppConfig;
 use crate::default::default::default_flows;
 use crate::output::output::OutputKind;
-use crate::utils::app::{app_version, config_version};
-use crate::{print_template, print_text, utils};
+use crate::print_template;
+use crate::print_text;
+use crate::utils;
+use crate::utils::app::app_version;
+use crate::utils::app::config_version;
 
 /// Execute the `status` command.
 pub async fn execute() {

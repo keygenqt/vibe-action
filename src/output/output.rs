@@ -1,11 +1,14 @@
 //! Output trait, registry, and level enum.
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::output::{
-    cli::CliOutput, json::JsonOutput, msg::OutputMsg, plain::PlainOutput, test::TestOutput,
-    tracing::TracingOutput,
-};
+use crate::output::cli::CliOutput;
+use crate::output::json::JsonOutput;
+use crate::output::msg::OutputMsg;
+use crate::output::plain::PlainOutput;
+use crate::output::test::TestOutput;
+use crate::output::tracing::TracingOutput;
 
 /// Output type key.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

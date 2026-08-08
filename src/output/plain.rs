@@ -1,6 +1,8 @@
 //! Plain output — no ANSI, no formatting, just the message. For tests and CI.
 
-use crate::output::{format::FormatOutput, msg::OutputMsg, output::OutputType};
+use crate::output::format::FormatOutput;
+use crate::output::msg::OutputMsg;
+use crate::output::output::OutputType;
 
 use super::output::Output;
 

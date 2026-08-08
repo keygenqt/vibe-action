@@ -1,9 +1,12 @@
 //! Load modifier — handles transport logistics. Fetches URLs to temp files or resolves local paths.
-use super::modifier::{Modifier, ModifierKey};
+use super::modifier::Modifier;
+use super::modifier::ModifierKey;
 use crate::models::context::ContextModel;
 use crate::utils;
-use anyhow::{Result, anyhow};
-use std::path::{Path, PathBuf};
+use anyhow::Result;
+use anyhow::anyhow;
+use std::path::Path;
+use std::path::PathBuf;
 use tokio::runtime::Handle;
 use tokio::task::block_in_place;
 

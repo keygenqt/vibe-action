@@ -1,7 +1,10 @@
 //! Refresh command handler.
 //! Manages refreshing actions cache and resetting context.
 
-use crate::{output::output::OutputKind, print_template, print_text, utils};
+use crate::output::output::OutputKind;
+use crate::print_template;
+use crate::print_text;
+use crate::utils;
 
 /// Execute the `refresh` command.
 pub async fn execute() {

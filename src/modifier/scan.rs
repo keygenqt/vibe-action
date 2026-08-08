@@ -1,6 +1,7 @@
 //! Scan modifier — scan directory and return list of file paths via vibe-fs.
 
-use super::modifier::{Modifier, ModifierKey};
+use super::modifier::Modifier;
+use super::modifier::ModifierKey;
 use crate::models::context::ContextModel;
 use anyhow::Result;
 

@@ -1,9 +1,12 @@
 //! Vibe Action — YAML shell/llm pipeline runner.
 //! Execute shell commands and LLM prompts via simple YAML actions.
 
-use clap::{Parser, Subcommand};
+use clap::Parser;
+use clap::Subcommand;
 
-use crate::{configs::app::AppConfig, output::output::OutputKind, utils::run_guard::RunGuard};
+use crate::configs::app::AppConfig;
+use crate::output::output::OutputKind;
+use crate::utils::run_guard::RunGuard;
 
 mod cli;
 mod configs;

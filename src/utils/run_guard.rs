@@ -1,9 +1,14 @@
-use anyhow::{Result, anyhow};
+use anyhow::Result;
+use anyhow::anyhow;
 use fs2::FileExt;
-use std::fs::{self, File};
+use std::fs::File;
+use std::fs::{self};
 use std::path::PathBuf;
-use std::time::{Duration, Instant};
-use sysinfo::{Pid, ProcessesToUpdate, System};
+use std::time::Duration;
+use std::time::Instant;
+use sysinfo::Pid;
+use sysinfo::ProcessesToUpdate;
+use sysinfo::System;
 
 use crate::output::output::OutputKind;
 use crate::print_text;

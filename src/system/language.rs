@@ -1,7 +1,8 @@
 //! System provider for `{system_language}` — system language from LANG env.
 
 use crate::models::context::ContextModel;
-use crate::system::system::{SystemKey, SystemProvider};
+use crate::system::system::SystemKey;
+use crate::system::system::SystemProvider;
 use anyhow::Result;
 
 pub struct SystemLanguageProvider;

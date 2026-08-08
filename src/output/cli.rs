@@ -1,7 +1,8 @@
 //! CLI output with ANSI colors and progress bar.
 
 use crate::output::format::FormatOutput;
-use crate::output::{msg::OutputMsg, output::OutputType};
+use crate::output::msg::OutputMsg;
+use crate::output::output::OutputType;
 use unicode_width::UnicodeWidthStr;
 
 use super::output::Output;

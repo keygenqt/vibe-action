@@ -4,12 +4,15 @@ use colored::Colorize;
 use regex::Captures;
 use regex::Regex;
 use serde_json::Value;
+use std::collections::HashMap;
+use std::fmt::Write as _;
 use std::sync::LazyLock;
 use std::sync::OnceLock;
-use std::{collections::HashMap, fmt::Write as _};
+use syntect::easy::HighlightLines;
 use syntect::highlighting::Theme;
+use syntect::highlighting::ThemeSet;
 use syntect::parsing::SyntaxReference;
-use syntect::{easy::HighlightLines, highlighting::ThemeSet, parsing::SyntaxSet};
+use syntect::parsing::SyntaxSet;
 
 /// Loads syntax definitions for code highlighting.
 /// Maps language tokens to SyntaxSet entries.
@@ -20,10 +23,9 @@ static SYNTAX_SET: LazyLock<SyntaxSet> = LazyLock::new(two_face::syntax::extra_n
 static THEME: LazyLock<Theme> =
     LazyLock::new(|| ThemeSet::load_defaults().themes["base16-eighties.dark"].clone());
 
-use crate::output::{
-    msg::OutputMsg,
-    output::{OutputKind, OutputType},
-};
+use crate::output::msg::OutputMsg;
+use crate::output::output::OutputKind;
+use crate::output::output::OutputType;
 
 pub struct FormatOutput {
     output_type: OutputType,
