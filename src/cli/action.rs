@@ -73,6 +73,21 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             "tag" => action.tag
         );
 
+        // Evaluate step-level "when" condition
+        if !engine.check_when(action).unwrap_or_else(|e| {
+            print_text!(OutputKind::Error, "{}", e);
+            std::process::exit(1);
+        }) {
+            print_template!(
+                OutputKind::Progress,
+                "[{current}/{total}] Skipped: {tag} (condition false)",
+                "current" => (i + 1).to_string(),
+                "total" => total.to_string(),
+                "tag" => action.tag
+            );
+            continue;
+        }
+
         print_template!(
             OutputKind::Progress,
             "{tag} ({run})... {percent}% ({current}/{total})",

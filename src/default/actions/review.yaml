@@ -8,6 +8,11 @@ args:
     input: string
     default: '{system_clipboard}'
     help: The code block or function to review
+  - name: file
+    short: 'f'
+    input: string
+    default: ''
+    help: File or URL to review
 
 # IDE plugin integration: maps argument names to IDE contexts
 api:
@@ -18,6 +23,17 @@ api:
     query: selection
 
 actions:
+  # Read input from file or text argument
+  - tag: tag_content
+    run: cmd
+    expect: string
+    check: .+
+    action:
+      - when: '{file|empty}'
+        then: echo "{query}"
+      - when: '{file|empty:not}'
+        then: cat "{file|load}"
+
   # Analyze code for bugs and generate technical recommendations in the target language
   - tag: tag_review
     run: large
@@ -34,7 +50,7 @@ actions:
       - Language: {system_language}
 
       [Code to Review]
-      {query}
+      {tag_content}
 
   # Copy result to clipboard and output
   - tag: tag_clipboard

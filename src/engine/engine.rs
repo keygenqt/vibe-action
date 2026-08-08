@@ -104,6 +104,35 @@ impl Engine {
         Ok(value)
     }
 
+    /// Evaluate step-level `when` condition. Returns true if action should execute.
+    /// If false, sets an empty value in context and returns false.
+    pub fn check_when(&mut self, action: &ActionModel) -> Result<bool> {
+        let Some(condition) = &action.when else {
+            return Ok(true);
+        };
+
+        let check_template = format!("__case={};__dummy", condition);
+        let expanded = self
+            .ctx
+            .fill(&check_template, &action.run, &self.modifier)?;
+
+        let is_true = expanded
+            .items
+            .iter()
+            .any(|item| item.starts_with("__case=true;"));
+
+        if !is_true {
+            let empty_val = match &action.expect {
+                Some(ContextModel::List(_)) => ContextModel::List(vec![]),
+                _ => ContextModel::String(String::new()),
+            };
+            self.ctx.set(&action.tag, empty_val);
+            return Ok(false);
+        }
+
+        Ok(true)
+    }
+
     /// Execute action: fill tags, run shell/LLM, validate with regex, resolve types, store in context.
     pub async fn exec_action(&mut self, action: &ActionModel) -> Result<()> {
         let (outputs, is_list) = self.execute_action(action).await?;

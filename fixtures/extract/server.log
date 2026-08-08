@@ -1,0 +1,8 @@
+2023-10-25 08:00:01 INFO  Server started on port 8080
+2023-10-25 08:00:05 WARN  Cache size exceeds threshold
+2023-10-25 08:01:22 ERROR Failed to connect to database
+2023-10-25 08:02:10 INFO  User admin logged in
+2023-10-25 08:03:45 ERROR Timeout while processing request #123
+2023-10-25 08:04:00 WARN  Retry attempt 1 for request #123
+2023-10-25 08:05:00 INFO  Request #123 processed successfully
+2023-10-25 08:06:30 ERROR NullPointerException in module user_auth

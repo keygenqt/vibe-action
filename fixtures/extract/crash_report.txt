@@ -1,0 +1,9 @@
+Application: myapp.exe
+Version: 1.0.0
+Stack Trace:
+  at System.IO.File.ReadAllText(String path)
+  at MyApp.Services.ConfigLoader.Load(String path) in /src/Services/ConfigLoader.cs:line 42
+  at MyApp.Controllers.HomeController.Index() in /src/Controllers/HomeController.cs:line 15
+System.NullReferenceException: Object reference not set to an instance of an object.
+  at MyApp.Services.ConfigLoader.Load(String path) in /src/Services/ConfigLoader.cs:line 45
+  at MyApp.Program.Main(String[] args) in /src/Program.cs:line 10

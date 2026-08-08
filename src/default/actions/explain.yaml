@@ -8,6 +8,11 @@ args:
     input: string
     default: '{system_clipboard}'
     help: The code to explain
+  - name: file
+    short: 'f'
+    input: string
+    default: ''
+    help: File or URL to explain
 
 # IDE plugin integration: maps argument names to IDE contexts
 api:
@@ -18,6 +23,17 @@ api:
     query: selection
 
 actions:
+  # Read input from file or text argument
+  - tag: tag_content
+    run: cmd
+    expect: string
+    check: .+
+    action:
+      - when: '{file|empty}'
+        then: echo "{query}"
+      - when: '{file|empty:not}'
+        then: cat "{file|load}"
+
   # Add summary and detailed comments to the code
   - tag: tag_explanation
     run: medium
@@ -31,14 +47,14 @@ actions:
       5. Language for comments: {system_language}
 
       [Example]
-      ```rust
+      ```language
       // This is a comment
       // Explaining the code below
       let x = 5;
       ```
 
       [Code]
-      {query}
+      {tag_content}
 
   # Copy result to clipboard and output
   - tag: tag_clipboard

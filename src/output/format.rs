@@ -44,7 +44,11 @@ impl FormatOutput {
                 if msg.kind == OutputKind::Plain {
                     rendered
                 } else {
-                    Self::format_msg(&rendered).trim().to_string()
+                    if msg.kind != OutputKind::Success {
+                        Self::format_msg(&rendered).trim().to_string()
+                    } else {
+                        rendered
+                    }
                 }
             }
 

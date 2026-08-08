@@ -21,9 +21,10 @@ actions:
   - tag: tag_synonyms_list
     run: small
     expect: list
-    action: |-
+    action: |
       [Task]
       Give me 5 professional programming terms or alternatives for the concept below.
+      Each option must be a single word.
       Write each option strictly on a new line without numbering.
 
       [Concept]
@@ -33,4 +34,4 @@ actions:
   - tag: tag_synonyms
     run: value
     expect: string
-    action: '{tag_synonyms_list|join}'
+    action: '{tag_synonyms_list|lower|join}'

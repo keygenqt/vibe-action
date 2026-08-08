@@ -36,7 +36,7 @@ actions:
   - tag: tag_json
     run: value
     expect: string
-    action: '{tag_ast|format:json}'
+    action: '{tag_ast|trim|format:json}'
 
   # Save to file with timestamp
   - tag: tag_save

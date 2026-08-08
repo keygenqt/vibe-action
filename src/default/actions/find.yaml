@@ -59,4 +59,4 @@ actions:
   - tag: tag_find
     run: value
     expect: string
-    action: '{tag_filtered|uniq|join}'
+    action: '{tag_filtered|uniq|trim|join}'

@@ -56,6 +56,9 @@ pub struct ActionModel {
     /// Ask for confirmation before executing.
     #[serde(default)]
     pub confirm: bool,
+    /// @todo
+    #[serde(default)]
+    pub when: Option<String>,
     /// Action value: simple string or switch with when/then pairs.
     pub action: ActionValue,
 }

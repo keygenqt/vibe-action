@@ -332,13 +332,54 @@ impl Modifier for AstModifier {
                     match parse_file(s) {
                         Ok(mut nodes) => {
                             Self::clean(&mut nodes);
-                            Ok(ContextModel::String(serde_json::to_string(&nodes)?))
+
+                            // Convert to JSON Value to inspect and modify
+                            let mut json_value = serde_json::to_value(&nodes)?;
+
+                            // Check if the AST node is completely empty (e.g., {"rust": {}})
+                            let is_empty = match &json_value {
+                                serde_json::Value::Object(map) => map.values().all(|v| {
+                                    v.is_null()
+                                        || (v.is_object()
+                                            && v.as_object().map_or(false, |o| o.is_empty()))
+                                        || (v.is_array()
+                                            && v.as_array().map_or(false, |a| a.is_empty()))
+                                }),
+                                _ => false,
+                            };
+
+                            // If empty, return empty string to be filtered out later
+                            if is_empty {
+                                return Ok(ContextModel::String(String::new()));
+                            }
+
+                            // Add file path to the root of the JSON object
+                            if let serde_json::Value::Object(map) = &mut json_value {
+                                map.insert(
+                                    "path".to_string(),
+                                    serde_json::Value::String(s.clone()),
+                                );
+                            }
+
+                            Ok(ContextModel::String(serde_json::to_string(&json_value)?))
                         }
                         Err(_) => Ok(ContextModel::String(String::new())),
                     }
                 } else if arg == "full" {
                     match parse_file(s) {
-                        Ok(nodes) => Ok(ContextModel::String(serde_json::to_string(&nodes)?)),
+                        Ok(nodes) => {
+                            let mut json_value = serde_json::to_value(&nodes)?;
+
+                            // Add file path to the root of the JSON object
+                            if let serde_json::Value::Object(map) = &mut json_value {
+                                map.insert(
+                                    "path".to_string(),
+                                    serde_json::Value::String(s.clone()),
+                                );
+                            }
+
+                            Ok(ContextModel::String(serde_json::to_string(&json_value)?))
+                        }
                         Err(_) => Ok(ContextModel::String(String::new())),
                     }
                 } else {
@@ -348,15 +389,18 @@ impl Modifier for AstModifier {
                 }
             }
             ContextModel::List(files) => {
-                let results: Vec<String> = files
-                    .iter()
-                    .map(
-                        |path| match self.apply(&ContextModel::String(path.clone()), arg)? {
-                            ContextModel::String(json) => Ok(json),
-                            _ => unreachable!(),
-                        },
-                    )
-                    .collect::<Result<Vec<_>>>()?;
+                let mut results = Vec::new();
+                for path in files {
+                    // Apply AST modifier to each file path
+                    if let ContextModel::String(json) =
+                        self.apply(&ContextModel::String(path.clone()), arg)?
+                    {
+                        // Filter out empty results (from empty files or parse errors)
+                        if !json.is_empty() {
+                            results.push(json);
+                        }
+                    }
+                }
                 Ok(ContextModel::List(results))
             }
         }

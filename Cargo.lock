@@ -4626,6 +4626,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "two-face",
+ "unicode-width 0.2.2",
  "url",
  "vibe-ast",
  "vibe-cluster",

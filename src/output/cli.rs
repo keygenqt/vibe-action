@@ -1,10 +1,10 @@
 //! CLI output with ANSI colors and progress bar.
 
+use crate::output::format::FormatOutput;
 use crate::output::{msg::OutputMsg, output::OutputType};
+use unicode_width::UnicodeWidthStr;
 
 use super::output::Output;
-
-use crate::output::format::FormatOutput;
 
 pub struct CliOutput {
     formatter: FormatOutput,
@@ -83,11 +83,7 @@ impl Output for CliOutput {
 
         let (term_width, _) = termimad::terminal_size();
         let term_width = (term_width as usize).min(120);
-        let longest_line = raw_markdown
-            .lines()
-            .map(|l| l.chars().count())
-            .max()
-            .unwrap_or(0);
+        let longest_line = raw_markdown.lines().map(|l| l.width()).max().unwrap_or(0);
         let max_width = if longest_line <= term_width {
             longest_line.max(13)
         } else {

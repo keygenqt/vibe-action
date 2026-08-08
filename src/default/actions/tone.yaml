@@ -25,14 +25,15 @@ actions:
     action: |
       [Task]
       You receive a text that may contain rude or aggressive language.
-      Transform it into a professional, calm, and polite equivalent.
+      Transform it into a professional, calm, polite, and collaborative equivalent.
+      Focus on constructive feedback rather than demands.
       Keep the original meaning. Keep the same language.
       Output the transformed text.
 
       [Examples]
-      Input: You are an idiot, do it faster. -> Please focus and speed up the process.
-      Input: 你真笨，快点做！ -> 请集中精力，加快工作进度。
-      Input: Меня заебал этот код. -> Меня расстраивает этот код, нужно его улучшить.
+      Input: You are an idiot, do it faster. -> Could we please prioritize this and speed up the process?
+      Input: 你真笨，快点做！ -> 我们能不能集中精力，加快一下工作进度？
+      Input: Меня заебал этот код. -> Меня расстраивает этот код, давайте подумаем, как его улучшить.
 
       [Input]
       {query}

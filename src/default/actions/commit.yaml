@@ -7,6 +7,11 @@ args:
     input: string
     default: .
     help: 'Path to git repository (default: current directory)'
+  - name: dry_run
+    short: 'd'
+    input: bool
+    default: 'false'
+    help: 'Print commit message without committing'
 
 actions:
   # Get list of changed files
@@ -59,8 +64,19 @@ actions:
       {tag_file_summary|uniq|join}
 
   # Execute git commit (asks for confirmation)
-  - tag: tag_commit
+  - tag: tag_commit_exec
     run: cmd
     expect: string
     confirm: true
+    when: '{dry_run|contains:false}'
     action: cd {path} && git add . && git commit -m '{tag_commit_message|lower}'
+
+  # Evaluate dry_run flag: return message or call exec tag
+  - tag: tag_commit
+    run: value
+    expect: string
+    action:
+      - when: '{dry_run|contains:true}'
+        then: '{tag_commit_message|lower|clipboard}'
+      - when: '{dry_run|contains:false}'
+        then: '{tag_commit_exec}'

@@ -63,6 +63,7 @@ indexmap = { version = "2", features = ["serde"] }
 fs2 = "0.4.3"
 libc = "0.2"
 sysinfo = "0.38"
+unicode-width = "0.2.2"
 
 # Debug logging (--debug flag)
 tracing = "0.1"
