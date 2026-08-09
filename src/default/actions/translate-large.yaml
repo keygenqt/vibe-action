@@ -22,8 +22,8 @@ args:
 # IDE plugin integration: maps argument names to IDE contexts
 api:
   # Target for the final result (replace | clipboard | dialog)
-  output: replace
-  # Maps argument for JSON output (selection | clipboard)
+  output: dialog
+  # Maps argument for JSON output (selection | clipboard | dialog)
   args:
     text: selection
 

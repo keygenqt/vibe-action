@@ -26,28 +26,29 @@ pub async fn execute() {
         .filter_map(|f| f.name().ok())
         .collect();
 
-    let (actions, actions_custom) = config
+    let (total_actions, total_actions_api, custom_actions_api) = config
         .flows
         .as_ref()
         .map(|f| {
             let total = f.flows.len();
+            let total_api = f.flows.iter().filter(|fl| fl.api.is_some()).count();
             // Assuming the flow struct has a `name` field.
-            let custom = f
+            let custom_api = f
                 .flows
                 .iter()
-                .filter(|fl| !builtin_names.contains(&fl.name))
+                .filter(|fl| fl.api.is_some() && !builtin_names.contains(&fl.name))
                 .count();
-            (total, custom)
+            (total, total_api, custom_api)
         })
-        .unwrap_or((0, 0));
+        .unwrap_or((0, 0, 0));
 
     print_template!(
         ExportContext::Status,
         OutputKind::Info,
-        "actions - {actions|cyan}, version - {version|cyan}, config - {config|cyan}",
-        "actions" => actions + actions_custom,
-        "actions_default" => actions,
-        "actions_custom" => actions_custom,
+        "actions - {total_actions|cyan}, version - {version|cyan}, config - {config|cyan}",
+        "total_actions" => total_actions,
+        "total_actions_api" => total_actions_api,
+        "custom_actions_api" => custom_actions_api,
         "version" => format!("v{}", app_version()),
         "config" => format!("v{}", config_version()),
         "actions_path" => utils::path::actions_dir().display().to_string(),

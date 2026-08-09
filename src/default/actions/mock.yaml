@@ -12,6 +12,14 @@ args:
     default: json
     help: 'Output format: json, yaml, csv (default: json)'
 
+# IDE plugin integration: maps argument names to IDE contexts
+api:
+  # Target for the final result (replace | clipboard | dialog)
+  output: dialog
+  # Maps argument for JSON output (selection | clipboard | dialog)
+  args:
+    query: dialog
+
 actions:
   # LLM generates structured mock data in the requested format
   - tag: tag_mock

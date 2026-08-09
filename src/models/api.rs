@@ -14,6 +14,8 @@ pub enum ApiSource {
     Selection,
     /// Use the contents of the system clipboard.
     Clipboard,
+    /// Prompt the user for input via an IDE dialog.
+    Dialog,
 }
 
 /// Specifies the target where the IDE plugin should apply the action result.
