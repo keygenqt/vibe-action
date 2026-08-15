@@ -28,6 +28,8 @@ actions:
 
 ## With Arguments
 
+Arguments are used for settings and flags, not for the main data input.
+
 ```yaml
 name: greet
 about: Greet someone
@@ -62,11 +64,9 @@ actions:
 
 ## LLM Call
 
+Use the `{query}` tag to accept the main text input (from CLI argument or clipboard).
+
 ```yaml
-args:
-  - name: query
-    short: q
-    input: string
 actions:
   - tag: tag_answer
     run: small
@@ -78,57 +78,53 @@ actions:
 
 ## Vision Call
 
+Use `{query|image}` to accept an image (from file path, URL, or clipboard).
+
 ```yaml
-args:
-  - name: image
-    short: f
-    input: string
-    default: '{system_clipboard_image}'
+api:
+  input: query|image
 actions:
   - tag: tag_description
     run: vision
     expect: string
     action: |
-      {image|load|text}
+      {query|image|load|text}
 
       Describe this image in detail.
 ```
 
 ## Fetch Web or PDF
 
+Use `{query|load|text}` to fetch content from a URL or read a local file.
+
 ```yaml
-args:
-  - name: source
-    short: s
-    input: string
 actions:
   - tag: tag_description
     run: small
     expect: string
     action: |
       Summarize this document:
-      {source|load|text}
+      {query|load|text}
 ```
 
 ## Scan Codebase
 
+Use `{query|project_path}` to automatically determine the project root.
+
 ```yaml
 name: my-scan
 about: Scan project codebase as JSON
-args:
-  - name: path
-    short: p
-    input: string
-    default: .
+api:
+  input: query|project_path
 actions:
   - tag: tag_validate
     run: cmd
     expect: string
     action:
-      - when: '{path|is_dir}'
-        then: echo "{path}"
-      - when: '{path|is_dir:not}'
-        then: echo "'{path}' is not a directory" && exit 1
+      - when: '{query|project_path|is_dir}'
+        then: echo "{query|project_path}"
+      - when: '{query|project_path|is_dir:not}'
+        then: echo "'{query|project_path}' is not a directory" && exit 1
   - tag: tag_resolve
     run: value
     expect: string
@@ -152,18 +148,12 @@ name: upper
 about: Convert text to UPPERCASE
 api:
   output: replace # replace | clipboard | dialog
-  args:
-    text: selection # automatically pass selected text to 'text' arg
-args:
-  - name: text
-    short: t
-    input: string
-    default: '{system_clipboard}'
+  input: query # query | query|file_path | query|prompt | etc.
 actions:
   - tag: tag_upper
     run: value
     expect: string
-    action: '{text|upper}'
+    action: '{query|upper}'
 ```
 
 ## Clipboard
@@ -203,7 +193,7 @@ actions:
   - tag: tag_content
     run: cmd
     expect: string
-    action: cat {file}
+    action: cat {query|file_path}
 
   - tag: tag_summary
     run: small
@@ -220,6 +210,6 @@ actions:
 - **Validation:** add `check: ".+"` to ensure non-empty output
 - **Debugging:** set `VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug` to see each step's input and output
 - **Clipboard:** use `{tag|clipboard}` to copy any value to clipboard mid-pipeline
-- **Images:** use `{image|load|text}` for vision flows — works with files, URLs, and clipboard
+- **Images:** use `{query|image}` for vision flows — works with files, URLs, and clipboard
 - **System tags:** see [System Tags](./system-tags.md) for all available environment variables
 - **Notifications:** add `notify: true` to show desktop notification on completion

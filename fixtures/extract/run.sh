@@ -3,8 +3,8 @@
 # Set root dir
 cd "$( dirname -- "${BASH_SOURCE[0]}"; )/../../";
 
-cargo run -- extract -f './fixtures/extract/server.log' -q 'extract all ERROR lines'
-cargo run -- extract -f './fixtures/extract/transactions.csv' -q 'extract all failed transactions'
-cargo run -- extract -f './fixtures/extract/config.env' -q 'extract all database connection settings'
-cargo run -- extract -f './fixtures/extract/crash_report.txt' -q 'find lines containing NullReferenceException'
-cargo run -- extract -f './fixtures/extract/server.log' -q 'find all CRITICAL errors'
+cargo run -- extract 'extract all ERROR lines' -f './fixtures/extract/server.log'
+cargo run -- extract 'extract all failed transactions' -f './fixtures/extract/transactions.csv'
+cargo run -- extract 'extract all database connection settings' -f './fixtures/extract/config.env'
+cargo run -- extract 'find lines containing NullReferenceException' -f './fixtures/extract/crash_report.txt'
+cargo run -- extract 'find all CRITICAL errors' -f './fixtures/extract/server.log'

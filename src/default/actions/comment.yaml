@@ -2,37 +2,26 @@ name: comment
 about: Replace TODO with a meaningful comment
 notify: true
 
-args:
-  - name: text
-    short: 'q'
-    input: string
-    default: '{system_clipboard}'
-    help: The line to comment
-  - name: file
-    short: 'f'
-    input: string
-    default: ''
-    help: File or URL to comment
-
 # IDE plugin integration: maps argument names to IDE contexts
 api:
   # Target for the final result (replace | clipboard | dialog)
   output: replace
-  # Maps argument for JSON output (selection | clipboard | dialog)
-  args:
-    text: selection
+  # Source for the {query} tag (query | query|file_path | query|prompt | etc)
+  input: query
 
 actions:
-  # Read input from file or text argument
+  # Read input from query (prioritize file path if valid, otherwise use raw text)
   - tag: tag_content
     run: cmd
     expect: string
     check: .+
     action:
-      - when: '{file|empty}'
-        then: echo "{text}"
-      - when: '{file|empty:not}'
-        then: cat "{file|load}"
+      - when: '{query|file_path|empty:not}'
+        then: cat "{query|file_path|load}"
+      - when: '{query|empty:not}'
+        then: echo "{query}"
+      - when: 'true'
+        then: echo "ERROR - No input provided"
 
   # Replace TODO placeholders with intelligent technical comments
   - tag: tag_comment

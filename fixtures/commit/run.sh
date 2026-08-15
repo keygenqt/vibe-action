@@ -18,7 +18,7 @@ if [ -d "$FIXTURE_DIR/dot-git" ]; then
     mv "$FIXTURE_DIR/dot-git" "$FIXTURE_DIR/.git"
 fi
 
-# Run the commit action in dry-run mode using -d flag
-cargo run -- commit -p "$FIXTURE_DIR" -d
+# Run the commit action in dry-run mode, passing project path as query
+cargo run -- commit "$FIXTURE_DIR" -d
 
 # Cleanup trap will rename .git back to dot-git automatically

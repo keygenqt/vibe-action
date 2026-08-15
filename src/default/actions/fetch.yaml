@@ -2,20 +2,12 @@ name: fetch
 about: Fetch a web page or PDF and describe its content
 notify: true
 
-args:
-  - name: source
-    short: s
-    input: string
-    default: '{system_clipboard}'
-    help: Path or URL of the page to fetch
-
 # IDE plugin integration: maps argument names to IDE contexts
 api:
   # Target for the final result (replace | clipboard | dialog)
   output: dialog
-  # Maps argument for JSON output (selection | clipboard | dialog)
-  args:
-    source: dialog
+  # Source for the {query} tag
+  input: query|prompt
 
 actions:
   - tag: tag_description
@@ -32,7 +24,7 @@ actions:
       4. Language: {system_language}
 
       [Content]
-      {source|load|text}
+      {query|load|text}
 
   # Copy result to clipboard and output
   - tag: tag_clipboard

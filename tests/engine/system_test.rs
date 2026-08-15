@@ -80,10 +80,3 @@ fn test_system_language() {
     assert!(stdout.len() >= 2); // at least "en"
     assert!(!stdout.contains("C")); // C locale resolved to "en"
 }
-
-#[test]
-fn test_system_clipboard() {
-    let output = app_test_engine("system-clipboard");
-    assert!(output.status.success());
-    // clipboard may be empty — just check no error
-}

@@ -1,22 +1,9 @@
-//! Action argument model.
-//! Defines CLI arguments for YAML actions.
-
-use std::collections::HashMap;
+//! IDE plugin integration metadata.
+//! Defines the input source for the query and the output target for the result.
+//! This metadata is ignored by the CLI runtime and is intended solely for IDE plugins.
 
 use serde::Deserialize;
 use serde::Serialize;
-
-/// Specifies the source from which the IDE plugin should retrieve the argument value.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum ApiSource {
-    /// Use the currently selected text in the editor.
-    Selection,
-    /// Use the contents of the system clipboard.
-    Clipboard,
-    /// Prompt the user for input via an IDE dialog.
-    Dialog,
-}
 
 /// Specifies the target where the IDE plugin should apply the action result.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -36,15 +23,31 @@ impl Default for ApiTarget {
     }
 }
 
+/// Specifies the input source for the IDE plugin.
+/// Represents the {query} tag and its modifier (e.g., query|file_path).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ApiInput(String);
+
+impl Default for ApiInput {
+    fn default() -> Self {
+        ApiInput("query".to_string())
+    }
+}
+
+impl ApiInput {
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
 /// IDE plugin integration metadata.
-/// Maps CLI argument names to a specific source (e.g., editor selection or clipboard)
-/// and defines where to route the final output.
-/// This metadata is ignored by the CLI runtime and is intended solely for IDE plugins.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct FlowApiModel {
-    /// Map of argument names to their IDE source.
+    /// Defines the input source for the {query} tag.
+    /// Defaults to "query" (editor selection).
     #[serde(default)]
-    pub args: HashMap<String, ApiSource>,
+    pub input: ApiInput,
 
     /// Defines where the IDE plugin should apply the final result.
     #[serde(default)]

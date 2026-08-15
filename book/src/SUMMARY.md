@@ -11,6 +11,7 @@
 # YAML Actions
 
 - [Action Structure](./docs/action-structure.md)
+- [Query Tag](./docs/query-tag.md)
 - [Tag System](./docs/tag-system.md)
 - [Modifiers](./docs/modifiers.md)
 - [System Tags](./docs/system-tags.md)

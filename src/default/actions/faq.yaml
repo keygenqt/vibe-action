@@ -3,20 +3,12 @@ about: Ask a question about Vibe Action — YAML structure, fields, modifiers, o
 clipboard: false
 notify: false
 
-args:
-  - name: query
-    short: 'q'
-    input: string
-    default: '{system_clipboard}'
-    help: Your question about Vibe Action
-
 # IDE plugin integration: maps argument names to IDE contexts
 api:
   # Target for the final result (replace | clipboard | dialog)
   output: dialog
-  # Maps argument for JSON output (selection | clipboard | dialog)
-  args:
-    query: dialog
+  # Source for the {query} tag
+  input: query|prompt
 
 actions:
   - tag: tag_faq
@@ -50,13 +42,27 @@ actions:
         translate-small - Translate text or files to another language
         whois           - Identify a person from a screenshot
 
-      IDE Plugin Exclusions (CLI-Only Context):
-        Certain actions are excluded from the IDE plugin by design because they operate outside the inline code-editing context:
-        - Project & Filesystem Scope (`scan`, `find`): Operate on entire directories, returning large lists or exporting JSON files. Best suited for terminal workflows.
-        - Shell & Git Execution (`commit`): Requires direct shell-level Git execution and repository history traversal.
-        - Log Parsing (`extract`): Optimized for reading raw log files line-by-line via command line.
-        - System & Diagnostics (`sysinfo`, `faq`): Provide terminal environment reports and self-documentation.
-        - Non-Code Media (`whois`, `describe`): Focus on image/screenshot analysis, falling outside standard text-editing workflows.
+      Unified Input Tag ({{query}}):
+        The {{query}} tag is the unified entry point for data in any pipeline.
+        In CLI, it reads from a positional argument or falls back to the system clipboard.
+        In IDE, the plugin provides the context based on the `api.input` configuration.
+
+        Available query types (used as {{query|type}}):
+          {{query}} or {{query|raw}}  - Raw text input (default behavior)
+          {{query|file_path}}       - Validated local file path
+          {{query|project_path}}    - Project root path (searches for .git or markers upwards)
+          {{query|line}}            - First line of the input text
+          {{query|prompt}}          - Interactive prompt (terminal input in CLI, dialog in IDE)
+          {{query|image}}           - Image as base64 PNG (from clipboard or file path)
+
+      IDE Plugin Integration (api block):
+        Defines how IDE plugins interact with the action.
+        - output: Target for the final result (replace | clipboard | dialog)
+        - input: Source to fill the {{query}} tag (e.g., query, query|file_path, query|prompt)
+        Example:
+          api:
+            output: replace
+            input: query
 
       System Commands:
         clean          - Remove all cache
@@ -66,8 +72,6 @@ actions:
 
       Built-in System Context Tags (Runtime Environment Variables):
         {{system_arch}}            - CPU architecture (e.g., aarch64, x86_64)
-        {{system_clipboard}}       - Current system clipboard raw text content
-        {{system_clipboard_image}} - Current clipboard image as base64-encoded PNG
         {{system_date}}            - Current local system date formatted as ISO 8601 (YYYY-MM-DD)
         {{system_dir_download}}    - Absolute path to the user's downloads directory
         {{system_dir_home}}        - Absolute path to the user's home directory
@@ -80,10 +84,6 @@ actions:
         {{system_shell}}           - Current shell (e.g., zsh, bash, fish)
         {{system_time}}            - Current local system time formatted as HH:MM:SS
         {{system_user}}            - Current operating system user name
-
-      System Tag Usage Example:
-        - To write a flow analyzing the clipboard context natively, declare your step like:
-          action: "Analyze this git diff payload: {{system_clipboard}}"
 
       Top-Level Manifest Fields:
         name      - Action name (CLI subcommand name, required)
@@ -208,4 +208,4 @@ actions:
       1. Answer STRICTLY in the same language as the [Query]. NO mixed languages.
 
       [Query]
-      {query}
+      {query|prompt}

@@ -9,7 +9,8 @@ Vibe Action is a command router that executes shell commands and LLM prompts via
 - 🔧 **Modifiers** — 20+ inline value transformations with arguments
 - 🔀 **When/Then** — conditional execution in YAML without shell scripts
 - 🌳 **AST parsing** — `{tag|ast}` auto-detects language from file, `{tag|ast:rs}` for explicit
-- 🖥️ **System tags** — 15 built-in tags: `{system_clipboard}`, `{system_dir_pwd}`, `{system_os}` and more
+- 🖥️ **System tags** — 13 built-in tags: `{system_dir_pwd}`, `{system_os}`, `{system_user}` and more
+- 📥 **Unified Input** — `{query}` tag seamlessly handles text, files, images, and interactive prompts from CLI or IDE
 - 👁️ **Vision support** — screenshot description, person identification, image from URL or clipboard
 - 🌐 **Fetch** — load and summarize web pages, PDFs, images via `load` and `text` modifiers
 - 📦 **Scan** — scan codebase and export AST as structured JSON
@@ -40,10 +41,9 @@ args:
     short: f
     input: string
     help: Path to the log or text file
-  - name: query
-    short: q
-    input: string
-    help: Extraction criteria (e.g., 'find all errors')
+api:
+  output: replace
+  input: query|prompt
 actions:
   - tag: tag_lines
     run: cmd
@@ -59,7 +59,7 @@ actions:
       Do NOT skip lines. Process every line.
 
       [Query]
-      {query}
+      {query|prompt}
 
       [Line]
       {tag_lines}

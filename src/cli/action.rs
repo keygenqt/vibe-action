@@ -6,6 +6,7 @@ use inquire::Confirm;
 
 use crate::configs::app::AppConfig;
 use crate::engine::engine::Engine;
+use crate::models::context::ContextModel;
 use crate::output::format::FormatOutput;
 use crate::output::output::OutputKind;
 use crate::output::output::OutputType;
@@ -18,7 +19,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
     let is_output_cli = AppConfig::output().output_type() == OutputType::Cli;
     let start_time = std::time::Instant::now();
 
-    let flow = config
+    let mut flow = config
         .find_flow(name)
         .unwrap_or_else(|e| {
             print_text!(OutputKind::Error, "{}", e);
@@ -34,6 +35,30 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             print_text!(OutputKind::Error, "{}", e);
             std::process::exit(1);
         });
+
+    // If flow uses {query|prompt} and no query was provided via CLI args, ask for input
+    if is_output_cli && flow.needs_prompt() {
+        let is_query_empty = match flow.input_tags.get("query") {
+            Some(ContextModel::String(s)) if !s.is_empty() => false,
+            _ => true,
+        };
+
+        if is_query_empty {
+            let ans = inquire::Text::new("Query").prompt();
+            match ans {
+                Ok(text) => {
+                    flow.input_tags
+                        .insert("query".to_string(), ContextModel::String(text));
+                }
+                Err(_) => return,
+            }
+        }
+    }
+
+    let flow = flow.apply_query_tags().unwrap_or_else(|e| {
+        print_text!(OutputKind::Error, "{}", e);
+        std::process::exit(1);
+    });
 
     let mut engine = Engine::new(&config.action.system, config.action.retries, &flow)
         .unwrap_or_else(|e| {

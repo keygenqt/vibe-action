@@ -2,17 +2,12 @@ name: describe
 about: Describe a screenshot from clipboard for text-only LLMs (Cmd+Shift+Ctrl+4, Ctrl+Print)
 notify: true
 
-args:
-  - name: image
-    short: 'i'
-    input: string
-    default: '{system_clipboard_image}'
-    help: Path or URL to screenshot (or use clipboard)
-
 # IDE plugin integration: maps argument names to IDE contexts
 api:
   # Target for the final result (replace | clipboard | dialog)
   output: dialog
+  # Source for the {query} tag
+  input: query|image
 
 actions:
   # Extract raw visual description from the screenshot
@@ -20,7 +15,7 @@ actions:
     run: vision
     expect: string
     action: |
-      {image|clipboard:screenshot|load|text}
+      {query|image|load|clipboard:screenshot|text}
 
       [Task]
       Describe this screenshot in rich detail.

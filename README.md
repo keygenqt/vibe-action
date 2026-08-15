@@ -8,7 +8,8 @@ Command router for shell and LLM tasks via YAML pipelines.
 - 🔗 **Tag system** — auto-dependency graph via `{tag}`
 - 🔧 **Modifiers** — 20+ inline value transformations
 - 🔀 **When/Then** — conditional execution in YAML
-- 🖥️ **System tags** — `{system_clipboard}`, `{system_os}` and more
+- 📥 **Unified Input** — `{query}` tag seamlessly handles text, files, images, and interactive prompts from CLI or IDE
+- 🖥️ **System tags** — `{system_os}`, `{system_user}`, `{system_dir_pwd}` and more
 - 👁️ **Vision** — screenshot description, person identification
 - 🌐 **Fetch** — load and summarize web pages, PDFs, images
 - 🤖 **Batch LLM** — role-based routing (tiny, small, medium, large, vision)
@@ -24,8 +25,8 @@ Command router for shell and LLM tasks via YAML pipelines.
 cargo install vibe-action
 
 vibe-action
-vibe-action faq -q "какие команды есть и зачем?"
-vibe-action faq -q "как использовать модификаторы?"
+vibe-action faq "какие команды есть и зачем?"
+vibe-action faq "как использовать модификаторы?"
 ```
 
 [IDE Integration](https://vibe-action.keygenqt.com/docs/vibe-action-cross.html)

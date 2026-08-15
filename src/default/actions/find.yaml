@@ -6,12 +6,12 @@ args:
   - name: path
     short: 'p'
     input: string
-    default: .
+    default: '.'
     help: 'Directory to search in (default: current)'
-  - name: query
-    short: 'q'
-    input: string
-    help: What to find — describe in natural language
+
+api:
+  output: replace
+  input: query|prompt
 
 actions:
   # Collect all text files in the directory
@@ -32,7 +32,7 @@ actions:
       If NO — print ONLY: <->
 
       [Query]
-      {query}
+      {query|prompt}
 
       [Content]
       EOF

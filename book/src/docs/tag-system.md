@@ -2,6 +2,22 @@
 
 Tags connect pipeline steps. When you write `{tag_name}` in an action, the engine replaces it with the output of the step that has `tag: tag_name`.
 
+## The `{query}` Tag
+
+There is one special, built-in tag: `{query}`. It does not require a corresponding `tag: query` step in your pipeline. Instead, the engine automatically resolves it from user input (CLI argument, clipboard, or IDE context).
+
+```yaml
+actions:
+  - tag: tag_translate
+    run: small
+    expect: string
+    action: |
+      Translate to Russian:
+      {query}
+```
+
+You can also use modifiers with `{query}`, such as `{query|file_path}` to validate it as a file path, or `{query|image}` to read an image. See [Query Tag](./query-tag.md) for details.
+
 ## Basic Example
 
 ```yaml
@@ -115,3 +131,66 @@ Error: Circular dependency detected involving tag: 'tag_a'
 ## Invalid Modifiers
 
 Using a pipe `|` without specifying a modifier name (e.g., `{tag|}`) will cause a fatal validation error, and the pipeline will halt immediately. Always ensure modifiers are properly named (e.g., `{tag|upper}`) or remove the pipe.
+
+````
+
+Осталось написать файл `query-tag.md` (который мы добавили в `SUMMARY.md`). Давай я набросаю его содержание, чтобы закрыть вопрос с документацией?
+
+```markdown
+# Query Tag
+
+The `{query}` tag is the unified entry point for data in any pipeline. It replaces the need for explicit `--text` or `--file` arguments and works seamlessly across CLI and IDE environments.
+
+## How It Works
+
+The engine automatically scans your pipeline for the `{query}` tag. If found, it enables input reading.
+- **CLI**: Reads from a positional argument (`vibe-action my-action "text"`). If not provided, it falls back to the system clipboard.
+- **IDE**: The plugin provides the context based on the `api.input` setting (e.g., editor selection, file path).
+
+## Query Types (Modifiers)
+
+You can specify the type of input using the pipe syntax: `{query|type}`.
+
+| Tag                    | CLI Behavior (Clipboard/Arg)                          | IDE Behavior (Plugin)               |
+| ---------------------- | ----------------------------------------------------- | ----------------------------------- |
+| `{query}` or `{query\|raw}` | Raw text from argument or clipboard                   | Editor selection text               |
+| `{query\|file_path}`       | Validates text as a local file path                   | Path to the current file            |
+| `{query\|project_path}`    | Searches for project root (`.git`, `Cargo.toml`, etc) | Project root path                   |
+| `{query\|line}`            | First line of the text                                | Cursor line number                  |
+| `{query\|prompt}`          | Interactive prompt in terminal                        | IDE input dialog                    |
+| `{query\|image}`           | Image from clipboard or file path (base64 PNG)        | Screenshot or selected image        |
+
+## Usage Example
+
+```yaml
+name: my-action
+api:
+  output: replace
+  input: query  # Tell IDE to pass selection to {query}
+
+actions:
+  - tag: tag_content
+    run: cmd
+    expect: string
+    check: .+
+    action:
+      # If input is a valid file path, read it. Otherwise, treat as text.
+      - when: '{query|file_path|empty:not}'
+        then: cat "{query|file_path|load}"
+      - when: '{query|empty:not}'
+        then: echo "{query}"
+      - when: 'true'
+        then: echo "ERROR: No input provided"
+````
+
+## IDE Integration (`api.input`)
+
+To control how the IDE plugin fills the `{query}` tag, use the `api` block:
+
+```yaml
+api:
+  output: replace # replace | clipboard | dialog
+  input: query|file_path # query | query|file_path | query|prompt | etc.
+```
+
+If `input` is omitted, it defaults to `query` (editor selection).

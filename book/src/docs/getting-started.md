@@ -79,23 +79,23 @@ cluster:
 
 ```bash
 # AI-powered commit
-vibe-action commit -p .
+vibe-action commit
 
 # Translate a file
-vibe-action translate-small -f README.md
-vibe-action translate-large -f README.md
+vibe-action translate-small README.md
+vibe-action translate-large README.md
 
 # Rewrite tone from clipboard
 vibe-action tone
 
 # Extract errors from logs
-vibe-action extract -f app.log -q "find all errors"
+vibe-action extract -f app.log "find all errors"
 
 # Describe a screenshot
-vibe-action describe -f screenshot.png
+vibe-action describe screenshot.png
 
 # Fetch and summarize a web page
-vibe-action fetch -s https://example.com
+vibe-action fetch https://example.com
 
 # System report
 vibe-action sysinfo
@@ -104,7 +104,7 @@ vibe-action sysinfo
 vibe-action scan
 
 # Ask about Vibe Action itself
-vibe-action faq -q "как использовать модификаторы?"
+vibe-action faq "как использовать модификаторы?"
 
 # Check version and status
 vibe-action status
@@ -128,7 +128,7 @@ vibe-action --help
 Set `VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug` to see what's happening under the hood:
 
 ```bash
-VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug vibe-action commit -p .
+VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug vibe-action commit
 ```
 
 Shows each pipeline step: original command, resolved template, and result.
@@ -136,6 +136,7 @@ Shows each pipeline step: original command, resolved template, and result.
 ## Next Steps
 
 - [Action Structure](./action-structure.md) — learn the YAML format
+- [Query Tag](./docs/query-tag.md) — unified input for CLI and IDE
 - [Built-in Actions](./built-in-actions.md) — explore what's included
 - [Custom Actions](./custom-actions.md) — write your own
 - [Tag System](./tag-system.md) — understand {tag} references

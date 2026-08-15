@@ -16,6 +16,8 @@ use crate::models::api::FlowApiModel;
 use crate::models::arg::ArgActionModel;
 use crate::models::arg::ArgInput;
 use crate::models::context::ContextModel;
+use crate::query::query::QueryKey;
+use crate::query::query::QueryRegistry;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemRegistry;
 use crate::utils;
@@ -124,6 +126,11 @@ impl FlowModel {
                 }
             }
         }
+        // Extract query positional argument if present
+        if let Ok(Some(value)) = matches.try_get_one::<String>("query") {
+            self.input_tags
+                .insert("query".to_string(), ContextModel::String(value.clone()));
+        }
         Ok(self)
     }
 
@@ -143,6 +150,51 @@ impl FlowModel {
             .get(tag)
             .cloned()
             .unwrap_or_else(|| ContextModel::String(default.to_string()))
+    }
+
+    /// Resolve {query} and {query|type} tags and store them in state.
+    pub fn apply_query_tags(mut self) -> Result<Self> {
+        let raw_query = self.input_tags.get("query").and_then(|v| {
+            if let ContextModel::String(s) = v {
+                Some(s.clone())
+            } else {
+                None
+            }
+        });
+
+        let registry = QueryRegistry::new(raw_query);
+        let mut needed_types = HashSet::new();
+
+        for action in &self.actions {
+            for text in action.actions() {
+                for mat in TagIterator::new(text) {
+                    if mat.base_tag == "query" {
+                        if let Some(first_mod) = mat.modifiers.first() {
+                            if QueryKey::from_str(&first_mod.name).is_some() {
+                                needed_types.insert(first_mod.name.clone());
+                            }
+                        } else {
+                            needed_types.insert("raw".to_string());
+                        }
+                    }
+                }
+            }
+        }
+
+        for type_name in needed_types {
+            if let Some(key) = QueryKey::from_str(&type_name) {
+                if let Ok(value) = registry.resolve(key) {
+                    let context_key = if type_name == "raw" {
+                        "query".to_string()
+                    } else {
+                        format!("query_{}", type_name)
+                    };
+                    self.input_tags.insert(context_key, value);
+                }
+            }
+        }
+
+        Ok(self)
     }
 
     /// Add system tags to input arguments.
@@ -167,5 +219,44 @@ impl FlowModel {
             }
         }
         Ok(self)
+    }
+
+    /// Check if the flow uses the {query} tag in any of its actions.
+    pub fn uses_query(&self) -> bool {
+        use crate::engine::parser::TagIterator;
+        use crate::models::action::ActionValue;
+
+        self.actions.iter().any(|action| {
+            let check_text = |text: &str| TagIterator::new(text).any(|mat| mat.base_tag == "query");
+
+            match &action.action {
+                ActionValue::Simple(s) => check_text(s),
+                ActionValue::Switch(cases) => cases
+                    .iter()
+                    .any(|case| check_text(&case.when) || check_text(&case.then)),
+            }
+        })
+    }
+
+    /// Check if the flow uses the {query|prompt} tag in any of its actions.
+    pub fn needs_prompt(&self) -> bool {
+        use crate::engine::parser::TagIterator;
+        use crate::models::action::ActionValue;
+
+        self.actions.iter().any(|action| {
+            let check_text = |text: &str| {
+                TagIterator::new(text).any(|mat| {
+                    mat.base_tag == "query"
+                        && mat.modifiers.first().map_or(false, |m| m.name == "prompt")
+                })
+            };
+
+            match &action.action {
+                ActionValue::Simple(s) => check_text(s),
+                ActionValue::Switch(cases) => cases
+                    .iter()
+                    .any(|case| check_text(&case.when) || check_text(&case.then)),
+            }
+        })
     }
 }

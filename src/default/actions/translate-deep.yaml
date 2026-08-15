@@ -3,33 +3,29 @@ about: Deep two-stage translation using local drafting and cloud polishing
 notify: true
 
 args:
-  - name: text
-    short: 't'
-    input: string
-    default: '{system_clipboard}'
-    help: Text to translate
-  - name: file
-    short: 'f'
-    input: string
-    default: ''
-    help: File or URL to translate
   - name: to
-    short: 'l'
+    short: l
     input: string
     default: 'Russian'
     help: Target language (e.g., Russian, English, Chinese)
 
+api:
+  output: clipboard
+  input: query
+
 actions:
-  # Read input from file or text argument
+  # Read input from query (prioritize file path if valid, otherwise use raw text)
   - tag: tag_content
     run: cmd
     expect: string
     check: .+
     action:
-      - when: '{file|empty}'
-        then: echo "{text}"
-      - when: '{file|empty:not}'
-        then: cat "{file|load}"
+      - when: '{query|file_path|empty:not}'
+        then: cat "{query|file_path|load}"
+      - when: '{query|empty:not}'
+        then: echo "{query}"
+      - when: 'true'
+        then: echo "ERROR - No input provided"
 
   # Local model generates a raw text translation
   - tag: tag_draft

@@ -15,6 +15,7 @@ mod engine;
 mod models;
 mod modifier;
 mod output;
+mod query;
 mod system;
 mod utils;
 mod validate;

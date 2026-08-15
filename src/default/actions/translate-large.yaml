@@ -3,16 +3,6 @@ about: One step translation using large model
 notify: true
 
 args:
-  - name: text
-    short: 't'
-    input: string
-    default: '{system_clipboard}'
-    help: Text to translate
-  - name: file
-    short: 'f'
-    input: string
-    default: ''
-    help: File or URL to translate
   - name: to
     short: 'l'
     input: string
@@ -23,21 +13,22 @@ args:
 api:
   # Target for the final result (replace | clipboard | dialog)
   output: dialog
-  # Maps argument for JSON output (selection | clipboard | dialog)
-  args:
-    text: selection
+  # Source for the {query} tag
+  input: query
 
 actions:
-  # Read input from file or text argument
+  # Read input from query (prioritize file path if valid, otherwise use raw text)
   - tag: tag_content
     run: cmd
     expect: string
     check: .+
     action:
-      - when: '{file|empty}'
-        then: echo "{text}"
-      - when: '{file|empty:not}'
-        then: cat "{file|load}"
+      - when: '{query|file_path|empty:not}'
+        then: cat "{query|file_path|load}"
+      - when: '{query|empty:not}'
+        then: echo "{query}"
+      - when: 'true'
+        then: echo "ERROR - No input provided"
 
   # Translate text using a large language model
   - tag: tag_translated

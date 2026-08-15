@@ -9,7 +9,7 @@ run_scan() {
     local output
 
     # Run scan and capture stdout
-    output=$(cargo run -- scan -p "$project_path")
+    output=$(cargo run -- scan "$project_path")
     echo "$output"
 
     # Extract the saved file path from the output (e.g., "Saved to /path/to/file.json")

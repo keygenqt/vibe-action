@@ -57,6 +57,10 @@ impl FlowsModel {
 
         // No files on disk and nothing in snapshot — first run
         if scan.changed.is_empty() && scan.unchanged.is_empty() {
+            // In test mode, just return empty if no fixtures found
+            if std::env::var("VIBE_LOG_TYPE").unwrap_or_default() == "test" {
+                return Ok(Self { flows: vec![] });
+            }
             // Force scan to populate snapshot with defaults
             vibe_fs::scan(path, true, Some(cache_dir), Some(&["yaml", "yml"]))?;
             return Self::load_inner(path, cache_dir);
@@ -98,6 +102,10 @@ impl FlowsModel {
 
     /// Save default actions to a directory. Only creates files that don't already exist.
     fn save_defaults(path: &PathBuf) -> Result<()> {
+        // Skip in test mode to avoid polluting fixtures
+        if std::env::var("VIBE_LOG_TYPE").unwrap_or_default() == "test" {
+            return Ok(());
+        }
         if !path.exists() {
             fs::create_dir_all(path)?;
         }

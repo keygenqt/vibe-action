@@ -4,7 +4,7 @@ actions:
   - tag: tag_input
     run: cmd
     expect: string
-    action: echo ""
+    action: printf ''
 
   - tag: tag_result
     run: value

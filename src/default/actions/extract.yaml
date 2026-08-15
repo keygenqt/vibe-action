@@ -3,14 +3,14 @@ about: Extract structured data or matching lines from text and logs
 clipboard: false
 
 args:
-  - name: query
-    short: 'q'
-    input: string
-    help: Extraction criteria (e.g., 'find all errors')
   - name: file
     short: 'f'
     input: string
     help: Path or URL to the log or text file
+
+api:
+  output: replace
+  input: query|prompt
 
 actions:
   # Read the file line by line
@@ -32,7 +32,7 @@ actions:
       Do NOT modify, normalize, or reformat the line in any way.
 
       [Query]
-      {query}
+      {query|prompt}
 
       [Line]
       {tag_lines}

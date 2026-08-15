@@ -7,7 +7,7 @@ Instead of manually configuring `tasks.json` in VS Code or `External Tools` in I
 ## Why Use the Plugin?
 
 - **Zero Configuration:** No need to edit JSON/XML files. The plugin automatically fetches all available actions from the `vibe-action` CLI — including built-in commands, your custom YAML flows, and any modifications you've made to the defaults.
-- **Context Awareness:** Automatically passes selected text or clipboard content to your actions using the `api` block defined in your YAML manifests.
+- **Context Awareness:** Automatically passes selected text, file paths, or project context to your actions using the unified `{query}` tag.
 - **Native UI:** Get real-time progress feedback inside the IDE instead of waiting for terminal windows or system notifications.
 - **Seamless Output:** Results can automatically replace selected code, be copied to the clipboard, or appear in a native dialog window.
 
@@ -49,36 +49,36 @@ Once installed, open the Vibe Action tool window (usually located on the right s
 
 ## How It Works: The `api` Block
 
-The `vibe-action` CLI exposes the optional `api` block from your YAML actions, which the plugin uses to determine how to handle inputs and outputs. If you are creating custom actions or modifying built-in ones, you can define this block to make them IDE-friendly.
+The `vibe-action` CLI exposes the optional `api` block from your YAML actions, which the plugin uses to determine how to handle inputs and outputs.
 
 ```yaml
 name: upper
 about: Convert text to UPPERCASE
 api:
   output: replace # How to output: replace | clipboard | dialog
-  args:
-    text: selection # Where to get input: selection | clipboard
-args:
-  - name: text
-    short: t
-    input: string
-    default: '{system_clipboard}'
+  input: query # Where to get input: query | query|file_path | query|prompt | etc.
 actions:
   - tag: tag_upper
     run: value
     expect: string
-    action: '{text|upper}'
+    action: '{query|upper}'
 ```
 
-### Output Targets
+### Output Targets (`api.output`)
 
 - `replace`: The plugin will replace the currently selected text in your editor with the action's result.
 - `clipboard`: The result will be silently copied to your system clipboard.
 - `dialog`: The result will be shown in a native IDE popup/dialog.
 
-### Input Contexts
+### Input Sources (`api.input`)
 
-- `selection`: The plugin will automatically grab the text you currently have highlighted in the editor and pass it to the argument.
-- `clipboard`: The plugin will pass the contents of your system clipboard to the argument.
+The `input` field tells the plugin how to fill the `{query}` tag before executing the CLI:
 
-If an action does not have an `api` block, the plugin will simply execute it and fall back to standard CLI behavior (usually copying to clipboard).
+- `query` (default): Passes the currently selected text (editor selection) to `{query}`.
+- `query|file_path`: Passes the path of the currently open file to `{query}`.
+- `query|project_path`: Passes the root path of the open project to `{query}`.
+- `query|line`: Passes the current cursor line number to `{query}`.
+- `query|prompt`: Shows an interactive dialog in the IDE to ask the user for input.
+- `query|image`: Passes a screenshot or selected image as base64 to `{query}`.
+
+If an action does not have an `api` block, the plugin will simply execute it and fall back to standard CLI behavior.

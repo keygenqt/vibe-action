@@ -12,6 +12,7 @@ use crate::utils::app;
 pub const SYSTEM_COMMANDS: &[&str] = &["clean", "status", "bench", "stop"];
 
 /// Builds the full hierarchical CLI command tree including dynamic YAML actions.
+/// Builds the full hierarchical CLI command tree including dynamic YAML actions.
 #[macro_export]
 macro_rules! build_app {
     ($config:expr) => {{
@@ -25,6 +26,13 @@ macro_rules! build_app {
                 for arg_def in &flow.args {
                     let clap_arg: Arg = arg_def.into();
                     dynamic_cmd = dynamic_cmd.arg(clap_arg);
+                }
+                if flow.uses_query() {
+                    dynamic_cmd = dynamic_cmd.arg(
+                        Arg::new("query")
+                            .help("Query input (positional argument)")
+                            .required(false),
+                    );
                 }
                 app = app.subcommand(dynamic_cmd);
             }
@@ -86,7 +94,8 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
                 "about" => about,
                 "args" => &flow.args,
                 "api" => &flow.api,
-                "is_custom" => is_custom
+                "is_custom" => is_custom,
+                "is_prompt" => flow.needs_prompt()
             );
         } else {
             print_template!(

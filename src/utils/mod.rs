@@ -3,6 +3,7 @@
 
 pub mod app;
 pub mod clap;
+pub mod clipboard;
 pub mod constants;
 pub mod format;
 pub mod image;

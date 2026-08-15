@@ -37,10 +37,10 @@ _Note: `VIBE_TRACE_LEVEL` is only respected when `VIBE_LOG_TYPE` is set to `trac
 Execute a YAML-defined action directly:
 
 ```bash
-vibe-action <name> [args...]
-vibe-action commit -p .
-vibe-action translate-small -f README.md -l Russian
-vibe-action tone   # reads from clipboard
+vibe-action <name> [query] [args...]
+vibe-action commit .
+vibe-action translate-small README.md -l Russian
+vibe-action tone   # reads from clipboard if no query is provided
 vibe-action --help
 ```
 
@@ -76,7 +76,7 @@ vibe-action extract --help
 Set `VIBE_LOG_TYPE=tracing` and `VIBE_TRACE_LEVEL=debug` (or `trace`) for detailed logs:
 
 ```bash
-VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug vibe-action commit -p .
+VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug vibe-action commit .
 ```
 
 Shows:

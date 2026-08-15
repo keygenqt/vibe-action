@@ -1,20 +1,12 @@
 name: naming
 about: Generate code naming suggestions based on a description
 
-args:
-  - name: query
-    short: 'q'
-    input: string
-    default: '{system_clipboard}'
-    help: Code component description (e.g., 'function to sort actions by dependency')
-
 # IDE plugin integration: maps argument names to IDE contexts
 api:
   # Target for the final result (replace | clipboard | dialog)
   output: dialog
-  # Maps argument for JSON output (selection | clipboard | dialog)
-  args:
-    query: dialog
+  # Source for the {query} tag
+  input: query|prompt
 
 actions:
   # LLM generates 5-10 naming options based on the description
@@ -29,4 +21,4 @@ actions:
       Output each suggestion on a new line.
 
       [Query]
-      {query}
+      {query|prompt}

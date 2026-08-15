@@ -2,37 +2,26 @@ name: review
 about: Critically analyze code for bugs and flaws using a powerful model
 notify: true
 
-args:
-  - name: query
-    short: 'q'
-    input: string
-    default: '{system_clipboard}'
-    help: The code block or function to review
-  - name: file
-    short: 'f'
-    input: string
-    default: ''
-    help: File or URL to review
-
 # IDE plugin integration: maps argument names to IDE contexts
 api:
   # Target for the final result (replace | clipboard | dialog)
   output: dialog
-  # Maps argument for JSON output (selection | clipboard | dialog)
-  args:
-    query: selection
+  # Source for the {query} tag
+  input: query
 
 actions:
-  # Read input from file or text argument
+  # Read input from query (prioritize file path if valid, otherwise use raw text)
   - tag: tag_content
     run: cmd
     expect: string
     check: .+
     action:
-      - when: '{file|empty}'
+      - when: '{query|file_path|empty:not}'
+        then: cat "{query|file_path|load}"
+      - when: '{query|empty:not}'
         then: echo "{query}"
-      - when: '{file|empty:not}'
-        then: cat "{file|load}"
+      - when: 'true'
+        then: echo "ERROR - No input provided"
 
   # Analyze code for bugs and generate technical recommendations in the target language
   - tag: tag_review

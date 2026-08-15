@@ -2,10 +2,6 @@ name: regex
 about: Generate a regular expression pattern based on your description
 
 args:
-  - name: query
-    short: 'q'
-    input: string
-    help: What the regex should match (e.g., 'extract domain from email')
   - name: example
     short: 'e'
     input: string
@@ -16,9 +12,8 @@ args:
 api:
   # Target for the final result (replace | clipboard | dialog)
   output: clipboard
-  # Maps argument for JSON output (selection | clipboard | dialog)
-  args:
-    query: dialog
+  # Source for the {query} tag
+  input: query|prompt
 
 actions:
   # LLM generates regex pattern, optionally testing against example
@@ -36,7 +31,7 @@ actions:
       3. Output exactly 1 line.
 
       [Query]
-      {query}
+      {query|prompt}
 
       [Example]
       {example}

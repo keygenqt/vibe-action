@@ -69,14 +69,36 @@ impl Context {
                 continue;
             }
 
-            if let Some(context_value) = self.values.get(tag_name) {
+            // Special routing for {query|type} tags: look up "query_type" in context,
+            // but allow remaining modifiers (e.g., {query|file_path|upper}) to apply.
+            let (context_value_opt, mods_to_apply) =
+                if tag_name == "query" && !mat.modifiers.is_empty() {
+                    let first_mod_name = &mat.modifiers[0].name;
+                    if crate::query::query::QueryKey::from_str(first_mod_name).is_some() {
+                        let context_key = if first_mod_name == "raw" {
+                            "query".to_string()
+                        } else {
+                            format!("query_{}", first_mod_name)
+                        };
+                        (self.values.get(&context_key), &mat.modifiers[1..])
+                    } else {
+                        // Not a query type modifier, fallback to standard behavior
+                        (self.values.get(tag_name), &mat.modifiers[..])
+                    }
+                } else {
+                    (self.values.get(tag_name), &mat.modifiers[..])
+                };
+
+            if let Some(context_value) = context_value_opt {
                 // Strictly preserve empty pipe constraints contract (e.g. "{tag|}")
+                // Note: mods_to_apply can be empty legitimately for {query|type} tags,
+                // so we check the original modifiers array instead.
                 if mat.modifiers.is_empty() && placeholder.contains('|') {
                     anyhow::bail!("Empty modifier not allowed in '{}'", placeholder);
                 }
 
                 // Architectural fix: forward the pre-parsed modifiers array directly to the registry
-                let processed_value = modifier.apply_modifier(&mat.modifiers, context_value)?;
+                let processed_value = modifier.apply_modifier(mods_to_apply, context_value)?;
 
                 match processed_value {
                     ContextModel::List(items) => {

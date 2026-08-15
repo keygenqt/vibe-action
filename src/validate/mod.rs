@@ -3,6 +3,7 @@
 use anyhow::Result;
 
 pub mod action;
+pub mod api;
 pub mod app;
 pub mod arg;
 pub mod cluster;

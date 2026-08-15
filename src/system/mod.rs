@@ -1,8 +1,6 @@
 //! System providers for resolving `{system_*}` tags.
 
 pub mod arch;
-pub mod clipboard;
-pub mod clipboard_image;
 pub mod date;
 pub mod dir_download;
 pub mod dir_home;

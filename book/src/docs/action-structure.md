@@ -29,23 +29,22 @@ name: my-action # CLI subcommand name
 about: Description # Help text
 check: '^[a-z]+$' # Optional: regex validation for final output
 notify: true # Optional: show system notification on completion
-args: # Optional: CLI arguments
-  - name: input
-    short: i
-    input: string # string | bool | number | path | list<string> | list<bool> | list<number> | list<path>
-    help: Input text
-    default: 'default' # Optional: makes argument non-required
+args: # Optional: CLI arguments (for settings and flags)
+  - name: dry_run
+    short: d
+    input: bool # string | bool | number | path | list<string> | list<bool> | list<number> | list<path>
+    help: Do not execute
+    default: false # Optional: makes argument non-required
 api: # Optional: IDE plugin integration
   output: replace # replace | clipboard | dialog
-  args:
-    input: selection # selection | clipboard
+  input: query # query | query|file_path | query|prompt | etc.
 actions: # Pipeline steps (executed in order of dependencies)
   - tag: tag_step1
     run: cmd # cmd | value | small | medium | large | vision | tiny
     expect: string # string | list. Omit for no expected output.
     check: '^.+$' # Optional: regex validation for this step
     confirm: true # Optional: ask before executing
-    action: echo "Hello {input}!"
+    action: echo "Hello {query}!"
 ```
 
 ## Action Types
@@ -87,7 +86,7 @@ Omit `expect` for steps with no expected output.
 The optional `api` block configures how IDE plugins (like VS Code or IntelliJ) interact with the action.
 
 - `output`: Defines how the final result is presented (`replace` selected text, send to `clipboard`, or show in a `dialog`).
-- `args`: Maps action arguments to IDE contexts (e.g., automatically pass the `selection` or `clipboard` to the argument).
+- `input`: Defines the source to fill the unified `{query}` tag (e.g., `query` for editor selection, `query|file_path` for the current file, or `query|prompt` for an interactive dialog).
 
 ## Conditional Actions (When/Then)
 

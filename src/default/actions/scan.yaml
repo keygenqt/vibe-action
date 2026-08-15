@@ -2,12 +2,9 @@ name: scan
 about: Scan project codebase and export as structured JSON
 notify: true
 
-args:
-  - name: path
-    short: p
-    input: string
-    default: .
-    help: Project path
+api:
+  output: dialog
+  input: query|project_path
 
 actions:
   # Validate path is a directory
@@ -15,10 +12,10 @@ actions:
     run: cmd
     expect: string
     action:
-      - when: '{path|is_dir}'
-        then: echo "{path}"
-      - when: '{path|is_dir:not}'
-        then: echo "'{path}' is not a directory" && exit 1
+      - when: '{query|project_path|is_dir}'
+        then: echo "{query|project_path}"
+      - when: '{query|project_path|is_dir:not}'
+        then: echo "'{query|project_path}' is not a directory" && exit 1
 
   # Resolve to absolute path
   - tag: tag_resolve

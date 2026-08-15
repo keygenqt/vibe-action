@@ -1,20 +1,12 @@
 name: synonyms
 about: Find programming/technical synonyms for a word
 
-args:
-  - name: query
-    short: 'q'
-    input: string
-    default: '{system_clipboard}'
-    help: Word or concept to find technical synonyms for
-
 # IDE plugin integration: maps argument names to IDE contexts
 api:
   # Target for the final result (replace | clipboard | dialog)
   output: dialog
-  # Maps argument for JSON output (selection | clipboard | dialog)
-  args:
-    query: dialog
+  # Source for the {query} tag
+  input: query
 
 actions:
   # LLM generates 5 technical alternatives

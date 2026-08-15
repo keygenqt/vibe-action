@@ -31,6 +31,11 @@ impl ValidateTrait for FlowModel {
             action.validate()?;
         }
 
+        // Validate api.
+        if let Some(api) = &self.api {
+            api.validate()?;
+        }
+
         // Collect all valid tags: args + actions[].tag.
         let mut tags: HashSet<&str> = HashSet::new();
         for arg in &self.args {
@@ -74,10 +79,35 @@ impl ValidateTrait for FlowModel {
     }
 }
 
+/// Check that tags are not used inline inside single-quoted strings (e.g., 'text {tag}').
+fn validate_no_inline_tags_in_quotes(text: &str) -> Result<()> {
+    let re = Regex::new(r#"'[^']*'"#).unwrap();
+    for cap in re.captures_iter(text) {
+        let quoted_str = cap.get(0).unwrap().as_str();
+        for mat in crate::engine::parser::TagIterator::new(quoted_str) {
+            // If the tag is the only thing inside the quotes, it's safe (e.g. '{path}')
+            if quoted_str.len() == mat.full_match.len() + 2 {
+                continue;
+            }
+            anyhow::bail!(
+                "Tags cannot be used inline inside single-quoted strings: '{}' in '{}'",
+                mat.full_match,
+                quoted_str
+            );
+        }
+    }
+    Ok(())
+}
+
 /// Check that all {tag} references in text point to valid tags.
 fn validate_tag_references(text: &str, valid_tags: &HashSet<&str>) -> Result<()> {
+    validate_no_inline_tags_in_quotes(text)?;
+
     for mat in crate::engine::parser::TagIterator::new(text) {
         if SystemKey::from_str(&mat.base_tag).is_some() {
+            continue;
+        }
+        if mat.base_tag == "query" {
             continue;
         }
         if !valid_tags.contains(mat.base_tag.as_str()) {

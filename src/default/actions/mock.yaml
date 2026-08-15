@@ -2,10 +2,6 @@ name: mock
 about: Generate realistic mock data arrays (JSON, YAML, CSV) for testing
 
 args:
-  - name: query
-    short: 'q'
-    input: string
-    help: Describe the data you need (e.g., '5 users with id, name, and unique uuid')
   - name: format
     short: 'f'
     input: string
@@ -16,9 +12,8 @@ args:
 api:
   # Target for the final result (replace | clipboard | dialog)
   output: dialog
-  # Maps argument for JSON output (selection | clipboard | dialog)
-  args:
-    query: dialog
+  # Source for the {query} tag
+  input: query|prompt
 
 actions:
   # LLM generates structured mock data in the requested format
@@ -36,7 +31,7 @@ actions:
       ```
 
       [Query]
-      {query}
+      {query|prompt}
 
   # Copy result to clipboard and output
   - tag: tag_clipboard
