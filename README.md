@@ -2,6 +2,9 @@
 
 Command router for shell and LLM tasks via YAML pipelines.
 
+> Chat is where you think. Vibe Action is where you prep the context —
+> seamlessly, with local models, so your chat stays clean and cheap.
+
 ## Why
 
 - ⚡ **Complex pipelines** — chain shell and LLM into one command
