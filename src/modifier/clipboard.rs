@@ -5,9 +5,6 @@ use anyhow::Result;
 use anyhow::bail;
 use base64::Engine as _;
 use base64::engine::general_purpose::STANDARD as BASE64;
-use image::ImageEncoder;
-use image::codecs::png::PngEncoder;
-use std::borrow::Cow;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
@@ -270,23 +267,6 @@ fn try_load_image_from_value(s: &str) -> Result<Option<image::DynamicImage>> {
     Ok(Some(img))
 }
 
-/// Copies an image to the clipboard.
-fn set_image_to_clipboard(
-    clipboard: &mut arboard::Clipboard,
-    img: image::DynamicImage,
-) -> Result<()> {
-    let rgba = img.to_rgba8();
-    let (w, h) = rgba.dimensions();
-    clipboard
-        .set_image(arboard::ImageData {
-            width: w as usize,
-            height: h as usize,
-            bytes: Cow::Owned(rgba.into_raw()),
-        })
-        .context("Failed to set clipboard image")?;
-    Ok(())
-}
-
 impl Modifier for ClipboardModifier {
     fn key(&self) -> ModifierKey {
         ModifierKey::Clipboard
@@ -304,11 +284,7 @@ impl Modifier for ClipboardModifier {
             if AppConfig::output().output_type() == OutputType::Cli {
                 let text =
                     FormatOutput::strip_outer_markdown_blocks(&value.to_string()).to_string();
-                let mut clipboard =
-                    arboard::Clipboard::new().context("Failed to access clipboard")?;
-                clipboard
-                    .set_text(&text)
-                    .context("Failed to set clipboard")?;
+                utils::clipboard::set_text(&text)?;
             }
             return Ok(value.clone());
         }
@@ -318,26 +294,15 @@ impl Modifier for ClipboardModifier {
             _ => return Ok(value.clone()),
         };
 
-        let mut clipboard = arboard::Clipboard::new().context("Failed to access clipboard")?;
-
         // 1. The value itself may be an image (base64 or a file path).
         if let Some(img) = try_load_image_from_value(&s)? {
-            set_image_to_clipboard(&mut clipboard, img)?;
+            utils::clipboard::set_image(img)?;
             return Ok(value.clone());
         }
 
         // 2. The clipboard may already hold an image — pass it along as base64 PNG.
-        if let Ok(img_data) = clipboard.get_image() {
-            let mut png_bytes = Vec::new();
-            PngEncoder::new(&mut png_bytes)
-                .write_image(
-                    &img_data.bytes,
-                    img_data.width as u32,
-                    img_data.height as u32,
-                    image::ExtendedColorType::Rgba8,
-                )
-                .context("Failed to encode clipboard image as PNG")?;
-            return Ok(ContextModel::String(BASE64.encode(&png_bytes)));
+        if let Some(base64) = utils::clipboard::get_image_as_base64() {
+            return Ok(ContextModel::String(base64));
         }
 
         // 3. Otherwise let the user capture a screen area interactively.
@@ -345,7 +310,7 @@ impl Modifier for ClipboardModifier {
         let img_bytes = std::fs::read(&path).context("Failed to read captured screenshot")?;
         let img =
             image::load_from_memory(&img_bytes).context("Failed to parse captured screenshot")?;
-        set_image_to_clipboard(&mut clipboard, img)?;
+        utils::clipboard::set_image(img)?;
 
         Ok(ContextModel::String(path.to_string_lossy().to_string()))
     }

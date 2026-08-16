@@ -28,7 +28,7 @@ You can specify the type of input using the pipe syntax: `{query|type}`.
 name: my-action
 api:
   output: replace
-  input: query  # Tell IDE to pass selection to {query}
+  input: query # Tell IDE to pass selection to {query}
 
 actions:
   - tag: tag_content
@@ -42,7 +42,7 @@ actions:
       - when: '{query|empty:not}'
         then: echo "{query}"
       - when: 'true'
-        then: echo "ERROR: No input provided"
+        then: echo "ERROR - No input provided"
 ```
 
 ## IDE Integration (`api.input`)

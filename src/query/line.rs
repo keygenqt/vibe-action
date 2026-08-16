@@ -3,6 +3,7 @@
 use super::query::QueryKey;
 use super::query::QueryProvider;
 use crate::models::context::ContextModel;
+use crate::utils;
 use anyhow::Result;
 
 pub struct LineProvider {
@@ -26,12 +27,7 @@ impl QueryProvider for LineProvider {
             .as_deref()
             .filter(|v| !v.is_empty())
             .map(|s| s.to_string())
-            .unwrap_or_else(|| {
-                arboard::Clipboard::new()
-                    .ok()
-                    .and_then(|mut cb| cb.get_text().ok())
-                    .unwrap_or_default()
-            });
+            .unwrap_or_else(|| utils::clipboard::read_text().unwrap_or_default());
 
         let line = text.lines().next().unwrap_or("").to_string();
         Ok(ContextModel::String(line))

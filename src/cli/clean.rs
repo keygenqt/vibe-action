@@ -1,12 +1,12 @@
-//! Refresh command handler.
-//! Manages refreshing actions cache and resetting context.
+//! Clean command handler.
+//! Manages cleaning actions cache and resetting context.
 
 use crate::output::output::OutputKind;
 use crate::print_template;
 use crate::print_text;
 use crate::utils;
 
-/// Execute the `refresh` command.
+/// Execute the `clean` command.
 pub async fn execute() {
     let cache_dir = utils::path::cache_dir();
     let actions_dir = utils::path::actions_dir();
@@ -44,5 +44,15 @@ pub async fn execute() {
             }
         }
         Err(_) => {}
+    }
+
+    // Clear clipboard (stale input fallback for {query} clipboard path)
+    match utils::clipboard::clear() {
+        Ok(()) => print_text!(OutputKind::Info, "Clipboard cleared"),
+        Err(e) => print_template!(
+            OutputKind::Error,
+            "Failed to clear clipboard: {error}",
+            "error" => e.to_string()
+        ),
     }
 }

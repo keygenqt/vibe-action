@@ -6,8 +6,6 @@ use crate::models::context::ContextModel;
 use crate::utils;
 use anyhow::Result;
 use base64::Engine;
-use image::ImageEncoder;
-use image::codecs::png::PngEncoder;
 use std::path::Path;
 
 pub struct ImageProvider {
@@ -68,28 +66,9 @@ impl QueryProvider for ImageProvider {
         }
 
         // 3. Fallback to raw image data in clipboard (e.g., screenshot)
-        let mut clipboard = match arboard::Clipboard::new() {
-            Ok(cb) => cb,
-            Err(_) => return Ok(ContextModel::String(String::new())),
-        };
-
-        let img = match clipboard.get_image() {
-            Ok(img) => img,
-            Err(_) => return Ok(ContextModel::String(String::new())),
-        };
-
-        let mut png_bytes = Vec::new();
-        let encoder = PngEncoder::new(&mut png_bytes);
-        encoder
-            .write_image(
-                &img.bytes,
-                img.width as u32,
-                img.height as u32,
-                image::ExtendedColorType::Rgba8,
-            )
-            .map_err(|e| anyhow::anyhow!("Failed to encode PNG: {}", e))?;
-
-        let base64 = base64::engine::general_purpose::STANDARD.encode(&png_bytes);
-        Ok(ContextModel::String(base64))
+        match utils::clipboard::read_image_png_base64() {
+            Some(base64) => Ok(ContextModel::String(base64)),
+            None => Ok(ContextModel::String(String::new())),
+        }
     }
 }

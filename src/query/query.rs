@@ -91,33 +91,29 @@ impl QueryRegistry {
 /// Reads text from the clipboard and validates its size against the max context size.
 /// Falls back to file paths when the clipboard holds copied files.
 pub fn read_clipboard_text() -> Result<String> {
-    let mut clipboard = arboard::Clipboard::new()
-        .map_err(|e| anyhow::anyhow!("Failed to access clipboard: {}", e))?;
+    let raw = crate::utils::clipboard::read_text().unwrap_or_default();
 
-    let text = match clipboard.get_text() {
-        Ok(t) => {
-            // Finder may give us "file:///..." as plain text — decode if real files
-            let decoded = crate::utils::clipboard::parse_uri_list(&t);
-            if !decoded.is_empty() && decoded.iter().any(|p| p.exists()) {
-                decoded
-                    .iter()
-                    .map(|p| p.to_string_lossy().into_owned())
-                    .collect::<Vec<_>>()
-                    .join("\n")
-            } else {
-                t
-            }
+    let text = if raw.is_empty() {
+        let files = crate::utils::clipboard::clipboard_file_paths();
+        if files.is_empty() {
+            anyhow::bail!("Clipboard is empty or contains non-text data.");
         }
-        Err(_) => {
-            let files = crate::utils::clipboard::clipboard_file_paths();
-            if files.is_empty() {
-                anyhow::bail!("Clipboard is empty or contains non-text data.");
-            }
-            files
+        files
+            .iter()
+            .map(|p| p.to_string_lossy().into_owned())
+            .collect::<Vec<_>>()
+            .join("\n")
+    } else {
+        // Finder may give us "file:///..." as plain text — decode if real files
+        let decoded = crate::utils::clipboard::parse_uri_list(&raw);
+        if !decoded.is_empty() && decoded.iter().any(|p| p.exists()) {
+            decoded
                 .iter()
                 .map(|p| p.to_string_lossy().into_owned())
                 .collect::<Vec<_>>()
                 .join("\n")
+        } else {
+            raw
         }
     };
 
