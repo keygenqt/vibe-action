@@ -8,9 +8,10 @@ use url::Url;
 use anyhow::Result;
 use base64::Engine as _;
 use base64::engine::general_purpose::STANDARD as BASE64;
+use clipboard_rs::Clipboard;
+use clipboard_rs::ClipboardContext;
 use clipboard_rs::common::RustImage;
 use clipboard_rs::common::RustImageData;
-use clipboard_rs::{Clipboard, ClipboardContext};
 
 /// File paths copied in Finder / Nautilus / Dolphin.
 /// 1) native file list via clipboard-rs; 2) text fallback (file:// URI or path).
