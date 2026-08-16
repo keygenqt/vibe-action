@@ -95,7 +95,6 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
                 "args" => &flow.args,
                 "api" => &flow.api,
                 "is_custom" => is_custom,
-                "is_prompt" => flow.needs_prompt()
             );
         } else {
             print_template!(
