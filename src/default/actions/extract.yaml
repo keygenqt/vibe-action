@@ -9,8 +9,10 @@ args:
     help: Path or URL to the log or text file
 
 api:
-  output: replace
+  output: dialog
   input: query|prompt
+  args:
+    file: query|file_path
 
 actions:
   # Read the file line by line

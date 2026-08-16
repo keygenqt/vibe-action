@@ -1,6 +1,6 @@
 //! Engine integration tests: expect types, check validation, ordering, circular deps.
 //!
-//! cargo test --test engine_test # -- --test-threads=1 --nocapture
+//! cargo test --test engine_test -- --test-threads=1 # --nocapture
 
 pub fn app_test_engine(args: &str) -> std::process::Output {
     let parts: Vec<&str> = args.split_whitespace().collect();

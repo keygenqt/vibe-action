@@ -18,12 +18,25 @@ impl ValidateTrait for FlowApiModel {
             "query|image",
         ];
 
-        if !valid_inputs.contains(&self.input.as_str()) {
-            anyhow::bail!(
-                "Invalid api input: '{}'. Expected one of: {}",
-                self.input.as_str(),
-                valid_inputs.join(", ")
-            );
+        if let Some(input) = &self.input {
+            if !valid_inputs.contains(&input.as_str()) {
+                anyhow::bail!(
+                    "Invalid api input: '{}'. Expected one of: {}",
+                    input.as_str(),
+                    valid_inputs.join(", ")
+                );
+            }
+        }
+
+        for (name, query_type) in &self.args {
+            if !valid_inputs.contains(&query_type.as_str()) {
+                anyhow::bail!(
+                    "Invalid api args value for '{}': '{}'. Expected one of: {}",
+                    name,
+                    query_type,
+                    valid_inputs.join(", ")
+                );
+            }
         }
 
         // ApiTarget is an enum, so Serde already validates it,

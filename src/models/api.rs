@@ -4,6 +4,7 @@
 
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::HashMap;
 
 /// Specifies the target where the IDE plugin should apply the action result.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -47,9 +48,13 @@ pub struct FlowApiModel {
     /// Defines the input source for the {query} tag.
     /// Defaults to "query" (editor selection).
     #[serde(default)]
-    pub input: ApiInput,
-
+    pub input: Option<ApiInput>,
     /// Defines where the IDE plugin should apply the final result.
     #[serde(default)]
     pub output: ApiTarget,
+    /// Optional additional arguments mapped to query types.
+    /// Each key is an argument name, each value is a query type (e.g., "query|file_path").
+    /// Used for actions that need multiple inputs beyond the main {query} positional arg.
+    #[serde(default)]
+    pub args: HashMap<String, String>,
 }

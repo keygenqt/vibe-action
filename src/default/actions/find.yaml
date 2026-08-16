@@ -10,8 +10,10 @@ args:
     help: 'Directory to search in (default: current)'
 
 api:
-  output: replace
+  output: dialog
   input: query|prompt
+  args:
+    path: query|project_path
 
 actions:
   # Collect all text files in the directory

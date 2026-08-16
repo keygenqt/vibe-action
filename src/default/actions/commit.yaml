@@ -9,7 +9,7 @@ args:
     help: 'Print commit message without committing'
 
 api:
-  output: clipboard
+  output: dialog
   input: query|project_path
 
 actions:
