@@ -2,6 +2,27 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.2.0] - 2026-08-16
+
+### ⚡ Refactoring
+
+- Switch default actions to dialog output
+- Replace arboard with clipboard-rs
+
+### 🐛 Fixes
+
+- Remove is_prompt from custom help template rendering
+
+### 📚 Documentation
+
+- Add context blurb about vibe action and chat
+
+### 🚀 Features
+
+- Add clipboard screenshot support
+- Add unified query tag with type modifiers for flexible input handling in pipelines
+- Support multi-input actions and flexible output targets
+
 ## [0.1.5] - 2026-08-08
 
 ### 🚀 Features
