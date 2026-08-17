@@ -1,3 +1,4 @@
+version: 0.0.1
 name: system-dir-pwd
 about: Test system_dir_pwd tag
 actions:

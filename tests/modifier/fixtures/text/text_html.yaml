@@ -1,3 +1,4 @@
+version: 0.0.1
 name: text-html
 about: Test text modifier extracts text from HTML
 actions:

@@ -1,3 +1,4 @@
+version: 0.0.1
 name: ast-md
 about: Test AST modifier for Markdown
 actions:

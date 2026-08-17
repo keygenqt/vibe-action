@@ -1,3 +1,4 @@
+version: 0.0.1
 name: list-is-file-all-false
 about: Test switch with is_file where no files exist → error
 actions:

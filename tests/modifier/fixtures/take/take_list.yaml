@@ -1,3 +1,4 @@
+version: 0.0.1
 name: take-list
 about: Test take modifier on list
 actions:

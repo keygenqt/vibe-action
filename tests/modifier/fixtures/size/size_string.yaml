@@ -1,3 +1,4 @@
+version: 0.0.1
 name: size-string
 about: Test size modifier on string
 actions:

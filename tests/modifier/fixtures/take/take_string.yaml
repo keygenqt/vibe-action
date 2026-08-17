@@ -1,3 +1,4 @@
+version: 0.0.1
 name: take-string
 about: Test take modifier on string
 actions:

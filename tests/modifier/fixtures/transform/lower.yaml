@@ -1,4 +1,4 @@
-# tests/fixtures/lower.yaml
+version: 0.0.1
 name: lower
 about: Test lower modifier
 actions:

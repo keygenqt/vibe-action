@@ -1,3 +1,4 @@
+version: 0.0.1
 name: arg-number-invalid
 about: Test invalid number
 args:

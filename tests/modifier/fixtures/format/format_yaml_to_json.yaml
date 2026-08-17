@@ -1,3 +1,4 @@
+version: 0.0.1
 name: format-yaml-to-json
 about: Test format modifier YAML to JSON
 actions:

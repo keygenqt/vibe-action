@@ -1,3 +1,4 @@
+version: 0.0.1
 name: parser-escaped-literal
 about: Test exclusion of escaped double-brace documents
 actions:

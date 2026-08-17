@@ -1,3 +1,4 @@
+version: 0.0.1
 name: ast-rs
 about: Test AST modifier for Rust
 actions:

@@ -1,3 +1,4 @@
+version: 0.0.1
 name: upper
 about: Test upper modifier
 actions:

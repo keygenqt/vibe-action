@@ -1,3 +1,4 @@
+version: 0.0.1
 name: is-file-string
 about: Test is_file modifier on file path
 actions:

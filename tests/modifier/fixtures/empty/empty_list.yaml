@@ -1,3 +1,4 @@
+version: 0.0.1
 name: empty-list
 about: Test empty modifier on list
 actions:

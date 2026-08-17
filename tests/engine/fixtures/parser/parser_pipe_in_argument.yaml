@@ -1,3 +1,4 @@
+version: 0.0.1
 name: parser-pipe-in-argument
 about: Test backslash escape protection for nested pipes inside arguments
 actions:

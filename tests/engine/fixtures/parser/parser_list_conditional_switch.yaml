@@ -1,3 +1,4 @@
+version: 0.0.1
 name: parser-list-conditional-switch
 about: Test list expansion and conditional logic switch branches
 actions:

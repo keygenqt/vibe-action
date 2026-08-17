@@ -1,3 +1,4 @@
+version: 0.0.1
 name: sort-default
 about: Test sort modifier default (ascending)
 actions:

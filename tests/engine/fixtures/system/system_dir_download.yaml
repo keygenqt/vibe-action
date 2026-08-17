@@ -1,3 +1,4 @@
+version: 0.0.1
 name: system-dir-download
 about: Test system_dir_download tag
 actions:

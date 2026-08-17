@@ -1,3 +1,4 @@
+version: 0.0.1
 name: trim-list
 about: Test trim modifier filtering list
 actions:

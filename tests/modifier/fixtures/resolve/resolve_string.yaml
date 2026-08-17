@@ -1,3 +1,4 @@
+version: 0.0.1
 name: resolve-string
 about: Test resolve modifier on string path
 actions:

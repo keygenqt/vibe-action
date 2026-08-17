@@ -1,3 +1,4 @@
+version: 0.0.1
 name: string-first-match
 about: Test switch where first case matches → second skipped
 actions:

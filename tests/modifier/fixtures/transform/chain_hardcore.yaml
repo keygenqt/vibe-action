@@ -1,3 +1,4 @@
+version: 0.0.1
 name: chain-hardcore
 about: Extreme stress-test for multi-stage sequential modifiers and types ping-pong
 clipboard: false

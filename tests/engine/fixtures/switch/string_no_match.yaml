@@ -1,3 +1,4 @@
+version: 0.0.1
 name: string-no-match
 about: Test switch with no matching case and no else → error
 actions:

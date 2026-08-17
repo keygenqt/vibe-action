@@ -1,3 +1,4 @@
+version: 0.0.1
 name: contains-list
 about: Test contains modifier on list
 actions:

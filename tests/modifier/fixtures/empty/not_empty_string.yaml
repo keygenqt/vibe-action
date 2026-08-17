@@ -1,3 +1,4 @@
+version: 0.0.1
 name: not-empty-string
 about: Test empty:not modifier on non-empty string
 actions:

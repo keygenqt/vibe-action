@@ -1,3 +1,4 @@
+version: 0.0.1
 name: format-list
 about: Test format modifier with list
 actions:

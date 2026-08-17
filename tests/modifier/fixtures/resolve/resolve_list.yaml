@@ -1,3 +1,4 @@
+version: 0.0.1
 name: resolve-list
 about: Test resolve modifier on list of paths
 actions:

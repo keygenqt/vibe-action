@@ -1,3 +1,4 @@
+version: 0.0.1
 name: parser-list-chained-transform
 about: Test multi-stage sequential modifiers applied across lists
 actions:

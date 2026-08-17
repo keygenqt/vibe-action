@@ -1,3 +1,4 @@
+version: 0.0.1
 name: list-all-false
 about: Test switch where no list elements match case → error
 actions:

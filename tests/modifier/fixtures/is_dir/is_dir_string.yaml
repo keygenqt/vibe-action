@@ -1,3 +1,4 @@
+version: 0.0.1
 name: is-dir-string
 about: Test is_dir modifier on directory path
 actions:

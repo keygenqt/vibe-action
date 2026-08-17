@@ -1,3 +1,4 @@
+version: 0.0.1
 name: system-time
 about: Test system_time tag
 actions:

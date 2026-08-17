@@ -1,3 +1,4 @@
+version: 0.0.1
 name: load-not-url
 about: Test load modifier fails on non-URL
 actions:

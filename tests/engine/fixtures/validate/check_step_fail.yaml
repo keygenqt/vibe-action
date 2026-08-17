@@ -1,3 +1,4 @@
+version: 0.0.1
 name: check-step-fail
 about: Test regex check on step fails
 actions:

@@ -1,3 +1,4 @@
+version: 0.0.1
 name: text-not-html
 about: Test text modifier fails on non-HTML
 actions:

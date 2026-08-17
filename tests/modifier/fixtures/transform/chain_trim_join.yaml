@@ -1,3 +1,4 @@
+version: 0.0.1
 name: chain-trim-join
 about: Test modifier chain trim and join
 actions:

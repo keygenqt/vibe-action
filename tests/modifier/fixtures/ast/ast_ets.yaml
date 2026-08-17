@@ -1,3 +1,4 @@
+version: 0.0.1
 name: ast-ets
 about: Test AST modifier for ArkTS
 actions:

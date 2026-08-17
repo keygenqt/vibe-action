@@ -1,3 +1,4 @@
+version: 0.0.1
 name: format-invalid
 about: Test format modifier fails on invalid input
 actions:

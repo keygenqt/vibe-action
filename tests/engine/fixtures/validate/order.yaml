@@ -1,3 +1,4 @@
+version: 0.0.1
 name: order
 about: Test execution order by dependencies
 actions:

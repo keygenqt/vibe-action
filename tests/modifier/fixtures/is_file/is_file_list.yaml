@@ -1,3 +1,4 @@
+version: 0.0.1
 name: is-file-list
 about: Test is_file modifier on list of paths
 actions:

@@ -1,3 +1,4 @@
+version: 0.0.1
 name: contains-string
 about: Test contains modifier on string
 actions:

@@ -1,3 +1,4 @@
+version: 0.0.1
 name: list-is-file-mixed
 about: Test switch with is_file where some files exist, some don't
 actions:
