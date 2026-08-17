@@ -2,6 +2,12 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.2.1] - 2026-08-17
+
+### 🚀 Features
+
+- Add version fields and cache versioning
+
 ## [0.2.0] - 2026-08-16
 
 ### ⚡ Refactoring
@@ -16,6 +22,7 @@ All notable changes to Vibe Action will be documented in this file.
 ### 📚 Documentation
 
 - Add context blurb about vibe action and chat
+- Add v0.2.0 changelog entry
 
 ### 🚀 Features
 
