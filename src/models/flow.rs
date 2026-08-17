@@ -25,6 +25,8 @@ use crate::utils;
 /// One action flow: name, steps, result source, and CLI arguments.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FlowModel {
+    /// Flow version (defaults version, bump to force update).
+    pub version: String,
     /// Action name (used as CLI subcommand).
     pub name: String,
     /// Short description for help.

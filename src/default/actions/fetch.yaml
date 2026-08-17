@@ -1,3 +1,5 @@
+version: 0.0.1
+
 name: fetch
 about: Fetch a web page or PDF and describe its content
 notify: true

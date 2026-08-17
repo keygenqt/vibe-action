@@ -1,3 +1,5 @@
+version: 0.0.1
+
 name: explain
 about: Explain what the selected code does in simple terms
 notify: true

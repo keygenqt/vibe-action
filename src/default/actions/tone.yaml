@@ -1,3 +1,5 @@
+version: 0.0.1
+
 name: tone
 about: Transform rude or aggressive text into a professional tone
 notify: true

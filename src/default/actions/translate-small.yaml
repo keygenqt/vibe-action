@@ -1,3 +1,5 @@
+version: 0.0.1
+
 name: translate-small
 about: Translate text or files to another language
 notify: true

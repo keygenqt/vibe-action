@@ -1,3 +1,5 @@
+version: 0.0.1
+
 name: describe
 about: Describe a screenshot from clipboard for text-only LLMs (Cmd+Shift+Ctrl+4, Ctrl+Print)
 notify: true

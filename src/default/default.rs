@@ -6,6 +6,7 @@ use anyhow::Result;
 /// Common header template for all built-in YAML flows.
 pub const FLOW_HEADER: &str = r#"# Vibe Action — {{name}}
 # {{about}}
+# Auto-updated when FLOW_VERSION changes. Custom edits to default flows will be overwritten.
 "#;
 
 pub trait DefaultFlow {

@@ -1,3 +1,5 @@
+version: 0.0.1
+
 name: extract
 about: Extract structured data or matching lines from text and logs
 clipboard: false

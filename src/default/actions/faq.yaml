@@ -1,3 +1,5 @@
+version: 0.0.1
+
 name: faq
 about: Ask a question about Vibe Action — YAML structure, fields, modifiers, or usage
 clipboard: false

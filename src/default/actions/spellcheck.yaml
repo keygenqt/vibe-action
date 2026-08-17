@@ -1,3 +1,5 @@
+version: 0.0.1
+
 name: spellcheck
 about: Check and fix spelling in text or files
 notify: true

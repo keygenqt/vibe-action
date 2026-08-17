@@ -45,14 +45,18 @@ actions:
         then: echo "ERROR - No input provided"
 ```
 
-## IDE Integration (`api.input`)
+## IDE Integration (`api` block)
 
-To control how the IDE plugin fills the `{query}` tag, use the `api` block:
+The `api` block controls how the IDE plugin interacts with the flow:
 
 ```yaml
 api:
   output: replace # replace | clipboard | dialog
-  input: query|file_path # query | query|file_path | query|prompt | etc.
+  input: query|prompt # query | query|file_path | query|prompt | etc.
+  args: # additional inputs beyond {query}
+    file: query|file_path
 ```
 
-If `input` is omitted, it defaults to `query` (editor selection).
+- **`output`** — where the IDE applies the final result (`replace`, `clipboard`, `dialog`).
+- **`input`** — defines the source for the `{query}` tag. Defaults to `query` (editor selection).
+- **`args`** — optional additional arguments, each mapped to a query type. Used when a flow needs multiple inputs beyond the main `{query}` positional arg. Each key is an argument name, each value is a query type (e.g., `query|file_path`).

@@ -1,3 +1,5 @@
+version: 0.0.1
+
 name: scan
 about: Scan project codebase and export as structured JSON
 notify: true

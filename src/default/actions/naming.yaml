@@ -1,3 +1,5 @@
+version: 0.0.1
+
 name: naming
 about: Generate code naming suggestions based on a description
 

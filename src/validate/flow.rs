@@ -11,11 +11,21 @@ use regex::Regex;
 use crate::models::action::ActionValue;
 use crate::models::flow::FlowModel;
 use crate::system::system::SystemKey;
+use crate::utils::constants;
 use crate::validate::ValidateTrait;
 
 impl ValidateTrait for FlowModel {
     /// Validate the flow: name, tags, references, dependencies.
     fn validate(&self) -> Result<()> {
+        // Check version matches current FLOW_VERSION.
+        if self.version != constants::FLOW_VERSION {
+            anyhow::bail!(
+                "Flow '{}' has version '{}' but expected '{}'.",
+                self.name,
+                self.version,
+                constants::FLOW_VERSION
+            );
+        }
         // Check name is not empty.
         if self.name.trim().is_empty() {
             anyhow::bail!("Flow has no name. Add a name for the CLI command.");

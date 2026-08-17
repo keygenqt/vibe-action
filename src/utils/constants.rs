@@ -12,3 +12,6 @@ pub const CONFIG_FILE_NAME: &str = "config.yaml";
 
 /// Config version
 pub const CONFIG_VERSION: &str = "0.0.3";
+
+/// Default flows version (bump when default flows change).
+pub const FLOW_VERSION: &str = "0.0.1";

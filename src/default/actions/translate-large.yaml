@@ -1,3 +1,5 @@
+version: 0.0.1
+
 name: translate-large
 about: One step translation using large model
 notify: true

@@ -5,11 +5,26 @@ use crate::output::output::OutputKind;
 use crate::print_template;
 use crate::print_text;
 use crate::utils;
+use crate::utils::constants;
 
 /// Execute the `clean` command.
 pub async fn execute() {
     let cache_dir = utils::path::cache_dir();
     let actions_dir = utils::path::actions_dir();
+
+    // Remove stale cache from previous versions
+    let cache_root = utils::path::config_dir().join("cache");
+    if cache_root.exists() {
+        if let Ok(entries) = std::fs::read_dir(&cache_root) {
+            for entry in entries.flatten() {
+                let name = entry.file_name();
+                let name_str = name.to_string_lossy();
+                if name_str != constants::FLOW_VERSION {
+                    let _ = std::fs::remove_dir_all(entry.path());
+                }
+            }
+        }
+    }
 
     // Clean actions cache
     if let Err(e) = vibe_fs::clean(&actions_dir, Some(&cache_dir)) {

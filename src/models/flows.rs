@@ -8,7 +8,8 @@ use std::path::PathBuf;
 
 use crate::default::default::default_flows;
 use crate::models::flow::FlowModel;
-use crate::utils;
+use crate::utils::constants;
+use crate::utils::{self};
 use crate::validate::ValidateTrait;
 
 /// Aggregated actions from all sources.
@@ -76,7 +77,11 @@ impl FlowsModel {
                 }
                 let flow = FlowModel::load(file_path)?;
                 flow.validate().map_err(|e| {
-                    anyhow::anyhow!("Validation failed for {}: {}", file_path.display(), e)
+                    let mut msg = e.to_string();
+                    if let Some(first) = msg.get_mut(0..1) {
+                        first.make_ascii_lowercase();
+                    }
+                    anyhow::anyhow!("failed to parse {}: {}", file_path.display(), msg)
                 })?;
             }
         }
@@ -100,7 +105,8 @@ impl FlowsModel {
         Ok(actions)
     }
 
-    /// Save default actions to a directory. Only creates files that don't already exist.
+    /// Save default actions to a directory. Overwrites files whose version
+    /// is missing or doesn't match FLOW_VERSION; creates missing files.
     fn save_defaults(path: &PathBuf) -> Result<()> {
         // Skip in test mode to avoid polluting fixtures
         if std::env::var("VIBE_LOG_TYPE").unwrap_or_default() == "test" {
@@ -114,7 +120,10 @@ impl FlowsModel {
             let name = flow.name()?;
             let file_path = path.join(format!("{}.yaml", name));
             if file_path.exists() {
-                continue;
+                match yaml_serde::from_str::<FlowModel>(&fs::read_to_string(&file_path)?) {
+                    Ok(existing) if existing.version == constants::FLOW_VERSION => continue,
+                    _ => {}
+                }
             }
             fs::write(&file_path, &yaml)?;
         }
