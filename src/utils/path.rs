@@ -8,9 +8,9 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use crate::utils::constants::ACTIONS_DIR_NAME;
+use crate::utils::constants::CACHE_VERSION;
 use crate::utils::constants::CONFIG_DIR_NAME;
 use crate::utils::constants::CONFIG_FILE_NAME;
-use crate::utils::constants::FLOW_VERSION;
 
 /// Get config directory path
 pub fn config_dir() -> PathBuf {
@@ -20,7 +20,7 @@ pub fn config_dir() -> PathBuf {
 
 /// Get var directory for runtime data (cache, contexts).
 pub fn cache_dir() -> PathBuf {
-    config_dir().join("cache").join(FLOW_VERSION)
+    config_dir().join("cache").join(CACHE_VERSION)
 }
 
 /// Get actions directory path (env VIBE_ACTION_PATH or default).

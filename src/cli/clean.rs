@@ -19,7 +19,7 @@ pub async fn execute() {
             for entry in entries.flatten() {
                 let name = entry.file_name();
                 let name_str = name.to_string_lossy();
-                if name_str != constants::FLOW_VERSION {
+                if name_str != constants::CACHE_VERSION {
                     let _ = std::fs::remove_dir_all(entry.path());
                 }
             }
