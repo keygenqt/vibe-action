@@ -2,6 +2,27 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.2.2] - 2026-08-18
+
+### ⚡ Refactoring
+
+- Add and use cache_version constant
+- Simplify git commit action by removing echoed message
+
+### 🐛 Fixes
+
+- Prompt before output in non-json modes
+
+### 📚 Documentation
+
+- Rewrite user guides and consolidate book css
+- Clarify guard condition for dry-run commit execution
+
+### 🚀 Features
+
+- Improve commit message synthesis and confirm completion for non-json outputs
+- Print commit message before running git commit
+
 ## [0.2.1] - 2026-08-17
 
 ### 🚀 Features
