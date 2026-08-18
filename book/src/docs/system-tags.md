@@ -7,7 +7,7 @@ System tags are built-in variables available in any flow. They provide context f
 | Tag                     | Description                     | Example                |
 | ----------------------- | ------------------------------- | ---------------------- |
 | `{system_arch}`         | CPU architecture                | `aarch64`, `x86_64`    |
-| `{system_date}`         | Current date (ISO 8601)         | `2026-06-28`           |
+| `{system_date}`         | Current date (ISO 8601)         | `2026-08-18`           |
 | `{system_dir_download}` | Downloads directory             | `/home/user/Downloads` |
 | `{system_dir_home}`     | Home directory                  | `/home/user`           |
 | `{system_dir_pwd}`      | Current working directory       | `/home/user/projects`  |
@@ -48,4 +48,4 @@ actions:
 
 - System tags are read-only and cannot be modified by flow steps.
 - `{system_language}` returns the language code from `LANG` env (`ru_RU.UTF-8` → `ru`). Falls back to `en` if not set.
-- For user input, text from the clipboard, or images, use the unified `{query}` tag instead. See [Query Tag](./query-tag.md) for details.
+- For user input, text from the clipboard, or images, use the unified `{query}` tag instead — see [Query Tag](./query-tag.md).

@@ -1,6 +1,7 @@
 # Modifiers
 
 Modifiers transform tag values inline: `{tag|modifier}` or `{tag|modifier:argument}`.
+
 All modifiers work with both strings and lists.
 
 ## Summary Table
@@ -55,7 +56,7 @@ Example: `{tag|join:,\s}` → `", "` (comma-space).
 
 Return `"true"`/`"false"` as strings for `when` conditions. Invert with `:not`:
 
-```yaml
+```text
 {tag|empty:not}
 {tag|contains:x:not}
 {tag|is_file:not}
@@ -63,18 +64,11 @@ Return `"true"`/`"false"` as strings for `when` conditions. Invert with `:not`:
 
 ## Chaining
 
-```yaml
+```text
 {tag|uniq|trim|upper|join:,\s}
 {tag|split|take:3|join}
-{tag|empty:not}
 ```
 
 ## Escaping Literals
 
-Use `{{...}}` to include literal braces:
-
-```yaml
-# Literal, not a tag:
-{{name}}
-{{tag|upper}}
-```
+Literal braces (`{{name}}`, `{{tag|upper}}`) are parsed by the tag engine, not by modifiers — see [Tag System](./tag-system.md#escaping-literals).

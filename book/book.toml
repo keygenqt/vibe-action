@@ -20,4 +20,4 @@ default-theme = "navy"
 preferred-dark-theme = "navy"
 smart-punctuation = true
 mathjax-support = true
-additional-css = ["src/assets/css/book/styles.css"]
+additional-css = ["src/assets/css/book.css"]

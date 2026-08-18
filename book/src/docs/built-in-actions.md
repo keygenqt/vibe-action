@@ -6,7 +6,7 @@ Vibe Action ships with 21 ready-to-use actions. They are written to `~/.vibe-act
 
 Replace TODO with a meaningful comment.
 
-```bash
+```text
 vibe-action comment
 vibe-action comment "path/to/file.rs"
 ```
@@ -15,7 +15,7 @@ vibe-action comment "path/to/file.rs"
 
 AI-generated git commit message with conventional commit format.
 
-```bash
+```text
 vibe-action commit
 vibe-action commit ./src
 ```
@@ -24,7 +24,7 @@ vibe-action commit ./src
 
 Describe a screenshot or photo. Supports images from clipboard, file, or URL.
 
-```bash
+```text
 vibe-action describe
 vibe-action describe screenshot.png
 ```
@@ -33,7 +33,7 @@ vibe-action describe screenshot.png
 
 Explain what the selected code does by adding detailed comments.
 
-```bash
+```text
 vibe-action explain
 vibe-action explain "your code"
 ```
@@ -42,7 +42,7 @@ vibe-action explain "your code"
 
 Extract matching lines from log files or text using semantic search.
 
-```bash
+```text
 vibe-action extract -f app.log "find all errors"
 ```
 
@@ -50,7 +50,7 @@ vibe-action extract -f app.log "find all errors"
 
 Ask questions about Vibe Action — YAML structure, modifiers, usage.
 
-```bash
+```text
 vibe-action faq "как использовать модификаторы?"
 ```
 
@@ -58,7 +58,7 @@ vibe-action faq "как использовать модификаторы?"
 
 Fetch and summarize a web page or PDF.
 
-```bash
+```text
 vibe-action fetch https://example.com
 vibe-action fetch document.pdf
 ```
@@ -67,7 +67,7 @@ vibe-action fetch document.pdf
 
 Semantic file finder — finds files by meaning, not just by name.
 
-```bash
+```text
 vibe-action find "topological sort"
 vibe-action find "topological sort" ./src
 ```
@@ -76,7 +76,7 @@ vibe-action find "topological sort" ./src
 
 Generate realistic mock data in JSON, YAML, or CSV.
 
-```bash
+```text
 vibe-action mock -f json "5 users with id, name, email"
 ```
 
@@ -84,7 +84,7 @@ vibe-action mock -f json "5 users with id, name, email"
 
 Generate code naming suggestions based on a description.
 
-```bash
+```text
 vibe-action naming "function to sort actions by dependency"
 ```
 
@@ -92,7 +92,7 @@ vibe-action naming "function to sort actions by dependency"
 
 Generate regular expression patterns.
 
-```bash
+```text
 vibe-action regex "IPv4 address" -e "192.168.1.1"
 ```
 
@@ -100,7 +100,7 @@ vibe-action regex "IPv4 address" -e "192.168.1.1"
 
 Critically analyze code for bugs and flaws.
 
-```bash
+```text
 vibe-action review
 vibe-action review "your code"
 ```
@@ -109,7 +109,7 @@ vibe-action review "your code"
 
 Scan project codebase and export as structured JSON via AST parsing.
 
-```bash
+```text
 vibe-action scan
 vibe-action scan src/engine
 ```
@@ -118,7 +118,7 @@ vibe-action scan src/engine
 
 Check and fix spelling in text or files.
 
-```bash
+```text
 vibe-action spellcheck README.md
 vibe-action spellcheck "Helo, wrld!"
 ```
@@ -127,7 +127,7 @@ vibe-action spellcheck "Helo, wrld!"
 
 Find programming/technical synonyms for a word.
 
-```bash
+```text
 vibe-action synonyms "middleware"
 ```
 
@@ -135,7 +135,7 @@ vibe-action synonyms "middleware"
 
 Generate a human-readable system report.
 
-```bash
+```text
 vibe-action sysinfo
 ```
 
@@ -143,7 +143,7 @@ vibe-action sysinfo
 
 Transform rude or aggressive text into a professional tone.
 
-```bash
+```text
 vibe-action tone
 vibe-action tone "How fucking long do I have to wait?"
 ```
@@ -152,7 +152,7 @@ vibe-action tone "How fucking long do I have to wait?"
 
 Deep two-stage translation using local drafting and cloud polishing.
 
-```bash
+```text
 vibe-action translate-deep README.md
 vibe-action translate-deep "Some text to translate" -l English
 ```
@@ -161,7 +161,7 @@ vibe-action translate-deep "Some text to translate" -l English
 
 One step translation using a large model.
 
-```bash
+```text
 vibe-action translate-large README.md
 vibe-action translate-large "Some text to translate" -l English
 ```
@@ -170,7 +170,7 @@ vibe-action translate-large "Some text to translate" -l English
 
 Fast single-model translation.
 
-```bash
+```text
 vibe-action translate-small README.md
 vibe-action translate-small "Some text to translate" -l English
 ```
@@ -179,7 +179,7 @@ vibe-action translate-small "Some text to translate" -l English
 
 Identify people in a photo — full name, role, and historical impact.
 
-```bash
+```text
 vibe-action whois
 vibe-action whois photo.jpg
 ```

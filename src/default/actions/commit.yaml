@@ -15,56 +15,112 @@ api:
   input: query|project_path
 
 actions:
-  # Get list of changed files
+  # Overview for the final model: file statuses (including untracked)
+  - tag: tag_status
+    run: cmd
+    expect: string
+    action: cd {query|project_path} && git status --porcelain
+
+  # Change statistics — gives the model a sense of scale
+  - tag: tag_stat
+    run: cmd
+    expect: string
+    action: cd {query|project_path} && git diff HEAD --stat 2>/dev/null || true
+
+  # Recent commit style — the model adapts to project conventions.
+  # Falls back gracefully on a repo with no commits yet.
+  - tag: tag_recent_commits
+    run: cmd
+    expect: string
+    action: cd {query|project_path} && git log --oneline -15 --no-decorate 2>/dev/null || echo "No commits yet"
+
+  # ALL changed files, including untracked.
+  # -uall: expand untracked directories into individual files
+  # --no-renames: renames shown as delete+add (avoids "old -> new" paths)
+  # core.quotepath=false + sed: keeps paths with spaces and non-ASCII intact
   - tag: tag_changed_files
     run: cmd
     expect: list
     check: .+
-    action: cd {query|project_path} && git diff HEAD -U0 --name-only --relative
+    action: cd {query|project_path} && git -c core.quotepath=false status --porcelain -uall --no-renames | sed 's/^...//'
 
-  # Diff each changed file
+  # Diff per file; untracked files — content snippet; everything size-limited
   - tag: tag_file_diff
     run: cmd
     expect: list
     action: |
       cd {query|project_path}
-      if [ -f "{tag_changed_files}" ]; then
-        git diff HEAD -- "{tag_changed_files}"
+      f="{tag_changed_files}"
+      if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+        # Tracked: diff is safe even for binaries ("Binary files differ")
+        git diff HEAD -- "$f" 2>/dev/null | head -c 6000
+      elif [ -d "$f" ]; then
+        echo "=== NEW DIRECTORY: $f ==="
+      elif [ ! -s "$f" ]; then
+        # Empty file: grep binary detection false-positives on these
+        echo "=== NEW EMPTY FILE: $f ==="
+      elif grep -Iq . "$f" 2>/dev/null; then
+        # Untracked text file
+        echo "=== NEW FILE: $f ==="
+        head -c 3000 "$f"
+      else
+        # Untracked binary: existence + size only
+        echo "=== NEW BINARY FILE: $f ($(du -h "$f" | cut -f1)) ==="
       fi
 
-  # LLM summarizes each diff in one sentence
+  # Small model: essence of the per-file change, no noise
   - tag: tag_file_summary
     run: small
     expect: list
     action: |
       [Task]
-      1. Read the git diff below.
-      2. Find the file path in the header (lines starting with --- and +++).
-      3. Count the number of changed blocks (@@ sections).
-      4. Write a single phrase describing the most important changes.
-      5. Reply in format: <path> (<N> changes): <phrase>
-      6. Ignore trivial changes like imports or formatting.
+      Describe the PURPOSE of this change in one phrase (max 15 words).
+      - Focus on WHAT and WHY, not mechanics.
+      - Deleted file: what was removed and, if obvious, what replaced it.
+      - New file: what it is and its role.
+      - Binary/empty file stub: just state what was added.
+      - Ignore trivial changes (formatting, typos).
+      Format: <path>: <phrase>
 
       [Example]
-      src/main.rs (3 changes): fix CLI argument parsing
+      book/src/assets/css/index/body.css: deleted, merged into shared main.css
 
       [Diff]
       {tag_file_diff}
 
-  # LLM combines all summaries into one commit message
+  # Final model: now has status, stats, history and summaries
   - tag: tag_commit_message
     run: medium
     expect: string
     action: |
       [Task]
-      Summarize all summaries below into ONE short conventional commit message (max 10 words).
-      Allowed types: feat, fix, docs, refactor, test, chore.
-      Format strictly: <type>: <commit> (NO parentheses or scopes).
+      Write ONE conventional commit message (will appear in a git-cliff changelog).
+      Rules:
+      - Format strictly: <type>: <message> (NO scope/parentheses)
+      - Types: feat, fix, docs, refactor, test, chore, style, perf
+      - Max 72 chars, imperative mood, lowercase after type
+      - Describe the ESSENCE/goal of the whole change, not a list of files
+      - Type = the dominant change
+      - NEVER use single quotes, double quotes or backticks (shell-safe output)
+      - Recent commits show the project style — match their quality
 
-      [Summaries]
+      [Bad]  docs: update docs
+      [Bad]  chore: change book files
+      [Good] docs: rewrite action reference and consolidate book css
+      [Good] refactor: replace per-page css with shared book and main stylesheets
+
+      [Recent commits]
+      {tag_recent_commits}
+
+      [Changed files with status]
+      {tag_status}
+
+      [Diff stat]
+      {tag_stat}
+
+      [Per-file summaries]
       {tag_file_summary|uniq|join}
 
-  # Execute git commit (asks for confirmation)
   - tag: tag_commit_exec
     run: cmd
     expect: string
@@ -72,7 +128,6 @@ actions:
     when: '{dry_run|contains:false}'
     action: cd {query|project_path} && git add . && git commit -m '{tag_commit_message|lower}'
 
-  # Evaluate dry_run flag: return message or call exec tag
   - tag: tag_commit
     run: value
     expect: string

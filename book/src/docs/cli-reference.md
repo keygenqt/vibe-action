@@ -2,13 +2,13 @@
 
 ## Environment Variables
 
-| Variable           | Description                                                                                            | Default                      |
-| ------------------ | ------------------------------------------------------------------------------------------------------ | ---------------------------- |
-| `VIBE_CONFIG`      | Path to config file                                                                                    | `~/.vibe-action/config.yaml` |
-| `VIBE_ACTION_PATH` | Path to actions directory                                                                              | `~/.vibe-action/actions/`    |
-| `VIBE_LOG_TYPE`    | Output mode: `cli`, `plain`, `json`, `tracing`, `test`                                                 | `cli`                        |
-| `VIBE_TRACE_LEVEL` | Tracing level: `error`, `warn`, `info`, `debug`, `trace` (**Only works when `VIBE_LOG_TYPE=tracing`**) | `info`                       |
-| `VIBE_SKIP_LOCK`   | Disables the singleton guard allowing multiple instances to run in parallel (e.g., for API clusters)   | _Not set (guard enabled)_    |
+| Variable           | Description                                                                                          | Default                      |
+| ------------------ | ---------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `VIBE_CONFIG`      | Path to config file                                                                                  | `~/.vibe-action/config.yaml` |
+| `VIBE_ACTION_PATH` | Path to actions directory                                                                            | `~/.vibe-action/actions/`    |
+| `VIBE_LOG_TYPE`    | Output mode: `cli`, `plain`, `json`, `tracing`, `test`                                               | `cli`                        |
+| `VIBE_TRACE_LEVEL` | Tracing level: `error`, `warn`, `info`, `debug`, `trace` (only works when `VIBE_LOG_TYPE=tracing`)   | `info`                       |
+| `VIBE_SKIP_LOCK`   | Disables the singleton guard allowing multiple instances to run in parallel (e.g., for API clusters) | Not set (guard enabled)      |
 
 ## Output Modes
 
@@ -22,7 +22,7 @@
 
 ## Trace Levels
 
-_Note: `VIBE_TRACE_LEVEL` is only respected when `VIBE_LOG_TYPE` is set to `tracing`. Using it with other modes will cause an error._
+Note: `VIBE_TRACE_LEVEL` is only respected when `VIBE_LOG_TYPE` is set to `tracing`. Using it with other modes will cause an error.
 
 | Level   | Description               |
 | ------- | ------------------------- |
@@ -36,46 +36,47 @@ _Note: `VIBE_TRACE_LEVEL` is only respected when `VIBE_LOG_TYPE` is set to `trac
 
 Execute a YAML-defined action directly:
 
-```bash
+```text
 vibe-action <name> [query] [args...]
+
 vibe-action commit .
 vibe-action translate-small README.md -l Russian
 vibe-action tone   # reads from clipboard if no query is provided
 vibe-action --help
 ```
 
-System commands:
+Full list of ready-to-use actions — [Built-in Actions](./built-in-actions.md).
 
-```bash
-vibe-action clean              # Remove all cache and temp files
-vibe-action status             # Show version and actions count
-vibe-action stop               # Stop all running processes
-vibe-action bench              # Run all benchmarks
-vibe-action bench -a faq -v    # Run benchmarks for specific action with output
+## System Commands
+
+```text
+vibe-action status   # Show system status
+vibe-action clean    # Remove all cache
+vibe-action stop     # Stop all running processes
 ```
 
 ## Action Arguments
 
-Each action defines its own arguments in YAML. Use `--help` to see available options:
+Each action defines its own arguments in YAML — see [Action Structure](./action-structure.md). Use `--help` to see available options:
 
-```bash
+```text
 vibe-action commit --help
 vibe-action extract --help
 ```
 
 ## Exit Codes
 
-| Code | Description                                                |
-| ---- | ---------------------------------------------------------- |
-| 0    | Success                                                    |
-| 1    | Error (validation failed, shell command failed, LLM error) |
-| 130  | Instance superseded by a newer run (auto-cancelled)        |
+| Code  | Description                                                |
+| ----- | ---------------------------------------------------------- |
+| `0`   | Success                                                    |
+| `1`   | Error (validation failed, shell command failed, LLM error) |
+| `130` | Instance superseded by a newer run (auto-cancelled)        |
 
 ## Debug Mode
 
 Set `VIBE_LOG_TYPE=tracing` and `VIBE_TRACE_LEVEL=debug` (or `trace`) for detailed logs:
 
-```bash
+```text
 VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug vibe-action commit .
 ```
 

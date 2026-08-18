@@ -26,7 +26,6 @@ actions:
     run: cmd
     expect: list
     action: ls *.rs
-
   - tag: tag_summary
     run: small
     expect: string
@@ -34,6 +33,7 @@ actions:
 ```
 
 Step `tag_summary` depends on `tag_files`. The engine runs `tag_files` first, then passes its output to `tag_summary`.
+
 The `|join` modifier collapses the list result into a single string — without it, `tag_summary` would execute once for each file in the list.
 
 ## Automatic Dependency Ordering
@@ -51,11 +51,9 @@ actions:
   - tag: tag_commit
     run: cmd
     action: git commit -m '{tag_message}'
-
   - tag: tag_files
     run: cmd
     action: git diff --name-only
-
   - tag: tag_message
     run: small
     action: Write a commit message for: {tag_files}
@@ -65,7 +63,7 @@ Execution order: `tag_files` → `tag_message` → `tag_commit`
 
 ## List Expansion
 
-When a step expects `string` or runs `cmd` but receives a list from a tag, the engine runs the action **for each element**:
+When a step expects `string` or runs `cmd` but receives a list from a tag, the engine runs the action for each element:
 
 ```yaml
 actions:
@@ -74,7 +72,6 @@ actions:
     expect: list
     action: git diff --name-only
     # Returns: ["main.rs", "lib.rs"]
-
   - tag: tag_diff
     run: cmd
     expect: list
@@ -124,11 +121,12 @@ Circular references are detected at startup and reported as errors:
   action: echo {tag_a}
 ```
 
-```
+```text
 Error: Circular dependency detected involving tag: 'tag_a'
 ```
 
 ## Invalid Modifiers
 
 Using a pipe `|` without specifying a modifier name (e.g., `{tag|}`) will cause a fatal validation error, and the pipeline will halt immediately.
+
 Always ensure modifiers are properly named (e.g., `{tag|upper}`) or remove the pipe.

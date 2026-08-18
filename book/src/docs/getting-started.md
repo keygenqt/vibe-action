@@ -2,17 +2,17 @@
 
 ## Prerequisites
 
-- **Ollama** (recommended), or API keys for **DeepSeek**, **Qwen**, **Kimi**, or **Zhipu** — for LLM inference
-- **Rust** (if building from source)
+- Ollama (recommended), or API keys for DeepSeek, Qwen, Kimi, or Zhipu — for LLM inference
+- Rust (if building from source)
 
-### Supported Platforms
+## Supported Platforms
 
-- **macOS** — full support
-- **Linux** — full support
+- macOS — full support
+- Linux — full support
 
-### Install Ollama
+## Install Ollama
 
-```bash
+```text
 # macOS / Linux
 curl -fsSL https://ollama.com/install.sh | sh
 
@@ -25,15 +25,15 @@ ollama pull qwen2.5vl:7b                # vision
 
 ## Install Vibe Action
 
-### Via Cargo (recommended)
+Via Cargo (recommended):
 
-```bash
+```text
 cargo install vibe-action
 ```
 
-### Build from source
+Build from source:
 
-```bash
+```text
 git clone https://gitcode.com/keygenqt_vz/vibe-action.git
 cd vibe-action
 cargo build --release
@@ -43,100 +43,48 @@ cargo build --release
 
 On first run, Vibe Action creates the config and default actions:
 
-```bash
+```text
 $ vibe-action --help
 ```
 
 This creates:
 
 - `~/.vibe-action/config.yaml` — configuration
-- `~/.vibe-action/actions/` — 21 built-in actions
+- `~/.vibe-action/actions/` — built-in actions
 
 ## Configure Cluster
 
 Edit `~/.vibe-action/config.yaml` to point to your Ollama instance:
 
 ```yaml
-version: '0.0.3'
-
-action:
-  system: 'You are Vibe Action — a CLI tool. Output ONLY the result.'
-  retries: 2
-
 cluster:
   - provider: ollama
     host: http://localhost:11434
     model: qwen2.5-coder:14b-instruct
-    timeout_secs: 60
-    temperature: 0.1
-    seed: 42
-    num_ctx: 4096
-    num_predict: 2048
-    parallel: 1
 ```
+
+Full field reference — roles, timeouts, multi-node clusters — see [Configuration](./configuration.md).
 
 ## Run Your First Actions
 
-```bash
+```text
 # AI-powered commit
 vibe-action commit
 
 # Translate a file
 vibe-action translate-small README.md
-vibe-action translate-large README.md
-
-# Rewrite tone from clipboard
-vibe-action tone
-
-# Extract errors from logs
-vibe-action extract -f app.log "find all errors"
 
 # Describe a screenshot
 vibe-action describe screenshot.png
-
-# Fetch and summarize a web page
-vibe-action fetch https://example.com
-
-# System report
-vibe-action sysinfo
-
-# Scan project codebase as JSON
-vibe-action scan
-
-# Ask about Vibe Action itself
-vibe-action faq "как использовать модификаторы?"
-
-# Check version and status
-vibe-action status
-
-# Clear all cache
-vibe-action clean
-
-# Stop all running processes
-vibe-action stop
-
-# Run benchmarks
-vibe-action bench
-vibe-action bench -a faq -v
-
-# See all available actions
-vibe-action --help
 ```
 
-## Debug Mode
-
-Set `VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug` to see what's happening under the hood:
-
-```bash
-VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug vibe-action commit
-```
-
-Shows each pipeline step: original command, resolved template, and result.
+Full list of ready-to-use actions — [Built-in Actions](./built-in-actions.md).
+System commands (`status`, `clean`, `stop`) and environment variables — [CLI Reference](./cli-reference.md).
 
 ## Next Steps
 
 - [Action Structure](./action-structure.md) — learn the YAML format
-- [Query Tag](./docs/query-tag.md) — unified input for CLI and IDE
+- [Query Tag](./query-tag.md) — unified input for CLI and IDE
 - [Built-in Actions](./built-in-actions.md) — explore what's included
 - [Custom Actions](./custom-actions.md) — write your own
 - [Tag System](./tag-system.md) — understand {tag} references

@@ -2,9 +2,12 @@
 
 Create your own actions by adding `.yaml` files to `~/.vibe-action/actions/`. Any subdirectory works — the engine loads all files recursively.
 
+Some examples below are fragments focused on a single feature — the full skeleton (`version`, `name`, `about`, `args`, `api`) lives in [Action Structure](./action-structure.md).
+
 ## Hello World
 
 ```yaml
+version: 0.0.1
 name: hello
 about: Say hello
 actions:
@@ -17,6 +20,7 @@ actions:
 ## Shell Command
 
 ```yaml
+version: 0.0.1
 name: disk
 about: Show disk usage
 actions:
@@ -31,6 +35,7 @@ actions:
 Arguments are used for settings and flags, not for the main data input.
 
 ```yaml
+version: 0.0.1
 name: greet
 about: Greet someone
 args:
@@ -44,22 +49,6 @@ actions:
     run: value
     expect: string
     action: Hello, {name}!
-```
-
-## Using System Tags
-
-System tags provide context from your environment. See [System Tags](./system-tags.md) for the full list.
-
-```yaml
-actions:
-  - tag: tag_info
-    run: value
-    expect: string
-    action: |
-      User: {system_user}
-      OS: {system_os}
-      PWD: {system_dir_pwd}
-      Date: {system_date}
 ```
 
 ## LLM Call
@@ -89,7 +78,6 @@ actions:
     expect: string
     action: |
       {query|image|load|text}
-
       Describe this image in detail.
 ```
 
@@ -112,6 +100,7 @@ actions:
 Use `{query|project_path}` to automatically determine the project root.
 
 ```yaml
+version: 0.0.1
 name: my-scan
 about: Scan project codebase as JSON
 api:
@@ -139,23 +128,6 @@ actions:
     action: '{tag_ast|format:json}'
 ```
 
-## IDE Integration (VS Code / IntelliJ)
-
-Define how IDE plugins should handle your action using the `api` block. This example replaces the selected text with its uppercase version:
-
-```yaml
-name: upper
-about: Convert text to UPPERCASE
-api:
-  output: replace # replace | clipboard | dialog
-  input: query # query | query|file_path | query|prompt | etc.
-actions:
-  - tag: tag_upper
-    run: value
-    expect: string
-    action: '{query|upper}'
-```
-
 ## Clipboard
 
 Use the `clipboard` modifier to copy values at any pipeline step:
@@ -175,7 +147,6 @@ actions:
     run: cmd
     expect: list
     action: git diff --name-only
-
   - tag: tag_commit
     run: cmd
     expect: string
@@ -194,7 +165,6 @@ actions:
     run: cmd
     expect: string
     action: cat {query|file_path}
-
   - tag: tag_summary
     run: small
     expect: string
@@ -206,10 +176,11 @@ actions:
 ## Tips
 
 - **Tag naming:** use `tag_` prefix for consistency with built-in actions
-- **Dependencies:** the engine sorts steps by `{tag}` references, not YAML order
+- **Dependencies:** the engine sorts steps by `{tag}` references, not YAML order — [Tag System](./tag-system.md)
 - **Validation:** add `check: ".+"` to ensure non-empty output
-- **Debugging:** set `VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=debug` to see each step's input and output
+- **Debugging:** `VIBE_LOG_TYPE` / `VIBE_TRACE_LEVEL` — [CLI Reference](./cli-reference.md)
 - **Clipboard:** use `{tag|clipboard}` to copy any value to clipboard mid-pipeline
 - **Images:** use `{query|image}` for vision flows — works with files, URLs, and clipboard
 - **System tags:** see [System Tags](./system-tags.md) for all available environment variables
 - **Notifications:** add `notify: true` to show desktop notification on completion
+- **IDE integration:** the `api` block reference lives in [IDE Integration](./vibe-action-cross.md)

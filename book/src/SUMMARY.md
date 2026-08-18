@@ -5,7 +5,7 @@
 # General
 
 - [Introduction](./docs/introduction.md)
-- [Quick Start](./docs/getting-started.md)
+- [Getting Started](./docs/getting-started.md)
 - [IDE Integration](./docs/vibe-action-cross.md)
 
 # YAML Actions

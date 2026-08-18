@@ -1,9 +1,8 @@
 # Vibe Action
 
-Command router for shell and LLM tasks via YAML pipelines.
+Command router for shell and LLM tasks via simple YAML actions.
 
-> Chat is where you think. Vibe Action is where you prep the context —
-> seamlessly, with local models, so your chat stays clean and cheap.
+**Chat is where you think. Vibe Action is where you prep the context — with local models, so your chat stays clean and cheap.**
 
 ## Why
 
@@ -27,9 +26,11 @@ Command router for shell and LLM tasks via YAML pipelines.
 ```bash
 cargo install vibe-action
 
-vibe-action
-vibe-action faq "какие команды есть и зачем?"
-vibe-action faq "как использовать модификаторы?"
+vibe-action --help
+vibe-action faq "what commands are available?"
+vibe-action faq "how do modifiers work?"
+vibe-action commit .
+vibe-action translate-deep README.md
 ```
 
 [IDE Integration](https://vibe-action.keygenqt.com/docs/vibe-action-cross.html)
@@ -39,6 +40,7 @@ vibe-action faq "как использовать модификаторы?"
 `~/.vibe-action/config.yaml`:
 
 ```yaml
+version: '0.0.3'
 action:
   system: 'You are Vibe Action — a CLI tool. Output ONLY the result.'
   retries: 2

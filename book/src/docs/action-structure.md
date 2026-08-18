@@ -5,6 +5,7 @@ Each action is a YAML file in `~/.vibe-action/actions/`. The engine loads all `.
 ## Minimal Action
 
 ```yaml
+version: 0.0.1
 name: hello
 about: Say hello
 actions:
@@ -14,7 +15,7 @@ actions:
     action: Hello, World!
 ```
 
-```bash
+```text
 $ vibe-action hello
 info: completed in 0.01s
 ── success ──
@@ -25,6 +26,7 @@ Hello, World!
 ## Full Structure
 
 ```yaml
+version: 0.0.1 # Flow version (bump to force refresh)
 name: my-action # CLI subcommand name
 about: Description # Help text
 check: '^[a-z]+$' # Optional: regex validation for final output
@@ -46,6 +48,12 @@ actions: # Pipeline steps (executed in order of dependencies)
     confirm: true # Optional: ask before executing
     action: echo "Hello {query}!"
 ```
+
+## Version
+
+Built-in flows ship with a `version` equal to the engine's internal flow version. On startup, a built-in flow whose `version` is missing or different is reset to its default content — custom edits to default flows will be overwritten.
+
+Custom flows set their own `version`; bump it to force the engine to refresh the flow.
 
 ## Action Types
 
@@ -81,13 +89,6 @@ actions: # Pipeline steps (executed in order of dependencies)
 
 Omit `expect` for steps with no expected output.
 
-## IDE Plugin Integration (`api`)
-
-The optional `api` block configures how IDE plugins (like VS Code or IntelliJ) interact with the action.
-
-- `output`: Defines how the final result is presented (`replace` selected text, send to `clipboard`, or show in a `dialog`).
-- `input`: Defines the source to fill the unified `{query}` tag (e.g., `query` for editor selection, `query|file_path` for the current file, or `query|prompt` for an interactive dialog).
-
 ## Conditional Actions (When/Then)
 
 `action` can be a list of `when/then` pairs for conditional execution:
@@ -104,23 +105,12 @@ The optional `api` block configures how IDE plugins (like VS Code or IntelliJ) i
 ```
 
 Each `when` condition is evaluated. The first matching `then` is executed.
+
 If no condition matches — the step fails with an error.
 
 ## Execution Order
 
-Actions are sorted by their `{tag}` dependencies, not by their order in the file.
-The engine builds a dependency graph and executes in topological order.
-
-```yaml
-actions:
-  - tag: tag_files # 1st — no dependencies
-    run: cmd
-    action: find . -name '*.rs'
-
-  - tag: tag_summary # 2nd — depends on tag_files
-    run: small
-    action: Summarize - {tag_files}
-```
+Steps are sorted by their `{tag}` dependencies, not by their order in the file. Dependency graph, list expansion and circular dependencies — [Tag System](./tag-system.md).
 
 ## Check (Regex Validation)
 
@@ -144,13 +134,10 @@ actions:
   action: git commit -m "feat: something"
 ```
 
+## IDE Plugin Integration (`api`)
+
+The optional `api` block connects the action to IDE plugins: where to take `{query}` from and how to present the result. Full reference with all input sources — [IDE Integration](./vibe-action-cross.md).
+
 ## Clipboard
 
-Use the `clipboard` modifier to copy values during pipeline execution:
-
-```yaml
-- tag: tag_result
-  run: value
-  expect: string
-  action: '{tag_data|format:json|clipboard}'
-```
+Copy a value mid-pipeline with the `clipboard` modifier — [Modifiers](./modifiers.md).

@@ -2,6 +2,16 @@
 
 Vibe Action uses a single YAML config file at `~/.vibe-action/config.yaml`. It is created automatically on first run.
 
+## Version
+
+```yaml
+version: '0.0.3'
+```
+
+Top-level `version` tracks the config schema.
+On startup the engine compares it with its internal `CONFIG_VERSION` — if they differ, the CLI exits with a `Config version mismatch` error.
+To fix it, either bump the `version` manually in your config, or delete `~/.vibe-action/config.yaml` — the next run will create a fresh one with the current default.
+
 ## Action
 
 Runtime settings for all flows.
@@ -22,7 +32,8 @@ action:
 
 ## Cluster
 
-Define one or more LLM providers. The engine sends prompts to all nodes in parallel.
+Define one or more LLM providers. The engine routes each request to nodes with the matching `role` and runs batch steps in parallel.
+
 Use `role` to assign models to specific complexity levels.
 
 ```yaml
@@ -48,7 +59,7 @@ cluster:
 | `model`        | string  | Model name                                    |
 | `role`         | string  | `tiny`, `small`, `medium`, `large`, `vision`  |
 | `timeout_secs` | integer | Request timeout in seconds                    |
-| `temperature`  | float   | 0.0-2.0, lower = more deterministic           |
+| `temperature`  | float   | 0.0–2.0, lower = more deterministic           |
 | `seed`         | integer | Random seed for reproducibility               |
 | `num_ctx`      | integer | Context window size in tokens                 |
 | `num_predict`  | integer | Max tokens to generate                        |
@@ -69,7 +80,6 @@ cluster:
     num_ctx: 4096
     num_predict: 512
     parallel: 2
-
   - provider: zhipu
     host: https://open.bigmodel.cn/api/paas/v4
     model: glm-4-flash
@@ -81,7 +91,6 @@ cluster:
     num_predict: 2048
     api_key: sk-...
     parallel: 2
-
   - provider: ollama
     host: http://192.168.1.10:11434
     model: qwen2.5-coder:14b-instruct
@@ -92,7 +101,6 @@ cluster:
     num_ctx: 8192
     num_predict: 2048
     parallel: 1
-
   - provider: deepseek
     host: https://api.deepseek.com/v1
     model: deepseek-v4-flash
@@ -104,7 +112,6 @@ cluster:
     num_predict: 8192
     api_key: sk-...
     parallel: 2
-
   - provider: kimi
     host: https://api.moonshot.cn/v1
     model: moonshot-v1-8k
@@ -116,7 +123,6 @@ cluster:
     num_predict: 2048
     api_key: sk-...
     parallel: 1
-
   - provider: ollama
     host: http://localhost:11434
     model: qwen2.5vl:7b
@@ -130,13 +136,14 @@ cluster:
 ```
 
 Nodes with `role: tiny` are used for `run: tiny`, `role: small` for `run: small`, `role: medium` for `run: medium`, `role: large` for `run: large`, `role: vision` for `run: vision`.
+
 Nodes without a `role` respond to all requests.
 
 ## Actions Directory
 
-Actions are stored in `~/.vibe-action/actions/`. The directory is created on first run with default actions. Override with `VIBE_ACTION_PATH`.
+Actions are stored in `~/.vibe-action/actions/`. The directory is created on first run with default actions. Override with `VIBE_ACTION_PATH` — see [CLI Reference](./cli-reference.md).
 
-```
+```text
 ~/.vibe-action/
 ├── config.yaml
 └── actions/

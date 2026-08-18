@@ -1,42 +1,42 @@
 /* ==================== Variables ==================== */
 html.navy {
-  --bg: #0a0a0f;
-  --fg: #c0c0d0;
+  --bg: #0c0f11;
+  --fg: #dedad2;
 
-  --sidebar-bg: #111118;
-  --sidebar-fg: #9898b0;
-  --sidebar-non-existant: #505060;
-  --sidebar-active: #14b8a6;
-  --sidebar-spacer: #252538;
+  --sidebar-bg: #12161a;
+  --sidebar-fg: #a9a8a0;
+  --sidebar-non-existant: #505050;
+  --sidebar-active: #2ec4b6;
+  --sidebar-spacer: #252a2e;
 
-  --scrollbar: #9898b0;
+  --scrollbar: #8a8a82;
 
-  --icons: #737480;
-  --icons-hover: #b7b9cc;
+  --icons: #707068;
+  --icons-hover: #c0c0b0;
 
-  --links: #14b8a6;
+  --links: #2ec4b6;
 
-  --inline-code-color: #14b8a6;
+  --inline-code-color: #e79a6e;
 
-  --theme-popup-bg: #111118;
-  --theme-popup-border: #252538;
-  --theme-hover: #1a1a28;
+  --theme-popup-bg: #12161a;
+  --theme-popup-border: #252a2e;
+  --theme-hover: #1a1e22;
 
-  --quote-bg: #161622;
-  --quote-border: #252538;
+  --quote-bg: #14181c;
+  --quote-border: #252a2e;
 
-  --table-border-color: #1a1a28;
-  --table-header-bg: #161622;
-  --table-alternate-bg: #111118;
+  --table-border-color: #1e2327;
+  --table-header-bg: #14181c;
+  --table-alternate-bg: #12161a;
 
-  --searchbar-border-color: #252538;
-  --searchbar-bg: #161622;
-  --searchbar-fg: #c0c0d0;
-  --searchbar-shadow-color: #0a0a0f;
-  --searchresults-header-fg: #9898b0;
-  --searchresults-border-color: #252538;
-  --searchresults-li-bg: #161622;
-  --search-mark-bg: #14b8a6;
+  --searchbar-border-color: #252a2e;
+  --searchbar-bg: #14181c;
+  --searchbar-fg: #dedad2;
+  --searchbar-shadow-color: #0c0f11;
+  --searchresults-header-fg: #a9a8a0;
+  --searchresults-border-color: #252a2e;
+  --searchresults-li-bg: #14181c;
+  --search-mark-bg: #2ec4b6;
 
   --color-scheme: dark;
 
@@ -45,19 +45,19 @@ html.navy {
   --copy-button-filter-hover: invert(51%) sepia(55%) saturate(531%) hue-rotate(160deg)
     brightness(104%) contrast(101%);
 
-  --footnote-highlight: #14b8a6;
+  --footnote-highlight: #2ec4b6;
 
-  --overlay-bg: rgba(10, 10, 15, 0.4);
+  --overlay-bg: rgba(12, 15, 17, 0.6);
 
   --blockquote-note-color: #4493f8;
-  --blockquote-tip-color: #14b8a6;
-  --blockquote-important-color: #0d9488;
+  --blockquote-tip-color: #2ec4b6;
+  --blockquote-important-color: #1a9e93;
   --blockquote-warning-color: #d29922;
   --blockquote-caution-color: #f21424;
 
-  --sidebar-header-border-color: #14b8a6;
+  --sidebar-header-border-color: #2ec4b6;
 
-  --warning-border: #ff8e00;
+  --warning-border: #d06b38;
 
   --content-max-width: 1100px;
 }
@@ -71,11 +71,11 @@ html.navy body::before {
   width: 100%;
   height: 100%;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(192, 132, 252, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(74, 222, 128, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(34, 211, 238, 0.03) 0%, transparent 50%),
-    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    radial-gradient(ellipse at 20% 50%, rgba(222, 218, 210, 0.02) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(46, 196, 182, 0.02) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(198, 93, 44, 0.015) 0%, transparent 50%),
+    linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
   background-size:
     100% 100%,
     100% 100%,
@@ -88,16 +88,16 @@ html.navy body::before {
 
 /* ==================== Menu Bar ==================== */
 html.navy #menu-bar {
-  background: rgba(10, 10, 15, 0.8);
+  background: rgba(12, 15, 17, 0.86);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid #252538;
+  border-bottom: 1px solid #252a2e;
 }
 
 html.navy .menu-title {
   font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
   font-weight: 700;
-  color: #c0c0d0;
+  color: #dedad2;
 }
 
 /* ==================== Content ==================== */
@@ -107,7 +107,7 @@ html.navy .content {
 }
 
 html.navy .content main {
-  background: rgb(16 16 22 / 90%);
+  background: rgb(18 22 26 / 92%);
   border-radius: 12px;
   padding: 32px;
 }
@@ -116,7 +116,7 @@ html.navy .content main {
 html.navy .content h1 {
   font-family: var(--font-mono);
   font-weight: 800;
-  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  background: linear-gradient(135deg, #2ec4b6, #1a9e93);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -126,7 +126,7 @@ html.navy .content h2,
 html.navy .content h3 {
   font-family: var(--font-mono);
   font-weight: 700;
-  color: #c0c0d0;
+  color: #dedad2;
 }
 
 html.navy .content main > h1:first-child,
@@ -137,8 +137,8 @@ html.navy .content main > h3:first-child {
 
 /* ==================== Code Blocks ==================== */
 html.navy .content pre {
-  background: #161622 !important;
-  border: 1px solid #252538;
+  background: #14181c !important;
+  border: 1px solid #252a2e;
   border-radius: 12px;
   margin: 1.5em 0;
   position: relative;
@@ -154,14 +154,13 @@ html.navy .content pre::before {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(135deg, #4ade80, #22d3ee);
-  opacity: 0.5;
+  background: linear-gradient(135deg, rgba(46, 196, 182, 0.5), rgba(198, 93, 44, 0.3));
   border-radius: 12px 12px 0 0;
 }
 
 html.navy .content pre code {
   font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
-  background: #161622;
+  background: #14181c;
   display: block;
   padding: 24px;
 }
@@ -180,16 +179,15 @@ html.navy .content pre > .buttons button.clip-button::before {
 }
 
 /* ==================== Tables ==================== */
-
 html.navy .content table {
   border-collapse: collapse;
   margin: 1.5em 0;
   font-size: 0.95em;
   overflow: hidden;
-  border: 1px solid #252538;
+  border: 1px solid #252a2e;
   border-radius: 8px;
   width: 100%;
-  background: #252538;
+  background: #252a2e;
   backdrop-filter: none;
   isolation: isolate;
   position: relative;
@@ -202,21 +200,20 @@ html.navy .content table::before {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(135deg, #4ade80, #22d3ee);
-  opacity: 0.5;
+  background: linear-gradient(135deg, rgba(46, 196, 182, 0.5), rgba(198, 93, 44, 0.3));
   z-index: 1;
 }
 
 html.navy .content table thead {
-  background: #161622;
+  background: #14181c;
 }
 
 html.navy .content table th {
   padding: 12px 16px;
   text-align: left;
   font-weight: 600;
-  color: #c0c0d0;
-  border-bottom: 2px solid #252538;
+  color: #dedad2;
+  border-bottom: 2px solid #252a2e;
   font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
   font-size: 0.85em;
   text-transform: uppercase;
@@ -225,20 +222,36 @@ html.navy .content table th {
 
 html.navy .content table td {
   padding: 10px 16px;
-  border-bottom: 1px solid #252538;
-  color: #9898b0;
-  background: #161622;
+  border-bottom: 1px solid #252a2e;
+  color: #a9a8a0;
+  background: #14181c;
 }
 
 html.navy .content table tr:hover td {
-  background: rgba(192, 132, 252, 0.08);
+  background: rgba(46, 196, 182, 0.06);
 }
 
 html.navy .content table tbody tr:nth-child(2n) {
-  background: #161622;
+  background: #14181c;
 }
 
 html.navy .content table {
   backdrop-filter: none;
   isolation: isolate;
+}
+
+html.navy .hljs-variable,
+html.navy .hljs-attribute,
+html.navy .hljs-attr,
+html.navy .hljs-tag,
+html.navy .hljs-regexp {
+  color: #d06b38;
+}
+
+html.navy .hljs {
+  background: #111213;
+}
+
+html.navy .hljs-comment {
+  color: #6d7578;
 }
