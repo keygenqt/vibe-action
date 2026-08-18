@@ -140,7 +140,12 @@ actions:
     expect: string
     confirm: true
     when: '{dry_run|contains:false}'
-    action: cd {query|project_path} && git add . && git commit -m '{tag_commit_message|lower}'
+    action: |
+      cd {query|project_path} \
+      && git add . \
+      && echo ">> {tag_commit_message|lower}" \
+      && echo "" \
+      && git commit -m '{tag_commit_message|lower}'
 
   - tag: tag_commit
     run: value
