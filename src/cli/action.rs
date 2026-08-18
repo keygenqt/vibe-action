@@ -17,6 +17,7 @@ use crate::utils;
 /// Execute a dynamic action command.
 pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig) {
     let is_output_cli = AppConfig::output().output_type() == OutputType::Cli;
+    let is_output_json = AppConfig::output().output_type() == OutputType::Json;
     let start_time = std::time::Instant::now();
 
     let mut flow = config
@@ -37,7 +38,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         });
 
     // If flow uses {query|prompt} and no query was provided via CLI args, ask for input
-    if is_output_cli && flow.needs_prompt() {
+    if !is_output_json && flow.needs_prompt() {
         let is_query_empty = match flow.input_tags.get("query") {
             Some(ContextModel::String(s)) if !s.is_empty() => false,
             _ => true,

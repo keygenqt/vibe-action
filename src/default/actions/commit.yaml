@@ -104,10 +104,15 @@ actions:
       - NEVER use single quotes, double quotes or backticks (shell-safe output)
       - Recent commits show the project style — match their quality
 
+      [Examples — style reference from unrelated projects, do NOT reuse their wording]
+      [Bad]  fix: fix bug
+      [Good] fix: handle empty response in payment webhook
+      [Bad]  feat: add stuff
+      [Good] feat: add retry with backoff to s3 uploads
+      [Bad]  refactor: refactor code
+      [Good] refactor: extract token validation into middleware
       [Bad]  docs: update docs
-      [Bad]  chore: change book files
-      [Good] docs: rewrite action reference and consolidate book css
-      [Good] refactor: replace per-page css with shared book and main stylesheets
+      [Good] docs: document rate limiting in api reference
 
       [Recent commits]
       {tag_recent_commits}
