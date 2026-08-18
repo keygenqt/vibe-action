@@ -139,6 +139,10 @@ actions:
     run: cmd
     expect: string
     confirm: true
+    # Actions run eagerly in graph order, so this step executes BEFORE tag_commit
+    # regardless of which branch matches there. The when guard is the only way
+    # to skip the actual commit in dry-run mode — the branch in tag_commit
+    # only reads the resulting value, it cannot prevent execution.
     when: '{dry_run|contains:false}'
     action: cd {query|project_path} && git add . && git commit -m '{tag_commit_message|lower}'
 
