@@ -291,7 +291,7 @@ impl Engine {
 
     /// Log action execution details.
     pub fn log_action(tag: &str, run: &ActionRun, original: &str, resolved: &str, result: &str) {
-        let size = 2000;
+        let size = 5000;
         let preview_original: String = original.chars().take(size).collect();
         let preview_resolved: String = resolved.chars().take(size).collect();
         let preview_result: String = result.chars().take(size).collect();

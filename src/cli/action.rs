@@ -127,7 +127,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             "total" => total.to_string()
         );
 
-        if action.confirm && is_output_cli {
+        if !is_output_json && action.confirm {
             print_template!(
                 OutputKind::Info,
                 "completed in {duration}",

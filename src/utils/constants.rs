@@ -17,4 +17,4 @@ pub const CONFIG_VERSION: &str = "0.0.3";
 pub const FLOW_VERSION: &str = "0.0.1";
 
 /// Cache version (bump when flow schema or validation logic changes).
-pub const CACHE_VERSION: &str = "0.0.1";
+pub const CACHE_VERSION: &str = "0.0.2";
