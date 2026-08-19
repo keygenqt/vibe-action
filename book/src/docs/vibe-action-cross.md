@@ -27,13 +27,13 @@ Get the plugin: download the latest pre-built artifacts (`.vsix` and `.zip`) dir
 2. Go to the Extensions view (`Cmd+Shift+X` or `Ctrl+Shift+X`).
 3. Click the `...` menu in the top-right corner of the Extensions panel.
 4. Select **Install from VSIX...**.
-5. Navigate to the downloaded file and select `vibe-action-0.0.1.vsix`.
+5. Navigate to the downloaded file and select `vibe-action-<version>.vsix`.
 6. Reload VS Code when prompted.
 
 Alternatively, install via CLI:
 
 ```text
-code --install-extension vibe-action-0.0.1.vsix
+code --install-extension vibe-action-<version>.vsix
 ```
 
 Once installed, open the Vibe Action panel from the activity bar. You will see a list of all your available actions. Click any action to run it, or use the provided keyboard shortcuts.
@@ -44,7 +44,7 @@ Once installed, open the Vibe Action panel from the activity bar. You will see a
 2. Go to `Settings/Preferences` -> `Plugins`.
 3. Click the gear icon (`⚙️`) in the top-right corner of the Plugins window.
 4. Select **Install Plugin from Disk...**.
-5. Navigate to the downloaded file and select `vibe-action-plugin-0.0.1.zip`.
+5. Navigate to the downloaded file and select `vibe-action-<version>.zip`.
 6. Restart IntelliJ IDEA when prompted.
 
 Once installed, open the Vibe Action tool window (usually located on the right sidebar). The UI is rendered natively using Compose Multiplatform and matches the IntelliJ theme.
