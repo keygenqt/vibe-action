@@ -9,6 +9,7 @@ use crate::print_text;
 use crate::utils;
 use crate::utils::app::app_version;
 use crate::utils::app::config_version;
+use crate::utils::app::flow_version;
 
 /// Execute the `status` command.
 pub async fn execute() {
@@ -45,11 +46,12 @@ pub async fn execute() {
     print_template!(
         ExportContext::Status,
         OutputKind::Info,
-        "actions - {total_actions|cyan}, version - {version|cyan}, config - {config|cyan}",
+        "version: {version|cyan}, actions: {flow_version|cyan}, config: {config|cyan}",
         "total_actions" => total_actions,
         "total_actions_api" => total_actions_api,
         "custom_actions_api" => custom_actions_api,
         "version" => format!("v{}", app_version()),
+        "flow_version" => format!("v{}", flow_version()),
         "config" => format!("v{}", config_version()),
         "actions_path" => utils::path::actions_dir().display().to_string(),
         "config_path" => utils::path::config_path().display().to_string(),

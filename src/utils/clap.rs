@@ -95,6 +95,7 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
                 "args" => &flow.args,
                 "api" => &flow.api,
                 "is_custom" => is_custom,
+                "yaml_path" => flow.file_path.as_ref().map(|p| p.display().to_string()),
             );
         } else {
             print_template!(

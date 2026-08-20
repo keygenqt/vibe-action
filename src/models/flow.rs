@@ -49,14 +49,18 @@ pub struct FlowModel {
     /// Resolved argument values (name -> value).
     #[serde(skip, default)]
     pub input_tags: HashMap<String, ContextModel>,
+    /// Source YAML file path (set at load time, not serialized).
+    #[serde(skip, default)]
+    pub file_path: Option<PathBuf>,
 }
 
 impl FlowModel {
     /// Load and validate a FlowModel from a YAML file.
     pub fn load(path: &PathBuf) -> Result<Self> {
         let content = fs::read_to_string(path)?;
-        let flow: Self = yaml_serde::from_str(&content)
+        let mut flow: Self = yaml_serde::from_str(&content)
             .map_err(|e| anyhow::anyhow!("Failed to parse {}: {}", path.display(), e))?;
+        flow.file_path = Some(path.clone());
         Ok(flow)
     }
 
