@@ -39,6 +39,7 @@ pub enum ExportContext {
     Actions,
     Status,
     Success,
+    Confirm,
 }
 
 impl ExportContext {
@@ -47,6 +48,7 @@ impl ExportContext {
             Self::Actions => "actions",
             Self::Status => "status",
             Self::Success => "success",
+            Self::Confirm => "confirm",
         }
     }
 }

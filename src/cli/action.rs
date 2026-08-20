@@ -3,6 +3,8 @@
 
 use clap::ArgMatches;
 use inquire::Confirm;
+use std::io::BufRead;
+use tokio::sync::mpsc;
 
 use crate::configs::app::AppConfig;
 use crate::engine::engine::Engine;
@@ -14,11 +16,39 @@ use crate::print_template;
 use crate::print_text;
 use crate::utils;
 
+/// Timeout for confirm responses from the IDE plugin (JSON mode).
+/// Fail-closed: if the plugin doesn't respond, the step is declined.
+const CONFIRM_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
+
 /// Execute a dynamic action command.
 pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig) {
     let is_output_cli = AppConfig::output().output_type() == OutputType::Cli;
     let is_output_json = AppConfig::output().output_type() == OutputType::Json;
     let start_time = std::time::Instant::now();
+
+    // Start a dedicated stdin reader thread for the confirm protocol.
+    // The thread reads lines and sends them to an mpsc channel; each
+    // confirm call awaits the next line with a timeout (fail-closed).
+    let mut stdin_rx = if is_output_json {
+        let (tx, rx) = mpsc::channel::<String>(8);
+        std::thread::spawn(move || {
+            let stdin = std::io::stdin();
+            loop {
+                let mut line = String::new();
+                match stdin.lock().read_line(&mut line) {
+                    Ok(0) | Err(_) => break,
+                    Ok(_) => {
+                        if tx.blocking_send(line).is_err() {
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+        Some(rx)
+    } else {
+        None
+    };
 
     let mut flow = config
         .find_flow(name)
@@ -79,14 +109,37 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
 
     // Warn if flow uses roles not available in cluster
     if config.check_role_mismatch(&flow) {
-        let ans = Confirm::new("Continue with available nodes?")
-        .with_placeholder("\nFlow has actions with roles not found in cluster. All available nodes will be used.")
-        .with_default(false)
-        .prompt();
-        match ans {
-            Ok(true) => {}
-            Ok(false) => return,
-            Err(_) => return,
+        if is_output_json {
+            print_template!(
+                ExportContext::Confirm,
+                OutputKind::Warning,
+                "{tag}",
+                "tag" => "role_mismatch",
+                "display" => "Flow has actions with roles not found in cluster. All available nodes will be used.",
+            );
+            let confirmed = match &mut stdin_rx {
+                Some(rx) => match tokio::time::timeout(CONFIRM_TIMEOUT, rx.recv()).await {
+                    Ok(Some(line)) => line.trim() == "true",
+                    _ => false,
+                },
+                None => false,
+            };
+            if !confirmed {
+                return;
+            }
+        } else {
+            match Confirm::new("Continue with available nodes?")
+                .with_placeholder("\nFlow has actions with roles not found in cluster. All available nodes will be used.")
+                .with_default(false)
+                .prompt()
+            {
+                Ok(true) => {}
+                Ok(false) => return,
+                Err(e) => {
+                    print_text!(OutputKind::Error, "Confirm failed: {}", e);
+                    return;
+                }
+            }
         }
     }
 
@@ -127,31 +180,55 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             "total" => total.to_string()
         );
 
-        if !is_output_json && action.confirm {
-            print_template!(
-                OutputKind::Info,
-                "completed in {duration}",
-                "duration" => utils::format::format_duration(start_time.elapsed())
-            );
-            let query = format!("Execute '{}'?", FormatOutput::format_msg(&action.tag));
+        if action.confirm {
             let resolve = engine.action_display(&action).unwrap_or_else(|e| {
                 print_text!(OutputKind::Error, "{}", e);
                 std::process::exit(1);
             });
 
-            let ans = Confirm::new(&query)
-                .with_default(false)
-                .with_placeholder(&format!("\n{}", resolve))
-                .prompt();
-            match ans {
-                Ok(true) => {
-                    engine.exec_action(action).await.unwrap_or_else(|e| {
-                        print_text!(OutputKind::Error, "{}", e);
-                        std::process::exit(1);
-                    });
+            let confirmed = if is_output_json {
+                print_template!(
+                    ExportContext::Confirm,
+                    OutputKind::Info,
+                    "{tag}",
+                    "tag" => &action.tag,
+                    "display" => &resolve,
+                );
+                match &mut stdin_rx {
+                    Some(rx) => match tokio::time::timeout(CONFIRM_TIMEOUT, rx.recv()).await {
+                        Ok(Some(line)) => line.trim() == "true",
+                        _ => false,
+                    },
+                    None => false,
                 }
-                Ok(false) => return,
-                Err(_) => return,
+            } else {
+                print_template!(
+                    OutputKind::Info,
+                    "completed in {duration}",
+                    "duration" => utils::format::format_duration(start_time.elapsed())
+                );
+                let query = format!("Execute '{}'?", FormatOutput::format_msg(&action.tag));
+                match Confirm::new(&query)
+                    .with_default(false)
+                    .with_placeholder(&format!("\n{}", resolve))
+                    .prompt()
+                {
+                    Ok(true) => true,
+                    Ok(false) => false,
+                    Err(e) => {
+                        print_text!(OutputKind::Error, "Confirm failed: {}", e);
+                        false
+                    }
+                }
+            };
+
+            if confirmed {
+                engine.exec_action(action).await.unwrap_or_else(|e| {
+                    print_text!(OutputKind::Error, "{}", e);
+                    std::process::exit(1);
+                });
+            } else {
+                return;
             }
         } else {
             engine.exec_action(action).await.unwrap_or_else(|e| {
