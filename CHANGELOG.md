@@ -2,6 +2,17 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.2.3] - 2026-08-21
+
+### 📚 Documentation
+
+- Add empty stub for cross-documentation topic
+
+### 🚀 Features
+
+- Show flow version in status and add source path for error reporting
+- Add json-mode confirm via stdin with fail-closed timeout and confirm output export
+
 ## [0.2.2] - 2026-08-18
 
 ### ⚡ Refactoring
@@ -17,6 +28,7 @@ All notable changes to Vibe Action will be documented in this file.
 
 - Rewrite user guides and consolidate book css
 - Clarify guard condition for dry-run commit execution
+- Document v0.2.2 release changes
 
 ### 🚀 Features
 
