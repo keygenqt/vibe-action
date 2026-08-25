@@ -25,6 +25,7 @@ pub enum ModifierKey {
     Size,
     Sort,
     Split,
+    Strip,
     Take,
     Text,
     Trim,
@@ -53,6 +54,7 @@ impl ModifierKey {
             "size" => Some(Self::Size),
             "sort" => Some(Self::Sort),
             "split" => Some(Self::Split),
+            "strip" => Some(Self::Strip),
             "take" => Some(Self::Take),
             "text" => Some(Self::Text),
             "trim" => Some(Self::Trim),
@@ -97,6 +99,7 @@ impl ModifierRegistry {
         registry.register(Box::new(super::size::SizeModifier));
         registry.register(Box::new(super::sort::SortModifier));
         registry.register(Box::new(super::split::SplitModifier));
+        registry.register(Box::new(super::strip::StripModifier::new()));
         registry.register(Box::new(super::take::TakeModifier));
         registry.register(Box::new(super::text::TextModifier));
         registry.register(Box::new(super::trim::TrimModifier));

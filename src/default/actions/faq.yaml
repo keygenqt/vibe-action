@@ -164,6 +164,7 @@ actions:
         {{tag|sort:desc}}           - Any   : sort descending
         {{tag|split}}               - Any   : split string into list by newline, list passes through unchanged
         {{tag|split:X}}             - Any   : split string into list by custom separator X
+        {{tag|strip}}               - Any   : auto-detect and remove code fences and wrappers (markdown, tilde, inline backtick, triple-quote)
         {{tag|take:N}}              - Any   : extract first N characters (string) or elements (list)
         {{tag|text}}                - Any   : extract plain text from HTML/PDF or convert image to base64
         {{tag|trim}}                - Any   : strip surrounding whitespace, drop empty list elements

@@ -19,6 +19,7 @@ pub mod scan;
 pub mod size;
 pub mod sort;
 pub mod split;
+pub mod strip;
 pub mod take;
 pub mod text;
 pub mod trim;

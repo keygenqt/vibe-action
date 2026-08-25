@@ -33,6 +33,7 @@ All modifiers work with both strings and lists.
 | `sort`      | `{tag\|sort:desc}`            | Sort descending                                                                                              |
 | `split`     | `{tag\|split}`                | Split string to list by `\n`                                                                                 |
 | `split`     | `{tag\|split:X}`              | Split string to list by separator X                                                                          |
+| `strip`     | `{tag\|strip}`                | Auto-detect and remove common wrappers: markdown fences, tilde fences, inline backticks, triple quotes       |
 | `take`      | `{tag\|take:N}`               | Take first N characters or elements                                                                          |
 | `text`      | `{tag\|text}`                 | Extract text from HTML/PDF or convert image to base64                                                        |
 | `trim`      | `{tag\|trim}`                 | Strip whitespace, drop empty list elements                                                                   |

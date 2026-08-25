@@ -209,4 +209,3 @@ All notable changes to Vibe Action will be documented in this file.
 - Add project-export action and various enhancements
 - Add clipboard support to multiple actions
 - Add clipboard modifier and rename project-export to scan
-
