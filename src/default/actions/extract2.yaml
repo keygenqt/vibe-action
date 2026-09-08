@@ -1,0 +1,46 @@
+version: 0.0.2
+
+name: extract2
+about: Extract structured data or matching lines from text and logs
+clipboard: false
+
+args:
+  - name: file
+    short: 'f'
+    input: string
+    help: Path or URL to the log or text file
+
+actions:
+  - tag: llm_log
+    run: large
+    val:
+      - name: search
+        data: 'query|prompt'
+      - name: val_log
+        data: 'file'
+        mods: 'load|text'
+        each:
+          split: '\n'
+          merge: '==='
+    action: |
+      [Task]
+      You are a log filter. Decide if the log line is relevant to the query.
+      The query describes what to find in natural language.
+      If the line is relevant — output the EXACT line character-for-character, preserving original casing.
+      If the line is NOT relevant — output only a single dash: "-"
+      Do NOT skip lines. Process every line.
+      Do NOT modify, normalize, or reformat the line in any way.
+
+      [Query]
+      {search}
+
+      [Line]
+      {val_log}
+
+  - tag: out_log
+    run: value
+    val:
+      - name: 'value1'
+        data: 'llm_log'
+        mods: 'split:===|filter:eq:-|uniq|join:\n'
+    action: '{value1}'

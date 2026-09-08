@@ -1,9 +1,11 @@
 //! Modifier trait, registry, and application logic.
 //! Each modifier transforms a ContextModel value via the pipe syntax: {tag|modifier:arg}
 
-use crate::models::context::ContextModel;
 use anyhow::Result;
 use std::collections::HashMap;
+
+/// Hidden delimiter separating array items within a string.
+pub const ITEM_SEP: &str = "\x1F";
 
 /// Enum of all available modifier keys.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -13,6 +15,7 @@ pub enum ModifierKey {
     Contains,
     Empty,
     Equals,
+    Filter,
     Format,
     IsDir,
     IsFile,
@@ -42,6 +45,7 @@ impl ModifierKey {
             "contains" => Some(Self::Contains),
             "empty" => Some(Self::Empty),
             "equals" => Some(Self::Equals),
+            "filter" => Some(Self::Filter),
             "format" => Some(Self::Format),
             "is_dir" => Some(Self::IsDir),
             "is_file" => Some(Self::IsFile),
@@ -68,7 +72,7 @@ impl ModifierKey {
 /// Trait for pipe modifiers.
 pub trait Modifier: Send + Sync {
     fn key(&self) -> ModifierKey;
-    fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel>;
+    fn apply(&self, value: &str, arg: &str) -> Result<String>;
 }
 
 /// Registry of all modifiers.
@@ -87,6 +91,7 @@ impl ModifierRegistry {
         registry.register(Box::new(super::contains::ContainsModifier));
         registry.register(Box::new(super::empty::EmptyModifier));
         registry.register(Box::new(super::equals::EqualsModifier));
+        registry.register(Box::new(super::filter::FilterModifier));
         registry.register(Box::new(super::format::FormatModifier));
         registry.register(Box::new(super::is_dir::IsDirModifier));
         registry.register(Box::new(super::is_file::IsFileModifier));
@@ -117,61 +122,13 @@ impl ModifierRegistry {
     pub fn get(&self, key: ModifierKey) -> Option<&dyn Modifier> {
         self.modifiers.get(&key).map(|m| m.as_ref())
     }
-
-    /// Apply a pre-parsed chain of pipe modifiers to a context value in chronological order.
-    pub fn apply_modifier(
-        &self,
-        modifiers: &[crate::engine::parser::ModifierMatch],
-        value: &ContextModel,
-    ) -> Result<ContextModel> {
-        let mut current = value.clone();
-
-        for mat in modifiers {
-            if let Some(key) = ModifierKey::from_str(&mat.name) {
-                if let Some(modifier) = self.get(key) {
-                    // Extract the safe isolated argument slice or fallback to an empty string contract
-                    let arg = mat.argument.as_deref().unwrap_or("");
-                    current = modifier.apply(&current, arg)?;
-                }
-            } else {
-                anyhow::bail!(
-                    "Unknown modifier key '{}' invoked in execution pipeline",
-                    mat.name
-                );
-            }
-        }
-
-        Ok(current)
-    }
 }
 
 /// Invert a ContextModel::String ("true"/"false") or ContextModel::List of such strings.
-pub fn invert(value: ContextModel) -> ContextModel {
+pub fn invert(value: &str) -> String {
     match value {
-        ContextModel::String(s) => {
-            let inverted = if s == "true" {
-                "false"
-            } else if s == "false" {
-                "true"
-            } else {
-                return ContextModel::String(s); // не bool-строка — не трогаем
-            };
-            ContextModel::String(inverted.to_string())
-        }
-        ContextModel::List(items) => {
-            let inverted: Vec<String> = items
-                .iter()
-                .map(|i| {
-                    if i == "true" {
-                        "false".to_string()
-                    } else if i == "false" {
-                        "true".to_string()
-                    } else {
-                        i.clone()
-                    }
-                })
-                .collect();
-            ContextModel::List(inverted)
-        }
+        "true" => "false".to_string(),
+        "false" => "true".to_string(),
+        _ => value.to_string(),
     }
 }

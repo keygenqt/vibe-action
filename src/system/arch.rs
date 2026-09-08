@@ -1,6 +1,5 @@
 //! System provider for `{system_arch}` — CPU architecture.
 
-use crate::models::context::ContextModel;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;
 use anyhow::Result;
@@ -12,7 +11,7 @@ impl SystemProvider for SystemArchProvider {
         SystemKey::Arch
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
-        Ok(ContextModel::String(std::env::consts::ARCH.to_string()))
+    fn resolve(&self) -> Result<String> {
+        Ok(std::env::consts::ARCH.to_string())
     }
 }

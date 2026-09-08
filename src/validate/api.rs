@@ -1,12 +1,12 @@
-//! FlowApiModel validation.
+//! PipelineApiModel validation.
 //! Validates the input and output settings for IDE plugin integration.
 
 use anyhow::Result;
 
-use crate::models::api::FlowApiModel;
+use crate::models::api::PipelineApiModel;
 use crate::validate::ValidateTrait;
 
-impl ValidateTrait for FlowApiModel {
+impl ValidateTrait for PipelineApiModel {
     /// Validate API model.
     fn validate(&self) -> Result<()> {
         let valid_inputs = [

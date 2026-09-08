@@ -1,4 +1,4 @@
-//! FlowModel validation.
+//! PipelineModel validation.
 //! Checks name, tags, references, and circular dependencies.
 //! Supports {tag|modifier} syntax with special chars like {tag|trim:-}.
 
@@ -8,27 +8,26 @@ use std::collections::HashSet;
 use anyhow::Result;
 use regex::Regex;
 
-use crate::models::action::ActionValue;
-use crate::models::flow::FlowModel;
+use crate::models::pipeline::PipelineModel;
 use crate::system::system::SystemKey;
 use crate::utils::constants;
 use crate::validate::ValidateTrait;
 
-impl ValidateTrait for FlowModel {
-    /// Validate the flow: name, tags, references, dependencies.
+impl ValidateTrait for PipelineModel {
+    /// Validate the pipeline: name, tags, references, dependencies.
     fn validate(&self) -> Result<()> {
-        // Check version matches current FLOW_VERSION.
-        if self.version != constants::FLOW_VERSION {
+        // Check version matches current PIPELINE_VERSION.
+        if self.version != constants::PIPELINE_VERSION {
             anyhow::bail!(
-                "Flow '{}' has version '{}' but expected '{}'.",
+                "Pipeline '{}' has version '{}' but expected '{}'.",
                 self.name,
                 self.version,
-                constants::FLOW_VERSION
+                constants::PIPELINE_VERSION
             );
         }
         // Check name is not empty.
         if self.name.trim().is_empty() {
-            anyhow::bail!("Flow has no name. Add a name for the CLI command.");
+            anyhow::bail!("Pipeline has no name. Add a name for the CLI command.");
         }
 
         // Validate args.
@@ -62,19 +61,13 @@ impl ValidateTrait for FlowModel {
             }
         }
 
-        // Validate tag references using our standalone TagIterator
+        // Validate tag references in old-style actions (no `val`).
+        // val-based steps reference val-names, validated in ActionModel::validate.
         for action in &self.actions {
-            match &action.action {
-                ActionValue::Simple(act) => {
-                    validate_tag_references(act, &tags)?;
-                }
-                ActionValue::Switch(cases) => {
-                    for case in cases {
-                        validate_tag_references(&case.when, &tags)?;
-                        validate_tag_references(&case.then, &tags)?;
-                    }
-                }
+            if action.val.as_ref().map_or(false, |v| !v.is_empty()) {
+                continue;
             }
+            validate_tag_references(&action.action, &tags)?;
         }
 
         // Validate match regex if present.
@@ -128,25 +121,15 @@ fn validate_tag_references(text: &str, valid_tags: &HashSet<&str>) -> Result<()>
 }
 
 /// Check for circular dependencies between tags.
-fn validate_no_cycles(flow: &FlowModel, tags: &HashSet<&str>) -> Result<()> {
+fn validate_no_cycles(pipeline: &PipelineModel, tags: &HashSet<&str>) -> Result<()> {
     let mut graph: HashMap<&str, Vec<&str>> = HashMap::new();
     for tag in tags.iter() {
         graph.insert(*tag, vec![]);
     }
 
-    for action in &flow.actions {
+    for action in &pipeline.actions {
         let mut deps = Vec::new();
-        match &action.action {
-            ActionValue::Simple(act) => {
-                deps.extend(extract_tag_refs(act));
-            }
-            ActionValue::Switch(cases) => {
-                for case in cases {
-                    deps.extend(extract_tag_refs(&case.when));
-                    deps.extend(extract_tag_refs(&case.then));
-                }
-            }
-        }
+        deps.extend(extract_tag_refs(&action.action));
 
         // Map short-lived extracted strings to long-lived graph reference keys
         let filtered_deps: Vec<&str> = deps

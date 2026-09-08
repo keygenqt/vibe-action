@@ -3,7 +3,6 @@
 use super::query::QueryKey;
 use super::query::QueryProvider;
 use super::query::read_clipboard_text;
-use crate::models::context::ContextModel;
 use anyhow::Result;
 
 pub struct QueryRawProvider {
@@ -21,16 +20,16 @@ impl QueryProvider for QueryRawProvider {
         QueryKey::Raw
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
+    fn resolve(&self) -> Result<String> {
         if let Some(value) = &self.raw_value {
             if !value.is_empty() {
-                return Ok(ContextModel::String(value.clone()));
+                return Ok(value.clone());
             }
         }
 
         match read_clipboard_text() {
-            Ok(text) => Ok(ContextModel::String(text)),
-            Err(_) => Ok(ContextModel::String(String::new())),
+            Ok(text) => Ok(text),
+            Err(_) => Ok(String::new()),
         }
     }
 }

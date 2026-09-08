@@ -6,6 +6,7 @@ pub mod clipboard;
 pub mod contains;
 pub mod empty;
 pub mod equals;
+pub mod filter;
 pub mod format;
 pub mod is_dir;
 pub mod is_file;

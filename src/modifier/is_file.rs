@@ -3,10 +3,11 @@
 
 use anyhow::Result;
 
+use crate::modifier::modifier::ITEM_SEP;
+
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
 use super::modifier::invert;
-use crate::models::context::ContextModel;
 
 pub struct IsFileModifier;
 
@@ -15,24 +16,15 @@ impl Modifier for IsFileModifier {
         ModifierKey::IsFile
     }
 
-    fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
+    fn apply(&self, value: &str, arg: &str) -> Result<String> {
         let invert_flag = arg == "not";
-        let result = match value {
-            ContextModel::String(s) => {
-                ContextModel::String(std::path::Path::new(s).is_file().to_string())
-            }
-            ContextModel::List(items) => {
-                let results: Vec<String> = items
-                    .iter()
-                    .map(|i| std::path::Path::new(i).is_file().to_string())
-                    .collect();
-                ContextModel::List(results)
-            }
-        };
-        if invert_flag {
-            Ok(invert(result))
-        } else {
-            Ok(result)
-        }
+        let results: Vec<String> = value
+            .split(ITEM_SEP)
+            .map(|i| {
+                let val = std::path::Path::new(i).is_file().to_string();
+                if invert_flag { invert(&val) } else { val }
+            })
+            .collect();
+        Ok(results.join(ITEM_SEP))
     }
 }

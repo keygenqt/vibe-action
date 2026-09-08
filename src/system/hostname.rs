@@ -1,6 +1,5 @@
 //! System provider for `{system_hostname}` — machine hostname.
 
-use crate::models::context::ContextModel;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;
 use anyhow::Result;
@@ -12,10 +11,9 @@ impl SystemProvider for SystemHostnameProvider {
         SystemKey::Hostname
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
-        let hostname = hostname::get()
+    fn resolve(&self) -> Result<String> {
+        Ok(hostname::get()
             .map(|h| h.to_string_lossy().to_string())
-            .unwrap_or_default();
-        Ok(ContextModel::String(hostname))
+            .unwrap_or_default())
     }
 }

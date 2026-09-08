@@ -1,7 +1,7 @@
 //! Load modifier — handles transport logistics. Fetches URLs to temp files or resolves local paths.
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use crate::models::context::ContextModel;
+use crate::modifier::modifier::ITEM_SEP;
 use crate::utils;
 use anyhow::Result;
 use anyhow::anyhow;
@@ -56,36 +56,23 @@ impl Modifier for LoadModifier {
         ModifierKey::Load
     }
 
-    fn apply(&self, value: &ContextModel, _arg: &str) -> Result<ContextModel> {
-        match value {
-            ContextModel::String(s) => {
-                // URL — download to temp
+    fn apply(&self, value: &str, _arg: &str) -> Result<String> {
+        let results: Vec<String> = value
+            .split(ITEM_SEP)
+            .map(|s| {
                 if s.starts_with("http://") || s.starts_with("https://") {
                     let path =
                         block_in_place(|| Handle::current().block_on(Self::download_to_temp(s)))?;
-                    return Ok(ContextModel::String(path.to_string_lossy().to_string()));
+                    return Ok(path.to_string_lossy().to_string());
                 }
-                // Path — resolve and validate
                 if let Ok(path) = utils::path::resolve(Path::new(s)) {
                     if path.exists() && !path.is_dir() {
-                        return Ok(ContextModel::String(path.to_string_lossy().to_string()));
+                        return Ok(path.to_string_lossy().to_string());
                     }
                 }
-                // If nothing to resolve, return as-is
-                Ok(ContextModel::String(s.clone()))
-            }
-            ContextModel::List(items) => {
-                let results: Vec<String> = items
-                    .iter()
-                    .map(
-                        |i| match self.apply(&ContextModel::String(i.clone()), "")? {
-                            ContextModel::String(s) => Ok(s),
-                            _ => unreachable!(),
-                        },
-                    )
-                    .collect::<Result<Vec<_>>>()?;
-                Ok(ContextModel::List(results))
-            }
-        }
+                Ok(s.to_string())
+            })
+            .collect::<Result<Vec<_>>>()?;
+        Ok(results.join(ITEM_SEP))
     }
 }

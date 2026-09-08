@@ -20,9 +20,10 @@ use vibe_ast::nodes::nodes::Nodes;
 use vibe_ast::parse_file;
 use vibe_ast::parse_text;
 
+use crate::modifier::modifier::ITEM_SEP;
+
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use crate::models::context::ContextModel;
 
 pub struct AstModifier;
 
@@ -325,84 +326,67 @@ impl Modifier for AstModifier {
         ModifierKey::Ast
     }
 
-    fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
-        match value {
-            ContextModel::String(s) => {
-                if arg.is_empty() || arg == "brief" {
-                    match parse_file(s) {
-                        Ok(mut nodes) => {
-                            Self::clean(&mut nodes);
+    fn apply(&self, value: &str, arg: &str) -> Result<String> {
+        let files: Vec<&str> = value.split(ITEM_SEP).collect();
+        let mut results = Vec::new();
 
-                            // Convert to JSON Value to inspect and modify
-                            let mut json_value = serde_json::to_value(&nodes)?;
+        for path in &files {
+            let json = if arg.is_empty() || arg == "brief" {
+                match parse_file(path) {
+                    Ok(mut nodes) => {
+                        Self::clean(&mut nodes);
+                        let mut json_value = serde_json::to_value(&nodes)?;
 
-                            // Check if the AST node is completely empty (e.g., {"rust": {}})
-                            let is_empty = match &json_value {
-                                serde_json::Value::Object(map) => map.values().all(|v| {
-                                    v.is_null()
-                                        || (v.is_object()
-                                            && v.as_object().map_or(false, |o| o.is_empty()))
-                                        || (v.is_array()
-                                            && v.as_array().map_or(false, |a| a.is_empty()))
-                                }),
-                                _ => false,
-                            };
+                        let is_empty = match &json_value {
+                            serde_json::Value::Object(map) => map.values().all(|v| {
+                                v.is_null()
+                                    || (v.is_object()
+                                        && v.as_object().map_or(false, |o| o.is_empty()))
+                                    || (v.is_array()
+                                        && v.as_array().map_or(false, |a| a.is_empty()))
+                            }),
+                            _ => false,
+                        };
 
-                            // If empty, return empty string to be filtered out later
-                            if is_empty {
-                                return Ok(ContextModel::String(String::new()));
-                            }
-
-                            // Add file path to the root of the JSON object
+                        if is_empty {
+                            String::new()
+                        } else {
                             if let serde_json::Value::Object(map) = &mut json_value {
                                 map.insert(
                                     "path".to_string(),
-                                    serde_json::Value::String(s.clone()),
+                                    serde_json::Value::String(path.to_string()),
                                 );
                             }
-
-                            Ok(ContextModel::String(serde_json::to_string(&json_value)?))
+                            serde_json::to_string(&json_value)?
                         }
-                        Err(_) => Ok(ContextModel::String(String::new())),
                     }
-                } else if arg == "full" {
-                    match parse_file(s) {
-                        Ok(nodes) => {
-                            let mut json_value = serde_json::to_value(&nodes)?;
-
-                            // Add file path to the root of the JSON object
-                            if let serde_json::Value::Object(map) = &mut json_value {
-                                map.insert(
-                                    "path".to_string(),
-                                    serde_json::Value::String(s.clone()),
-                                );
-                            }
-
-                            Ok(ContextModel::String(serde_json::to_string(&json_value)?))
-                        }
-                        Err(_) => Ok(ContextModel::String(String::new())),
-                    }
-                } else {
-                    let lang = Self::lang_from_arg(arg)?;
-                    let nodes = parse_text(s, lang)?;
-                    Ok(ContextModel::String(serde_json::to_string(&nodes)?))
+                    Err(_) => String::new(),
                 }
-            }
-            ContextModel::List(files) => {
-                let mut results = Vec::new();
-                for path in files {
-                    // Apply AST modifier to each file path
-                    if let ContextModel::String(json) =
-                        self.apply(&ContextModel::String(path.clone()), arg)?
-                    {
-                        // Filter out empty results (from empty files or parse errors)
-                        if !json.is_empty() {
-                            results.push(json);
+            } else if arg == "full" {
+                match parse_file(path) {
+                    Ok(nodes) => {
+                        let mut json_value = serde_json::to_value(&nodes)?;
+                        if let serde_json::Value::Object(map) = &mut json_value {
+                            map.insert(
+                                "path".to_string(),
+                                serde_json::Value::String(path.to_string()),
+                            );
                         }
+                        serde_json::to_string(&json_value)?
                     }
+                    Err(_) => String::new(),
                 }
-                Ok(ContextModel::List(results))
+            } else {
+                let lang = Self::lang_from_arg(arg)?;
+                let nodes = parse_text(path, lang)?;
+                serde_json::to_string(&nodes)?
+            };
+
+            if !json.is_empty() {
+                results.push(json);
             }
         }
+
+        Ok(results.join(ITEM_SEP))
     }
 }

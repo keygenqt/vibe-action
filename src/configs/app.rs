@@ -14,8 +14,8 @@ use crate::configs::action::ActionConfig;
 use crate::configs::cluster::ClusterConfig;
 use crate::configs::cluster::ClusterRole;
 use crate::models::action::ActionRun;
-use crate::models::flow::FlowModel;
-use crate::models::flows::FlowsModel;
+use crate::models::pipeline::PipelineModel;
+use crate::models::pipelines::PipelinesModel;
 use crate::output::output::OutputRegistry;
 use crate::utils;
 use crate::utils::constants;
@@ -40,7 +40,7 @@ pub struct AppConfig {
     pub cluster: Vec<ClusterConfig>,
     /// Loaded actions model (not serialized).
     #[serde(skip)]
-    pub flows: Option<FlowsModel>,
+    pub pipelines: Option<PipelinesModel>,
 }
 
 impl Default for AppConfig {
@@ -75,7 +75,7 @@ impl Default for AppConfig {
                     ..ClusterConfig::default()
                 },
             ],
-            flows: None,
+            pipelines: None,
         }
     }
 }
@@ -115,8 +115,8 @@ impl AppConfig {
 
         config.validate()?;
 
-        // Load flows.
-        config.flows = Some(FlowsModel::load()?);
+        // Load pipelines.
+        config.pipelines = Some(PipelinesModel::load()?);
 
         // Cache globally.
         GLOBAL_CONFIG.set(config).ok();
@@ -165,13 +165,13 @@ impl AppConfig {
         Ok(())
     }
 
-    /// Find a flow by name from the loaded actions model.
-    pub fn find_flow(&self, name: &str) -> Result<FlowModel> {
-        let flows = self
-            .flows
+    /// Find a pipeline by name from the loaded actions model.
+    pub fn find_pipeline(&self, name: &str) -> Result<PipelineModel> {
+        let pipelines = self
+            .pipelines
             .as_ref()
             .ok_or_else(|| anyhow::anyhow!("No actions loaded."))?;
-        flows
+        pipelines
             .find(name)
             .cloned()
             .ok_or_else(|| anyhow::anyhow!("Unknown action: {}", name))
@@ -182,9 +182,9 @@ impl AppConfig {
         self.cluster.iter().any(|c| c.role.as_ref() == Some(role))
     }
 
-    /// Check if flow references roles that don't exist in cluster.
-    pub fn check_role_mismatch(&self, flow: &FlowModel) -> bool {
-        for action in &flow.actions {
+    /// Check if pipeline references roles that don't exist in cluster.
+    pub fn check_role_mismatch(&self, pipeline: &PipelineModel) -> bool {
+        for action in &pipeline.actions {
             let missing = match action.run {
                 ActionRun::Tiny => !self.model_role_exist(&ClusterRole::Tiny),
                 ActionRun::Small => !self.model_role_exist(&ClusterRole::Small),

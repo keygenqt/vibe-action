@@ -2,7 +2,6 @@
 
 use super::query::QueryKey;
 use super::query::QueryProvider;
-use crate::models::context::ContextModel;
 use crate::utils;
 use anyhow::Result;
 
@@ -21,7 +20,7 @@ impl QueryProvider for LineProvider {
         QueryKey::Line
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
+    fn resolve(&self) -> Result<String> {
         let text = self
             .raw_value
             .as_deref()
@@ -30,6 +29,6 @@ impl QueryProvider for LineProvider {
             .unwrap_or_else(|| utils::clipboard::read_text().unwrap_or_default());
 
         let line = text.lines().next().unwrap_or("").to_string();
-        Ok(ContextModel::String(line))
+        Ok(line)
     }
 }

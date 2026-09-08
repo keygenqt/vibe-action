@@ -2,7 +2,6 @@
 //! Each provider resolves a `{query}` or `{query|type}` tag to a runtime value.
 
 use crate::configs::app::AppConfig;
-use crate::models::context::ContextModel;
 use crate::query::file_path::FilePathProvider;
 use crate::query::image::ImageProvider;
 use crate::query::line::LineProvider;
@@ -51,7 +50,7 @@ impl QueryKey {
 /// Trait for query tag providers.
 pub trait QueryProvider: Send + Sync {
     fn key(&self) -> QueryKey;
-    fn resolve(&self) -> Result<ContextModel>;
+    fn resolve(&self) -> Result<String>;
 }
 
 /// Registry of all query providers.
@@ -80,7 +79,7 @@ impl QueryRegistry {
     }
 
     /// Resolve a query tag by its key.
-    pub fn resolve(&self, key: QueryKey) -> Result<ContextModel> {
+    pub fn resolve(&self, key: QueryKey) -> Result<String> {
         match self.providers.get(&key) {
             Some(provider) => provider.resolve(),
             None => anyhow::bail!("Unknown query type: '{}'", key.as_str()),

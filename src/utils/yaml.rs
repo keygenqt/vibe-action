@@ -37,3 +37,11 @@ pub fn add_comments(yaml: String, comments: Vec<YamlComment>) -> String {
     }
     result
 }
+
+/// Expand escape mnemonics \n, \t, \s into newline, tab, space.
+pub fn expand_escapes<S: AsRef<str>>(s: S) -> String {
+    let s = s.as_ref();
+    s.replace("\\n", "\n")
+        .replace("\\t", "\t")
+        .replace("\\s", " ")
+}

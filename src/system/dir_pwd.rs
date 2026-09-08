@@ -1,6 +1,5 @@
 //! System provider for `{system_pwd}` — current working directory.
 
-use crate::models::context::ContextModel;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;
 use anyhow::Result;
@@ -12,10 +11,9 @@ impl SystemProvider for SystemDirPwdProvider {
         SystemKey::DirPwd
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
-        let pwd = std::env::current_dir()
+    fn resolve(&self) -> Result<String> {
+        Ok(std::env::current_dir()
             .map(|p| p.display().to_string())
-            .unwrap_or_default();
-        Ok(ContextModel::String(pwd))
+            .unwrap_or_default())
     }
 }

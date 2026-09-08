@@ -2,7 +2,6 @@
 
 use super::query::QueryKey;
 use super::query::QueryProvider;
-use crate::models::context::ContextModel;
 use crate::utils;
 use anyhow::Result;
 use std::path::Path;
@@ -60,7 +59,7 @@ impl QueryProvider for ProjectPathProvider {
         QueryKey::ProjectPath
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
+    fn resolve(&self) -> Result<String> {
         let start_path =
             if let Some(raw) = self.raw_value.as_deref().filter(|v| !v.trim().is_empty()) {
                 let parsed = utils::clipboard::parse_uri_list(raw);
@@ -81,8 +80,6 @@ impl QueryProvider for ProjectPathProvider {
             Self::find_project_root(&start_path).unwrap_or_default()
         };
 
-        Ok(ContextModel::String(
-            project_root.to_string_lossy().into_owned(),
-        ))
+        Ok(project_root.to_string_lossy().into_owned())
     }
 }

@@ -13,8 +13,8 @@ pub const CONFIG_FILE_NAME: &str = "config.yaml";
 /// Config version
 pub const CONFIG_VERSION: &str = "0.0.3";
 
-/// Flow version (bump to force-update default flows on disk).
-pub const FLOW_VERSION: &str = "0.0.1";
+/// pipeline version (bump to force-update default pipelines on disk).
+pub const PIPELINE_VERSION: &str = "0.0.2";
 
-/// Cache version (bump when flow schema or validation logic changes).
+/// Cache version (bump when pipeline schema or validation logic changes).
 pub const CACHE_VERSION: &str = "0.0.2";

@@ -1,6 +1,5 @@
 //! System provider for `{system_language}` — system language from LANG env.
 
-use crate::models::context::ContextModel;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;
 use anyhow::Result;
@@ -12,7 +11,7 @@ impl SystemProvider for SystemLanguageProvider {
         SystemKey::Language
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
+    fn resolve(&self) -> Result<String> {
         let raw = std::env::var("LANG").unwrap_or_default();
         let lang = if raw.is_empty() || raw.starts_with("C.") || raw == "C" || raw == "POSIX" {
             "en"
@@ -25,6 +24,6 @@ impl SystemProvider for SystemLanguageProvider {
                 .unwrap_or("en")
         };
 
-        Ok(ContextModel::String(lang.to_string()))
+        Ok(lang.to_string())
     }
 }

@@ -1,6 +1,5 @@
 //! System provider for `{system_user}` — current user name.
 
-use crate::models::context::ContextModel;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;
 use anyhow::Result;
@@ -12,8 +11,7 @@ impl SystemProvider for SystemUserProvider {
         SystemKey::User
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
-        let user = std::env::var("USER").unwrap_or_default();
-        Ok(ContextModel::String(user))
+    fn resolve(&self) -> Result<String> {
+        Ok(std::env::var("USER").unwrap_or_default())
     }
 }

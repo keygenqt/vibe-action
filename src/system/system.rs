@@ -1,7 +1,6 @@
 //! System provider trait and registry.
 //! Each provider resolves a `{system_*}` tag to a runtime value.
 
-use crate::models::context::ContextModel;
 use crate::system::arch::SystemArchProvider;
 use crate::system::date::SystemDateProvider;
 use crate::system::dir_download::SystemDirDownloadProvider;
@@ -96,7 +95,7 @@ impl SystemKey {
 /// Trait for system tag providers.
 pub trait SystemProvider: Send + Sync {
     fn key(&self) -> SystemKey;
-    fn resolve(&self) -> Result<ContextModel>;
+    fn resolve(&self) -> Result<String>;
 }
 
 /// Registry of all system providers.
@@ -132,7 +131,7 @@ impl SystemRegistry {
     }
 
     /// Resolve a system tag by its key.
-    pub fn resolve(&self, key: SystemKey) -> Result<ContextModel> {
+    pub fn resolve(&self, key: SystemKey) -> Result<String> {
         match self.providers.get(&key) {
             Some(provider) => provider.resolve(),
             None => anyhow::bail!("Unknown system tag: '{}'", key.as_str()),

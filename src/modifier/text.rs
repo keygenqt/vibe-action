@@ -6,7 +6,7 @@ use std::path::Path;
 
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use crate::models::context::ContextModel;
+use crate::modifier::modifier::ITEM_SEP;
 use crate::utils;
 
 pub struct TextModifier;
@@ -53,17 +53,18 @@ impl Modifier for TextModifier {
         ModifierKey::Text
     }
 
-    fn apply(&self, value: &ContextModel, _arg: &str) -> Result<ContextModel> {
-        match value {
-            ContextModel::String(s) => {
+    fn apply(&self, value: &str, _arg: &str) -> Result<String> {
+        let results: Vec<String> = value
+            .split(ITEM_SEP)
+            .map(|s| {
                 // Base64 image — return as-is
                 if crate::utils::image::is_image(s) {
-                    return Ok(ContextModel::String(s.clone()));
+                    return Ok(s.to_string());
                 }
 
                 // Direct HTML content
                 if let Some(text) = Self::html_to_text(s)? {
-                    return Ok(ContextModel::String(text));
+                    return Ok(text);
                 }
 
                 // Try as file path
@@ -71,35 +72,22 @@ impl Modifier for TextModifier {
                     if path.exists() && !path.is_dir() {
                         let bytes = fs::read(&path)?;
                         if let Some(text) = Self::img_to_text(&bytes)? {
-                            return Ok(ContextModel::String(text));
+                            return Ok(text);
                         }
                         if let Some(text) = Self::pdf_to_text(&bytes)? {
-                            return Ok(ContextModel::String(text));
+                            return Ok(text);
                         }
                         let content = String::from_utf8_lossy(&bytes).to_string();
                         if let Some(text) = Self::html_to_text(&content)? {
-                            return Ok(ContextModel::String(text));
+                            return Ok(text);
                         }
-                        return Ok(ContextModel::String(content));
+                        return Ok(content);
                     }
                 }
 
-                // If we got here, it's an invalid path or unsupported content
                 anyhow::bail!("File not found or unsupported content: '{}'", s)
-            }
-
-            ContextModel::List(items) => {
-                let results: Vec<String> = items
-                    .iter()
-                    .map(
-                        |i| match self.apply(&ContextModel::String(i.clone()), "")? {
-                            ContextModel::String(s) => Ok(s),
-                            _ => unreachable!(),
-                        },
-                    )
-                    .collect::<Result<Vec<_>>>()?;
-                Ok(ContextModel::List(results))
-            }
-        }
+            })
+            .collect::<Result<Vec<_>>>()?;
+        Ok(results.join(ITEM_SEP))
     }
 }

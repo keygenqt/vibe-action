@@ -1,6 +1,5 @@
 //! System provider for `{system_pid}` — current process ID.
 
-use crate::models::context::ContextModel;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;
 use anyhow::Result;
@@ -12,8 +11,7 @@ impl SystemProvider for SystemPidProvider {
         SystemKey::Pid
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
-        let pid = std::process::id().to_string();
-        Ok(ContextModel::String(pid))
+    fn resolve(&self) -> Result<String> {
+        Ok(std::process::id().to_string())
     }
 }

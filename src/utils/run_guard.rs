@@ -273,7 +273,7 @@ impl RunGuard {
     ///
     /// The lock is held for the whole startup sequence, including waiting for
     /// the previous instance to exit (up to ~3s). A single try_lock would
-    /// therefore fail in the common "cancel → immediately re-run" flow, so we
+    /// therefore fail in the common "cancel → immediately re-run" pipeline, so we
     /// retry until the previous startup finishes.
     fn acquire_startup_lock(cache_dir: &PathBuf) -> Result<File> {
         let lock_path = cache_dir.join(".run_lock");

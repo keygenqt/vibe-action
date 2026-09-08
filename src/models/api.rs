@@ -44,7 +44,7 @@ impl ApiInput {
 /// IDE plugin integration metadata.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct FlowApiModel {
+pub struct PipelineApiModel {
     /// Defines the input source for the {query} tag.
     /// Defaults to "query" (editor selection).
     #[serde(default)]

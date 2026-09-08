@@ -12,21 +12,16 @@ pub enum ArgInput {
     Bool,
     Number,
     Path,
-    List(Box<ArgInput>),
 }
 
 impl std::fmt::Display for ArgInput {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        fn fmt_inner(input: &ArgInput, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            match input {
-                ArgInput::String => write!(f, "string"),
-                ArgInput::Bool => write!(f, "bool"),
-                ArgInput::Number => write!(f, "number"),
-                ArgInput::Path => write!(f, "path"),
-                ArgInput::List(inner) => write!(f, "list<{}>", inner),
-            }
+        match self {
+            ArgInput::String => write!(f, "string"),
+            ArgInput::Bool => write!(f, "bool"),
+            ArgInput::Number => write!(f, "number"),
+            ArgInput::Path => write!(f, "path"),
         }
-        fmt_inner(self, f)
     }
 }
 
@@ -36,19 +31,13 @@ impl<'de> Deserialize<'de> for ArgInput {
         D: serde::Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        if let Some(inner_str) = s.strip_prefix("list<").and_then(|s| s.strip_suffix('>')) {
-            let inner = ArgInput::deserialize(serde::de::value::StrDeserializer::<D::Error>::new(
-                inner_str,
-            ))?;
-            return Ok(ArgInput::List(Box::new(inner)));
-        }
         match s.as_str() {
             "string" => Ok(ArgInput::String),
             "bool" => Ok(ArgInput::Bool),
             "number" => Ok(ArgInput::Number),
             "path" => Ok(ArgInput::Path),
             _ => Err(serde::de::Error::custom(format!(
-                "Unknown input type: {}. Expected: string, bool, number, path, list<string>.",
+                "Unknown input type: {}. Expected: string, bool, number, path.",
                 s
             ))),
         }
@@ -92,9 +81,6 @@ impl From<&ArgActionModel> for clap::Arg {
             ArgInput::Number => arg.value_parser(clap::value_parser!(f64)),
             ArgInput::Path => arg.value_parser(clap::value_parser!(String)),
             ArgInput::String => arg.value_parser(clap::value_parser!(String)),
-            ArgInput::List(_) => arg
-                .value_parser(clap::value_parser!(String))
-                .value_delimiter(','),
         }
     }
 }

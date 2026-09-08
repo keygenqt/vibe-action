@@ -2,7 +2,6 @@
 
 use super::query::QueryKey;
 use super::query::QueryProvider;
-use crate::models::context::ContextModel;
 use crate::utils::clipboard;
 use crate::utils::{self};
 use anyhow::Result;
@@ -30,20 +29,20 @@ impl QueryProvider for FilePathProvider {
         QueryKey::FilePath
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
+    fn resolve(&self) -> Result<String> {
         // Priority 1: explicit raw value (may be plain path or file:// URI)
         if let Some(raw) = self.raw_value.as_deref().filter(|v| !v.trim().is_empty()) {
             if let Some(path) = Self::first_existing_file(clipboard::parse_uri_list(raw)) {
-                return Ok(ContextModel::String(path.to_string_lossy().into_owned()));
+                return Ok(path.to_string_lossy().into_owned());
             }
-            return Ok(ContextModel::String(String::new()));
+            return Ok(String::new());
         }
 
         // Priority 2: clipboard (file copy in FM, or pasted path/URI text)
         if let Some(path) = Self::first_existing_file(clipboard::clipboard_file_paths()) {
-            return Ok(ContextModel::String(path.to_string_lossy().into_owned()));
+            return Ok(path.to_string_lossy().into_owned());
         }
 
-        Ok(ContextModel::String(String::new()))
+        Ok(String::new())
     }
 }

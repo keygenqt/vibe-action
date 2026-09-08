@@ -2,7 +2,6 @@
 
 use super::query::QueryKey;
 use super::query::QueryProvider;
-use crate::models::context::ContextModel;
 use crate::utils;
 use anyhow::Result;
 use base64::Engine;
@@ -40,19 +39,19 @@ impl QueryProvider for ImageProvider {
         QueryKey::Image
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
+    fn resolve(&self) -> Result<String> {
         // 1. Check raw_value (might be a file path or base64 from IDE)
         if let Some(raw) = self.raw_value.as_deref().filter(|v| !v.trim().is_empty()) {
             let paths = utils::clipboard::parse_uri_list(raw);
             if let Some(first_path) = paths.first() {
                 if let Ok(path) = utils::path::resolve(first_path) {
                     if path.is_file() && Self::is_image_file(&path) {
-                        return Ok(ContextModel::String(Self::encode_file_to_base64(&path)?));
+                        return Ok(Self::encode_file_to_base64(&path)?);
                     }
                 }
             }
             // If not a valid image path, assume it's a base64 string
-            return Ok(ContextModel::String(raw.trim().to_string()));
+            return Ok(raw.trim().to_string());
         }
 
         // 2. Check clipboard for copied image files (Finder/Nautilus)
@@ -60,15 +59,15 @@ impl QueryProvider for ImageProvider {
         if let Some(first_path) = file_paths.first() {
             if let Ok(path) = utils::path::resolve(first_path) {
                 if path.is_file() && Self::is_image_file(&path) {
-                    return Ok(ContextModel::String(Self::encode_file_to_base64(&path)?));
+                    return Ok(Self::encode_file_to_base64(&path)?);
                 }
             }
         }
 
         // 3. Fallback to raw image data in clipboard (e.g., screenshot)
         match utils::clipboard::read_image_png_base64() {
-            Some(base64) => Ok(ContextModel::String(base64)),
-            None => Ok(ContextModel::String(String::new())),
+            Some(base64) => Ok(base64),
+            None => Ok(String::new()),
         }
     }
 }

@@ -1,31 +1,31 @@
 //! Aggregated actions model.
-//! Loads all flows from configured directories and provides lookup.
+//! Loads all pipelines from configured directories and provides lookup.
 
 use anyhow::Result;
 use fs2::FileExt;
 use std::fs;
 use std::path::PathBuf;
 
-use crate::default::default::default_flows;
-use crate::models::flow::FlowModel;
+use crate::default::default::default_pipelines;
+use crate::models::pipeline::PipelineModel;
 use crate::utils::constants;
 use crate::utils::{self};
 use crate::validate::ValidateTrait;
 
 /// Aggregated actions from all sources.
 #[derive(Debug, Clone)]
-pub struct FlowsModel {
-    /// All loaded flows.
-    pub flows: Vec<FlowModel>,
+pub struct PipelinesModel {
+    /// All loaded pipelines.
+    pub pipelines: Vec<PipelineModel>,
 }
 
-impl FlowsModel {
-    /// Find a flow by name (exact match).
-    pub fn find(&self, name: &str) -> Option<&FlowModel> {
-        self.flows.iter().find(|f| f.name == name)
+impl PipelinesModel {
+    /// Find a pipeline by name (exact match).
+    pub fn find(&self, name: &str) -> Option<&PipelineModel> {
+        self.pipelines.iter().find(|f| f.name == name)
     }
 
-    /// Load flows from actions directory.
+    /// Load pipelines from actions directory.
     /// Uses cache for validated files, falls back to defaults on first run.
     /// Acquires an exclusive file lock to prevent concurrent cache corruption.
     pub fn load() -> Result<Self> {
@@ -60,7 +60,7 @@ impl FlowsModel {
         if scan.changed.is_empty() && scan.unchanged.is_empty() {
             // In test mode, just return empty if no fixtures found
             if std::env::var("VIBE_LOG_TYPE").unwrap_or_default() == "test" {
-                return Ok(Self { flows: vec![] });
+                return Ok(Self { pipelines: vec![] });
             }
             // Force scan to populate snapshot with defaults
             vibe_fs::scan(path, true, Some(cache_dir), Some(&["yaml", "yml"]))?;
@@ -75,8 +75,8 @@ impl FlowsModel {
                 if !file_path.exists() {
                     continue;
                 }
-                let flow = FlowModel::load(file_path)?;
-                flow.validate().map_err(|e| {
+                let pipeline = PipelineModel::load(file_path)?;
+                pipeline.validate().map_err(|e| {
                     let mut msg = e.to_string();
                     if let Some(first) = msg.get_mut(0..1) {
                         first.make_ascii_lowercase();
@@ -87,14 +87,14 @@ impl FlowsModel {
         }
 
         // Load all valid files (changed just validated, unchanged already in cache)
-        let mut actions = Self { flows: vec![] };
+        let mut actions = Self { pipelines: vec![] };
         for file_path in scan.changed.iter().chain(scan.unchanged.iter()) {
             // Skip deleted files
             if !file_path.exists() {
                 continue;
             }
-            let flow = FlowModel::load(file_path)?;
-            actions.flows.push(flow);
+            let pipeline = PipelineModel::load(file_path)?;
+            actions.pipelines.push(pipeline);
         }
 
         // Re-validate whole model if new files were added
@@ -106,7 +106,7 @@ impl FlowsModel {
     }
 
     /// Save default actions to a directory. Overwrites files whose version
-    /// is missing or doesn't match FLOW_VERSION; creates missing files.
+    /// is missing or doesn't match PIPELINE_VERSION; creates missing files.
     fn save_defaults(path: &PathBuf) -> Result<()> {
         // Skip in test mode to avoid polluting fixtures
         if std::env::var("VIBE_LOG_TYPE").unwrap_or_default() == "test" {
@@ -115,13 +115,13 @@ impl FlowsModel {
         if !path.exists() {
             fs::create_dir_all(path)?;
         }
-        for flow in default_flows() {
-            let yaml = flow.flow()?;
-            let name = flow.name()?;
+        for pipeline in default_pipelines() {
+            let yaml = pipeline.pipeline()?;
+            let name = pipeline.name()?;
             let file_path = path.join(format!("{}.yaml", name));
             if file_path.exists() {
-                match yaml_serde::from_str::<FlowModel>(&fs::read_to_string(&file_path)?) {
-                    Ok(existing) if existing.version == constants::FLOW_VERSION => continue,
+                match yaml_serde::from_str::<PipelineModel>(&fs::read_to_string(&file_path)?) {
+                    Ok(existing) if existing.version == constants::PIPELINE_VERSION => continue,
                     _ => {}
                 }
             }

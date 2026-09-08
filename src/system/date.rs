@@ -1,6 +1,5 @@
 //! System provider for `{system_date}` — current date in ISO 8601 format.
 
-use crate::models::context::ContextModel;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;
 use anyhow::Result;
@@ -12,8 +11,7 @@ impl SystemProvider for SystemDateProvider {
         SystemKey::Date
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
-        let date = chrono::Local::now().format("%Y-%m-%d").to_string();
-        Ok(ContextModel::String(date))
+    fn resolve(&self) -> Result<String> {
+        Ok(chrono::Local::now().format("%Y-%m-%d").to_string())
     }
 }

@@ -3,9 +3,10 @@
 
 use anyhow::Result;
 
+use crate::modifier::modifier::ITEM_SEP;
+
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use crate::models::context::ContextModel;
 
 pub struct LowerModifier;
 
@@ -14,13 +15,11 @@ impl Modifier for LowerModifier {
         ModifierKey::Lower
     }
 
-    fn apply(&self, value: &ContextModel, _arg: &str) -> Result<ContextModel> {
-        match value {
-            ContextModel::String(s) => Ok(ContextModel::String(s.to_lowercase())),
-            ContextModel::List(items) => {
-                let transformed: Vec<String> = items.iter().map(|i| i.to_lowercase()).collect();
-                Ok(ContextModel::List(transformed))
-            }
-        }
+    fn apply(&self, value: &str, _arg: &str) -> Result<String> {
+        Ok(value
+            .split(ITEM_SEP)
+            .map(|i| i.to_lowercase())
+            .collect::<Vec<_>>()
+            .join(ITEM_SEP))
     }
 }

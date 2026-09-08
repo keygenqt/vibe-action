@@ -2,9 +2,10 @@
 
 use anyhow::Result;
 
+use crate::modifier::modifier::ITEM_SEP;
+
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use crate::models::context::ContextModel;
 
 pub struct ReverseModifier;
 
@@ -13,17 +14,13 @@ impl Modifier for ReverseModifier {
         ModifierKey::Reverse
     }
 
-    fn apply(&self, value: &ContextModel, _arg: &str) -> Result<ContextModel> {
-        match value {
-            ContextModel::String(s) => {
-                let reversed: String = s.chars().rev().collect();
-                Ok(ContextModel::String(reversed))
-            }
-            ContextModel::List(items) => {
-                let mut reversed = items.clone();
-                reversed.reverse();
-                Ok(ContextModel::List(reversed))
-            }
+    fn apply(&self, value: &str, _arg: &str) -> Result<String> {
+        if value.contains(ITEM_SEP) {
+            let mut items: Vec<&str> = value.split(ITEM_SEP).collect();
+            items.reverse();
+            Ok(items.join(ITEM_SEP))
+        } else {
+            Ok(value.chars().rev().collect())
         }
     }
 }

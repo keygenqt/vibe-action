@@ -1,6 +1,5 @@
 //! System provider for `{system_shell}` — current shell from SHELL env.
 
-use crate::models::context::ContextModel;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;
 use anyhow::Result;
@@ -12,13 +11,13 @@ impl SystemProvider for SystemShellProvider {
         SystemKey::Shell
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
+    fn resolve(&self) -> Result<String> {
         let shell = std::env::var("SHELL")
             .unwrap_or_default()
             .split('/')
             .last()
             .unwrap_or("unknown")
             .to_string();
-        Ok(ContextModel::String(shell))
+        Ok(shell)
     }
 }

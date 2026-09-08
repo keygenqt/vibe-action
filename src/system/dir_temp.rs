@@ -1,6 +1,5 @@
 //! System provider for `{system_temp}` — temporary directory.
 
-use crate::models::context::ContextModel;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;
 use anyhow::Result;
@@ -12,8 +11,7 @@ impl SystemProvider for SystemDirTempProvider {
         SystemKey::DirTemp
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
-        let temp = std::env::temp_dir().display().to_string();
-        Ok(ContextModel::String(temp))
+    fn resolve(&self) -> Result<String> {
+        Ok(std::env::temp_dir().display().to_string())
     }
 }

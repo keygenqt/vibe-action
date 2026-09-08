@@ -1,73 +1,68 @@
 //! ActionModel validation.
-//! Checks type, expect, match regex, and non-empty action.
+//! Checks non-empty action, val-candidate fields, and action interpolation.
+
+use std::collections::HashSet;
 
 use anyhow::Result;
 use regex::Regex;
 
+use crate::engine::parser::TagIterator;
 use crate::models::action::ActionModel;
-use crate::models::action::ActionRun;
-use crate::models::action::ActionValue;
 use crate::validate::ValidateTrait;
 
 impl ValidateTrait for ActionModel {
-    /// Validate action fields.
     fn validate(&self) -> Result<()> {
-        // Validate action: switch cases or simple string must be valid.
-        match &self.action {
-            ActionValue::Simple(s) => {
-                if s.trim().is_empty() {
-                    anyhow::bail!("Action '{}' has empty command/prompt.", self.tag);
-                }
-            }
-            ActionValue::Switch(cases) => {
-                for case in cases {
-                    let trimmed_when = case.when.trim();
-                    if trimmed_when != "true" {
-                        // Initialize our standalone iterator to inspect the condition layout
-                        let mut iter = crate::engine::parser::TagIterator::new(trimmed_when);
+        if self.action.trim().is_empty() {
+            anyhow::bail!("Action '{}' has empty command/prompt.", self.tag);
+        }
 
-                        match (iter.next(), iter.next()) {
-                            (Some(mat), None) => {
-                                // The placeholder must span across the exact entirety of the when string
-                                if mat.full_match.len() != trimmed_when.len() {
-                                    anyhow::bail!(
-                                        "When condition in '{}' must be a single {{tag|modifier}} or 'true', got: '{}'",
-                                        self.tag,
-                                        case.when
-                                    );
-                                }
-                            }
-                            _ => {
-                                // Fails if 0 placeholders or multiple placeholders are detected
-                                anyhow::bail!(
-                                    "When condition in '{}' must be a single {{tag|modifier}} or 'true', got: '{}'",
-                                    self.tag,
-                                    case.when
-                                );
-                            }
-                        }
+        let candidates = self.val.as_ref().map(|v| v.as_slice()).unwrap_or(&[]);
+        if !candidates.is_empty() {
+            for (i, c) in candidates.iter().enumerate() {
+                if c.name.trim().is_empty() {
+                    anyhow::bail!("Action '{}': val[{}] has empty name.", self.tag, i);
+                }
+                if c.data.trim().is_empty() {
+                    anyhow::bail!("Action '{}': val '{}' has empty data.", self.tag, c.name);
+                }
+                if let Some(each) = &c.each {
+                    if each.split.is_empty() {
+                        anyhow::bail!(
+                            "Action '{}': val '{}' each.split is empty.",
+                            self.tag,
+                            c.name
+                        );
+                    }
+                    if each.merge.is_empty() {
+                        anyhow::bail!(
+                            "Action '{}': val '{}' each.merge is empty.",
+                            self.tag,
+                            c.name
+                        );
                     }
                 }
             }
+
+            // `action` is pure `{name}` interpolation: only declared names, no modifiers.
+            let declared: HashSet<&str> = candidates.iter().map(|c| c.name.as_str()).collect();
+            for mat in TagIterator::new(&self.action) {
+                if !mat.modifiers.is_empty() {
+                    anyhow::bail!(
+                        "Action '{}': modifiers are not allowed in `action` (found '{}').",
+                        self.tag,
+                        mat.full_match
+                    );
+                }
+                if !declared.contains(mat.base_tag.as_str()) {
+                    anyhow::bail!(
+                        "Action '{}': `action` references undeclared name '{{{}}}'.",
+                        self.tag,
+                        mat.base_tag
+                    );
+                }
+            }
         }
 
-        // LLM actions must have expect set (need to know what to parse).
-        let is_llm = matches!(
-            self.run,
-            ActionRun::Tiny
-                | ActionRun::Small
-                | ActionRun::Medium
-                | ActionRun::Large
-                | ActionRun::Vision
-        );
-        if is_llm && self.expect.is_none() {
-            anyhow::bail!(
-                "LLM action '{}' must have expect set. Specify what to expect.",
-                self.tag
-            );
-        }
-
-        // Validate check regex if present.
         if let Some(pattern) = &self.check {
             Regex::new(pattern).map_err(|e| {
                 anyhow::anyhow!("Action '{}' has invalid check regex: {}", self.tag, e)

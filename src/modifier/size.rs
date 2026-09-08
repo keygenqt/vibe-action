@@ -2,9 +2,10 @@
 
 use anyhow::Result;
 
+use crate::modifier::modifier::ITEM_SEP;
+
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use crate::models::context::ContextModel;
 
 pub struct SizeModifier;
 
@@ -13,11 +14,12 @@ impl Modifier for SizeModifier {
         ModifierKey::Size
     }
 
-    fn apply(&self, value: &ContextModel, _arg: &str) -> Result<ContextModel> {
-        let count = match value {
-            ContextModel::String(s) => s.len(),
-            ContextModel::List(items) => items.len(),
+    fn apply(&self, value: &str, _arg: &str) -> Result<String> {
+        let count = if value.contains(ITEM_SEP) {
+            value.split(ITEM_SEP).count()
+        } else {
+            value.len()
         };
-        Ok(ContextModel::String(count.to_string()))
+        Ok(count.to_string())
     }
 }

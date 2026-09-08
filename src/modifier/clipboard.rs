@@ -15,7 +15,6 @@ use std::time::UNIX_EPOCH;
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
 use crate::configs::app::AppConfig;
-use crate::models::context::ContextModel;
 use crate::output::format::FormatOutput;
 use crate::output::output::OutputKind;
 use crate::output::output::OutputType;
@@ -272,7 +271,7 @@ impl Modifier for ClipboardModifier {
         ModifierKey::Clipboard
     }
 
-    fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
+    fn apply(&self, value: &str, arg: &str) -> Result<String> {
         if arg != ARG_SCREENSHOT {
             if !arg.is_empty() {
                 print_text!(
@@ -282,27 +281,21 @@ impl Modifier for ClipboardModifier {
                 );
             }
             if AppConfig::output().output_type() == OutputType::Cli {
-                let text =
-                    FormatOutput::strip_outer_markdown_blocks(&value.to_string()).to_string();
+                let text = FormatOutput::strip_outer_markdown_blocks(value).to_string();
                 utils::clipboard::set_text(&text)?;
             }
-            return Ok(value.clone());
+            return Ok(value.to_string());
         }
 
-        let s = match value {
-            ContextModel::String(s) => s.clone(),
-            _ => return Ok(value.clone()),
-        };
-
         // 1. The value itself may be an image (base64 or a file path).
-        if let Some(img) = try_load_image_from_value(&s)? {
+        if let Some(img) = try_load_image_from_value(value)? {
             utils::clipboard::set_image(img)?;
-            return Ok(value.clone());
+            return Ok(value.to_string());
         }
 
         // 2. The clipboard may already hold an image — pass it along as base64 PNG.
         if let Some(base64) = utils::clipboard::get_image_as_base64() {
-            return Ok(ContextModel::String(base64));
+            return Ok(base64);
         }
 
         // 3. Otherwise let the user capture a screen area interactively.
@@ -312,6 +305,6 @@ impl Modifier for ClipboardModifier {
             image::load_from_memory(&img_bytes).context("Failed to parse captured screenshot")?;
         utils::clipboard::set_image(img)?;
 
-        Ok(ContextModel::String(path.to_string_lossy().to_string()))
+        Ok(path.to_string_lossy().to_string())
     }
 }

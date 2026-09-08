@@ -5,7 +5,7 @@ use anyhow::Result;
 
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use crate::models::context::ContextModel;
+use crate::modifier::modifier::ITEM_SEP;
 use crate::utils;
 
 pub struct ResolveModifier;
@@ -15,25 +15,15 @@ impl Modifier for ResolveModifier {
         ModifierKey::Resolve
     }
 
-    fn apply(&self, value: &ContextModel, _arg: &str) -> Result<ContextModel> {
-        match value {
-            ContextModel::String(s) => {
-                let resolved = utils::path::resolve(s)
+    fn apply(&self, value: &str, _arg: &str) -> Result<String> {
+        Ok(value
+            .split(ITEM_SEP)
+            .map(|i| {
+                utils::path::resolve(i)
                     .map(|p| p.display().to_string())
-                    .unwrap_or_else(|_| s.clone());
-                Ok(ContextModel::String(resolved))
-            }
-            ContextModel::List(items) => {
-                let resolved: Vec<String> = items
-                    .iter()
-                    .map(|i| {
-                        utils::path::resolve(i)
-                            .map(|p| p.display().to_string())
-                            .unwrap_or_else(|_| i.clone())
-                    })
-                    .collect();
-                Ok(ContextModel::List(resolved))
-            }
-        }
+                    .unwrap_or_else(|_| i.to_string())
+            })
+            .collect::<Vec<_>>()
+            .join(ITEM_SEP))
     }
 }

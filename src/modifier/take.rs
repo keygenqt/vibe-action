@@ -2,9 +2,10 @@
 
 use anyhow::Result;
 
+use crate::modifier::modifier::ITEM_SEP;
+
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use crate::models::context::ContextModel;
 
 pub struct TakeModifier;
 
@@ -13,22 +14,21 @@ impl Modifier for TakeModifier {
         ModifierKey::Take
     }
 
-    fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
+    fn apply(&self, value: &str, arg: &str) -> Result<String> {
         let n: usize = arg.parse().map_err(|_| {
             anyhow::anyhow!(
                 "Modifier 'take' requires a numeric argument, got: '{}'",
                 arg
             )
         })?;
-        match value {
-            ContextModel::String(s) => {
-                let chars: Vec<char> = s.chars().take(n).collect();
-                Ok(ContextModel::String(chars.into_iter().collect()))
-            }
-            ContextModel::List(items) => {
-                let taken: Vec<String> = items.iter().take(n).cloned().collect();
-                Ok(ContextModel::List(taken))
-            }
+        if value.contains(ITEM_SEP) {
+            Ok(value
+                .split(ITEM_SEP)
+                .take(n)
+                .collect::<Vec<_>>()
+                .join(ITEM_SEP))
+        } else {
+            Ok(value.chars().take(n).collect())
         }
     }
 }

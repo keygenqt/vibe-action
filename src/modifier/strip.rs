@@ -5,9 +5,10 @@
 use anyhow::Result;
 use regex::Regex;
 
+use crate::modifier::modifier::ITEM_SEP;
+
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use crate::models::context::ContextModel;
 
 pub struct StripModifier {
     patterns: Vec<Regex>,
@@ -48,16 +49,11 @@ impl Modifier for StripModifier {
         ModifierKey::Strip
     }
 
-    fn apply(&self, value: &ContextModel, _arg: &str) -> Result<ContextModel> {
-        match value {
-            ContextModel::String(s) => {
-                let stripped = self.strip_wrapper(s);
-                Ok(ContextModel::String(stripped))
-            }
-            ContextModel::List(items) => {
-                let results: Vec<String> = items.iter().map(|i| self.strip_wrapper(i)).collect();
-                Ok(ContextModel::List(results))
-            }
-        }
+    fn apply(&self, value: &str, _arg: &str) -> Result<String> {
+        Ok(value
+            .split(ITEM_SEP)
+            .map(|i| self.strip_wrapper(i))
+            .collect::<Vec<_>>()
+            .join(ITEM_SEP))
     }
 }

@@ -2,7 +2,6 @@
 
 use super::query::QueryKey;
 use super::query::QueryProvider;
-use crate::models::context::ContextModel;
 use anyhow::Result;
 
 pub struct PromptProvider {
@@ -20,9 +19,8 @@ impl QueryProvider for PromptProvider {
         QueryKey::Prompt
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
-        // TODO: Show interactive prompt
+    fn resolve(&self) -> Result<String> {
         let value = self.raw_value.as_deref().unwrap_or("");
-        Ok(ContextModel::String(format!("[prompt] {}", value)))
+        Ok(value.to_string())
     }
 }

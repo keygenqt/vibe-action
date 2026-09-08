@@ -1,5 +1,5 @@
 //! Global action runtime settings: system prompt and retry policy.
-//! These apply to all flows by default.
+//! These apply to all pipelines by default.
 
 use serde::Deserialize;
 use serde::Serialize;

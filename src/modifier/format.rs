@@ -3,9 +3,10 @@
 
 use anyhow::Result;
 
+use crate::modifier::modifier::ITEM_SEP;
+
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use crate::models::context::ContextModel;
 
 pub struct FormatModifier;
 
@@ -67,29 +68,18 @@ impl Modifier for FormatModifier {
         ModifierKey::Format
     }
 
-    fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
+    fn apply(&self, value: &str, arg: &str) -> Result<String> {
         let output_format = if arg.is_empty() { "json" } else { arg };
 
-        match value {
-            ContextModel::String(s) => {
-                let parsed = Self::parse_value(s)?;
-                let formatted = Self::format_value(&parsed, output_format)?;
-                Ok(ContextModel::String(formatted))
-            }
-            ContextModel::List(items) => {
-                let results: Vec<String> = items
-                    .iter()
-                    .filter(|i| !i.is_empty())
-                    .map(
-                        |i| match self.apply(&ContextModel::String(i.clone()), arg)? {
-                            ContextModel::String(s) => Ok(s),
-                            _ => unreachable!(),
-                        },
-                    )
-                    .collect::<Result<Vec<_>>>()?;
-                let formatted = Self::wrap_list(results, output_format)?;
-                Ok(ContextModel::String(formatted))
-            }
-        }
+        let results: Vec<String> = value
+            .split(ITEM_SEP)
+            .filter(|i| !i.is_empty())
+            .map(|i| {
+                let parsed = Self::parse_value(i)?;
+                Self::format_value(&parsed, output_format)
+            })
+            .collect::<Result<Vec<_>>>()?;
+
+        Self::wrap_list(results, output_format)
     }
 }

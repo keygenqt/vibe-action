@@ -2,9 +2,10 @@
 
 use anyhow::Result;
 
+use crate::modifier::modifier::ITEM_SEP;
+
 use super::modifier::Modifier;
 use super::modifier::ModifierKey;
-use crate::models::context::ContextModel;
 
 pub struct SortModifier;
 
@@ -23,25 +24,22 @@ impl Modifier for SortModifier {
         ModifierKey::Sort
     }
 
-    fn apply(&self, value: &ContextModel, arg: &str) -> Result<ContextModel> {
+    fn apply(&self, value: &str, arg: &str) -> Result<String> {
         let ascending = Self::direction_from_arg(arg)?;
-        match value {
-            ContextModel::String(s) => {
-                let mut chars: Vec<char> = s.chars().collect();
-                chars.sort();
-                if !ascending {
-                    chars.reverse();
-                }
-                Ok(ContextModel::String(chars.into_iter().collect()))
+        if value.contains(ITEM_SEP) {
+            let mut items: Vec<&str> = value.split(ITEM_SEP).collect();
+            items.sort();
+            if !ascending {
+                items.reverse();
             }
-            ContextModel::List(items) => {
-                let mut sorted = items.clone();
-                sorted.sort();
-                if !ascending {
-                    sorted.reverse();
-                }
-                Ok(ContextModel::List(sorted))
+            Ok(items.join(ITEM_SEP))
+        } else {
+            let mut chars: Vec<char> = value.chars().collect();
+            chars.sort();
+            if !ascending {
+                chars.reverse();
             }
+            Ok(chars.into_iter().collect())
         }
     }
 }

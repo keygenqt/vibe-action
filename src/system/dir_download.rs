@@ -1,6 +1,5 @@
 //! System provider for `{system_dir_download}` — user downloads directory.
 
-use crate::models::context::ContextModel;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;
 use anyhow::Result;
@@ -12,10 +11,9 @@ impl SystemProvider for SystemDirDownloadProvider {
         SystemKey::DirDownload
     }
 
-    fn resolve(&self) -> Result<ContextModel> {
-        let dir = dirs::download_dir()
+    fn resolve(&self) -> Result<String> {
+        Ok(dirs::download_dir()
             .map(|p| p.display().to_string())
-            .unwrap_or_default();
-        Ok(ContextModel::String(dir))
+            .unwrap_or_default())
     }
 }
