@@ -4,5 +4,4 @@
 pub mod cluster;
 pub mod engine;
 pub mod log;
-pub mod parser;
 pub mod shell;

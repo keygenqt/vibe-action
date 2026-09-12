@@ -2,48 +2,64 @@
 //! Each provider resolves a `{query}` or `{query|type}` tag to a runtime value.
 
 use crate::configs::app::AppConfig;
+use crate::query::clipboard::ClipboardProvider;
 use crate::query::file_path::FilePathProvider;
 use crate::query::image::ImageProvider;
 use crate::query::line::LineProvider;
 use crate::query::project_path::ProjectPathProvider;
 use crate::query::prompt::PromptProvider;
-use crate::query::query_raw::QueryRawProvider;
+use crate::query::raw::RawProvider;
 use anyhow::Result;
 use std::collections::HashMap;
 
 /// Enum of all known query type keys.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum QueryKey {
-    Raw,
+    Clipboard,
     FilePath,
     ProjectPath,
     Line,
     Prompt,
     Image,
+    Raw,
 }
 
 impl QueryKey {
     pub fn as_str(&self) -> &'static str {
         match self {
-            QueryKey::Raw => "raw",
-            QueryKey::FilePath => "file_path",
-            QueryKey::ProjectPath => "project_path",
-            QueryKey::Line => "line",
-            QueryKey::Prompt => "prompt",
-            QueryKey::Image => "image",
+            QueryKey::Clipboard => "query_clipboard",
+            QueryKey::FilePath => "query_file_path",
+            QueryKey::ProjectPath => "query_project_path",
+            QueryKey::Line => "query_line",
+            QueryKey::Prompt => "query_prompt",
+            QueryKey::Image => "query_image",
+            QueryKey::Raw => "query_raw",
         }
     }
 
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
-            "raw" => Some(QueryKey::Raw),
-            "file_path" => Some(QueryKey::FilePath),
-            "project_path" => Some(QueryKey::ProjectPath),
-            "line" => Some(QueryKey::Line),
-            "prompt" => Some(QueryKey::Prompt),
-            "image" => Some(QueryKey::Image),
+            "query_clipboard" => Some(QueryKey::Clipboard),
+            "query_file_path" => Some(QueryKey::FilePath),
+            "query_project_path" => Some(QueryKey::ProjectPath),
+            "query_line" => Some(QueryKey::Line),
+            "query_prompt" => Some(QueryKey::Prompt),
+            "query_image" => Some(QueryKey::Image),
+            "query_raw" => Some(QueryKey::Raw),
             _ => None,
         }
+    }
+
+    /// All known query keys.
+    pub fn all() -> &'static [QueryKey] {
+        &[
+            QueryKey::Raw,
+            QueryKey::FilePath,
+            QueryKey::ProjectPath,
+            QueryKey::Line,
+            QueryKey::Prompt,
+            QueryKey::Image,
+        ]
     }
 }
 
@@ -64,12 +80,13 @@ impl QueryRegistry {
         let mut registry = Self {
             providers: HashMap::new(),
         };
-        registry.register(Box::new(QueryRawProvider::new(raw_value.clone())));
+        registry.register(Box::new(ClipboardProvider::new()));
         registry.register(Box::new(FilePathProvider::new(raw_value.clone())));
         registry.register(Box::new(ProjectPathProvider::new(raw_value.clone())));
         registry.register(Box::new(LineProvider::new(raw_value.clone())));
         registry.register(Box::new(PromptProvider::new(raw_value.clone())));
-        registry.register(Box::new(ImageProvider::new(raw_value)));
+        registry.register(Box::new(ImageProvider::new(raw_value.clone())));
+        registry.register(Box::new(RawProvider::new(raw_value.clone())));
         registry
     }
 

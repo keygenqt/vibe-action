@@ -10,11 +10,12 @@ use std::collections::HashSet;
 use std::fs;
 use std::path::PathBuf;
 
-use crate::engine::parser::TagIterator;
 use crate::models::action::ActionModel;
 use crate::models::api::PipelineApiModel;
 use crate::models::arg::ArgActionModel;
 use crate::models::arg::ArgInput;
+use crate::query::query::QueryKey;
+use crate::query::query::QueryRegistry;
 use crate::system::system::SystemKey;
 use crate::system::system::SystemRegistry;
 use crate::utils;
@@ -122,16 +123,15 @@ impl PipelineModel {
             .unwrap_or_else(|| default.to_string())
     }
 
-    /// Add system tags to input arguments.
     pub fn apply_system_tags(mut self) -> Result<Self> {
         let registry = SystemRegistry::new();
         let mut needed_tags = HashSet::new();
 
         for action in &self.actions {
-            for text in action.actions() {
-                for mat in TagIterator::new(text) {
-                    if mat.base_tag.starts_with("system_") {
-                        needed_tags.insert(mat.base_tag.clone());
+            if let Some(candidates) = &action.val {
+                for c in candidates {
+                    if c.data.starts_with("system_") {
+                        needed_tags.insert(c.data.clone());
                     }
                 }
             }
@@ -146,39 +146,47 @@ impl PipelineModel {
         Ok(self)
     }
 
+    /// Resolve `query_*` tags from the query CLI arg or clipboard.
+    pub fn apply_query_tags(mut self) -> Result<Self> {
+        let raw_query = self.input_tags.get("query").cloned();
+        let registry = QueryRegistry::new(raw_query);
+        let mut needed_tags = HashSet::new();
+
+        for action in &self.actions {
+            if let Some(candidates) = &action.val {
+                for c in candidates {
+                    if QueryKey::from_str(&c.data).is_some() {
+                        needed_tags.insert(c.data.clone());
+                    }
+                }
+            }
+        }
+        for tag in needed_tags {
+            if !self.input_tags.contains_key(&tag) {
+                let key = QueryKey::from_str(&tag).unwrap();
+                let value = registry.resolve(key)?;
+                self.input_tags.insert(tag, value);
+            }
+        }
+        Ok(self)
+    }
+
     /// Check if the pipeline uses the {query} tag in any of its actions.
     pub fn uses_query(&self) -> bool {
-        use crate::engine::parser::TagIterator;
-
         self.actions.iter().any(|action| {
-            // Old-style: {query} in action text.
-            if TagIterator::new(&action.action).any(|mat| mat.base_tag == "query") {
-                return true;
-            }
-            // val-style: query referenced in a candidate's `data`.
             action.val.as_ref().map_or(false, |cands| {
-                cands
-                    .iter()
-                    .any(|c| c.data.split('|').next().unwrap_or("") == "query")
+                cands.iter().any(|c| c.data.starts_with("query_"))
             })
         })
     }
 
-    /// Check if the pipeline uses the {query|prompt} tag in any of its actions.
+    /// Check if the pipeline uses the query|prompt modifier in any action.
     pub fn needs_prompt(&self) -> bool {
-        use crate::engine::parser::TagIterator;
-
         self.actions.iter().any(|action| {
-            // Old-style: {query|prompt} in action text.
-            if TagIterator::new(&action.action).any(|mat| {
-                mat.base_tag == "query"
-                    && mat.modifiers.first().map_or(false, |m| m.name == "prompt")
-            }) {
-                return true;
-            }
-            // val-style: query|prompt in a candidate's `data`.
             action.val.as_ref().map_or(false, |cands| {
-                cands.iter().any(|c| c.data == "query|prompt")
+                cands
+                    .iter()
+                    .any(|c| QueryKey::from_str(&c.data) == Some(QueryKey::Prompt))
             })
         })
     }

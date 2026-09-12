@@ -2,11 +2,11 @@
 //! Checks non-empty action, val-candidate fields, and action interpolation.
 
 use std::collections::HashSet;
+use std::sync::OnceLock;
 
 use anyhow::Result;
 use regex::Regex;
 
-use crate::engine::parser::TagIterator;
 use crate::models::action::ActionModel;
 use crate::validate::ValidateTrait;
 
@@ -43,21 +43,17 @@ impl ValidateTrait for ActionModel {
                 }
             }
 
-            // `action` is pure `{name}` interpolation: only declared names, no modifiers.
+            // `action` is pure `{name}` interpolation: only declared names.
             let declared: HashSet<&str> = candidates.iter().map(|c| c.name.as_str()).collect();
-            for mat in TagIterator::new(&self.action) {
-                if !mat.modifiers.is_empty() {
-                    anyhow::bail!(
-                        "Action '{}': modifiers are not allowed in `action` (found '{}').",
-                        self.tag,
-                        mat.full_match
-                    );
-                }
-                if !declared.contains(mat.base_tag.as_str()) {
+            static RE: OnceLock<Regex> = OnceLock::new();
+            let re = RE.get_or_init(|| Regex::new(r"\{(\w+)\}").unwrap());
+            for cap in re.captures_iter(&self.action) {
+                let name = cap.get(1).unwrap().as_str();
+                if !declared.contains(name) {
                     anyhow::bail!(
                         "Action '{}': `action` references undeclared name '{{{}}}'.",
                         self.tag,
-                        mat.base_tag
+                        name
                     );
                 }
             }

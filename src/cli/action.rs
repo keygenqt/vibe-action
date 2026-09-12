@@ -64,9 +64,14 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         .unwrap_or_else(|e| {
             print_text!(OutputKind::Error, "{}", e);
             std::process::exit(1);
+        })
+        .apply_query_tags()
+        .unwrap_or_else(|e| {
+            print_text!(OutputKind::Error, "{}", e);
+            std::process::exit(1);
         });
 
-    // If pipeline uses {query|prompt} and no query was provided via CLI args, ask for input
+    // If pipeline uses query_prompt and no query was provided via CLI args, ask for input
     if !is_output_json && pipeline.needs_prompt() {
         let is_query_empty = pipeline
             .input_tags

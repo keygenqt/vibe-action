@@ -13,11 +13,10 @@ use crate::engine::shell::Shell;
 use crate::models::action::ActionModel;
 use crate::models::action::ActionRun;
 use crate::models::pipeline::PipelineModel;
-use crate::modifier::modifier::ITEM_SEP;
-use crate::modifier::modifier::ModifierKey;
-use crate::modifier::modifier::ModifierRegistry;
-use crate::query::query::QueryKey;
-use crate::query::query::QueryRegistry;
+use crate::operator::operator::ITEM_SEP;
+use crate::operator::operator::OperatorKey;
+use crate::operator::operator::OperatorRegistry;
+use crate::operator::operator::truthy;
 use crate::utils;
 use crate::utils::yaml::expand_escapes;
 
@@ -26,26 +25,22 @@ pub struct Engine {
     retries: u32,
     actions: Vec<ActionModel>,
     available: HashMap<String, String>,
-    modifiers: ModifierRegistry,
-    query: QueryRegistry,
+    operators: OperatorRegistry,
 }
 
 impl Engine {
     /// Create a new engine from a pipeline, sorting actions by dependencies.
     pub fn new(system: &str, retries: u32, pipeline: &PipelineModel) -> Result<Self> {
-        // Seed available with external args.
         let mut available = HashMap::new();
         for (name, value) in &pipeline.input_tags {
             available.insert(name.clone(), value.clone());
         }
-        let raw_query = available.get("query").cloned();
         Ok(Self {
             system: system.to_string(),
             retries,
             actions: pipeline.actions.clone(),
             available,
-            modifiers: ModifierRegistry::new(),
-            query: QueryRegistry::new(raw_query),
+            operators: OperatorRegistry::new(),
         })
     }
 
@@ -99,21 +94,17 @@ impl Engine {
         Ok(order)
     }
 
-    /// Resolve a "tag|mods" reference: look up tag in available, apply modifiers, return String.
-    fn resolve_value(&self, tag: &str, mods: &str) -> String {
-        let mut current = self.available.get(tag).cloned().unwrap_or_default();
+    /// Resolve a "tag|mods" reference: look up tag in available, apply operators, return String.
+    fn resolve_value(&self, tag: &str, mods: &str) -> Result<String> {
+        let mut current = self
+            .available
+            .get(tag)
+            .cloned()
+            .unwrap_or_else(|| tag.to_string());
 
         for mod_str in mods.split('|') {
             let mod_str = mod_str.trim();
             if mod_str.is_empty() {
-                continue;
-            }
-
-            // Query type → delegate to QueryRegistry
-            if let Some(qkey) = QueryKey::from_str(mod_str) {
-                if let Ok(result) = self.query.resolve(qkey) {
-                    current = result;
-                }
                 continue;
             }
 
@@ -122,47 +113,38 @@ impl Engine {
                 None => (mod_str, ""),
             };
 
-            if let Some(key) = ModifierKey::from_str(name) {
-                if let Some(modifier) = self.modifiers.get(key) {
-                    if let Ok(result) = modifier.apply(&current, arg) {
-                        current = result;
-                    }
-                }
+            if let Some(key) = OperatorKey::from_str(name) {
+                current = self.operators.apply(key, &current, arg)?;
             }
         }
 
-        current
+        Ok(current)
     }
 
     /// Resolve data values from available into a fresh copy of actions.
-    fn resolve_data(&self) -> Vec<ActionModel> {
-        self.actions
-            .iter()
-            .map(|action| {
-                let mut action = action.clone();
-                if let Some(candidates) = &mut action.val {
-                    for candidate in candidates.iter_mut() {
-                        let (tag, mods) = match candidate.data.split_once('|') {
-                            Some((t, m)) => (t.to_string(), m.to_string()),
-                            None => (
-                                candidate.data.clone(),
-                                candidate.mods.clone().unwrap_or_default(),
-                            ),
-                        };
-                        if self.available.contains_key(&tag) {
-                            candidate.resolved = Some(self.resolve_value(&tag, &mods));
-                        } else {
-                            candidate.resolved = None;
-                        }
+    fn resolve_data(&self) -> Result<Vec<ActionModel>> {
+        let mut out = Vec::with_capacity(self.actions.len());
+        for action in &self.actions {
+            let mut action = action.clone();
+            if let Some(candidates) = &mut action.val {
+                for candidate in candidates.iter_mut() {
+                    let mods = candidate.mods.clone().unwrap_or_default();
+                    if self.available.contains_key(&candidate.data)
+                        || !self.actions.iter().any(|a| a.tag == candidate.data)
+                    {
+                        candidate.resolved = Some(self.resolve_value(&candidate.data, &mods)?);
+                    } else {
+                        candidate.resolved = None;
                     }
                 }
-                action
-            })
-            .collect()
+            }
+            out.push(action);
+        }
+        Ok(out)
     }
 
     pub fn next(&mut self) -> Result<Option<ActionModel>> {
-        let resolved = self.resolve_data();
+        let resolved = self.resolve_data()?;
         let order = Self::ordered(&resolved)?;
 
         let mut last_ready: Option<&ActionModel> = None;
@@ -208,7 +190,11 @@ impl Engine {
                     continue;
                 }
                 if let Some(when) = &candidate.when {
-                    if self.resolve_value(&candidate.data, when) != "true" {
+                    let passed = self
+                        .resolve_value(&candidate.data, when)
+                        .map(|v| truthy(&v))
+                        .unwrap_or(false);
+                    if !passed {
                         continue;
                     }
                 }

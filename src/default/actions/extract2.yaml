@@ -5,7 +5,7 @@ about: Extract structured data or matching lines from text and logs
 clipboard: false
 
 args:
-  - name: file
+  - name: arg_file
     short: 'f'
     input: string
     help: Path or URL to the log or text file
@@ -15,10 +15,13 @@ actions:
     run: large
     val:
       - name: search
-        data: 'query|prompt'
+        data: 'query_raw'
+        when: 'empty:not'
+      - name: search
+        data: 'extract all WARN lines'
       - name: val_log
-        data: 'file'
-        mods: 'load|text'
+        data: 'arg_file'
+        mods: 'fetch|text'
         each:
           split: '\n'
           merge: '==='
@@ -42,5 +45,5 @@ actions:
     val:
       - name: 'value1'
         data: 'llm_log'
-        mods: 'split:===|filter:eq:-|uniq|join:\n'
+        mods: 'split:===|filter:eq:-|uniq|join:\n|clipboard'
     action: '{value1}'

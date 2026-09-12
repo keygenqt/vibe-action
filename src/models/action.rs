@@ -52,16 +52,6 @@ pub struct ActionModel {
     pub action: String,
 }
 
-impl ActionModel {
-    pub fn actions(&self) -> Vec<&str> {
-        if self.action.is_empty() {
-            Vec::new()
-        } else {
-            vec![self.action.as_str()]
-        }
-    }
-}
-
 impl std::fmt::Display for ActionRun {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
