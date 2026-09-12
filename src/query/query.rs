@@ -53,6 +53,7 @@ impl QueryKey {
     /// All known query keys.
     pub fn all() -> &'static [QueryKey] {
         &[
+            QueryKey::Clipboard,
             QueryKey::Raw,
             QueryKey::FilePath,
             QueryKey::ProjectPath,
