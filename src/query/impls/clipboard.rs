@@ -1,9 +1,10 @@
 //! Query provider for `{query_clipboard}` — reads text from the clipboard.
 
-use super::query::QueryKey;
-use super::query::QueryProvider;
-use super::query::read_clipboard_text;
 use anyhow::Result;
+
+use crate::query::query::QueryKey;
+use crate::query::query::QueryProvider;
+use crate::query::query::read_clipboard_text;
 
 pub struct ClipboardProvider;
 

@@ -3,7 +3,8 @@
 
 use clap::builder::Styles;
 
-use crate::utils::constants::{CONFIG_VERSION, PIPELINE_VERSION};
+use crate::utils::constants::CONFIG_VERSION;
+use crate::utils::constants::PIPELINE_VERSION;
 
 /// Returns the application version from Cargo.toml
 pub fn app_version() -> &'static str {

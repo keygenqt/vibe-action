@@ -1,7 +1,7 @@
 //! Query provider for `{query|image}` — image from clipboard, file path, or IDE screenshot.
 
-use super::query::QueryKey;
-use super::query::QueryProvider;
+use crate::query::query::QueryKey;
+use crate::query::query::QueryProvider;
 use crate::utils;
 use anyhow::Result;
 use base64::Engine;

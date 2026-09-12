@@ -1,10 +1,14 @@
 //! Operator trait, registry, expectation validation, and truthy rule.
 //! Each operator transforms a value via the pipe syntax: {tag|operator:arg}
 
-use crate::operator::inspect::inspect::{self, InspectKey};
-use crate::operator::read::read::{self, ReadKey};
-use crate::operator::transform::transform::{self, TransformKey};
-use crate::operator::write::write::{self, WriteKey};
+use crate::operator::inspect::inspect::InspectKey;
+use crate::operator::inspect::inspect::{self};
+use crate::operator::read::read::ReadKey;
+use crate::operator::read::read::{self};
+use crate::operator::transform::transform::TransformKey;
+use crate::operator::transform::transform::{self};
+use crate::operator::write::write::WriteKey;
+use crate::operator::write::write::{self};
 
 use anyhow::Result;
 use std::collections::HashMap;

@@ -1,21 +1,22 @@
 //! System provider trait and registry.
 //! Each provider resolves a `{system_*}` tag to a runtime value.
 
-use crate::system::arch::SystemArchProvider;
-use crate::system::date::SystemDateProvider;
-use crate::system::dir_download::SystemDirDownloadProvider;
-use crate::system::dir_home::SystemDirHomeProvider;
-use crate::system::dir_pwd::SystemDirPwdProvider;
-use crate::system::dir_temp::SystemDirTempProvider;
-use crate::system::hostname::SystemHostnameProvider;
-use crate::system::language::SystemLanguageProvider;
-use crate::system::os::SystemOsProvider;
-use crate::system::pid::SystemPidProvider;
-use crate::system::shell::SystemShellProvider;
-use crate::system::time::SystemTimeProvider;
-use crate::system::user::SystemUserProvider;
 use anyhow::Result;
 use std::collections::HashMap;
+
+use crate::system::impls::arch::SystemArchProvider;
+use crate::system::impls::date::SystemDateProvider;
+use crate::system::impls::dir_download::SystemDirDownloadProvider;
+use crate::system::impls::dir_home::SystemDirHomeProvider;
+use crate::system::impls::dir_pwd::SystemDirPwdProvider;
+use crate::system::impls::dir_temp::SystemDirTempProvider;
+use crate::system::impls::hostname::SystemHostnameProvider;
+use crate::system::impls::language::SystemLanguageProvider;
+use crate::system::impls::os::SystemOsProvider;
+use crate::system::impls::pid::SystemPidProvider;
+use crate::system::impls::shell::SystemShellProvider;
+use crate::system::impls::time::SystemTimeProvider;
+use crate::system::impls::user::SystemUserProvider;
 
 /// Enum of all known system tag keys.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

@@ -1,6 +1,7 @@
 //! Inspect operators (→ bool): keys and registration.
 
-use crate::operator::operator::{OperatorKey, OperatorRegistry};
+use crate::operator::operator::OperatorKey;
+use crate::operator::operator::OperatorRegistry;
 
 /// Inspect operator keys (→ bool).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

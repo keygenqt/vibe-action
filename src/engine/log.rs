@@ -1,4 +1,6 @@
-use crate::{models::action::ActionRun, output::output::OutputKind, print_template};
+use crate::models::action::ActionRun;
+use crate::output::output::OutputKind;
+use crate::print_template;
 
 /// Log action execution details.
 pub fn log_action(tag: &str, run: &ActionRun, original: &str, resolved: &str, result: &str) {

@@ -1,7 +1,7 @@
 //! Query provider for `{query|line}` — cursor line in IDE, first line in CLI.
 
-use super::query::QueryKey;
-use super::query::QueryProvider;
+use crate::query::query::QueryKey;
+use crate::query::query::QueryProvider;
 use crate::utils;
 use anyhow::Result;
 

@@ -1,7 +1,7 @@
 //! Query provider for `{query}` — raw input (positional arg or clipboard text).
 
-use super::query::QueryKey;
-use super::query::QueryProvider;
+use crate::query::query::QueryKey;
+use crate::query::query::QueryProvider;
 use anyhow::Result;
 
 pub struct RawProvider {

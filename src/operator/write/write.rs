@@ -1,6 +1,7 @@
 //! Write operators (value → world, pass-through): keys and registration.
 
-use crate::operator::operator::{OperatorKey, OperatorRegistry};
+use crate::operator::operator::OperatorKey;
+use crate::operator::operator::OperatorRegistry;
 
 /// Write operator keys (value → world, pass-through).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

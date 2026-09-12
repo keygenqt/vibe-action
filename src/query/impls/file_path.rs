@@ -1,7 +1,7 @@
 //! Query provider for `{query|file_path}` — valid file path from input or clipboard.
 
-use super::query::QueryKey;
-use super::query::QueryProvider;
+use crate::query::query::QueryKey;
+use crate::query::query::QueryProvider;
 use crate::utils::clipboard;
 use crate::utils::{self};
 use anyhow::Result;

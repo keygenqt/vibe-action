@@ -2,13 +2,13 @@
 //! Each provider resolves a `{query}` or `{query|type}` tag to a runtime value.
 
 use crate::configs::app::AppConfig;
-use crate::query::clipboard::ClipboardProvider;
-use crate::query::file_path::FilePathProvider;
-use crate::query::image::ImageProvider;
-use crate::query::line::LineProvider;
-use crate::query::project_path::ProjectPathProvider;
-use crate::query::prompt::PromptProvider;
-use crate::query::raw::RawProvider;
+use crate::query::impls::clipboard::ClipboardProvider;
+use crate::query::impls::file_path::FilePathProvider;
+use crate::query::impls::image::ImageProvider;
+use crate::query::impls::line::LineProvider;
+use crate::query::impls::project_path::ProjectPathProvider;
+use crate::query::impls::prompt::PromptProvider;
+use crate::query::impls::raw::RawProvider;
 use anyhow::Result;
 use std::collections::HashMap;
 

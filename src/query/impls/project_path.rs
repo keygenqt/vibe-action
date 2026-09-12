@@ -1,7 +1,7 @@
 //! Query provider for `{query|project_path}` — project root path.
 
-use super::query::QueryKey;
-use super::query::QueryProvider;
+use crate::query::query::QueryKey;
+use crate::query::query::QueryProvider;
 use crate::utils;
 use anyhow::Result;
 use std::path::Path;

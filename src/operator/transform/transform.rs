@@ -1,6 +1,7 @@
 //! Transform operators (value → value): keys and registration.
 
-use crate::operator::operator::{OperatorKey, OperatorRegistry};
+use crate::operator::operator::OperatorKey;
+use crate::operator::operator::OperatorRegistry;
 
 /// Transform operator keys (value → value).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

@@ -1,6 +1,7 @@
 //! Read operators (world → value): keys and registration.
 
-use crate::operator::operator::{OperatorKey, OperatorRegistry};
+use crate::operator::operator::OperatorKey;
+use crate::operator::operator::OperatorRegistry;
 
 /// Read operator keys (world → value).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
