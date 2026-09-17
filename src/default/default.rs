@@ -6,7 +6,32 @@ use anyhow::Result;
 /// Common header template for all built-in YAML pipelines.
 pub const PIPELINE_HEADER: &str = r#"# Vibe Action — {{name}}
 # {{about}}
-# This file is auto-updated when the cache version or built-in actions change. Manual edits will be overwritten.
+#
+# ⚠️ This file is auto-updated when the cache version or built-in actions change. Manual edits will be overwritten.
+#
+# args:
+#   name    — arg identifier (used as --name and {name})
+#   short   — short flag, e.g. 'f'  [optional]
+#   input   — string, bool, number, path  (expected value type)
+#   help    — help text shown in CLI usage  [optional]
+#   default — default value; makes the arg optional  [optional]
+#
+# api:
+#   input  — IDE query source (query_*)
+#   output — replace, clipboard, dialog
+#   args   — maps CLI args to IDE query providers
+#
+# action:
+#   tag    — identifier; referenced by other actions via data
+#   run    — cmd, value, tiny, small, medium, large, vision
+#   val    — name — placeholder used as {name} in `action`
+#            data — source tag, arg ref, or free text (query_*, arg_*, system_*)
+#            mods — pipe of operators (read, transform, inspect, write)  [optional]
+#            each — bool or {split, merge}; split into lines, run once per item (fan-out)  [optional]
+#            when — guard; skips this input if it fails  [optional]
+#   action — text template; {name} placeholders filled from `val`
+#
+# Documentation: https://vibe-action.keygenqt.com/
 "#;
 
 pub trait DefaultPipeline {

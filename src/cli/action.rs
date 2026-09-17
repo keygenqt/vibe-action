@@ -90,6 +90,11 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
         }
     }
 
+    pipeline.validate_query_tags().unwrap_or_else(|e| {
+        print_text!(OutputKind::Error, "{}", e);
+        std::process::exit(1);
+    });
+
     let mut engine = Engine::new(&config.action.system, config.action.retries, &pipeline)
         .unwrap_or_else(|e| {
             print_text!(OutputKind::Error, "{}", e);

@@ -171,6 +171,35 @@ impl PipelineModel {
         Ok(self)
     }
 
+    /// Error if an empty `query_*` value reaches a candidate with no `when`
+    /// guard. A `when` (e.g. `empty:not`) self-filters empties at runtime.
+    /// Call after `apply_query_tags`.
+    pub fn validate_query_tags(&self) -> Result<()> {
+        for action in &self.actions {
+            if let Some(candidates) = &action.val {
+                for c in candidates {
+                    if QueryKey::from_str(&c.data).is_none() {
+                        continue;
+                    }
+                    let value = self
+                        .input_tags
+                        .get(&c.data)
+                        .map(|s| s.as_str())
+                        .unwrap_or("");
+                    if value.trim().is_empty() && c.when.is_none() {
+                        anyhow::bail!(
+                            "Query value for '{}' is empty in action '{}'. \
+                             Provide a query or add a `when` guard.",
+                            c.data,
+                            action.tag
+                        );
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     /// Check if the pipeline uses the {query} tag in any of its actions.
     pub fn uses_query(&self) -> bool {
         self.actions.iter().any(|action| {

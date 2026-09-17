@@ -26,14 +26,15 @@ impl ValidateTrait for ActionModel {
                     anyhow::bail!("Action '{}': val '{}' has empty data.", self.tag, c.name);
                 }
                 if let Some(each) = &c.each {
-                    if each.split.is_empty() {
+                    let (split_str, merge_str) = each.resolve();
+                    if split_str.is_empty() {
                         anyhow::bail!(
                             "Action '{}': val '{}' each.split is empty.",
                             self.tag,
                             c.name
                         );
                     }
-                    if each.merge.is_empty() {
+                    if merge_str.is_empty() {
                         anyhow::bail!(
                             "Action '{}': val '{}' each.merge is empty.",
                             self.tag,

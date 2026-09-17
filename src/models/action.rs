@@ -16,10 +16,21 @@ pub enum ActionRun {
     Vision,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ValEach {
-    pub split: String,
-    pub merge: String,
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ValEach {
+    Config { split: String, merge: String },
+    Flag(bool),
+}
+
+impl ValEach {
+    /// Resolve to (split, merge). Flag(true) defaults to \n / \n.
+    pub fn resolve(&self) -> (String, String) {
+        match self {
+            ValEach::Config { split, merge } => (split.clone(), merge.clone()),
+            ValEach::Flag(_) => ("\n".to_string(), "\n".to_string()),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

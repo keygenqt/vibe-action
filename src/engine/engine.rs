@@ -229,8 +229,9 @@ impl Engine {
                 let value = candidate.resolved.clone().unwrap_or_default();
                 let values: Vec<String> = match &candidate.each {
                     Some(each) => {
-                        merge_sep = expand_escapes(&each.merge);
-                        let split_sep = expand_escapes(&each.split);
+                        let (split_str, merge_str) = each.resolve();
+                        merge_sep = expand_escapes(&merge_str);
+                        let split_sep = expand_escapes(&split_str);
                         value.split(&split_sep).map(String::from).collect()
                     }
                     None => vec![value],

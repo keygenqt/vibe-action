@@ -2,6 +2,7 @@ version: 0.0.2
 
 name: extract2
 about: Extract structured data or matching lines from text and logs
+clipboard: false
 
 args:
   - name: arg_file
@@ -9,23 +10,21 @@ args:
     input: string
     help: Path or URL to the log or text file
 
-api:
-  output: dialog
-  input: query_prompt
-  args:
-    arg_file: query_file_path
-
 actions:
-  # Step 1 — filter log lines by relevance to the query.
   - tag: llm_log
     run: large
     val:
-      - name: 'search'
+      - name: search
         data: 'query_raw'
-      - name: 'val_log'
+        when: 'empty:not'
+      - name: search
+        data: 'extract all WARN lines'
+      - name: val_log
         data: 'arg_file'
         mods: 'fetch|text'
-        each: true
+        each:
+          split: '\n'
+          merge: '==='
     action: |
       [Task]
       You are a log filter. Decide if the log line is relevant to the query.
@@ -41,11 +40,10 @@ actions:
       [Line]
       {val_log}
 
-  # Step 2 — collect the relevant lines back into one block.
   - tag: out_log
     run: value
     val:
       - name: 'value1'
         data: 'llm_log'
-        mods: 'split|filter:eq:-|uniq|join'
+        mods: 'split:===|filter:eq:-|uniq|join:\n|clipboard'
     action: '{value1}'
