@@ -57,10 +57,14 @@ impl Engine {
         for (i, action) in actions.iter().enumerate() {
             if let Some(candidates) = &action.val {
                 for candidate in candidates {
-                    if candidate.data.is_empty() || candidate.data == action.tag {
+                    let data = match candidate.data.as_deref() {
+                        Some(d) if !d.is_empty() => d,
+                        _ => continue,
+                    };
+                    if data == action.tag {
                         continue;
                     }
-                    if let Some(&dep_idx) = tag_to_idx.get(candidate.data.as_str()) {
+                    if let Some(&dep_idx) = tag_to_idx.get(data) {
                         in_degree[i] += 1;
                         deps[dep_idx].push(i);
                     }
@@ -126,13 +130,45 @@ impl Engine {
         let mut out = Vec::with_capacity(self.actions.len());
         for action in &self.actions {
             let mut action = action.clone();
+            // Skip done actions — don't re-resolve their candidates.
+            if self.available.contains_key(&action.tag) {
+                out.push(action);
+                continue;
+            }
             if let Some(candidates) = &mut action.val {
+                let mut seen_names: HashSet<&str> = HashSet::new();
+
                 for candidate in candidates.iter_mut() {
+                    // A previous candidate with same name already won — skip.
+                    if seen_names.contains(candidate.name.as_str()) {
+                        candidate.resolved = Some(String::new());
+                        continue;
+                    }
+
                     let mods = candidate.mods.clone().unwrap_or_default();
-                    if self.available.contains_key(&candidate.data)
-                        || !self.actions.iter().any(|a| a.tag == candidate.data)
+                    let data = candidate.data.as_deref().unwrap_or("");
+
+                    // Check when guard before resolving — don't run operators
+                    // (e.g. screenshot) for candidates that will be filtered out.
+                    if let Some(when) = &candidate.when {
+                        let passed = self
+                            .resolve_value(data, when)
+                            .map(|v| truthy(&v))
+                            .unwrap_or(false);
+                        if !passed {
+                            candidate.resolved = Some(String::new());
+                            continue;
+                        }
+                    }
+
+                    seen_names.insert(candidate.name.as_str());
+
+                    if data.is_empty() {
+                        candidate.resolved = Some(self.resolve_value("", &mods)?);
+                    } else if self.available.contains_key(data)
+                        || !self.actions.iter().any(|a| a.tag == data)
                     {
-                        candidate.resolved = Some(self.resolve_value(&candidate.data, &mods)?);
+                        candidate.resolved = Some(self.resolve_value(data, &mods)?);
                     } else {
                         candidate.resolved = None;
                     }
@@ -190,8 +226,9 @@ impl Engine {
                     continue;
                 }
                 if let Some(when) = &candidate.when {
+                    let data = candidate.data.as_deref().unwrap_or("");
                     let passed = self
-                        .resolve_value(&candidate.data, when)
+                        .resolve_value(data, when)
                         .map(|v| truthy(&v))
                         .unwrap_or(false);
                     if !passed {
@@ -256,66 +293,60 @@ impl Engine {
         (items, merge_sep)
     }
 
-    /// Execute an action, store its result, and return the value.
-    pub async fn exec(&mut self, action: &ActionModel) -> Result<String> {
-        // 1. Expand {name}, fan out via each.split → items + merge separator.
+    /// Expand {name} placeholders and fan out via each.split.
+    /// Returns (items, merge_sep). Public entry point for the handler.
+    pub fn expand(&self, action: &ActionModel) -> Result<(Vec<String>, String)> {
         let is_cmd = matches!(action.run, ActionRun::Cmd);
-        let (items, merge_sep) = self.expand_placeholders(action, is_cmd);
-
-        // 2. Execute by run type, per item.
-        let mut results: Vec<String> = Vec::with_capacity(items.len());
-        for item in &items {
-            let out = match &action.run {
-                ActionRun::Cmd => Shell::exec(item).await?,
-                ActionRun::Value => item.clone(),
-                ActionRun::Vision => {
-                    let (cleaned, images) = utils::format::format_image_prompt(item);
-                    Cluster::exec(
-                        &self.system,
-                        self.retries,
-                        &action.run,
-                        &cleaned,
-                        if images.is_empty() {
-                            None
-                        } else {
-                            Some(images)
-                        },
-                    )
-                    .await?
-                    .result
-                }
-                ActionRun::Tiny | ActionRun::Small | ActionRun::Medium | ActionRun::Large => {
-                    Cluster::exec(&self.system, self.retries, &action.run, item, None)
-                        .await?
-                        .result
-                }
-            };
-            if !matches!(action.run, ActionRun::Value) {
-                log_action(&action.tag, &action.run, &action.action, item, &out);
-            }
-            results.push(out.replace(ITEM_SEP, "\n"));
-        }
-
-        let result = results.join(&merge_sep);
-
-        // 3. Validate result against check regex.
-        if let Some(check) = &action.check {
-            let re = Regex::new(check)?;
-            if !re.is_match(&result) {
-                anyhow::bail!("Action '{}' output failed check: {}", action.tag, result);
-            }
-        }
-
-        // 4. Store result and return.
-        self.available.insert(action.tag.clone(), result.clone());
-        Ok(result)
+        Ok(self.expand_placeholders(action, is_cmd))
     }
 
-    /// Expand {name} placeholders from resolved candidates, return joined text.
-    /// Like exec() step 1, but without running anything.
-    pub fn action_display(&self, action: &ActionModel) -> Result<String> {
-        let is_cmd = matches!(action.run, ActionRun::Cmd);
-        let (items, merge_sep) = self.expand_placeholders(action, is_cmd);
-        Ok(items.join(&merge_sep))
+    /// Execute a single item, apply check regex. Returns the output.
+    pub async fn exec_item(&self, action: &ActionModel, item: &str) -> Result<String> {
+        let out = match &action.run {
+            ActionRun::Cmd => Shell::exec(item).await?,
+            ActionRun::Value => item.to_string(),
+            ActionRun::Vision => {
+                let (cleaned, images) = utils::format::format_image_prompt(item);
+                Cluster::exec(
+                    &self.system,
+                    self.retries,
+                    &action.run,
+                    &cleaned,
+                    if images.is_empty() {
+                        None
+                    } else {
+                        Some(images)
+                    },
+                )
+                .await?
+                .result
+            }
+            ActionRun::Tiny | ActionRun::Small | ActionRun::Medium | ActionRun::Large => {
+                Cluster::exec(&self.system, self.retries, &action.run, item, None)
+                    .await?
+                    .result
+            }
+        };
+        if !matches!(action.run, ActionRun::Value) {
+            log_action(&action.tag, &action.run, &action.action, item, &out);
+        }
+
+        let out = out.replace(ITEM_SEP, "\n");
+
+        if let Some(check) = &action.reg {
+            let re = Regex::new(check)?;
+            if !re.is_match(&out) {
+                anyhow::bail!("Action '{}' output failed check: \n{}", action.tag, out);
+            }
+        }
+
+        Ok(out)
+    }
+
+    /// Join results, store under tag, return final value.
+    pub fn store_result(&mut self, tag: &str, results: Vec<String>, merge_sep: &str) -> String {
+        let result = results.join(merge_sep);
+        self.available.insert(tag.to_string(), result.clone());
+        result
     }
 }

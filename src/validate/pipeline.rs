@@ -82,7 +82,9 @@ impl ValidateTrait for PipelineModel {
         for action in &self.actions {
             if let Some(candidates) = &action.val {
                 for c in candidates {
-                    let data_tag = c.data.as_str();
+                    let Some(data_tag) = c.data.as_deref() else {
+                        continue; // no data source — mods-only candidate (e.g. screenshot)
+                    };
                     if data_tag.is_empty() {
                         continue; // caught by ActionModel::validate
                     }

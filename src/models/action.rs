@@ -36,7 +36,8 @@ impl ValEach {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValCandidate {
     pub name: String,
-    pub data: String,
+    #[serde(default)]
+    pub data: Option<String>,
     #[serde(default)]
     pub mods: Option<String>,
     #[serde(default)]
@@ -53,9 +54,9 @@ pub struct ActionModel {
     pub tag: String,
     pub run: ActionRun,
     #[serde(default)]
-    pub check: Option<String>,
+    pub reg: Option<String>,
     #[serde(default)]
-    pub confirm: bool,
+    pub ask: bool,
     #[serde(default)]
     pub when: Option<String>,
     #[serde(default)]

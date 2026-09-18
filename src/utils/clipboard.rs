@@ -11,7 +11,6 @@ use base64::engine::general_purpose::STANDARD as BASE64;
 use clipboard_rs::Clipboard;
 use clipboard_rs::ClipboardContext;
 use clipboard_rs::common::RustImage;
-use clipboard_rs::common::RustImageData;
 
 /// File paths copied in Finder / Nautilus / Dolphin.
 /// 1) native file list via clipboard-rs; 2) text fallback (file:// URI or path).
@@ -58,26 +57,6 @@ pub fn set_text(text: &str) -> Result<()> {
     ctx.set_text(text.to_string())
         .map_err(|e| anyhow::anyhow!("Failed to set clipboard text: {e}"))?;
     Ok(())
-}
-
-/// Sets the clipboard to an image.
-pub fn set_image(img: image::DynamicImage) -> Result<()> {
-    let ctx =
-        ClipboardContext::new().map_err(|e| anyhow::anyhow!("Failed to access clipboard: {e}"))?;
-    let rust_img = RustImageData::from_dynamic_image(img);
-    ctx.set_image(rust_img)
-        .map_err(|e| anyhow::anyhow!("Failed to set clipboard image: {e}"))?;
-    Ok(())
-}
-
-/// If the clipboard holds an image, returns it as base64-encoded PNG.
-/// Unlike `read_image_png_base64`, this is for the *output* side: read the
-/// current clipboard image so it can be passed along as base64.
-pub fn get_image_as_base64() -> Option<String> {
-    let ctx = ClipboardContext::new().ok()?;
-    let img = ctx.get_image().ok()?;
-    let png = img.to_png().ok()?;
-    Some(BASE64.encode(png.get_bytes()))
 }
 
 /// Clears the system clipboard.

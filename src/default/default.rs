@@ -9,6 +9,11 @@ pub const PIPELINE_HEADER: &str = r#"# Vibe Action — {{name}}
 #
 # ⚠️ This file is auto-updated when the cache version or built-in actions change. Manual edits will be overwritten.
 #
+# version — pipeline schema version
+# name    — action name (used as CLI subcommand)
+# about   — short description for help
+# notify  — bool; show system notification on completion  [optional]
+#
 # args:
 #   name    — arg identifier (used as --name and {name})
 #   short   — short flag, e.g. 'f'  [optional]
@@ -29,6 +34,8 @@ pub const PIPELINE_HEADER: &str = r#"# Vibe Action — {{name}}
 #            mods — pipe of operators (read, transform, inspect, write)  [optional]
 #            each — bool or {split, merge}; split into lines, run once per item (fan-out)  [optional]
 #            when — guard; skips this input if it fails  [optional]
+#   ask    — bool; prompt user before each item execution, abort on decline  [optional]
+#   reg    — regex; validate each item output, abort if no match  [optional]
 #   action — text template; {name} placeholders filled from `val`
 #
 # Documentation: https://vibe-action.keygenqt.com/
@@ -79,8 +86,8 @@ impl DefaultPipeline for BuiltinPipeline {
 pub fn default_pipelines() -> Vec<Box<dyn DefaultPipeline>> {
     vec![
         Box::new(BuiltinPipeline {
-            file: "extract2.yaml",
-            yaml: include_str!("actions/extract2.yaml"),
+            file: "extract.yaml",
+            yaml: include_str!("actions/extract.yaml"),
         }),
         // Box::new(BuiltinPipeline {
         //     file: "comment.yaml",
@@ -162,9 +169,9 @@ pub fn default_pipelines() -> Vec<Box<dyn DefaultPipeline>> {
         //     file: "translate-small.yaml",
         //     yaml: include_str!("actions/translate-small.yaml"),
         // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "whois.yaml",
-        //     yaml: include_str!("actions/whois.yaml"),
-        // }),
+        Box::new(BuiltinPipeline {
+            file: "whois.yaml",
+            yaml: include_str!("actions/whois.yaml"),
+        }),
     ]
 }

@@ -10,6 +10,7 @@ pub enum ReadKey {
     Fetch,
     Resolve,
     Scan,
+    Screenshot,
     Text,
 }
 
@@ -21,6 +22,7 @@ impl ReadKey {
             "fetch" => Some(Self::Fetch),
             "resolve" => Some(Self::Resolve),
             "scan" => Some(Self::Scan),
+            "screenshot" => Some(Self::Screenshot),
             "text" => Some(Self::Text),
             _ => None,
         }
@@ -38,5 +40,6 @@ pub fn register(registry: &mut OperatorRegistry) {
     registry.register(Box::new(super::impls::fetch::FetchOperator));
     registry.register(Box::new(super::impls::resolve::ResolveOperator));
     registry.register(Box::new(super::impls::scan::ScanOperator));
+    registry.register(Box::new(super::impls::screenshot::ScreenshotOperator));
     registry.register(Box::new(super::impls::text::TextOperator));
 }

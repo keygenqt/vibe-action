@@ -22,9 +22,6 @@ impl ValidateTrait for ActionModel {
                 if c.name.trim().is_empty() {
                     anyhow::bail!("Action '{}': val[{}] has empty name.", self.tag, i);
                 }
-                if c.data.trim().is_empty() {
-                    anyhow::bail!("Action '{}': val '{}' has empty data.", self.tag, c.name);
-                }
                 if let Some(each) = &c.each {
                     let (split_str, merge_str) = each.resolve();
                     if split_str.is_empty() {
@@ -60,7 +57,7 @@ impl ValidateTrait for ActionModel {
             }
         }
 
-        if let Some(pattern) = &self.check {
+        if let Some(pattern) = &self.reg {
             Regex::new(pattern).map_err(|e| {
                 anyhow::anyhow!("Action '{}' has invalid check regex: {}", self.tag, e)
             })?;

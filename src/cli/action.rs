@@ -157,62 +157,53 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
             "run" => action.run.to_string(),
         );
 
-        if action.confirm {
-            let resolve = engine.action_display(&action).unwrap_or_else(|e| {
-                print_text!(OutputKind::Error, "{}", e);
-                std::process::exit(1);
-            });
-
-            let confirmed = if is_output_json {
-                print_template!(
-                    ExportContext::Confirm,
-                    OutputKind::Info,
-                    "{tag}",
-                    "tag" => &action.tag,
-                    "display" => &resolve,
-                );
-                match &mut stdin_rx {
-                    Some(rx) => match tokio::time::timeout(CONFIRM_TIMEOUT, rx.recv()).await {
-                        Ok(Some(line)) => line.trim() == "true",
-                        _ => false,
-                    },
-                    None => false,
-                }
-            } else {
-                print_template!(
-                    OutputKind::Info,
-                    "completed in {duration}",
-                    "duration" => utils::format::format_duration(start_time.elapsed())
-                );
-                let query = format!("Execute '{}'?", FormatOutput::format_msg(&action.tag));
-                match Confirm::new(&query)
-                    .with_default(false)
-                    .with_placeholder(&format!("\n{}", resolve))
-                    .prompt()
-                {
-                    Ok(true) => true,
-                    Ok(false) => false,
-                    Err(e) => {
-                        print_text!(OutputKind::Error, "Confirm failed: {}", e);
-                        false
+        let (items, merge_sep) = engine.expand(&action).unwrap_or_else(|e| {
+            print_text!(OutputKind::Error, "{}", e);
+            std::process::exit(1);
+        });
+        let mut results = Vec::with_capacity(items.len());
+        for item in &items {
+            if action.ask {
+                let confirmed = if is_output_json {
+                    print_template!(
+                        ExportContext::Confirm,
+                        OutputKind::Info,
+                        "{tag}",
+                        "tag" => &action.tag,
+                        "display" => item,
+                    );
+                    match &mut stdin_rx {
+                        Some(rx) => match tokio::time::timeout(CONFIRM_TIMEOUT, rx.recv()).await {
+                            Ok(Some(line)) => line.trim() == "true",
+                            _ => false,
+                        },
+                        None => false,
                     }
+                } else {
+                    let query = format!("Execute '{}'?", FormatOutput::format_msg(&action.tag));
+                    match Confirm::new(&query)
+                        .with_default(false)
+                        .with_placeholder(&format!("\n{}", item))
+                        .prompt()
+                    {
+                        Ok(true) => true,
+                        Ok(false) => false,
+                        Err(e) => {
+                            print_text!(OutputKind::Error, "Confirm failed: {}", e);
+                            false
+                        }
+                    }
+                };
+                if !confirmed {
+                    return;
                 }
-            };
-
-            if confirmed {
-                result = engine.exec(&action).await.unwrap_or_else(|e| {
-                    print_text!(OutputKind::Error, "{}", e);
-                    std::process::exit(1);
-                });
-            } else {
-                return;
             }
-        } else {
-            result = engine.exec(&action).await.unwrap_or_else(|e| {
+            results.push(engine.exec_item(&action, item).await.unwrap_or_else(|e| {
                 print_text!(OutputKind::Error, "{}", e);
                 std::process::exit(1);
-            });
+            }));
         }
+        result = engine.store_result(&action.tag, results, &merge_sep);
     }
 
     print_template!(

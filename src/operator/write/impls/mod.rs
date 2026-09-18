@@ -1,3 +1,3 @@
-//! тут текст
+//! Write operator implementations.
 
 pub mod clipboard;

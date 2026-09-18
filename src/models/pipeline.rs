@@ -130,8 +130,10 @@ impl PipelineModel {
         for action in &self.actions {
             if let Some(candidates) = &action.val {
                 for c in candidates {
-                    if c.data.starts_with("system_") {
-                        needed_tags.insert(c.data.clone());
+                    if let Some(data) = c.data.as_deref() {
+                        if data.starts_with("system_") {
+                            needed_tags.insert(data.to_string());
+                        }
                     }
                 }
             }
@@ -155,8 +157,10 @@ impl PipelineModel {
         for action in &self.actions {
             if let Some(candidates) = &action.val {
                 for c in candidates {
-                    if QueryKey::from_str(&c.data).is_some() {
-                        needed_tags.insert(c.data.clone());
+                    if let Some(data) = c.data.as_deref() {
+                        if QueryKey::from_str(data).is_some() {
+                            needed_tags.insert(data.to_string());
+                        }
                     }
                 }
             }
@@ -178,19 +182,18 @@ impl PipelineModel {
         for action in &self.actions {
             if let Some(candidates) = &action.val {
                 for c in candidates {
-                    if QueryKey::from_str(&c.data).is_none() {
+                    let Some(data) = c.data.as_deref() else {
+                        continue;
+                    };
+                    if QueryKey::from_str(data).is_none() {
                         continue;
                     }
-                    let value = self
-                        .input_tags
-                        .get(&c.data)
-                        .map(|s| s.as_str())
-                        .unwrap_or("");
+                    let value = self.input_tags.get(data).map(|s| s.as_str()).unwrap_or("");
                     if value.trim().is_empty() && c.when.is_none() {
                         anyhow::bail!(
                             "Query value for '{}' is empty in action '{}'. \
                              Provide a query or add a `when` guard.",
-                            c.data,
+                            data,
                             action.tag
                         );
                     }
@@ -204,7 +207,9 @@ impl PipelineModel {
     pub fn uses_query(&self) -> bool {
         self.actions.iter().any(|action| {
             action.val.as_ref().map_or(false, |cands| {
-                cands.iter().any(|c| c.data.starts_with("query_"))
+                cands
+                    .iter()
+                    .any(|c| c.data.as_deref().map_or(false, |d| d.starts_with("query_")))
             })
         })
     }
@@ -213,9 +218,11 @@ impl PipelineModel {
     pub fn needs_prompt(&self) -> bool {
         self.actions.iter().any(|action| {
             action.val.as_ref().map_or(false, |cands| {
-                cands
-                    .iter()
-                    .any(|c| QueryKey::from_str(&c.data) == Some(QueryKey::Prompt))
+                cands.iter().any(|c| {
+                    c.data
+                        .as_deref()
+                        .map_or(false, |d| QueryKey::from_str(d) == Some(QueryKey::Prompt))
+                })
             })
         })
     }
