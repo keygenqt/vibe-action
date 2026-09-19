@@ -1,0 +1,11 @@
+version: 0.0.2
+name: transform_split
+about: Test split operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'a,b,c'
+        mods: 'split:,'
+    action: '{result}'

@@ -1,8 +1,0 @@
-version: 0.0.1
-name: system-arch
-about: Test system_arch tag
-actions:
-  - tag: tag_result
-    run: value
-    expect: string
-    action: '{system_arch}'

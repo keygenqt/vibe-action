@@ -1,0 +1,11 @@
+version: 0.0.2
+name: validate_unknown_operator
+about: Test unknown operator in mods
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'hello'
+        mods: 'nonexistent_op'
+    action: '{result}'

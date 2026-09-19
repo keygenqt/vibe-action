@@ -1,0 +1,11 @@
+version: 0.0.2
+name: expect_fail
+about: Test reg check fails
+actions:
+  - tag: tag_result
+    run: value
+    reg: '^\d+$'
+    val:
+      - name: result
+        data: 'hello'
+    action: '{result}'

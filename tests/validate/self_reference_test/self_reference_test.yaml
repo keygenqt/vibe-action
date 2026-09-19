@@ -1,0 +1,10 @@
+version: 0.0.2
+name: validate_self_reference
+about: Test self reference
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'tag_result'
+    action: '{result}'

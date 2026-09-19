@@ -1,0 +1,11 @@
+version: 0.0.2
+name: transform_format
+about: Test format operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: '{"a":1}'
+        mods: 'format:yaml'
+    action: '{result}'

@@ -1,0 +1,14 @@
+version: 0.0.2
+name: arg_string
+about: Test string arg type
+args:
+  - name: arg_name
+    input: string
+    help: A string argument
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: arg_name
+    action: '{result}'

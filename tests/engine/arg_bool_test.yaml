@@ -1,0 +1,14 @@
+version: 0.0.2
+name: arg_bool
+about: Test bool arg type
+args:
+  - name: arg_flag
+    input: bool
+    help: A bool argument
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: arg_flag
+    action: '{result}'

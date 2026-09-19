@@ -1,11 +1,8 @@
 version: 0.0.3
 
 action:
-  system: |-
-    You are Vibe Action — a CLI tool, not a chatbot.
-    Work fast. Don't think too much. Just do the task.
-    Output ONLY the requested result — no explanations, no markdown fences, no extra text.
-  retries: 2
+  system: You are Vibe Action — a CLI tool, not a chatbot.
+  retries: 1
 
 cluster:
   - provider: ollama

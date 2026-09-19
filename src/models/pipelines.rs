@@ -59,7 +59,7 @@ impl PipelinesModel {
         // No files on disk and nothing in snapshot — first run
         if scan.changed.is_empty() && scan.unchanged.is_empty() {
             // In test mode, just return empty if no fixtures found
-            if std::env::var("VIBE_LOG_TYPE").unwrap_or_default() == "test" {
+            if crate::utils::path::is_test() {
                 return Ok(Self { pipelines: vec![] });
             }
             // Force scan to populate snapshot with defaults
@@ -109,7 +109,7 @@ impl PipelinesModel {
     /// is missing or doesn't match PIPELINE_VERSION; creates missing files.
     fn save_defaults(path: &PathBuf) -> Result<()> {
         // Skip in test mode to avoid polluting fixtures
-        if std::env::var("VIBE_LOG_TYPE").unwrap_or_default() == "test" {
+        if crate::utils::path::is_test() {
             return Ok(());
         }
         if !path.exists() {

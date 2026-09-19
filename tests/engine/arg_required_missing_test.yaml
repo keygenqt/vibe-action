@@ -1,0 +1,14 @@
+version: 0.0.2
+name: arg_required_missing
+about: Test required arg missing
+args:
+  - name: arg_name
+    input: string
+    help: A required arg
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: arg_name
+    action: '{result}'

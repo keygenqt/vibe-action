@@ -1,0 +1,11 @@
+version: 0.0.2
+name: switch_when_pass
+about: Test when guard passes
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'hi'
+        when: 'is:empty:not'
+    action: '{result}'

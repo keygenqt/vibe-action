@@ -1,0 +1,11 @@
+version: 0.0.2
+name: query_clipboard
+about: Test query_clipboard tag
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: query_clipboard
+        when: 'is:empty:not'
+    action: '{result}'
