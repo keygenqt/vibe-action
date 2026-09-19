@@ -1,7 +1,8 @@
-//! Clipboard helpers: text, image, file list, and clearing.
+//! Clipboard helpers: text, paths, image, and a combined reader.
 //! All clipboard I/O consolidated here — no other file should touch
 //! clipboard crates directly.
 
+use clipboard_rs::RustImageData;
 use std::path::PathBuf;
 use url::Url;
 
@@ -12,9 +13,15 @@ use clipboard_rs::Clipboard;
 use clipboard_rs::ClipboardContext;
 use clipboard_rs::common::RustImage;
 
+/// Raw plain text from the clipboard, or `None` if unavailable.
+pub fn clipboard_read_text() -> Option<String> {
+    let ctx = ClipboardContext::new().ok()?;
+    ctx.get_text().ok()
+}
+
 /// File paths copied in Finder / Nautilus / Dolphin.
 /// 1) native file list via clipboard-rs; 2) text fallback (file:// URI or path).
-pub fn clipboard_file_paths() -> Vec<PathBuf> {
+pub fn clipboard_read_path() -> Vec<PathBuf> {
     let ctx = match ClipboardContext::new() {
         Ok(ctx) => ctx,
         Err(_) => return Vec::new(),
@@ -36,26 +43,100 @@ pub fn clipboard_file_paths() -> Vec<PathBuf> {
     Vec::new()
 }
 
-/// Plain text from the clipboard, or `None` if unavailable.
-pub fn read_text() -> Option<String> {
-    let ctx = ClipboardContext::new().ok()?;
-    ctx.get_text().ok()
-}
-
 /// Image from the clipboard as base64-encoded PNG, or `None` if unavailable.
-pub fn read_image_png_base64() -> Option<String> {
+pub fn clipboard_read_image() -> Option<String> {
     let ctx = ClipboardContext::new().ok()?;
     let img = ctx.get_image().ok()?;
     let png = img.to_png().ok()?;
     Some(BASE64.encode(png.get_bytes()))
 }
 
+/// Combined clipboard content by priority: text → paths → image.
+/// First non-empty kind wins; `file://` text is decoded to paths when the
+/// targets exist. `max_tokens` bounds the result size (skipped when `None`);
+/// images are never size-checked (token count is meaningless on base64).
+pub fn clipboard_read_all(max_tokens: Option<usize>) -> Result<String> {
+    // Priority 1: text (decode file:// URIs to paths if they point at real files)
+    if let Some(raw) = clipboard_read_text() {
+        if !raw.is_empty() {
+            return enforce_token_limit(resolve_text_or_uris(raw), max_tokens);
+        }
+    }
+
+    // Priority 2: copied file paths
+    let files = clipboard_read_path();
+    if !files.is_empty() {
+        let text = files
+            .iter()
+            .map(|p| p.to_string_lossy().into_owned())
+            .collect::<Vec<_>>()
+            .join("\n");
+        return enforce_token_limit(text, max_tokens);
+    }
+
+    // Priority 3: image as base64 PNG (no size check)
+    if let Some(b64) = clipboard_read_image() {
+        return Ok(b64);
+    }
+
+    anyhow::bail!("Clipboard is empty or contains non-text data.");
+}
+
+/// Decodes `file://` URI lists to joined paths when the targets exist;
+/// otherwise returns the raw text unchanged.
+fn resolve_text_or_uris(raw: String) -> String {
+    let decoded = parse_uri_list(&raw);
+    if !decoded.is_empty() && decoded.iter().any(|p| p.exists()) {
+        decoded
+            .iter()
+            .map(|p| p.to_string_lossy().into_owned())
+            .collect::<Vec<_>>()
+            .join("\n")
+    } else {
+        raw
+    }
+}
+
+/// Bails if the text exceeds `max_tokens`; no-op when `max_tokens` is `None`.
+fn enforce_token_limit(text: String, max_tokens: Option<usize>) -> Result<String> {
+    let max = match max_tokens {
+        Some(max) => max,
+        None => return Ok(text),
+    };
+    let bpe =
+        tiktoken_rs::cl100k_base().map_err(|e| anyhow::anyhow!("Failed to load tokenizer: {e}"))?;
+    let tokens = bpe.encode_with_special_tokens(&text).len();
+    if tokens > max {
+        anyhow::bail!(
+            "Clipboard content is too large ({} tokens). Max context size is {} tokens.",
+            tokens,
+            max
+        );
+    }
+    Ok(text)
+}
+
 /// Sets the clipboard to plain text.
-pub fn set_text(text: &str) -> Result<()> {
+pub fn clipboard_write_text(text: &str) -> Result<()> {
     let ctx =
         ClipboardContext::new().map_err(|e| anyhow::anyhow!("Failed to access clipboard: {e}"))?;
     ctx.set_text(text.to_string())
         .map_err(|e| anyhow::anyhow!("Failed to set clipboard text: {e}"))?;
+    Ok(())
+}
+
+/// Decodes base64 PNG and sets the clipboard image.
+pub fn clipboard_write_image(base64_png: &str) -> Result<()> {
+    let ctx =
+        ClipboardContext::new().map_err(|e| anyhow::anyhow!("Failed to access clipboard: {e}"))?;
+    let bytes = BASE64
+        .decode(base64_png.as_bytes())
+        .map_err(|e| anyhow::anyhow!("Invalid base64: {e}"))?;
+    let img = image::load_from_memory(&bytes)
+        .map_err(|e| anyhow::anyhow!("Failed to decode image: {e}"))?;
+    let rust_img = RustImageData::from_dynamic_image(img);
+    ctx.set_image(rust_img)
+        .map_err(|e| anyhow::anyhow!("Failed to set clipboard image: {e}"))?;
     Ok(())
 }
 

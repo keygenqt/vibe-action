@@ -31,18 +31,10 @@ impl TextOperator {
         Ok(None)
     }
 
-    /// Convert image bytes to base64 string.
+    /// Convert image bytes to base64 string (if the bytes are a valid image).
     fn img_to_text(bytes: &[u8]) -> Result<Option<String>> {
-        let is_webp = bytes.starts_with(b"RIFF") && bytes.len() > 12 && &bytes[8..12] == b"WEBP";
-
-        if bytes.starts_with(b"\x89PNG")
-            || bytes.starts_with(b"\xFF\xD8\xFF")
-            || bytes.starts_with(b"GIF8")
-            || is_webp
-        {
-            use base64::Engine;
-            let base64 = base64::engine::general_purpose::STANDARD.encode(bytes);
-            return Ok(Some(base64));
+        if utils::image::is_image_bytes(bytes) {
+            return Ok(Some(utils::image::encode_to_base64(bytes)));
         }
         Ok(None)
     }
@@ -50,10 +42,9 @@ impl TextOperator {
     /// Process a single value: base64 → HTML → file (image/PDF/HTML/text).
     fn process_one(s: &str) -> Result<String> {
         // Base64 image — return as-is
-        if crate::utils::image::is_image(s) {
+        if crate::utils::image::is_image_base64(s) {
             return Ok(s.to_string());
         }
-
         // Direct HTML content
         if let Some(text) = Self::html_to_text(s)? {
             return Ok(text);

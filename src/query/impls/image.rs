@@ -1,10 +1,10 @@
-//! Query provider for `{query|image}` — image from clipboard, file path, or IDE screenshot.
+//! Query provider for `query_image` — image from input (URL, file path, or base64), returned as base64.
 
-use crate::query::query::QueryKey;
-use crate::query::query::QueryProvider;
+use crate::query::query::{QueryKey, QueryProvider};
 use crate::utils;
 use anyhow::Result;
 use base64::Engine;
+use base64::engine::general_purpose::STANDARD as BASE64;
 use std::path::Path;
 
 pub struct ImageProvider {
@@ -15,23 +15,6 @@ impl ImageProvider {
     pub fn new(raw_value: Option<String>) -> Self {
         Self { raw_value }
     }
-
-    /// Check if a path points to an image file.
-    fn is_image_file(path: &Path) -> bool {
-        if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
-            return matches!(
-                ext.to_lowercase().as_str(),
-                "png" | "jpg" | "jpeg" | "gif" | "webp" | "bmp"
-            );
-        }
-        false
-    }
-
-    /// Read file bytes and encode as base64.
-    fn encode_file_to_base64(path: &Path) -> Result<String> {
-        let bytes = std::fs::read(path)?;
-        Ok(base64::engine::general_purpose::STANDARD.encode(&bytes))
-    }
 }
 
 impl QueryProvider for ImageProvider {
@@ -40,34 +23,34 @@ impl QueryProvider for ImageProvider {
     }
 
     fn resolve(&self) -> Result<String> {
-        // 1. Check raw_value (might be a file path or base64 from IDE)
-        if let Some(raw) = self.raw_value.as_deref().filter(|v| !v.trim().is_empty()) {
-            let paths = utils::clipboard::parse_uri_list(raw);
-            if let Some(first_path) = paths.first() {
-                if let Ok(path) = utils::path::resolve(first_path) {
-                    if path.is_file() && Self::is_image_file(&path) {
-                        return Ok(Self::encode_file_to_base64(&path)?);
-                    }
-                }
+        // Empty input → no data → empty string.
+        let raw = match self
+            .raw_value
+            .as_deref()
+            .map(str::trim)
+            .filter(|v| !v.is_empty())
+        {
+            Some(v) => v,
+            None => return Ok(String::new()),
+        };
+
+        // Resolve input to bytes: URL → download, local file → read, else → base64 decode.
+        let bytes = if raw.starts_with("http://") || raw.starts_with("https://") {
+            utils::fetch::download_bytes(raw)?
+        } else {
+            match utils::path::resolve(Path::new(raw)) {
+                Ok(path) if path.is_file() => std::fs::read(&path)?,
+                _ => BASE64.decode(raw.as_bytes()).map_err(|e| {
+                    anyhow::anyhow!("Input is not a URL, existing file, or base64: {e}")
+                })?,
             }
-            // If not a valid image path, assume it's a base64 string
-            return Ok(raw.trim().to_string());
+        };
+
+        // Validate: must be a real image.
+        if !utils::image::is_image_bytes(&bytes) {
+            anyhow::bail!("Input does not decode into a valid image.");
         }
 
-        // 2. Check clipboard for copied image files (Finder/Nautilus)
-        let file_paths = utils::clipboard::clipboard_file_paths();
-        if let Some(first_path) = file_paths.first() {
-            if let Ok(path) = utils::path::resolve(first_path) {
-                if path.is_file() && Self::is_image_file(&path) {
-                    return Ok(Self::encode_file_to_base64(&path)?);
-                }
-            }
-        }
-
-        // 3. Fallback to raw image data in clipboard (e.g., screenshot)
-        match utils::clipboard::read_image_png_base64() {
-            Some(base64) => Ok(base64),
-            None => Ok(String::new()),
-        }
+        Ok(utils::image::encode_to_base64(&bytes))
     }
 }

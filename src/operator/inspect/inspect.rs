@@ -7,8 +7,8 @@ use crate::operator::operator::OperatorRegistry;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum InspectKey {
     Contains,
-    Empty,
     Equals,
+    Is,
 }
 
 impl InspectKey {
@@ -16,8 +16,8 @@ impl InspectKey {
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
             "contains" => Some(Self::Contains),
-            "empty" => Some(Self::Empty),
             "equals" => Some(Self::Equals),
+            "is" => Some(Self::Is),
             _ => None,
         }
     }
@@ -31,6 +31,6 @@ impl InspectKey {
 /// Register all Inspect operators.
 pub fn register(registry: &mut OperatorRegistry) {
     registry.register(Box::new(super::impls::contains::ContainsOperator));
-    registry.register(Box::new(super::impls::empty::EmptyOperator));
     registry.register(Box::new(super::impls::equals::EqualsOperator));
+    registry.register(Box::new(super::impls::is::IsOperator));
 }

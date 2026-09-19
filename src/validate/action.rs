@@ -1,5 +1,6 @@
 //! ActionModel validation.
-//! Checks non-empty action, val-candidate fields, and action interpolation.
+//! Checks non-empty action, val-candidate fields, action interpolation,
+//! and operator names in mods/when.
 
 use std::collections::HashSet;
 use std::sync::OnceLock;
@@ -8,7 +9,24 @@ use anyhow::Result;
 use regex::Regex;
 
 use crate::models::action::ActionModel;
+use crate::operator::inspect::inspect::InspectKey;
+use crate::operator::operator::OperatorKey;
 use crate::validate::ValidateTrait;
+
+/// Extract operator names from a mods/when string.
+/// Splits on `|`, takes the part before the first `:` of each segment.
+fn operator_names(s: &str) -> Vec<&str> {
+    s.split('|')
+        .map(|p| {
+            let p = p.trim();
+            match p.find(':') {
+                Some(idx) => p[..idx].trim(),
+                None => p,
+            }
+        })
+        .filter(|n| !n.is_empty())
+        .collect()
+}
 
 impl ValidateTrait for ActionModel {
     fn validate(&self) -> Result<()> {
@@ -16,11 +34,50 @@ impl ValidateTrait for ActionModel {
             anyhow::bail!("Action '{}' has empty command/prompt.", self.tag);
         }
 
+        // Action-level when: inspect operators only.
+        if let Some(when) = &self.when {
+            for name in operator_names(when) {
+                if InspectKey::from_str(name).is_none() {
+                    anyhow::bail!(
+                        "Action '{}': 'when' allows inspect operators only, got '{}'.",
+                        self.tag,
+                        name
+                    );
+                }
+            }
+        }
+
         let candidates = self.val.as_ref().map(|v| v.as_slice()).unwrap_or(&[]);
         if !candidates.is_empty() {
             for (i, c) in candidates.iter().enumerate() {
                 if c.name.trim().is_empty() {
                     anyhow::bail!("Action '{}': val[{}] has empty name.", self.tag, i);
+                }
+                // Validate mods: all operator names must be known.
+                if let Some(mods) = &c.mods {
+                    for name in operator_names(mods) {
+                        if OperatorKey::from_str(name).is_none() {
+                            anyhow::bail!(
+                                "Action '{}': val '{}' uses unknown operator '{}' in mods.",
+                                self.tag,
+                                c.name,
+                                name
+                            );
+                        }
+                    }
+                }
+                // Validate when: inspect operators only.
+                if let Some(when) = &c.when {
+                    for name in operator_names(when) {
+                        if InspectKey::from_str(name).is_none() {
+                            anyhow::bail!(
+                                "Action '{}': val '{}' uses non-inspect operator '{}' in when.",
+                                self.tag,
+                                c.name,
+                                name
+                            );
+                        }
+                    }
                 }
                 if let Some(each) = &c.each {
                     let (split_str, merge_str) = each.resolve();

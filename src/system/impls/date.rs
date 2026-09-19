@@ -1,4 +1,4 @@
-//! System provider for `{system_date}` — current date in ISO 8601 format.
+//! System provider for `system_date` — current date, ISO 8601 (`YYYY-MM-DD`).
 
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;

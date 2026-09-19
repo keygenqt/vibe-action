@@ -1,4 +1,4 @@
-//! System provider for `{system_user}` — current user name.
+//! System provider for `system_user` — current user name.
 
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;

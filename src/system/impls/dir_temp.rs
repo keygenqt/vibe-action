@@ -1,4 +1,4 @@
-//! System provider for `{system_temp}` — temporary directory.
+//! System provider for `system_dir_temp` — temporary directory.
 
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;

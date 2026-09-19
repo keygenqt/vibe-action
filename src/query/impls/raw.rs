@@ -1,4 +1,4 @@
-//! Query provider for `{query}` — raw input (positional arg or clipboard text).
+//! Query provider for `query_raw` — raw input (positional arg), passed through unchanged.
 
 use crate::query::query::QueryKey;
 use crate::query::query::QueryProvider;

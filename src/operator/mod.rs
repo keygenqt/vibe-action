@@ -1,4 +1,4 @@
-//! тут текст
+//! Operator pipeline: read, inspect, transform, write.
 
 pub mod inspect;
 pub mod operator;

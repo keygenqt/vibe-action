@@ -1,5 +1,25 @@
 //! System provider trait and registry.
-//! Each provider resolves a `{system_*}` tag to a runtime value.
+//! Each provider resolves a `system_*` tag.
+//!
+//! # Provider contract
+//!
+//! All `system_*` providers read runtime/environment state — no input,
+//! no validation. Always return `Ok(String)`; missing value → `""`,
+//! never `Err`.
+//!
+//! - `system_arch` — CPU architecture.
+//! - `system_date` — current date, ISO 8601 (`YYYY-MM-DD`).
+//! - `system_dir_download` — user downloads directory.
+//! - `system_dir_home` — user home directory.
+//! - `system_dir_pwd` — current working directory.
+//! - `system_dir_temp` — temporary directory.
+//! - `system_hostname` — machine hostname.
+//! - `system_language` — system language code from `LANG` (e.g. `en`).
+//! - `system_os` — operating system name.
+//! - `system_pid` — current process ID.
+//! - `system_shell` — current shell name from `SHELL` (basename).
+//! - `system_time` — current time (`HH:MM:SS`).
+//! - `system_user` — current user name.
 
 use anyhow::Result;
 use std::collections::HashMap;

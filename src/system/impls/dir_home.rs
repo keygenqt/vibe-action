@@ -1,4 +1,4 @@
-//! System provider for `{system_home}` — user home directory.
+//! System provider for `system_dir_home` — user home directory.
 
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;

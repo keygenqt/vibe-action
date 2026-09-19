@@ -1,4 +1,4 @@
-//! System provider for `{system_language}` — system language from LANG env.
+//! System provider for `system_language` — system language code from `LANG` (e.g. `en`).
 
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;

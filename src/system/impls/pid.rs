@@ -1,4 +1,4 @@
-//! System provider for `{system_pid}` — current process ID.
+//! System provider for `system_pid` — current process ID.
 
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;

@@ -1,3 +1,4 @@
 //! Write operator implementations.
 
-pub mod clipboard;
+pub mod clipboard_image;
+pub mod clipboard_text;

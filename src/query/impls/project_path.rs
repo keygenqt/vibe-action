@@ -1,4 +1,4 @@
-//! Query provider for `{query|project_path}` — project root path.
+//! Query provider for `query_project_path` — project root path.
 
 use crate::query::query::QueryKey;
 use crate::query::query::QueryProvider;
@@ -16,14 +16,19 @@ impl ProjectPathProvider {
         Self { raw_value }
     }
 
-    /// Find the project root directory starting from a file's path, walking upwards.
-    /// Stops if it reaches the home directory or the filesystem root.
+    /// Find the project root directory starting from a path, walking upwards.
+    /// Checks the start directory itself, then each ancestor.
+    /// Stops at the home directory or filesystem root.
     fn find_project_root(start: &Path) -> Option<PathBuf> {
         let home = dirs::home_dir();
-        let mut current = start.parent();
+        // If `start` is a file, begin at its parent; otherwise start at the dir itself.
+        let mut current = if start.is_dir() {
+            Some(start)
+        } else {
+            start.parent()
+        };
 
         while let Some(dir) = current {
-            // Check for common project root markers
             let has_marker = [
                 ".git",
                 ".hg",
@@ -41,7 +46,7 @@ impl ProjectPathProvider {
                 return Some(dir.to_path_buf());
             }
 
-            // Stop if we reached the home directory or root to avoid scanning the whole disk
+            // Stop at home dir or root to avoid scanning the whole disk.
             if let Some(ref home) = home {
                 if dir == home.as_path() {
                     return None;
@@ -60,25 +65,32 @@ impl QueryProvider for ProjectPathProvider {
     }
 
     fn resolve(&self) -> Result<String> {
-        let start_path =
-            if let Some(raw) = self.raw_value.as_deref().filter(|v| !v.trim().is_empty()) {
-                let parsed = utils::clipboard::parse_uri_list(raw);
-                if let Some(first) = parsed.first() {
-                    utils::path::resolve(first)?
-                } else {
-                    utils::path::resolve(Path::new(raw.trim()))?
-                }
-            } else {
-                // Fallback to current dir if no input
-                std::env::current_dir()?
-            };
-
-        // If directory, return as is. If file, search for project root.
-        let project_root = if start_path.is_dir() {
-            start_path
-        } else {
-            Self::find_project_root(&start_path).unwrap_or_default()
+        // Empty input → no data → empty string (consistent with other validators).
+        let raw = match self
+            .raw_value
+            .as_deref()
+            .map(str::trim)
+            .filter(|v| !v.is_empty())
+        {
+            Some(v) => v,
+            None => return Ok(String::new()),
         };
+
+        // Resolve to an existing path; fall through to "" on non-existent input.
+        let parsed = utils::clipboard::parse_uri_list(raw);
+        let start_path = match parsed
+            .first()
+            .map(|p| utils::path::resolve(p))
+            .unwrap_or_else(|| utils::path::resolve(Path::new(raw.trim())))
+            .ok()
+            .filter(|p| p.exists())
+        {
+            Some(p) => p,
+            None => return Ok(String::new()),
+        };
+
+        // Walk up to the project root from the resolved path.
+        let project_root = Self::find_project_root(&start_path).unwrap_or_default();
 
         Ok(project_root.to_string_lossy().into_owned())
     }

@@ -1,4 +1,4 @@
-//! System provider for `{system_pwd}` — current working directory.
+//! System provider for `system_dir_pwd` — current working directory.
 
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;

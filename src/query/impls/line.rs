@@ -1,8 +1,7 @@
-//! Query provider for `{query|line}` — cursor line in IDE, first line in CLI.
+//! Query provider for `query_line` — cursor line in IDE, first line in CLI.
 
 use crate::query::query::QueryKey;
 use crate::query::query::QueryProvider;
-use crate::utils;
 use anyhow::Result;
 
 pub struct LineProvider {
@@ -26,7 +25,7 @@ impl QueryProvider for LineProvider {
             .as_deref()
             .filter(|v| !v.is_empty())
             .map(|s| s.to_string())
-            .unwrap_or_else(|| utils::clipboard::read_text().unwrap_or_default());
+            .unwrap_or_default();
 
         let line = text.lines().next().unwrap_or("").to_string();
         Ok(line)

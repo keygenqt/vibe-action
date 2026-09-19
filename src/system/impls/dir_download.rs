@@ -1,4 +1,4 @@
-//! System provider for `{system_dir_download}` — user downloads directory.
+//! System provider for `system_dir_download` — user downloads directory.
 
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;

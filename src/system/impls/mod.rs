@@ -1,4 +1,4 @@
-//! System providers for resolving `{system_*}` tags.
+//! System providers for resolving `system_*` tags.
 
 pub mod arch;
 pub mod date;

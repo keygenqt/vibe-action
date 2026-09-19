@@ -1,4 +1,4 @@
-//! System provider for `{system_hostname}` — machine hostname.
+//! System provider for `system_hostname` — machine hostname.
 
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;

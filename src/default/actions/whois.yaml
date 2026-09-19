@@ -15,13 +15,11 @@ actions:
     val:
       # image
       - name: 'image'
-        data: 'query_raw'
-        mods: 'fetch|text'
-        when: 'empty:not'
-      - name: 'image'
         data: 'query_image'
-        mods: 'fetch|text'
-        when: 'empty:not'
+        when: 'is:empty:not'
+      - name: 'image'
+        data: 'query_clipboard_image'
+        when: 'is:empty:not'
       - name: 'image'
         mods: 'screenshot|text'
       # lang
@@ -54,5 +52,5 @@ actions:
     val:
       - name: 'result'
         data: 'tag_identity'
-        mods: 'clipboard'
+        mods: 'clipboard_text'
     action: '{result}'

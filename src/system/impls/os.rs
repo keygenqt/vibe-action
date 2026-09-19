@@ -1,4 +1,4 @@
-//! System provider for `{system_os}` — operating system name.
+//! System provider for `system_os` — operating system name.
 
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;

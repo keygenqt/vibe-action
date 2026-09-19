@@ -6,14 +6,16 @@ use crate::operator::operator::OperatorRegistry;
 /// Write operator keys (value → world, pass-through).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum WriteKey {
-    Clipboard,
+    ClipboardText,
+    ClipboardImage,
 }
 
 impl WriteKey {
     /// Parse from the pipe-syntax string; None if unknown.
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
-            "clipboard" => Some(Self::Clipboard),
+            "clipboard_text" => Some(Self::ClipboardText),
+            "clipboard_image" => Some(Self::ClipboardImage),
             _ => None,
         }
     }
@@ -26,5 +28,10 @@ impl WriteKey {
 
 /// Register all Write operators.
 pub fn register(registry: &mut OperatorRegistry) {
-    registry.register(Box::new(super::impls::clipboard::ClipboardOperator));
+    registry.register(Box::new(
+        super::impls::clipboard_text::ClipboardTextOperator,
+    ));
+    registry.register(Box::new(
+        super::impls::clipboard_image::ClipboardImageOperator,
+    ));
 }

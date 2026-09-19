@@ -1,4 +1,4 @@
-//! Query provider for `{query|file_path}` — valid file path from input or clipboard.
+//! Query provider for `query_file_path` — valid file path from explicit input.
 
 use crate::query::query::QueryKey;
 use crate::query::query::QueryProvider;
@@ -30,19 +30,12 @@ impl QueryProvider for FilePathProvider {
     }
 
     fn resolve(&self) -> Result<String> {
-        // Priority 1: explicit raw value (may be plain path or file:// URI)
+        // Explicit raw value (may be plain path or file:// URI)
         if let Some(raw) = self.raw_value.as_deref().filter(|v| !v.trim().is_empty()) {
             if let Some(path) = Self::first_existing_file(clipboard::parse_uri_list(raw)) {
                 return Ok(path.to_string_lossy().into_owned());
             }
-            return Ok(String::new());
         }
-
-        // Priority 2: clipboard (file copy in FM, or pasted path/URI text)
-        if let Some(path) = Self::first_existing_file(clipboard::clipboard_file_paths()) {
-            return Ok(path.to_string_lossy().into_owned());
-        }
-
         Ok(String::new())
     }
 }

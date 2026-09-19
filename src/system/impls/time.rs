@@ -1,4 +1,4 @@
-//! System provider for `{system_time}` — current time.
+//! System provider for `system_time` — current time (`HH:MM:SS`).
 
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;

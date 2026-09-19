@@ -1,4 +1,4 @@
-//! System provider for `{system_shell}` — current shell from SHELL env.
+//! System provider for `system_shell` — current shell name from `SHELL` (basename).
 
 use crate::system::system::SystemKey;
 use crate::system::system::SystemProvider;
