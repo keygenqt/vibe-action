@@ -1,4 +1,4 @@
-version: 0.0.1
+version: 0.0.2
 
 name: scan
 about: Scan project codebase and export as structured JSON
@@ -6,41 +6,40 @@ notify: true
 
 api:
   output: dialog
-  input: query|project_path
+  input: query_project_path
 
 actions:
-  # Validate path is a directory
-  - tag: tag_validate
-    run: cmd
-    expect: string
-    action:
-      - when: '{query|project_path|is_dir}'
-        then: echo "{query|project_path}"
-      - when: '{query|project_path|is_dir:not}'
-        then: echo "'{query|project_path}' is not a directory" && exit 1
-
-  # Resolve to absolute path
+  # Validate path is a directory and resolve to absolute
   - tag: tag_resolve
     run: value
-    expect: string
-    action: '{tag_validate|resolve}'
+    reg: '.+'
+    val:
+      - name: path
+        data: query_project_path
+        mods: 'resolve:dir'
+        fail: 'is:empty:not'
+    action: '{path}'
 
-  # Scan project files and parse AST
-  - tag: tag_ast
-    run: value
-    expect: list
-    action: '{tag_resolve|scan|ast}'
-
-  # Format as JSON array
+  # Scan, parse AST, and format as JSON array
   - tag: tag_json
     run: value
-    expect: string
-    action: '{tag_ast|trim|format:json}'
+    val:
+      - name: json
+        data: tag_resolve
+        mods: 'scan|ast|format:json'
+    action: '{json}'
 
   # Save to file with timestamp
   - tag: tag_save
     run: cmd
-    expect: string
+    reg: '.+'
+    val:
+      - name: json
+        data: tag_json
+      - name: dir
+        data: system_dir_download
+      - name: pid
+        data: system_pid
     action: |
-      printf '%s' '{tag_json|clipboard}' > {system_dir_download}/vibe-export-{system_pid}.json
-      echo "Saved to {system_dir_download}/vibe-export-{system_pid}.json"
+      printf '%s' {json} > {dir}/vibe-export-{pid}.json
+      printf 'Saved to %s/vibe-export-%s.json\n' {dir} {pid}

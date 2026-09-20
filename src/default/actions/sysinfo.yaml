@@ -1,33 +1,53 @@
-version: 0.0.1
+version: 0.0.2
 
 name: sysinfo
 about: Generate a human-readable system report
-clipboard: false
 
-# IDE plugin integration: maps argument names to IDE contexts
 api:
-  # Target for the final result (replace | clipboard | dialog)
   output: dialog
 
 actions:
   # Generate system report
   - tag: tag_report
     run: small
-    expect: string
+    reg: '.+'
+    val:
+      - name: lang
+        data: system_language
+      - name: os
+        data: system_os
+      - name: arch
+        data: system_arch
+      - name: hostname
+        data: system_hostname
+      - name: shell
+        data: system_shell
+      - name: user
+        data: system_user
+      - name: date
+        data: system_date
+      - name: time
+        data: system_time
+      - name: pid
+        data: system_pid
+      - name: home
+        data: system_dir_home
+      - name: pwd
+        data: system_dir_pwd
     action: |
       [Task]
       Generate a short system report using the data below.
-      Format as bullet points. Language: {system_language}.
+      Format as bullet points. Language: {lang}.
 
       [Data]
-      OS: {system_os}
-      Architecture: {system_arch}
-      Hostname: {system_hostname}
-      Shell: {system_shell}
-      System Language: {system_language}
-      User: {system_user}
-      Date: {system_date}
-      Time: {system_time}
-      Process ID: {system_pid}
-      Home: {system_dir_home}
-      Working directory: {system_dir_pwd}
+      OS: {os}
+      Architecture: {arch}
+      Hostname: {hostname}
+      Shell: {shell}
+      System Language: {lang}
+      User: {user}
+      Date: {date}
+      Time: {time}
+      Process ID: {pid}
+      Home: {home}
+      Working directory: {pwd}

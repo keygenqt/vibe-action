@@ -1,23 +1,30 @@
-version: 0.0.1
+version: 0.0.2
 
 name: describe
 about: Describe a screenshot from clipboard for text-only LLMs (Cmd+Shift+Ctrl+4, Ctrl+Print)
 notify: true
 
-# IDE plugin integration: maps argument names to IDE contexts
 api:
-  # Target for the final result (replace | clipboard | dialog)
   output: dialog
-  # Source for the {query} tag
-  input: query|image
+  input: query_image
 
 actions:
   # Extract raw visual description from the screenshot
   - tag: tag_raw
     run: vision
-    expect: string
+    reg: '.+'
+    val:
+      - name: image
+        data: query_image
+        when: 'is:empty:not'
+      - name: image
+        data: query_clipboard_image
+        when: 'is:empty:not'
+      - name: image
+        mods: 'screenshot|text'
+        fail: 'is:empty:not'
     action: |
-      {query|image|load|clipboard:screenshot|text}
+      {image}
 
       [Task]
       Describe this screenshot in rich detail.
@@ -32,7 +39,10 @@ actions:
   # Format the raw description into clean Markdown
   - tag: tag_md
     run: small
-    expect: string
+    reg: '.+'
+    val:
+      - name: input
+        data: tag_raw
     action: |
       [Task]
       Format the following description into clean Markdown.
@@ -42,10 +52,4 @@ actions:
       - Output ONLY the formatted Markdown
 
       [Input]
-      {tag_raw}
-
-  # Copy result to clipboard and output
-  - tag: tag_clipboard
-    run: value
-    expect: string
-    action: '{tag_md|clipboard}'
+      {input}

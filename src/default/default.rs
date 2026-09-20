@@ -89,82 +89,82 @@ pub fn default_pipelines() -> Vec<Box<dyn DefaultPipeline>> {
             file: "comment.yaml",
             yaml: include_str!("actions/comment.yaml"),
         }),
-        // Box::new(BuiltinPipeline {
-        //     file: "commit.yaml",
-        //     yaml: include_str!("actions/commit.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "describe.yaml",
-        //     yaml: include_str!("actions/describe.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "explain.yaml",
-        //     yaml: include_str!("actions/explain.yaml"),
-        // }),
+        Box::new(BuiltinPipeline {
+            file: "commit.yaml",
+            yaml: include_str!("actions/commit.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "describe.yaml",
+            yaml: include_str!("actions/describe.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "explain.yaml",
+            yaml: include_str!("actions/explain.yaml"),
+        }),
         Box::new(BuiltinPipeline {
             file: "extract.yaml",
             yaml: include_str!("actions/extract.yaml"),
         }),
-        // Box::new(BuiltinPipeline {
-        //     file: "faq.yaml",
-        //     yaml: include_str!("actions/faq.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "fetch.yaml",
-        //     yaml: include_str!("actions/fetch.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "find.yaml",
-        //     yaml: include_str!("actions/find.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "mock.yaml",
-        //     yaml: include_str!("actions/mock.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "naming.yaml",
-        //     yaml: include_str!("actions/naming.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "regex.yaml",
-        //     yaml: include_str!("actions/regex.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "review.yaml",
-        //     yaml: include_str!("actions/review.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "scan.yaml",
-        //     yaml: include_str!("actions/scan.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "spellcheck.yaml",
-        //     yaml: include_str!("actions/spellcheck.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "synonyms.yaml",
-        //     yaml: include_str!("actions/synonyms.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "sysinfo.yaml",
-        //     yaml: include_str!("actions/sysinfo.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "tone.yaml",
-        //     yaml: include_str!("actions/tone.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "translate-deep.yaml",
-        //     yaml: include_str!("actions/translate-deep.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "translate-large.yaml",
-        //     yaml: include_str!("actions/translate-large.yaml"),
-        // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "translate-small.yaml",
-        //     yaml: include_str!("actions/translate-small.yaml"),
-        // }),
+        Box::new(BuiltinPipeline {
+            file: "faq.yaml",
+            yaml: include_str!("actions/faq.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "fetch.yaml",
+            yaml: include_str!("actions/fetch.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "find.yaml",
+            yaml: include_str!("actions/find.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "mock.yaml",
+            yaml: include_str!("actions/mock.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "naming.yaml",
+            yaml: include_str!("actions/naming.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "regex.yaml",
+            yaml: include_str!("actions/regex.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "review.yaml",
+            yaml: include_str!("actions/review.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "scan.yaml",
+            yaml: include_str!("actions/scan.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "spellcheck.yaml",
+            yaml: include_str!("actions/spellcheck.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "synonyms.yaml",
+            yaml: include_str!("actions/synonyms.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "sysinfo.yaml",
+            yaml: include_str!("actions/sysinfo.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "tone.yaml",
+            yaml: include_str!("actions/tone.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "translate-deep.yaml",
+            yaml: include_str!("actions/translate-deep.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "translate-large.yaml",
+            yaml: include_str!("actions/translate-large.yaml"),
+        }),
+        Box::new(BuiltinPipeline {
+            file: "translate-small.yaml",
+            yaml: include_str!("actions/translate-small.yaml"),
+        }),
         Box::new(BuiltinPipeline {
             file: "whois.yaml",
             yaml: include_str!("actions/whois.yaml"),

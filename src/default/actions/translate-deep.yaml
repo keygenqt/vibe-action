@@ -1,11 +1,11 @@
-version: 0.0.1
+version: 0.0.2
 
 name: translate-deep
 about: Deep two-stage translation using local drafting and cloud polishing
 notify: true
 
 args:
-  - name: to
+  - name: arg_to
     short: l
     input: string
     default: 'Russian'
@@ -13,26 +13,34 @@ args:
 
 api:
   output: clipboard
-  input: query
+  input: query_raw
+  args:
+    arg_to: query_raw
 
 actions:
-  # Read input from query (prioritize file path if valid, otherwise use raw text)
+  # Read input: file path if valid, otherwise raw text
   - tag: tag_content
-    run: cmd
-    expect: string
-    check: .+
-    action:
-      - when: '{query|file_path|empty:not}'
-        then: cat "{query|file_path|load}"
-      - when: '{query|empty:not}'
-        then: echo "{query}"
-      - when: 'true'
-        then: echo "ERROR - No input provided"
+    run: value
+    reg: '.+'
+    val:
+      - name: content
+        data: query_raw
+        when: 'is:path'
+        mods: 'fetch|text'
+      - name: content
+        data: query_raw
+        fail: 'is:empty:not'
+    action: '{content}'
 
   # Local model generates a raw text translation
   - tag: tag_draft
     run: small
-    expect: string
+    reg: '.+'
+    val:
+      - name: to
+        data: arg_to
+      - name: text
+        data: tag_content
     action: |
       [Task]
       Translate the entire [Text] to the language specified in [User].
@@ -43,12 +51,17 @@ actions:
       {to}
 
       [Text]
-      {tag_content}
+      {text}
 
-  # Powerful cloud model polishes and refines the draft without original context
+  # Cloud model polishes and refines the draft
   - tag: tag_translated
     run: medium
-    expect: string
+    reg: '.+'
+    val:
+      - name: to
+        data: arg_to
+      - name: draft
+        data: tag_draft
     action: |
       [Task]
       Act as an expert native editor and senior technical writer.
@@ -59,10 +72,4 @@ actions:
       {to}
 
       [Rough Draft]
-      {tag_draft}
-
-  # Copy result to clipboard and output
-  - tag: tag_clipboard
-    run: value
-    expect: string
-    action: '{tag_translated|clipboard}'
+      {draft}
