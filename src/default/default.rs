@@ -86,13 +86,9 @@ impl DefaultPipeline for BuiltinPipeline {
 pub fn default_pipelines() -> Vec<Box<dyn DefaultPipeline>> {
     vec![
         Box::new(BuiltinPipeline {
-            file: "extract.yaml",
-            yaml: include_str!("actions/extract.yaml"),
+            file: "comment.yaml",
+            yaml: include_str!("actions/comment.yaml"),
         }),
-        // Box::new(BuiltinPipeline {
-        //     file: "comment.yaml",
-        //     yaml: include_str!("actions/comment.yaml"),
-        // }),
         // Box::new(BuiltinPipeline {
         //     file: "commit.yaml",
         //     yaml: include_str!("actions/commit.yaml"),
@@ -105,10 +101,10 @@ pub fn default_pipelines() -> Vec<Box<dyn DefaultPipeline>> {
         //     file: "explain.yaml",
         //     yaml: include_str!("actions/explain.yaml"),
         // }),
-        // Box::new(BuiltinPipeline {
-        //     file: "extract.yaml",
-        //     yaml: include_str!("actions/extract.yaml"),
-        // }),
+        Box::new(BuiltinPipeline {
+            file: "extract.yaml",
+            yaml: include_str!("actions/extract.yaml"),
+        }),
         // Box::new(BuiltinPipeline {
         //     file: "faq.yaml",
         //     yaml: include_str!("actions/faq.yaml"),

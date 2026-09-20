@@ -25,6 +25,7 @@ actions:
       - name: 'val_log'
         data: 'arg_file'
         mods: 'fetch|text'
+        fail: 'is:empty:not'
         each: true
     reg: '^[^\n]+$'
     action: |
@@ -47,7 +48,7 @@ actions:
     run: value
     reg: '^([^\n]+\n)*[^\n]*$'
     val:
-      - name: 'value1'
+      - name: 'llm_result'
         data: 'llm_log'
         mods: 'split|filter:eq:-|uniq|join'
-    action: '{value1}'
+    action: '{llm_result}'

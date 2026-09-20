@@ -98,14 +98,8 @@ impl Engine {
         Ok(order)
     }
 
-    /// Resolve a "tag|mods" reference: look up tag in available, apply operators, return String.
-    fn resolve_value(&self, tag: &str, mods: &str) -> Result<String> {
-        let mut current = self
-            .available
-            .get(tag)
-            .cloned()
-            .unwrap_or_else(|| tag.to_string());
-
+    /// Apply a mods chain to a literal value (no tag lookup).
+    fn apply_ops(&self, mut current: String, mods: &str) -> Result<String> {
         for mod_str in mods.split('|') {
             let mod_str = mod_str.trim();
             if mod_str.is_empty() {
@@ -123,6 +117,16 @@ impl Engine {
         }
 
         Ok(current)
+    }
+
+    /// Resolve a "tag|mods" reference: look up tag in available, apply operators, return String.
+    fn resolve_value(&self, tag: &str, mods: &str) -> Result<String> {
+        let current = self
+            .available
+            .get(tag)
+            .cloned()
+            .unwrap_or_else(|| tag.to_string());
+        self.apply_ops(current, mods)
     }
 
     /// Resolve data values from available into a fresh copy of actions.
@@ -163,15 +167,35 @@ impl Engine {
 
                     seen_names.insert(candidate.name.as_str());
 
-                    if data.is_empty() {
-                        candidate.resolved = Some(self.resolve_value("", &mods)?);
+                    // Resolve data + mods. Defer if data is an unresolved tag.
+                    let resolved = if data.is_empty() {
+                        self.resolve_value("", &mods)?
                     } else if self.available.contains_key(data)
                         || !self.actions.iter().any(|a| a.tag == data)
                     {
-                        candidate.resolved = Some(self.resolve_value(data, &mods)?);
+                        self.resolve_value(data, &mods)?
                     } else {
                         candidate.resolved = None;
+                        continue;
+                    };
+
+                    // Post-mods hard check: bail if `fail` predicate is false.
+                    if let Some(fail) = &candidate.fail {
+                        let passed = self
+                            .apply_ops(resolved.clone(), fail)
+                            .map(|v| truthy(&v))
+                            .unwrap_or(false);
+                        if !passed {
+                            anyhow::bail!(
+                                "Action '{}': val '{}' failed check '{}'.",
+                                action.tag,
+                                candidate.name,
+                                fail
+                            );
+                        }
                     }
+
+                    candidate.resolved = Some(resolved);
                 }
             }
             out.push(action);

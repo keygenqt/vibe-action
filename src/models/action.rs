@@ -43,6 +43,8 @@ pub struct ValCandidate {
     #[serde(default)]
     pub when: Option<String>,
     #[serde(default)]
+    pub fail: Option<String>,
+    #[serde(default)]
     pub each: Option<ValEach>,
     /// Resolved value (set at runtime, not serialized).
     #[serde(skip)]

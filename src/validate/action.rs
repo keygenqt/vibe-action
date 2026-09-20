@@ -79,6 +79,19 @@ impl ValidateTrait for ActionModel {
                         }
                     }
                 }
+                // Validate fail: inspect operators only (post-mods hard check).
+                if let Some(fail) = &c.fail {
+                    for name in operator_names(fail) {
+                        if InspectKey::from_str(name).is_none() {
+                            anyhow::bail!(
+                                "Action '{}': val '{}' uses non-inspect operator '{}' in fail.",
+                                self.tag,
+                                c.name,
+                                name
+                            );
+                        }
+                    }
+                }
                 if let Some(each) = &c.each {
                     let (split_str, merge_str) = each.resolve();
                     if split_str.is_empty() {

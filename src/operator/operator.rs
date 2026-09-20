@@ -69,6 +69,7 @@ use std::collections::HashMap;
 pub const ITEM_SEP: &str = "\x1F";
 
 /// Input kind an operator accepts. Validated before apply.
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Expect {
     /// A scalar — value must NOT contain ITEM_SEP. Rejects lists.

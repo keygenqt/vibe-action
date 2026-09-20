@@ -32,6 +32,8 @@ mod engine {
     mod arg_string_test;
     mod expect_fail_test;
     mod expect_pass_test;
+    mod fail_bail_test;
+    mod fail_pass_test;
     mod ordering_chain_test;
     mod ordering_circular_test;
     mod parser_each_config_test;
