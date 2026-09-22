@@ -154,16 +154,8 @@ pub fn default_pipelines() -> Vec<Box<dyn DefaultPipeline>> {
             yaml: include_str!("actions/tone.yaml"),
         }),
         Box::new(BuiltinPipeline {
-            file: "translate-deep.yaml",
-            yaml: include_str!("actions/translate-deep.yaml"),
-        }),
-        Box::new(BuiltinPipeline {
-            file: "translate-large.yaml",
-            yaml: include_str!("actions/translate-large.yaml"),
-        }),
-        Box::new(BuiltinPipeline {
-            file: "translate-small.yaml",
-            yaml: include_str!("actions/translate-small.yaml"),
+            file: "translate.yaml",
+            yaml: include_str!("actions/translate.yaml"),
         }),
         Box::new(BuiltinPipeline {
             file: "whois.yaml",

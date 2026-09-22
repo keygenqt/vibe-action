@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::VecDeque;
+use std::sync::OnceLock;
 
 use anyhow::Result;
 use regex::Regex;
@@ -98,7 +99,6 @@ impl Engine {
         Ok(order)
     }
 
-    /// Apply a mods chain to a literal value (no tag lookup).
     fn apply_ops(&self, mut current: String, mods: &str) -> Result<String> {
         for mod_str in utils::escape::split_escaped(mods, '|') {
             let mod_str = mod_str.trim();
@@ -110,13 +110,46 @@ impl Engine {
                 Some(idx) => (mod_str[..idx].trim(), mod_str[idx + 1..].trim()),
                 None => (mod_str, ""),
             };
+            let arg = self.interpolate_tags(arg)?;
 
             if let Some(key) = OperatorKey::from_str(name) {
-                current = self.operators.apply(key, &current, arg)?;
+                current = self.operators.apply(key, &current, &arg)?;
             }
         }
 
         Ok(current)
+    }
+
+    /// Replace `{name}` in an operator arg with the tag value when `name` is
+    /// a known tag. Known tag not ready yet → error (declare it via `data:`).
+    fn interpolate_tags(&self, s: &str) -> Result<String> {
+        static RE: OnceLock<Regex> = OnceLock::new();
+        let re = RE.get_or_init(|| Regex::new(r"\{(\w+)\}").unwrap());
+        let mut out = String::with_capacity(s.len());
+        let mut last = 0;
+        for caps in re.captures_iter(s) {
+            let whole = caps.get(0).unwrap();
+            let name = caps.get(1).unwrap().as_str();
+            if !self.is_tag(name) {
+                continue;
+            }
+            let value = self.available.get(name).ok_or_else(|| {
+                anyhow::anyhow!(
+                    "Tag '{name}' is not resolved yet — declare it via `data:` \
+                     to order the dependency."
+                )
+            })?;
+            out.push_str(&s[last..whole.start()]);
+            out.push_str(value);
+            last = whole.end();
+        }
+        out.push_str(&s[last..]);
+        Ok(out)
+    }
+
+    /// True if `name` is a declared action tag or an input tag.
+    fn is_tag(&self, name: &str) -> bool {
+        self.actions.iter().any(|a| a.tag == name) || self.available.contains_key(name)
     }
 
     /// Resolve a "tag|mods" reference: look up tag in available, apply operators, return String.

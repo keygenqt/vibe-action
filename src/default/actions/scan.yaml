@@ -29,17 +29,25 @@ actions:
         mods: 'scan|ast|format:json'
     action: '{json}'
 
-  # Save to file with timestamp
-  - tag: tag_save
-    run: cmd
+  # Build output path
+  - tag: tag_path
+    run: value
     reg: '.+'
     val:
-      - name: json
-        data: tag_json
       - name: dir
         data: system_dir_download
       - name: pid
         data: system_pid
-    action: |
-      printf '%s' {json} > {dir}/vibe-export-{pid}.json
-      printf 'Saved to %s/vibe-export-%s.json\n' {dir} {pid}
+    action: '{dir}/vibe-export-{pid}.json'
+
+  # Save and report
+  - tag: tag_save
+    run: value
+    reg: '.+'
+    val:
+      - name: path
+        data: tag_path
+      - name: json
+        data: tag_json
+        mods: 'file:{tag_path}'
+    action: 'Saved to {path}'
