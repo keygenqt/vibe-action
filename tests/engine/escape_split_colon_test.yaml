@@ -1,0 +1,11 @@
+version: 0.0.2
+name: escape_split_colon
+about: Test braced colon as split separator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'a:b'
+        mods: 'split:{:}'
+    action: '{result}'

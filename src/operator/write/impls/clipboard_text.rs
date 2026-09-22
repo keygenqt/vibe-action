@@ -17,7 +17,7 @@ impl Operator for ClipboardTextOperator {
     }
 
     fn apply(&self, value: &str, _arg: &str) -> Result<String> {
-        if AppConfig::output().output_type() == OutputType::Cli {
+        if AppConfig::output().output_type() != OutputType::Json {
             let text = FormatOutput::strip_outer_markdown_blocks(value).to_string();
             utils::clipboard::clipboard_write_text(&text)?;
         }

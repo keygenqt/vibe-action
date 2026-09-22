@@ -4,6 +4,7 @@ use crate::operator::operator::ITEM_SEP;
 use crate::operator::operator::Operator;
 use crate::operator::operator::OperatorKey;
 use crate::operator::transform::transform::TransformKey;
+use crate::utils::escape;
 use anyhow::Result;
 
 pub struct TrimOperator;
@@ -14,6 +15,7 @@ impl Operator for TrimOperator {
     }
 
     fn apply(&self, value: &str, arg: &str) -> Result<String> {
+        let arg = escape::unescape_arg(arg);
         let chars: Vec<char> = arg.chars().collect();
 
         if value.contains(ITEM_SEP) {

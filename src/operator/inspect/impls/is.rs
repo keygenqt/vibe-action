@@ -3,6 +3,7 @@
 
 use crate::operator::inspect::inspect::InspectKey;
 use crate::operator::operator::{Operator, OperatorKey, invert, map_items};
+use crate::utils::escape;
 use anyhow::Result;
 
 pub struct IsOperator;
@@ -32,12 +33,14 @@ impl Operator for IsOperator {
     }
 
     fn apply(&self, value: &str, arg: &str) -> Result<String> {
-        let (kind, invert_flag) = match arg.strip_suffix(":not") {
+        // Strip :not from the raw arg first, then unescape the kind.
+        let (raw, invert_flag) = match arg.strip_suffix(":not") {
             Some(k) => (k, true),
             None => (arg, false),
         };
+        let kind = escape::unescape_arg(raw);
         map_items(value, |s| {
-            let val = Self::matches_kind(s, kind)?.to_string();
+            let val = Self::matches_kind(s, &kind)?.to_string();
             Ok(if invert_flag { invert(&val) } else { val })
         })
     }

@@ -30,6 +30,11 @@ mod engine {
     mod arg_number_test;
     mod arg_required_missing_test;
     mod arg_string_test;
+    mod escape_equals_braced_test;
+    mod escape_pipe_in_arg_test;
+    mod escape_replace_double_test;
+    mod escape_replace_single_test;
+    mod escape_split_colon_test;
     mod expect_fail_test;
     mod expect_pass_test;
     mod fail_bail_test;

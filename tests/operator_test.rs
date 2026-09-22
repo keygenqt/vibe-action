@@ -32,24 +32,33 @@ pub fn app_test_operator_env(args: &str, envs: &[(&str, &str)]) -> std::process:
 }
 
 mod operator {
+    mod inspect_compare_test;
     mod inspect_contains_test;
     mod inspect_equals_test;
     mod inspect_is_test;
+    mod inspect_matches_test;
     mod read_fetch_test;
     mod read_resolve_test;
     mod read_text_test;
+    mod transform_base64_test;
+    mod transform_default_test;
     mod transform_filter_test;
     mod transform_format_test;
+    mod transform_grep_test;
+    mod transform_item_test;
     mod transform_join_test;
     mod transform_lower_test;
+    mod transform_replace_test;
     mod transform_reverse_test;
     mod transform_size_test;
     mod transform_sort_test;
     mod transform_split_test;
     mod transform_strip_test;
+    mod transform_tail_test;
     mod transform_take_test;
     mod transform_trim_test;
     mod transform_uniq_test;
     mod transform_upper_test;
     mod write_clipboard_text_test;
+    mod write_file_test;
 }

@@ -6,6 +6,7 @@ use crate::operator::operator::ITEM_SEP;
 use crate::operator::operator::Operator;
 use crate::operator::operator::OperatorKey;
 use crate::operator::transform::transform::TransformKey;
+use crate::utils::escape;
 use crate::utils::yaml::expand_escapes;
 use anyhow::Result;
 
@@ -21,13 +22,15 @@ impl Operator for SplitOperator {
     }
 
     fn apply(&self, value: &str, arg: &str) -> Result<String> {
+        // Unescape first — a braced arg may hide the array delimiter.
+        let arg = escape::unescape_arg(arg);
         if arg.contains(ITEM_SEP) {
             anyhow::bail!("split separator contains array delimiter");
         }
         let separator = if arg.is_empty() {
             "\n".to_string()
         } else {
-            expand_escapes(arg)
+            expand_escapes(&arg)
         };
         let items: Vec<&str> = value.split(&separator).collect();
         Ok(items.join(ITEM_SEP))

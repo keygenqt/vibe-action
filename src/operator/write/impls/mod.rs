@@ -2,3 +2,4 @@
 
 pub mod clipboard_image;
 pub mod clipboard_text;
+pub mod file;

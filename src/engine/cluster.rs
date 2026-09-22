@@ -12,6 +12,7 @@ use crate::models::action::ActionRun;
 use crate::output::output::OutputKind;
 use crate::print_template;
 use crate::utils;
+use crate::utils::escape;
 
 /// Distributed cluster execution response payload.
 pub struct ClusterResult {
@@ -40,7 +41,7 @@ impl Cluster {
 
         let cluster_prompts: Vec<Prompt> = vec![Prompt {
             key: None,
-            user: unescape_text(prompt),
+            user: escape::unescape_text(prompt),
             system: Some(system.to_string()),
             images: images.clone(),
         }];
@@ -111,9 +112,4 @@ impl Cluster {
             result: vibe_cluster::normalize_text(&text),
         })
     }
-}
-
-/// Helper tool to resolve double-brace literal escapes and strip double-backslashes for the LLM runtime.
-pub fn unescape_text(text: &str) -> String {
-    text.replace("{{", "{").replace("}}", "}")
 }

@@ -11,17 +11,20 @@ use regex::Regex;
 use crate::models::action::ActionModel;
 use crate::operator::inspect::inspect::InspectKey;
 use crate::operator::operator::OperatorKey;
+use crate::utils::escape;
 use crate::validate::ValidateTrait;
 
 /// Extract operator names from a mods/when string.
-/// Splits on `|`, takes the part before the first `:` of each segment.
-fn operator_names(s: &str) -> Vec<&str> {
-    s.split('|')
+/// Splits on unescaped `|`, takes the part before the first unescaped `:`.
+/// Braces escape separators, mirroring apply_ops parsing.
+fn operator_names(s: &str) -> Vec<String> {
+    escape::split_escaped(s, '|')
+        .iter()
         .map(|p| {
             let p = p.trim();
-            match p.find(':') {
-                Some(idx) => p[..idx].trim(),
-                None => p,
+            match escape::find_unescaped(p, ':') {
+                Some(idx) => p[..idx].trim().to_string(),
+                None => p.to_string(),
             }
         })
         .filter(|n| !n.is_empty())
@@ -37,7 +40,7 @@ impl ValidateTrait for ActionModel {
         // Action-level when: inspect operators only.
         if let Some(when) = &self.when {
             for name in operator_names(when) {
-                if InspectKey::from_str(name).is_none() {
+                if InspectKey::from_str(&name).is_none() {
                     anyhow::bail!(
                         "Action '{}': 'when' allows inspect operators only, got '{}'.",
                         self.tag,
@@ -56,7 +59,7 @@ impl ValidateTrait for ActionModel {
                 // Validate mods: all operator names must be known.
                 if let Some(mods) = &c.mods {
                     for name in operator_names(mods) {
-                        if OperatorKey::from_str(name).is_none() {
+                        if OperatorKey::from_str(&name).is_none() {
                             anyhow::bail!(
                                 "Action '{}': val '{}' uses unknown operator '{}' in mods.",
                                 self.tag,
@@ -69,7 +72,7 @@ impl ValidateTrait for ActionModel {
                 // Validate when: inspect operators only.
                 if let Some(when) = &c.when {
                     for name in operator_names(when) {
-                        if InspectKey::from_str(name).is_none() {
+                        if InspectKey::from_str(&name).is_none() {
                             anyhow::bail!(
                                 "Action '{}': val '{}' uses non-inspect operator '{}' in when.",
                                 self.tag,
@@ -82,7 +85,7 @@ impl ValidateTrait for ActionModel {
                 // Validate fail: inspect operators only (post-mods hard check).
                 if let Some(fail) = &c.fail {
                     for name in operator_names(fail) {
-                        if InspectKey::from_str(name).is_none() {
+                        if InspectKey::from_str(&name).is_none() {
                             anyhow::bail!(
                                 "Action '{}': val '{}' uses non-inspect operator '{}' in fail.",
                                 self.tag,

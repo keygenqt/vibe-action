@@ -59,10 +59,15 @@ actions:
         default - Default value, makes argument optional (optional)
         help    - Help text for CLI (optional)
 
-      API Block:
-        output - Target for final result: dialog, replace, clipboard
-        input  - Source query tag: query_raw, query_prompt, query_image, query_file_path, query_project_path, query_line, etc.
-        args   - Mapping of arg_<name> to a query_* tag for validation (optional)
+      API Block (IDE plugin metadata, ignored by CLI runtime):
+        output - Target for final result: replace (default), clipboard, dialog
+                 Note: clipboard_text/clipboard_image operators are no-ops when
+                 driven by a plugin — use output: clipboard to have the plugin
+                 copy the result instead
+        input  - Source query tag for {query}; defaults to query (editor selection)
+                 Common: query_raw, query_prompt, query_image, query_file_path,
+                 query_project_path, query_line, etc.
+        args   - Mapping of arg_<name> to a query type for validation (optional)
         Example:
           api:
             output: replace
@@ -113,28 +118,40 @@ actions:
           text                   - Extract text from HTML/PDF/image-file, or base64 passthrough
 
         Inspect — value to bool (for when/fail guards):
+          compare:<mode>:<N>     - Numeric comparison (supports :not)
+                                 Modes: gt, lt, gte, lte
+                                 Non-numeric value → false; bad threshold → error
           contains:<X>           - Substring test (supports :not)
           equals:<X>             - Exact equality (supports :not)
           is:<kind>              - Type/presence predicate (supports :not)
                                  Kinds: empty, num, int, bool, url, path, json
+          matches:<regex>        - Regex test (supports :not)
 
         Transform — value to value:
+          base64:<encode|decode> - Encode/decode base64 (scalar only; decode failure → "")
+          default:<X>            - Empty value → X, else passthrough (per-item)
           filter:<eq:X|not:X|X>  - Keep/remove list items by pattern
           format:<json|yaml|toml|json5> - Convert between formats (list-aware: wraps items in array)
+          grep:<regex>           - Regex filter: keep matching items; :not inverts
+          item:<N>               - Nth list item, negative counts from the end (out of range → "")
           join:<sep>             - Collapse list to string with separator (default newline)
           lower / upper          - Case conversion, per-item
+          replace:<from>:<to>    - Substring replacement (per-item)
           reverse                - Reverse list order or string chars
           size                   - Item count (list) or byte length (scalar)
           sort:<asc|desc>        - Alphabetical sort
           split:<sep>            - Split string to list by separator (default newline)
           strip                  - Remove markdown code fences
+          tail:<N>               - Last N elements (list) or chars (scalar)
           take:<N>               - First N elements (list) or chars (scalar)
           trim:<chars>           - Trim whitespace/chars from ends, or filter list items
           uniq                   - Deduplicate list elements or string chars
 
         Write — value to world (pass-through):
-          clipboard_text         - Copy text to clipboard (strips markdown blocks)
-          clipboard_image        - Copy base64 image to clipboard
+          clipboard_image        - Copy base64 image to clipboard (no-op when driven by a plugin;
+                                   use api.output: clipboard there instead)
+          clipboard_text         - Copy text to clipboard, strips markdown blocks (same plugin note)
+          file:<path>[:append]   - Write value to file; :append appends instead of overwriting
 
       Query Types (source tags resolved by providers):
         query_raw             - Raw text input (no validation)
@@ -150,17 +167,25 @@ actions:
 
       System Tags (runtime environment, always return Ok, empty if missing):
         system_arch            - CPU architecture (e.g. aarch64, x86_64)
+        system_cpu_cores       - Logical CPU core count
         system_date            - Current date, ISO 8601 (YYYY-MM-DD)
+        system_datetime        - Current date and time, ISO 8601 (YYYY-MM-DDTHH:MM:SS)
+        system_dir_cache       - User cache directory
+        system_dir_config      - User configuration directory
+        system_dir_data        - User data directory
         system_dir_download    - User downloads directory
         system_dir_home        - User home directory
         system_dir_pwd         - Current working directory
         system_dir_temp        - Temporary directory
         system_hostname        - Machine hostname
         system_language        - System language code from LANG (e.g. en, ru)
+        system_mem_available   - Available memory in bytes
         system_os              - Operating system name (e.g. macos, linux)
         system_pid             - Current process ID
         system_shell           - Current shell name (e.g. zsh, bash)
         system_time            - Current time (HH:MM:SS)
+        system_timestamp       - Current unix epoch seconds
+        system_uid             - Current user ID
         system_user            - Current user name
 
       Escape Sequences (in mods args and each config):

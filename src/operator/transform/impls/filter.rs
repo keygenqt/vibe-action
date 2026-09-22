@@ -5,6 +5,7 @@ use crate::operator::operator::ITEM_SEP;
 use crate::operator::operator::Operator;
 use crate::operator::operator::OperatorKey;
 use crate::operator::transform::transform::TransformKey;
+use crate::utils::escape;
 use anyhow::Result;
 
 pub struct FilterOperator;
@@ -15,13 +16,15 @@ impl Operator for FilterOperator {
     }
 
     fn apply(&self, value: &str, arg: &str) -> Result<String> {
-        let (mode, pattern, keep_matching) = match arg.strip_prefix("not:") {
+        // Strip mode prefix from the raw arg first, then unescape the pattern.
+        let (mode, raw, keep_matching) = match arg.strip_prefix("not:") {
             Some(rest) => ("sub", rest, true),
             None => match arg.strip_prefix("eq:") {
                 Some(rest) => ("eq", rest, false),
                 None => ("sub", arg, false),
             },
         };
+        let pattern = &escape::unescape_arg(raw);
         let items: Vec<&str> = value
             .split(ITEM_SEP)
             .filter(|i| {

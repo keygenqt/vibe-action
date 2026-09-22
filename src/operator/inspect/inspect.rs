@@ -6,18 +6,22 @@ use crate::operator::operator::OperatorRegistry;
 /// Inspect operator keys (→ bool).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum InspectKey {
+    Compare,
     Contains,
     Equals,
     Is,
+    Matches,
 }
 
 impl InspectKey {
     /// Parse from the pipe-syntax string; None if unknown.
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
+            "compare" => Some(Self::Compare),
             "contains" => Some(Self::Contains),
             "equals" => Some(Self::Equals),
             "is" => Some(Self::Is),
+            "matches" => Some(Self::Matches),
             _ => None,
         }
     }
@@ -30,7 +34,9 @@ impl InspectKey {
 
 /// Register all Inspect operators.
 pub fn register(registry: &mut OperatorRegistry) {
+    registry.register(Box::new(super::impls::compare::CompareOperator));
     registry.register(Box::new(super::impls::contains::ContainsOperator));
     registry.register(Box::new(super::impls::equals::EqualsOperator));
     registry.register(Box::new(super::impls::is::IsOperator));
+    registry.register(Box::new(super::impls::matches::MatchesOperator));
 }

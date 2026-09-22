@@ -24,16 +24,32 @@ actions:
         data: system_shell
       - name: user
         data: system_user
+      - name: uid
+        data: system_uid
       - name: date
         data: system_date
       - name: time
         data: system_time
+      - name: datetime
+        data: system_datetime
+      - name: timestamp
+        data: system_timestamp
       - name: pid
         data: system_pid
+      - name: cpu_cores
+        data: system_cpu_cores
+      - name: mem_available
+        data: system_mem_available
       - name: home
         data: system_dir_home
       - name: pwd
         data: system_dir_pwd
+      - name: config_dir
+        data: system_dir_config
+      - name: data_dir
+        data: system_dir_data
+      - name: cache_dir
+        data: system_dir_cache
     action: |
       [Task]
       Generate a short system report using the data below.
@@ -45,9 +61,16 @@ actions:
       Hostname: {hostname}
       Shell: {shell}
       System Language: {lang}
-      User: {user}
+      User: {user} (UID: {uid})
       Date: {date}
       Time: {time}
+      DateTime: {datetime}
+      Timestamp: {timestamp}
       Process ID: {pid}
+      CPU Cores: {cpu_cores}
+      Available Memory: {mem_available} bytes
       Home: {home}
       Working directory: {pwd}
+      Config directory: {config_dir}
+      Data directory: {data_dir}
+      Cache directory: {cache_dir}

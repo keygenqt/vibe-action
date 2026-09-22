@@ -8,6 +8,7 @@ use crate::operator::operator::OperatorRegistry;
 pub enum WriteKey {
     ClipboardText,
     ClipboardImage,
+    File,
 }
 
 impl WriteKey {
@@ -16,6 +17,7 @@ impl WriteKey {
         match s {
             "clipboard_text" => Some(Self::ClipboardText),
             "clipboard_image" => Some(Self::ClipboardImage),
+            "file" => Some(Self::File),
             _ => None,
         }
     }
@@ -34,4 +36,5 @@ pub fn register(registry: &mut OperatorRegistry) {
     registry.register(Box::new(
         super::impls::clipboard_image::ClipboardImageOperator,
     ));
+    registry.register(Box::new(super::impls::file::FileOperator));
 }

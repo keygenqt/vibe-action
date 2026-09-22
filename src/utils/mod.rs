@@ -5,6 +5,7 @@ pub mod app;
 pub mod clap;
 pub mod clipboard;
 pub mod constants;
+pub mod escape;
 pub mod fetch;
 pub mod format;
 pub mod image;

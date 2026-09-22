@@ -33,16 +33,24 @@ pub fn app_test_system_env(args: &str, envs: &[(&str, &str)]) -> std::process::O
 
 mod system {
     mod system_arch_test;
+    mod system_cpu_cores_test;
     mod system_date_test;
+    mod system_datetime_test;
+    mod system_dir_cache_test;
+    mod system_dir_config_test;
+    mod system_dir_data_test;
     mod system_dir_download_test;
     mod system_dir_home_test;
     mod system_dir_pwd_test;
     mod system_dir_temp_test;
     mod system_hostname_test;
     mod system_language_test;
+    mod system_mem_available_test;
     mod system_os_test;
     mod system_pid_test;
     mod system_shell_test;
     mod system_time_test;
+    mod system_timestamp_test;
+    mod system_uid_test;
     mod system_user_test;
 }

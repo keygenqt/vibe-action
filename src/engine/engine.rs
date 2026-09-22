@@ -100,13 +100,13 @@ impl Engine {
 
     /// Apply a mods chain to a literal value (no tag lookup).
     fn apply_ops(&self, mut current: String, mods: &str) -> Result<String> {
-        for mod_str in mods.split('|') {
+        for mod_str in utils::escape::split_escaped(mods, '|') {
             let mod_str = mod_str.trim();
             if mod_str.is_empty() {
                 continue;
             }
 
-            let (name, arg) = match mod_str.find(':') {
+            let (name, arg) = match utils::escape::find_unescaped(mod_str, ':') {
                 Some(idx) => (mod_str[..idx].trim(), mod_str[idx + 1..].trim()),
                 None => (mod_str, ""),
             };

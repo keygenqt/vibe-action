@@ -16,7 +16,7 @@ impl Operator for ClipboardImageOperator {
     }
 
     fn apply(&self, value: &str, _arg: &str) -> Result<String> {
-        if AppConfig::output().output_type() == OutputType::Cli {
+        if AppConfig::output().output_type() != OutputType::Json {
             utils::clipboard::clipboard_write_image(value)?;
         }
         Ok(value.to_string())
