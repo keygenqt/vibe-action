@@ -1,90 +1,77 @@
 # Introduction
 
-Vibe Action is a command router that executes shell commands and LLM prompts defined in simple YAML actions.
+Vibe Action is a command router that executes shell commands and LLM prompts defined in simple YAML pipelines.
 
 ## Why Vibe Action
 
 - ⚡ **One command = complex pipeline** — chain shell scripts and LLM calls into a single action
-- 🔗 **Tag system** — connect steps via `{tag}` references with automatic dependency graph
-- 🔧 **Modifiers** — 20+ inline value transformations with arguments
-- 🔀 **When/Then** — conditional execution in YAML without shell scripts
-- 🌳 **AST parsing** — `{tag|ast}` auto-detects language from file, `{tag|ast:rs}` for explicit
-- 🖥️ **System tags** — built-in tags: `{system_dir_pwd}`, `{system_os}`, `{system_user}` and more
-- 📥 **Unified Input** — `{query}` tag seamlessly handles text, files, images, and interactive prompts from CLI or IDE
+- 🔗 **Tag system** — connect steps via data references with an automatic dependency graph
+- 🧩 **Operators** — pipeline of value transformations in `mods` (read, inspect, transform, write)
+- 🛡️ **Guards** — `when` / `fail` predicates and `reg` output validation, all in YAML
+- 🖥️ **System tags** — runtime environment: OS, user, directories, time, and more
+- 📥 **Unified input** — query tags handle text, files, images, and interactive prompts from CLI or IDE
 - 👁️ **Vision support** — screenshot description, person identification, image from URL or clipboard
-- 🌐 **Fetch** — load and summarize web pages, PDFs, images via `load` and `text` modifiers
-- 📦 **Scan** — scan codebase and export AST as structured JSON
-- ⚡ **Action cache** — instant startup via snapshot-based validation
-- 🤖 **Batch LLM** — parallel execution across cluster nodes with role-based routing (tiny, small, medium, large, vision)
-- ✅ **Type-safe** — validate outputs with `expect: string | list` and regex `check`
+- 🤖 **Batch LLM** — parallel execution across cluster nodes with role-based routing (`tiny`, `small`, `medium`, `large`, `vision`)
+- ⏱️ **Process guard** — a new run supersedes the previous one, keeping shared state predictable
 - 🔔 **Notifications** — optional desktop notifications on completion
 - 🔐 **Confirmations** — ask before executing dangerous commands
-- 💬 **Self-documenting** — built-in `faq` action answers questions about Vibe Action itself
-- 🎯 **CLI-first** — no browser, no context switching. Everything in the terminal
-- 🔌 **IDE Integration** — built-in `api` block for seamless VS Code and IntelliJ plugin support
-- ⏱️ **Process Guard** — new runs automatically supersede previous ones, keeping state predictable
-- 🔒 **Open & Flexible** — open source. Use local models via Ollama or cloud APIs (DeepSeek, Qwen, Kimi, Zhipu)
+- 💬 **Self-documenting** — the built-in `faq` action answers questions about Vibe Action itself
+- 🔌 **IDE integration** — the `api` block drives the VS Code and IntelliJ plugins
+- 🔒 **Open & flexible** — open source. Local models via Ollama or cloud APIs (DeepSeek, Qwen, Kimi, Zhipu)
 - 🦀 **Fast** — built in Rust
 
 ## Key Concepts
 
-### YAML Pipelines
+### YAML pipelines
 
-Describe your workflow in YAML, not code:
+Describe your workflow in YAML, not code. Each file is one CLI command:
 
 ```yaml
-version: 0.0.1
+version: 0.0.2
 name: extract
 about: Extract matching lines from text and logs
-args:
-  - name: file
-    short: f
-    input: string
-    help: Path to the log or text file
 api:
-  output: replace
-  input: query|prompt
+  output: dialog
+  input: query_prompt
 actions:
-  - tag: tag_lines
-    run: cmd
-    expect: list
-    action: cat {file}
-  - tag: tag_content
-    run: small
-    expect: string
+  - tag: llm_log
+    run: large
+    reg: '^[^\n]+$'
+    val:
+      - name: search
+        data: query_raw
+      - name: line
+        data: arg_file
+        mods: 'fetch|text'
+        fail: 'is:empty:not'
+        each: true
     action: |
       [Task]
       If the line matches the query — output the EXACT line unchanged.
       If it does not match — output only a single dash: "-"
-      Do NOT skip lines. Process every line.
       [Query]
-      {query|prompt}
+      {search}
+
       [Line]
-      {tag_lines}
-  - tag: tag_clean
-    run: value
-    expect: string
-    action: '{tag_content|trim:-}'
-  - tag: tag_extract
-    run: value
-    expect: string
-    action: '{tag_clean|uniq|join}'
+      {line}
 ```
 
-### When/Then
+Steps resolve their inputs from `val` candidates, execute in dependency order, and pass results forward by tag. See [Pipeline YAML](./pipeline-yaml.md).
 
-Conditional execution in pure YAML — the first matching `when` branch wins, no shell scripting needed. Full syntax and examples — [Action Structure](./action-structure.md).
+### Val candidates
 
-### System Tags
+Every step declares where its data comes from: a tag, an argument, or a query. Candidates resolve in order — the first one whose guard passes wins. See [Val Candidates](./val-candidates.md).
 
-Environment context (`{system_user}`, `{system_os}`, `{system_dir_pwd}`, …) is available in any step without CLI arguments. Full list — [System Tags](./system-tags.md).
+### Operators
+
+`mods` chains operators left to right: `fetch|text`, `split|filter:eq:-|uniq|join`. Guards use inspect operators only. See the operator pages: [Read](./operators-read.md), [Inspect](./operators-inspect.md), [Transform](./operators-transform.md), [Write](./operators-write.md).
 
 ## How It Works
 
-1. You write a YAML file describing your workflow — steps, types, dependencies
-2. The engine parses it and builds a dependency graph from `{tag}` references
-3. Steps execute in order — shell commands run locally, LLM prompts go to your cluster
-4. Results are validated against expected types and optional regex patterns
-5. Final output is printed to the terminal, copied to clipboard, or sent as notification
+1. You write a YAML file describing your workflow — steps, data sources, guards
+2. The engine loads pipelines from the actions directory and builds a CLI command per file
+3. Steps execute in dependency order — shell commands run locally, LLM prompts go to your cluster
+4. Outputs are validated against optional `reg` patterns
+5. The final result goes to the terminal, the editor, or the clipboard
 
 Ready to try it? Head to [Getting Started](./getting-started.md).

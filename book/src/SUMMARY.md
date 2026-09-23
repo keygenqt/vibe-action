@@ -6,19 +6,33 @@
 
 - [Introduction](./docs/introduction.md)
 - [Getting Started](./docs/getting-started.md)
-- [IDE Integration](./docs/vibe-action-cross.md)
 
-# YAML Actions
+# Pipeline
 
-- [Action Structure](./docs/action-structure.md)
-- [Query Tag](./docs/query-tag.md)
-- [Tag System](./docs/tag-system.md)
-- [Modifiers](./docs/modifiers.md)
-- [System Tags](./docs/system-tags.md)
-- [Built-in Actions](./docs/built-in-actions.md)
-- [Custom Actions](./docs/custom-actions.md)
+- [YAML Format](./docs/pipeline-yaml.md)
+- [Val Candidates](./docs/val-candidates.md)
+- [Placeholders & Escapes](./docs/placeholders.md)
 
-# Reference
+# Operators
+
+- [Read](./docs/operators-read.md)
+- [Inspect](./docs/operators-inspect.md)
+- [Transform](./docs/operators-transform.md)
+- [Write](./docs/operators-write.md)
+
+# Providers
+
+- [Query](./docs/query-providers.md)
+- [System](./docs/system-providers.md)
+
+# Actions
+
+- [Built-in](./docs/built-in-actions.md)
+- [Custom](./docs/custom-actions.md)
+
+# Setup
 
 - [Configuration](./docs/configuration.md)
+- [Output Modes](./docs/output-modes.md)
 - [CLI Reference](./docs/cli-reference.md)
+- [IDE Plugin](./docs/ide-plugin.md)
