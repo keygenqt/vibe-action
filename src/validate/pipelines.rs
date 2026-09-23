@@ -1,5 +1,5 @@
-//! ActionsModel validation.
-//! Validates all pipelines, checks for duplicate names and tags.
+//! PipelinesModel validation.
+//! See [`crate::validate`] module-level docs for validation rules.
 
 use std::collections::HashSet;
 

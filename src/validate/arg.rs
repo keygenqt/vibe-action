@@ -1,5 +1,5 @@
 //! ArgActionModel validation.
-//! Checks name, short flag, and CLI-compatible types.
+//! See [`crate::validate`] module-level docs for validation rules.
 
 use anyhow::Result;
 

@@ -1,5 +1,5 @@
-//! Pipeline model — one YAML action file.
-//! Defines a pipeline with trigger and preparation steps.
+//! Pipeline model: loading, argument resolution, and tag resolution.
+//! See [`crate::models`] module-level docs for the resolution flow.
 
 use anyhow::Result;
 use clap::ArgMatches;

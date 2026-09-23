@@ -1,4 +1,5 @@
-//! Output trait, registry, and level enum.
+//! Output trait, enums, and registry.
+//! See [`crate::output`] module-level docs for the architecture and output type descriptions.
 
 use serde::Deserialize;
 use serde::Serialize;

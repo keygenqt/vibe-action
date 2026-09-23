@@ -1,4 +1,5 @@
-//! Plain output — no ANSI, no formatting, just the message. For tests and CI.
+//! Plain output strategy — no ANSI, no formatting.
+//! See [`crate::output`] module-level docs for the architecture overview.
 
 use crate::output::format::FormatOutput;
 use crate::output::msg::OutputMsg;

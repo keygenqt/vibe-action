@@ -1,5 +1,5 @@
-//! LLM provider configuration for model inference.
-//! Defines connection parameters and model settings for code analysis.
+//! LLM provider configuration and cluster role enum.
+//! See [`crate::configs`] module-level docs for cluster routing logic.
 
 use serde::Deserialize;
 use serde::Serialize;

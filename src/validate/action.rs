@@ -1,6 +1,5 @@
 //! ActionModel validation.
-//! Checks non-empty action, val-candidate fields, action interpolation,
-//! and operator names in mods/when.
+//! See [`crate::validate`] module-level docs for validation rules.
 
 use std::collections::HashSet;
 use std::sync::OnceLock;

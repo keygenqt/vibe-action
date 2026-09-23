@@ -1,5 +1,5 @@
 //! PipelineModel validation.
-//! Checks name, tags, val data references, and check regex.
+//! See [`crate::validate`] module-level docs for validation rules.
 
 use std::collections::HashSet;
 

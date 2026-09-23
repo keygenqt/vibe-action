@@ -1,5 +1,5 @@
 //! Status command handler.
-//! Shows system status: version, config paths, context state.
+//! See [`crate::cli`] module-level docs for what is displayed.
 
 use crate::configs::app::AppConfig;
 use crate::default::default::default_pipelines;

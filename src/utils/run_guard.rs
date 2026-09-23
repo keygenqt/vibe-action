@@ -1,3 +1,6 @@
+//! Singleton process guard: PID files, stop-file signaling, stale cleanup.
+//! See [`crate::utils`] module-level docs for summary.
+
 use anyhow::Result;
 use anyhow::anyhow;
 use fs2::FileExt;

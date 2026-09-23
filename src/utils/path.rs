@@ -1,5 +1,5 @@
-//! Application path utilities.
-//! Provides config and data directory paths.
+//! Application directory layout, env overrides, and path resolution.
+//! See [`crate::utils`] module-level docs for summary.
 
 use anyhow::Result;
 use dirs::home_dir;

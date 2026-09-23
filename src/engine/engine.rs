@@ -1,4 +1,5 @@
-//! Engine orchestrator — resolves tags, executes steps, validates results.
+//! Engine orchestrator: tag resolution, topological ordering, expansion, and execution.
+//! See [`crate::engine`] module-level docs for the full pipeline description.
 
 use std::collections::HashMap;
 use std::collections::HashSet;

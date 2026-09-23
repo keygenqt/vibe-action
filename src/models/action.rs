@@ -1,5 +1,5 @@
-//! Action models for YAML parsing.
-//! Defines structures for action files, trigger and steps.
+//! Action and val-candidate models, and ActionRun enum.
+//! See [`crate::models`] module-level docs for the model hierarchy.
 
 use serde::Deserialize;
 use serde::Serialize;

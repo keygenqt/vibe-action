@@ -1,4 +1,5 @@
-//! Image utilities — base64 image detection and encoding.
+//! Base64 image detection (prefix scan) and encoding/validation.
+//! See [`crate::utils`] module-level docs for summary.
 
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64;

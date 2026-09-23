@@ -1,5 +1,5 @@
-//! Application configuration.
-//! YAML-based config for cluster settings and action runtime.
+//! Root application config and global singleton.
+//! See [`crate::configs`] module-level docs for the initialization order and cluster routing.
 
 use anyhow::Result;
 use serde::Deserialize;

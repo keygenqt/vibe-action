@@ -1,5 +1,5 @@
-//! Action argument model.
-//! Defines CLI arguments for YAML actions.
+//! CLI argument model and clap conversion.
+//! See [`crate::models`] module-level docs for context.
 
 use serde::Deserialize;
 use serde::Serialize;

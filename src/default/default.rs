@@ -1,4 +1,5 @@
-//! Default pipeline trait — validates built-in YAML pipelines from embedded YAML files.
+//! Default pipeline trait and built-in registry.
+//! See [`crate::default`] module-level docs for the built-in action list.
 
 use crate::models::pipeline::PipelineModel;
 use anyhow::Result;

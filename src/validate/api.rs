@@ -1,5 +1,5 @@
 //! PipelineApiModel validation.
-//! Validates the input and output settings for IDE plugin integration.
+//! See [`crate::validate`] module-level docs for validation rules.
 
 use anyhow::Result;
 

@@ -1,3 +1,6 @@
+//! Trace-level action execution log.
+//! See [`crate::engine`] module-level docs for context on logging.
+
 use crate::models::action::ActionRun;
 use crate::output::output::OutputKind;
 use crate::print_template;

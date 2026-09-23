@@ -1,5 +1,5 @@
-//! Application metadata and CLI styling utilities.
-//! Provides version info, help text formatting, and CLI styling configuration.
+//! Application metadata and CLI styling.
+//! See [`crate::utils`] module-level docs for summary.
 
 use clap::builder::Styles;
 

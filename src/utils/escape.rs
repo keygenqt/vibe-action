@@ -1,8 +1,10 @@
-//! Brace escape helpers for LLM templates and operator arg parsing.
+//! Brace-escape helpers for LLM templates and operator arg parsing.
 //!
 //! Escape rules:
 //! - `{X}`   → `X`   (unwrap: escapes separators `:` and `|`)
 //! - `{{X}}` → `{X}` (reduce: escapes separators, keeps single braces)
+//!
+//! See [`crate::utils`] module-level docs for context.
 
 /// Unescape double braces for the LLM runtime: `{{` → `{`, `}}` → `}`.
 pub fn unescape_text(text: &str) -> String {

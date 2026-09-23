@@ -1,5 +1,5 @@
-//! Aggregated actions model.
-//! Loads all pipelines from configured directories and provides lookup.
+//! Aggregated pipelines model with file-system cache and default seeding.
+//! See [`crate::models`] module-level docs for context.
 
 use anyhow::Result;
 use fs2::FileExt;

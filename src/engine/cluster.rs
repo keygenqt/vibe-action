@@ -1,5 +1,5 @@
-//! LLM cluster executor.
-//! Sends prompts to vibe-cluster and returns model responses.
+//! LLM cluster executor via vibe-cluster.
+//! See [`crate::engine`] module-level docs for context on run types.
 
 use std::time::Duration;
 

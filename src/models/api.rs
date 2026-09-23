@@ -1,6 +1,5 @@
-//! IDE plugin integration metadata.
-//! Defines the input source for the query and the output target for the result.
-//! This metadata is ignored by the CLI runtime and is intended solely for IDE plugins.
+//! IDE plugin integration metadata (PipelineApiModel).
+//! See [`crate::models`] module-level docs for context.
 
 use serde::Deserialize;
 use serde::Serialize;

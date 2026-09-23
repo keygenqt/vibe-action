@@ -1,4 +1,5 @@
-//! Fetch utilities — download remote URLs to bytes or temp files.
+//! HTTP download: bytes or temp file (deduped by URL hash).
+//! See [`crate::utils`] module-level docs for summary.
 
 use anyhow::{Result, anyhow};
 use std::path::PathBuf;

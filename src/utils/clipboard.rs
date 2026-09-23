@@ -1,6 +1,5 @@
-//! Clipboard helpers: text, paths, image, and a combined reader.
-//! All clipboard I/O consolidated here — no other file should touch
-//! clipboard crates directly.
+//! Clipboard I/O: text, paths, image, combined reader, and URI list parsing.
+//! See [`crate::utils`] module-level docs for summary.
 
 use clipboard_rs::RustImageData;
 use std::path::PathBuf;

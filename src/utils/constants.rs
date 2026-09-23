@@ -1,5 +1,5 @@
-//! Application constants and configuration defaults.
-//! Defines config file names and version.
+//! Directory names, file names, and version strings.
+//! See [`crate::utils`] module-level docs for summary.
 
 /// Config directory name
 pub const CONFIG_DIR_NAME: &str = ".vibe-action";

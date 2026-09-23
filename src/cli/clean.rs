@@ -1,5 +1,5 @@
 //! Clean command handler.
-//! Manages cleaning actions cache and resetting context.
+//! See [`crate::cli`] module-level docs for what is cleaned.
 
 use crate::output::output::OutputKind;
 use crate::print_template;

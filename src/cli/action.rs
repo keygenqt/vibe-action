@@ -1,5 +1,5 @@
 //! Dynamic action command handler.
-//! Looks up a YAML-defined action by name and runs it with the given arguments.
+//! See [`crate::cli`] module-level docs for the execution flow.
 
 use clap::ArgMatches;
 use inquire::Confirm;

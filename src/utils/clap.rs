@@ -1,3 +1,6 @@
+//! Dynamic CLI command tree from YAML pipelines and custom colored help.
+//! See [`crate::utils`] module-level docs for summary.
+
 use std::collections::HashSet;
 
 use clap::Command;

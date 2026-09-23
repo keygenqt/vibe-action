@@ -1,3 +1,6 @@
+//! OutputMsg struct and print_template!/print_text! macros.
+//! See [`crate::output`] module-level docs for the message model description.
+
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
