@@ -5,6 +5,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
 
+use crate::query::query::QueryKey;
+
 /// Specifies the target where the IDE plugin should apply the action result.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -30,7 +32,7 @@ pub struct ApiInput(String);
 
 impl Default for ApiInput {
     fn default() -> Self {
-        ApiInput("query".to_string())
+        ApiInput(QueryKey::Raw.as_str().to_string())
     }
 }
 
@@ -45,7 +47,7 @@ impl ApiInput {
 #[serde(deny_unknown_fields)]
 pub struct PipelineApiModel {
     /// Defines the input source for the {query} tag.
-    /// Defaults to "query" (editor selection).
+    /// Defaults to `query_raw` (raw input as-is).
     #[serde(default)]
     pub input: Option<ApiInput>,
     /// Defines where the IDE plugin should apply the final result.

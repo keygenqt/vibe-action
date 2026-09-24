@@ -10,7 +10,7 @@ api:
 
 actions:
   - tag: tag_comment
-    run: small
+    run: medium
     val:
       - name: content
         data: query_raw
