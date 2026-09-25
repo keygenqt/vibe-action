@@ -1,0 +1,16 @@
+version: 0.0.2
+name: validate_duplicate_tag
+about: Test duplicate tag
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'hello'
+    action: '{result}'
+  - tag: tag_result
+    run: value
+    val:
+      - name: other
+        data: 'world'
+    action: '{other}'

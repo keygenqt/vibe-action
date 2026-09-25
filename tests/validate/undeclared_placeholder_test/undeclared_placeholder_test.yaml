@@ -1,0 +1,10 @@
+version: 0.0.2
+name: validate_undeclared_placeholder
+about: Test undeclared placeholder
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'hello'
+    action: '{unknown}'

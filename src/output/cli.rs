@@ -1,4 +1,5 @@
-//! CLI output with ANSI colors and progress bar.
+//! CLI output strategy with ANSI colors and Markdown success block.
+//! See [`crate::output`] module-level docs for the architecture overview.
 
 use crate::output::format::FormatOutput;
 use crate::output::msg::OutputMsg;

@@ -1,9 +1,12 @@
+//! Dynamic CLI command tree from YAML pipelines and custom colored help.
+//! See [`crate::utils`] module-level docs for summary.
+
 use std::collections::HashSet;
 
 use clap::Command;
 
 use crate::configs::app::AppConfig;
-use crate::default::default::default_flows;
+use crate::default::default::default_pipelines;
 use crate::output::output::OutputKind;
 use crate::print_template;
 use crate::utils::app;
@@ -20,14 +23,14 @@ macro_rules! build_app {
         use clap::Command;
         use clap::CommandFactory;
         let mut app = $crate::App::command();
-        if let Some(actions_model) = &$config.flows {
-            for flow in &actions_model.flows {
-                let mut dynamic_cmd = Command::new(flow.name.as_str()).about(&flow.about);
-                for arg_def in &flow.args {
+        if let Some(actions_model) = &$config.pipelines {
+            for pipeline in &actions_model.pipelines {
+                let mut dynamic_cmd = Command::new(pipeline.name.as_str()).about(&pipeline.about);
+                for arg_def in &pipeline.args {
                     let clap_arg: Arg = arg_def.into();
                     dynamic_cmd = dynamic_cmd.arg(clap_arg);
                 }
-                if flow.uses_query() {
+                if pipeline.uses_query() {
                     dynamic_cmd = dynamic_cmd.arg(
                         Arg::new("query")
                             .help("Query input (positional argument)")
@@ -56,8 +59,8 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
         .unwrap_or(15)
         + 1;
 
-    // Collect built-in flow names to distinguish custom actions.
-    let builtin_names: HashSet<String> = default_flows()
+    // Collect built-in pipeline names to distinguish custom actions.
+    let builtin_names: HashSet<String> = default_pipelines()
         .iter()
         .filter_map(|f| f.name().ok())
         .collect();
@@ -84,7 +87,7 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
         let formatted_name = format!("  {:<width$}", name, width = max_len);
         let is_custom = !builtin_names.contains(name);
 
-        if let Some(flow) = config.flows.as_ref().and_then(|f| f.find(name)) {
+        if let Some(pipeline) = config.pipelines.as_ref().and_then(|f| f.find(name)) {
             print_template!(
                 ExportContext::Actions,
                 OutputKind::Plain,
@@ -92,10 +95,10 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
                 "formatted_name" => formatted_name,
                 "name" => name,
                 "about" => about,
-                "args" => &flow.args,
-                "api" => &flow.api,
+                "args" => &pipeline.args,
+                "api" => &pipeline.api,
                 "is_custom" => is_custom,
-                "yaml_path" => flow.file_path.as_ref().map(|p| p.display().to_string()),
+                "yaml_path" => pipeline.file_path.as_ref().map(|p| p.display().to_string()),
             );
         } else {
             print_template!(

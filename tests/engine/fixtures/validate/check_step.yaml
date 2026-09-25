@@ -1,9 +1,0 @@
-version: 0.0.1
-name: check-step
-about: Test regex check on step
-actions:
-  - tag: tag_val
-    run: value
-    expect: string
-    check: '^\d+$'
-    action: '42'

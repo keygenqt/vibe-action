@@ -1,0 +1,16 @@
+version: 0.0.2
+name: ordering_circular
+about: Test circular dependency detection
+actions:
+  - tag: tag_a
+    run: value
+    val:
+      - name: result
+        data: tag_b
+    action: '{result}'
+  - tag: tag_b
+    run: value
+    val:
+      - name: result
+        data: tag_a
+    action: '{result}'

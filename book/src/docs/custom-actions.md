@@ -1,186 +1,196 @@
 # Custom Actions
 
-Create your own actions by adding `.yaml` files to `~/.vibe-action/actions/`. Any subdirectory works — the engine loads all files recursively.
+Add your own YAML files to `~/.vibe-action/actions/` — they are loaded
+automatically alongside the built-in defaults. The file name (without
+`.yaml`) becomes the CLI subcommand unless `name` overrides it.
 
-Some examples below are fragments focused on a single feature — the full skeleton (`version`, `name`, `about`, `args`, `api`) lives in [Action Structure](./action-structure.md).
-
-## Hello World
+## Minimal action
 
 ```yaml
-version: 0.0.1
+version: '0.0.2'
 name: hello
 about: Say hello
-actions:
-  - tag: tag_hello
-    run: value
-    expect: string
-    action: Hello, World!
-```
 
-## Shell Command
-
-```yaml
-version: 0.0.1
-name: disk
-about: Show disk usage
-actions:
-  - tag: tag_disk
-    run: cmd
-    expect: string
-    action: df -h /
-```
-
-## With Arguments
-
-Arguments are used for settings and flags, not for the main data input.
-
-```yaml
-version: 0.0.1
-name: greet
-about: Greet someone
-args:
-  - name: name
-    short: n
-    input: string
-    help: Name to greet
-    default: World
 actions:
   - tag: tag_greeting
     run: value
-    expect: string
-    action: Hello, {name}!
+    val:
+      - name: input
+        data: query_raw
+    action: 'Hello, {input}!'
 ```
 
-## LLM Call
-
-Use the `{query}` tag to accept the main text input (from CLI argument or clipboard).
-
-```yaml
-actions:
-  - tag: tag_answer
-    run: small
-    expect: string
-    action: |
-      Explain this concept in simple terms:
-      {query}
+```text
+vibe-action hello World
+# → Hello, World!
 ```
 
-## Vision Call
+## File-path / text dual mode
 
-Use `{query|image}` to accept an image (from file path, URL, or clipboard).
-
-```yaml
-api:
-  input: query|image
-actions:
-  - tag: tag_description
-    run: vision
-    expect: string
-    action: |
-      {query|image|load|text}
-      Describe this image in detail.
-```
-
-## Fetch Web or PDF
-
-Use `{query|load|text}` to fetch content from a URL or read a local file.
-
-```yaml
-actions:
-  - tag: tag_description
-    run: small
-    expect: string
-    action: |
-      Summarize this document:
-      {query|load|text}
-```
-
-## Scan Codebase
-
-Use `{query|project_path}` to automatically determine the project root.
-
-```yaml
-version: 0.0.1
-name: my-scan
-about: Scan project codebase as JSON
-api:
-  input: query|project_path
-actions:
-  - tag: tag_validate
-    run: cmd
-    expect: string
-    action:
-      - when: '{query|project_path|is_dir}'
-        then: echo "{query|project_path}"
-      - when: '{query|project_path|is_dir:not}'
-        then: echo "'{query|project_path}' is not a directory" && exit 1
-  - tag: tag_resolve
-    run: value
-    expect: string
-    action: '{tag_validate|resolve}'
-  - tag: tag_ast
-    run: value
-    expect: list
-    action: '{tag_resolve|scan|ast:brief}'
-  - tag: tag_json
-    run: value
-    expect: string
-    action: '{tag_ast|format:json}'
-```
-
-## Clipboard
-
-Use the `clipboard` modifier to copy values at any pipeline step:
-
-```yaml
-- tag: tag_copy
-  run: value
-  expect: string
-  action: '{tag_data|format:json|clipboard}'
-```
-
-## Conditional Actions (When/Then)
-
-```yaml
-actions:
-  - tag: tag_changed
-    run: cmd
-    expect: list
-    action: git diff --name-only
-  - tag: tag_commit
-    run: cmd
-    expect: string
-    action:
-      - when: '{tag_changed|empty:not}'
-        then: git add . && git commit -m "auto: updates"
-      - when: '{tag_changed|empty}'
-        then: echo "Nothing to commit."
-```
-
-## Multi-Step Pipeline
+A common pattern: if the input is a valid path, read the file; otherwise
+treat it as inline text.
 
 ```yaml
 actions:
   - tag: tag_content
-    run: cmd
-    expect: string
-    action: cat {query|file_path}
-  - tag: tag_summary
-    run: small
-    expect: string
-    action: |
-      Summarize this file in 2-3 sentences:
-      {tag_content}
+    run: value
+    reg: '.+'
+    val:
+      - name: content
+        data: query_raw
+        when: 'is:path'
+        mods: 'fetch|text'
+      - name: content
+        data: query_raw
+        fail: 'is:empty:not'
+    action: '{content}'
 ```
+
+## CLI arguments
+
+Define flags; each is available in val candidates as `data: <name>`
+(convention: prefix names with `arg_`):
+
+```yaml
+args:
+  - name: arg_style
+    short: 's'
+    input: string
+    default: concise
+    help: 'Output style'
+```
+
+```text
+vibe-action my-action --arg_style verbose
+```
+
+Argument values are accessed as `data: arg_style` in val candidates.
+
+## LLM prompt with system tags
+
+Use `system_*` providers to adapt prompts to the user's environment:
+
+```yaml
+actions:
+  - tag: tag_result
+    run: medium
+    val:
+      - name: lang
+        data: system_language
+      - name: content
+        data: query_raw
+    action: |
+      [Task]
+      Respond in {lang}.
+      {content}
+```
+
+## Multi-step pipeline
+
+Actions can chain results via `data` referencing other action tags. The
+engine resolves dependencies automatically:
+
+```yaml
+actions:
+  - tag: tag_path
+    run: value
+    val:
+      - name: dir
+        data: system_dir_download
+      - name: pid
+        data: system_pid
+    action: '{dir}/output-{pid}.txt'
+
+  - tag: tag_save
+    run: value
+    val:
+      - name: content
+        data: query_raw
+        mods: 'file:{tag_path}'
+    action: 'Saved to {tag_path}'
+```
+
+`tag_save` depends on `tag_path` — the engine runs `tag_path` first.
+
+## Shell commands
+
+`run: cmd` executes via `sh -c`. Values are shell-quoted automatically:
+
+```yaml
+actions:
+  - tag: tag_files
+    run: cmd
+    val:
+      - name: path
+        data: query_project_path
+    action: find {path} -type f -name '*.rs'
+```
+
+## Fan-out with each
+
+Process each item in a list independently, then merge results:
+
+```yaml
+actions:
+  - tag: tag_results
+    run: small
+    val:
+      - name: item
+        data: tag_items
+        each:
+          split: '\n'
+          merge: '\n'
+    action: |
+      [Task]
+      Summarize: {item}
+```
+
+## IDE integration
+
+Add an `api` block so the IDE plugin knows how to handle the action:
+
+```yaml
+api:
+  output: replace
+  input: query_raw
+  args:
+    arg_file: query_file_path
+```
+
+See [IDE Plugin](./ide-plugin.md) for the full API reference.
+
+## Customizing built-in actions
+
+Do not edit built-in files directly — they are reset on version bumps.
+See [Built-in Actions](./built-in-actions.md).
+
+## Validation
+
+All custom actions are validated on startup. Common errors:
+
+| Error                                 | Fix                                         |
+| ------------------------------------- | ------------------------------------------- |
+| Version mismatch                      | Set `version` to current `PIPELINE_VERSION` |
+| Empty `name` or `about`               | Add required fields                         |
+| Duplicate `tag` across actions        | Use unique tag names                        |
+| `data` references own `tag`           | Remove self-reference                       |
+| Bare `query` in `data`                | Use `query_raw` instead                     |
+| `query_*`/`system_*` prefix on tag    | Rename the tag                              |
+| Unknown operator in `mods`            | Check operator name and spelling            |
+| Non-inspect operator in `when`/`fail` | Use inspect operators only                  |
+| Undeclared `{name}` in `action`       | Add a val candidate with that `name`        |
 
 ## Tips
 
-- **Tag naming:** use `tag_` prefix for consistency with built-in actions
-- **Dependencies:** the engine sorts steps by `{tag}` references, not YAML order — [Tag System](./tag-system.md)
-- **Validation:** add `check: ".+"` to ensure non-empty output
-- **Debugging:** `VIBE_LOG_TYPE` / `VIBE_TRACE_LEVEL` — [CLI Reference](./cli-reference.md)
-- **Clipboard:** use `{tag|clipboard}` to copy any value to clipboard mid-pipeline
-- **Images:** use `{query|image}` for vision flows — works with files, URLs, and clipboard
-- **System tags:** see [System Tags](./system-tags.md) for all available environment variables
-- **Notifications:** add `notify: true` to show desktop notification on completion
-- **IDE integration:** the `api` block reference lives in [IDE Integration](./vibe-action-cross.md)
+- **Start simple** — a single `run: value` or `run: small` action is
+  enough for most use cases.
+- **Use `reg`** — validate output format early. A loose LLM can produce
+  unexpected structure; `reg: '.+'` catches empty results.
+- **Use `fail` guards** — catch empty inputs before they reach the LLM:
+  `fail: 'is:empty:not'`.
+- **Use `when` guards** — avoid unnecessary work (e.g. don't take a
+  screenshot if the clipboard already has an image).
+- **Use `ask: true`** — for destructive shell commands (git push, file
+  deletion), require user confirmation.
+- **Test with `--help`** — your action and its args appear in the help
+  output automatically.

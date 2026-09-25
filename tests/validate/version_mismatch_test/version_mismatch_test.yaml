@@ -1,0 +1,10 @@
+version: 0.0.1
+name: validate_version_mismatch
+about: Test version mismatch
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'hello'
+    action: '{result}'

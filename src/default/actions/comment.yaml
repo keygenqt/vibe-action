@@ -1,65 +1,37 @@
-version: 0.0.1
+version: 0.0.2
 
 name: comment
 about: Replace TODO with a meaningful comment
 notify: true
 
-# IDE plugin integration: maps argument names to IDE contexts
 api:
-  # Target for the final result (replace | clipboard | dialog)
   output: replace
-  # Source for the {query} tag (query | query|file_path | query|prompt | etc)
-  input: query
+  input: query_raw
 
 actions:
-  # Read input from query (prioritize file path if valid, otherwise use raw text)
-  - tag: tag_content
-    run: cmd
-    expect: string
-    check: .+
-    action:
-      - when: '{query|file_path|empty:not}'
-        then: cat "{query|file_path|load}"
-      - when: '{query|empty:not}'
-        then: echo "{query}"
-      - when: 'true'
-        then: echo "ERROR - No input provided"
-
-  # Replace TODO placeholders with intelligent technical comments
   - tag: tag_comment
-    run: small
-    expect: string
+    run: medium
+    val:
+      - name: content
+        data: query_raw
+        when: 'is:path'
+        mods: 'fetch|text'
+      - name: content
+        data: query_raw
+        fail: 'is:empty:not'
     action: |
       [Task]
-      Replace EVERY "TODO" or "@todo" placeholder in the code with an intelligent technical comment in English.
-
-      [Supported Languages]
-      Most likely languages: Rust, Python, TypeScript, JavaScript, Java, Go, C#, Kotlin, Swift, Dart, Bash, Batch, ArkTS, Markdown.
-      If you are certain the code is in another language, specify it.
+      Replace every "TODO" and "@todo" in the code with a concise technical comment in English.
+      The token "todo" must not remain in the output — not as "@todo", not as "TODO".
 
       [Rules]
-      1. Do NOT modify, reformat, or optimize any actual programming code. Your only task is to update the TODO comments.
-      2. For file/module placeholders, write a high-level summary strictly in TWO short sentences (one per line).
-      3. Start each sentence directly with an action verb or noun (do NOT use "This module...", "It...").
-      4. For structures, fields, or methods, write a brief description (max 7 words). Do NOT start with "Represents...", "The...".
-      5. Keep the exact same comment syntax and structure used around the TODO placeholder.
-      6. Output the ENTIRE code block strictly wrapped in a markdown code fence, starting with ```language (e.g., ```java) and ending with ```.
-         Use the language name from the [Supported Languages] list. If unknown, use generic ```.
-
-      [Example]
-      ```language
-      // Short description of the module.
-      // Second sentence with details.
-
-      /// Brief description of the function.
-      function doSomething() { ... }
-      ```
+      1. Do not change the original code.
+      2. Keep the original comment marker.
+      3. File/module-level comment: a brief description in TWO short sentences (one per line).
+      4. Class/struct/field/method comment: a brief description, max 7 words.
+      6. Preserve exact indentation and structure.
+      7. Wrap the entire output in a single code block. The block language MUST match the input file's language.
+      8. Every comment must be unique and describe only its own element, not copied from another.
 
       [Code]
-      {tag_content}
-
-  # Copy result to clipboard and output
-  - tag: tag_clipboard
-    run: value
-    expect: string
-    action: '{tag_comment|clipboard}'
+      {content}

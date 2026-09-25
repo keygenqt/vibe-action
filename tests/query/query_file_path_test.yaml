@@ -1,0 +1,10 @@
+version: 0.0.2
+name: query_file_path
+about: Test query_file_path tag
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: query_file_path
+    action: '{result}'

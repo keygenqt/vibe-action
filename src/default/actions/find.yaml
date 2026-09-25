@@ -1,11 +1,10 @@
-version: 0.0.1
+version: 0.0.2
 
 name: find
 about: Semantic file finder — finds files by meaning, not just name
-clipboard: false
 
 args:
-  - name: path
+  - name: arg_path
     short: 'p'
     input: string
     default: '.'
@@ -13,54 +12,62 @@ args:
 
 api:
   output: dialog
-  input: query|prompt
+  input: query_prompt
   args:
-    path: query|project_path
+    arg_path: query_project_path
 
 actions:
   # Collect all text files in the directory
   - tag: tag_files
     run: cmd
-    expect: list
+    val:
+      - name: path
+        data: arg_path
+        fail: 'is:empty:not'
     action: find {path} -type f -exec grep -Iq . {} \; -print
 
   # Build prompt with file path and content for each file
-  - tag: tag_content
+  - tag: tag_prompts
     run: cmd
-    expect: string
+    val:
+      - name: query
+        data: query_prompt
+      - name: file
+        data: tag_files
+        mods: 'trim'
+        fail: 'is:empty:not'
+        each:
+          split: '\n'
+          merge: '\x1F'
     action: |
-      cat << 'EOF'
-      [Task]
-      Check if the [Content] code/comments contain the technical [Query] word, function name, or meaning.
-      If YES — print ONLY the [File] path inside brackets: <{tag_files}>
-      If NO — print ONLY: <->
-
-      [Query]
-      {query|prompt}
-
-      [Content]
-      EOF
-      cat "{tag_files}"
-      cat << 'EOF'
-
-      [File]
-      {tag_files}
-      EOF
+      printf '%s\n' '[Task]'
+      printf '%s\n' 'Check if the [Content] code/comments contain the technical [Query] word, function name, or meaning.'
+      printf '%s\n' 'If YES — print ONLY the file path.'
+      printf '%s\n' 'If NO — print ONLY: -'
+      printf '\n%s\n' '[Query]'
+      printf '%s\n' {query}
+      printf '\n%s\n' '[Content]'
+      cat {file}
+      printf '\n%s\n' '[File]'
+      printf '%s\n' {file}
 
   # LLM evaluates each file against the query
   - tag: tag_matches
-    run: small
-    expect: list
-    action: '{tag_content}'
+    run: medium
+    reg: '.+'
+    val:
+      - name: prompt
+        data: tag_prompts
+        each:
+          split: '\x1F'
+          merge: '\n'
+    action: '{prompt}'
 
-  # Filter out non-matching entries
-  - tag: tag_filtered
-    run: value
-    expect: string
-    action: '{tag_matches|trim:<->|resolve}'
-
-  # Join matching file paths, remove duplicates
+  # Filter out non-matching entries, deduplicate, join
   - tag: tag_find
     run: value
-    expect: string
-    action: '{tag_filtered|uniq|trim|join}'
+    val:
+      - name: result
+        data: tag_matches
+        mods: 'split|filter:eq:-|uniq|sort|join'
+    action: '{result}'

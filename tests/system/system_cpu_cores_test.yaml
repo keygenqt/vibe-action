@@ -1,0 +1,10 @@
+version: 0.0.2
+name: system_cpu_cores
+about: Test system_cpu_cores tag
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: system_cpu_cores
+    action: '{result}'

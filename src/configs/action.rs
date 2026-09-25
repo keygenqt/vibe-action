@@ -1,5 +1,5 @@
 //! Global action runtime settings: system prompt and retry policy.
-//! These apply to all flows by default.
+//! See [`crate::configs`] module-level docs for context.
 
 use serde::Deserialize;
 use serde::Serialize;

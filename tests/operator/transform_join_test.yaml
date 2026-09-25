@@ -1,0 +1,11 @@
+version: 0.0.2
+name: transform_join
+about: Test join operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'a,b,c'
+        mods: 'split:,|join:,'
+    action: '{result}'

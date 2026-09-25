@@ -1,322 +1,410 @@
-//! Engine orchestrator — resolves tags, executes steps, validates results.
+//! Engine orchestrator: tag resolution, topological ordering, expansion, and execution.
+//! See [`crate::engine`] module-level docs for the full pipeline description.
+
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::collections::VecDeque;
+use std::sync::OnceLock;
 
 use anyhow::Result;
 use regex::Regex;
 
 use crate::engine::cluster::Cluster;
-use crate::engine::context::Context;
-use crate::engine::context::ExpandedTemplate;
-use crate::engine::resolve::Resolve;
+use crate::engine::log::log_action;
 use crate::engine::shell::Shell;
-use crate::engine::sort::TopologicalSort;
 use crate::models::action::ActionModel;
 use crate::models::action::ActionRun;
-use crate::models::action::ActionValue;
-use crate::models::context::ContextModel;
-use crate::models::flow::FlowModel;
-use crate::modifier::modifier::ModifierRegistry;
-use crate::output::output::OutputKind;
-use crate::print_template;
+use crate::models::pipeline::PipelineModel;
+use crate::operator::operator::ITEM_SEP;
+use crate::operator::operator::OperatorKey;
+use crate::operator::operator::OperatorRegistry;
+use crate::operator::operator::truthy;
 use crate::utils;
+use crate::utils::yaml::expand_escapes;
 
-/// Pipeline execution engine — resolves dependencies, executes actions, manages context.
 pub struct Engine {
-    /// Runtime context holding resolved tag values.
-    ctx: Context,
-    /// Registry of pipe modifiers for transforming tag values.
-    modifier: ModifierRegistry,
-    /// Actions in topological order (dependencies first).
+    system: String,
+    retries: u32,
     actions: Vec<ActionModel>,
-    /// Tag name for the final result.
-    output: String,
-    /// Optional regex validation for the result.
-    check_regex: Option<Regex>,
-    /// Default system prompt for all LLM requests.
-    pub system: String,
-    /// Number of retries for failed LLM steps (default: 0).
-    pub retries: u32,
+    available: HashMap<String, String>,
+    operators: OperatorRegistry,
 }
 
 impl Engine {
-    /// Create a new engine from a flow, sorting actions by dependencies.
-    pub fn new(system: &str, retries: u32, flow: &FlowModel) -> Result<Self> {
-        let sorted_actions = TopologicalSort::sort(flow)?;
-        let resolved_output = sorted_actions
-            .last()
-            .map(|a| a.tag.clone())
-            .unwrap_or_default();
-
-        // Load input arguments as context tags.
-        let mut ctx = Context::new();
-        for (name, value) in &flow.input_tags {
-            ctx.set(name, value.clone());
+    /// Create a new engine from a pipeline, sorting actions by dependencies.
+    pub fn new(system: &str, retries: u32, pipeline: &PipelineModel) -> Result<Self> {
+        let mut available = HashMap::new();
+        for (name, value) in &pipeline.input_tags {
+            available.insert(name.clone(), value.clone());
         }
-
         Ok(Self {
-            ctx,
-            modifier: ModifierRegistry::new(),
-            actions: sorted_actions,
-            output: resolved_output,
-            check_regex: match &flow.check {
-                Some(pattern) => Some(Regex::new(pattern)?),
-                None => None,
-            },
             system: system.to_string(),
             retries,
+            actions: pipeline.actions.clone(),
+            available,
+            operators: OperatorRegistry::new(),
         })
     }
 
-    /// Get the sorted actions.
-    pub fn actions(&self) -> &[ActionModel] {
-        &self.actions
-    }
-
-    /// Get the enriched action text with all tags filled, formatted for display.
-    pub fn action_display(&self, action: &ActionModel) -> Result<String> {
-        let expanded = self.resolve_action(action)?;
-        let values = expanded.items.join(
-            "\n\n---------------------------------------------------------------------------\n\n",
-        );
-        Ok(match action.run {
-            ActionRun::Cmd => values
-                .replace(" && ", " \\\n  && ")
-                .replace(" | ", " \\\n  | ")
-                .replace(" ; ", " \\\n  ; "),
-            _ => values.trim().to_string(),
-        })
-    }
-
-    /// Get the validated result.
-    pub fn result(&self) -> Result<String> {
-        let value = self
-            .ctx
-            .get(&self.output)
-            .map(|v| v.to_string())
-            .unwrap_or_default()
-            .trim()
-            .to_string();
-
-        if let Some(re) = &self.check_regex {
-            if !re.is_match(&value) {
-                anyhow::bail!("Result does not match pattern '{}': {}", re.as_str(), value);
-            }
-        }
-        Ok(value)
-    }
-
-    /// Evaluate step-level `when` condition. Returns true if action should execute.
-    /// If false, sets an empty value in context and returns false.
-    pub fn check_when(&mut self, action: &ActionModel) -> Result<bool> {
-        let Some(condition) = &action.when else {
-            return Ok(true);
-        };
-
-        let check_template = format!("__case={};__dummy", condition);
-        let expanded = self
-            .ctx
-            .fill(&check_template, &action.run, &self.modifier)?;
-
-        let is_true = expanded
-            .items
-            .iter()
-            .any(|item| item.starts_with("__case=true;"));
-
-        if !is_true {
-            let empty_val = match &action.expect {
-                Some(ContextModel::List(_)) => ContextModel::List(vec![]),
-                _ => ContextModel::String(String::new()),
-            };
-            self.ctx.set(&action.tag, empty_val);
-            return Ok(false);
+    /// Build a topologically ordered list of actions by data deps.
+    fn ordered(actions: &[ActionModel]) -> Result<Vec<&ActionModel>> {
+        let mut tag_to_idx: HashMap<&str, usize> = HashMap::new();
+        for (i, action) in actions.iter().enumerate() {
+            tag_to_idx.insert(&action.tag, i);
         }
 
-        Ok(true)
-    }
+        let mut in_degree = vec![0usize; actions.len()];
+        let mut deps: Vec<Vec<usize>> = vec![Vec::new(); actions.len()];
 
-    /// Execute action: fill tags, run shell/LLM, validate with regex, resolve types, store in context.
-    pub async fn exec_action(&mut self, action: &ActionModel) -> Result<()> {
-        let (outputs, is_list) = self.execute_action(action).await?;
-
-        let data = if is_list {
-            let inner_expect = match &action.expect {
-                Some(ContextModel::List(_)) => Some(ContextModel::String(String::new())),
-                other => other.clone(),
-            };
-
-            let mut parsed_items = Vec::with_capacity(outputs.len());
-            for item in outputs {
-                if let Some(validated) = Resolve::resolve(&item, &inner_expect)? {
-                    match validated {
-                        ContextModel::String(s) => parsed_items.push(s),
-                        ContextModel::List(mut l) => parsed_items.append(&mut l),
+        for (i, action) in actions.iter().enumerate() {
+            if let Some(candidates) = &action.val {
+                for candidate in candidates {
+                    let data = match candidate.data.as_deref() {
+                        Some(d) if !d.is_empty() => d,
+                        _ => continue,
+                    };
+                    if data == action.tag {
+                        continue;
+                    }
+                    if let Some(&dep_idx) = tag_to_idx.get(data) {
+                        in_degree[i] += 1;
+                        deps[dep_idx].push(i);
                     }
                 }
             }
-            ContextModel::List(parsed_items)
-        } else {
-            let raw_single = outputs.into_iter().next().unwrap_or_default();
-            match Resolve::resolve(&raw_single, &action.expect)? {
-                Some(value) => value,
-                None => return Ok(()),
-            }
-        };
+        }
 
-        self.ctx.set(&action.tag, data);
-        Ok(())
+        let mut queue: VecDeque<usize> = in_degree
+            .iter()
+            .enumerate()
+            .filter(|(_, deg)| **deg == 0)
+            .map(|(i, _)| i)
+            .collect();
+
+        let mut order = Vec::with_capacity(actions.len());
+
+        while let Some(idx) = queue.pop_front() {
+            order.push(&actions[idx]);
+            for &dep_idx in &deps[idx] {
+                in_degree[dep_idx] -= 1;
+                if in_degree[dep_idx] == 0 {
+                    queue.push_back(dep_idx);
+                }
+            }
+        }
+
+        if order.len() != actions.len() {
+            anyhow::bail!("Circular dependency detected in actions");
+        }
+
+        Ok(order)
     }
 
-    /// Resolve the effective action from switch or action field.
-    fn resolve_action(&self, resolve_action: &ActionModel) -> Result<ExpandedTemplate> {
-        match &resolve_action.action {
-            ActionValue::Simple(raw) => {
-                return self.ctx.fill(raw, &resolve_action.run, &self.modifier);
+    fn apply_ops(&self, mut current: String, mods: &str) -> Result<String> {
+        for mod_str in utils::escape::split_escaped(mods, '|') {
+            let mod_str = mod_str.trim();
+            if mod_str.is_empty() {
+                continue;
             }
-            ActionValue::Switch(cases) => {
-                for case in cases {
-                    let full = format!("__case={};{}", case.when, case.then);
-                    let template = self.ctx.fill(&full, &resolve_action.run, &self.modifier)?;
-                    let mut result: Vec<String> = Vec::with_capacity(template.items.len());
-                    for item in &template.items {
-                        if let Some(rest) = item.strip_prefix("__case=true;") {
-                            result.push(rest.to_string());
+
+            let (name, arg) = match utils::escape::find_unescaped(mod_str, ':') {
+                Some(idx) => (mod_str[..idx].trim(), mod_str[idx + 1..].trim()),
+                None => (mod_str, ""),
+            };
+            let arg = self.interpolate_tags(arg)?;
+
+            if let Some(key) = OperatorKey::from_str(name) {
+                current = self.operators.apply(key, &current, &arg)?;
+            }
+        }
+
+        Ok(current)
+    }
+
+    /// Replace `{name}` in an operator arg with the tag value when `name` is
+    /// a known tag. Known tag not ready yet → error (declare it via `data:`).
+    fn interpolate_tags(&self, s: &str) -> Result<String> {
+        static RE: OnceLock<Regex> = OnceLock::new();
+        let re = RE.get_or_init(|| Regex::new(r"\{(\w+)\}").unwrap());
+        let mut out = String::with_capacity(s.len());
+        let mut last = 0;
+        for caps in re.captures_iter(s) {
+            let whole = caps.get(0).unwrap();
+            let name = caps.get(1).unwrap().as_str();
+            if !self.is_tag(name) {
+                continue;
+            }
+            let value = self.available.get(name).ok_or_else(|| {
+                anyhow::anyhow!(
+                    "Tag '{name}' is not resolved yet — declare it via `data:` \
+                     to order the dependency."
+                )
+            })?;
+            out.push_str(&s[last..whole.start()]);
+            out.push_str(value);
+            last = whole.end();
+        }
+        out.push_str(&s[last..]);
+        Ok(out)
+    }
+
+    /// True if `name` is a declared action tag or an input tag.
+    fn is_tag(&self, name: &str) -> bool {
+        self.actions.iter().any(|a| a.tag == name) || self.available.contains_key(name)
+    }
+
+    /// Resolve a "tag|mods" reference: look up tag in available, apply operators, return String.
+    fn resolve_value(&self, tag: &str, mods: &str) -> Result<String> {
+        let current = self
+            .available
+            .get(tag)
+            .cloned()
+            .unwrap_or_else(|| tag.to_string());
+        self.apply_ops(current, mods)
+    }
+
+    /// Resolve data values from available into a fresh copy of actions.
+    fn resolve_data(&self) -> Result<Vec<ActionModel>> {
+        let mut out = Vec::with_capacity(self.actions.len());
+        for action in &self.actions {
+            let mut action = action.clone();
+            // Skip done actions — don't re-resolve their candidates.
+            if self.available.contains_key(&action.tag) {
+                out.push(action);
+                continue;
+            }
+            if let Some(candidates) = &mut action.val {
+                let mut seen_names: HashSet<&str> = HashSet::new();
+
+                for candidate in candidates.iter_mut() {
+                    // A previous candidate with same name already won — skip.
+                    if seen_names.contains(candidate.name.as_str()) {
+                        candidate.resolved = Some(String::new());
+                        continue;
+                    }
+
+                    let mods = candidate.mods.clone().unwrap_or_default();
+                    let data = candidate.data.as_deref().unwrap_or("");
+
+                    // Check when guard before resolving — don't run operators
+                    // (e.g. screenshot) for candidates that will be filtered out.
+                    if let Some(when) = &candidate.when {
+                        let passed = self
+                            .resolve_value(data, when)
+                            .map(|v| truthy(&v))
+                            .unwrap_or(false);
+                        if !passed {
+                            candidate.resolved = Some(String::new());
+                            continue;
                         }
                     }
-                    if !result.is_empty() {
-                        return Ok(ExpandedTemplate {
-                            raw: case.then.clone(),
-                            items: result,
-                            is_list: template.is_list,
-                        });
+
+                    seen_names.insert(candidate.name.as_str());
+
+                    // Resolve data + mods. Defer if data is an unresolved tag.
+                    let resolved = if data.is_empty() {
+                        self.resolve_value("", &mods)?
+                    } else if self.available.contains_key(data)
+                        || !self.actions.iter().any(|a| a.tag == data)
+                    {
+                        self.resolve_value(data, &mods)?
+                    } else {
+                        candidate.resolved = None;
+                        continue;
+                    };
+
+                    // Post-mods hard check: bail if `fail` predicate is false.
+                    if let Some(fail) = &candidate.fail {
+                        let passed = self
+                            .apply_ops(resolved.clone(), fail)
+                            .map(|v| truthy(&v))
+                            .unwrap_or(false);
+                        if !passed {
+                            anyhow::bail!(
+                                "Action '{}': val '{}' failed check '{}'.",
+                                action.tag,
+                                candidate.name,
+                                fail
+                            );
+                        }
+                    }
+
+                    candidate.resolved = Some(resolved);
+                }
+            }
+            out.push(action);
+        }
+        Ok(out)
+    }
+
+    pub fn next(&mut self) -> Result<Option<ActionModel>> {
+        let resolved = self.resolve_data()?;
+        let order = Self::ordered(&resolved)?;
+
+        let mut last_ready: Option<&ActionModel> = None;
+
+        for action in &order {
+            // Skip done.
+            if self.available.contains_key(&action.tag) {
+                continue;
+            }
+
+            // First unresolved — stop, take previous.
+            let is_resolved = match &action.val {
+                Some(candidates) => candidates.iter().all(|c| c.resolved.is_some()),
+                None => true,
+            };
+            if !is_resolved {
+                break;
+            }
+            last_ready = Some(action);
+        }
+
+        let action = match last_ready {
+            Some(a) => a,
+            None => {
+                let all_done = self
+                    .actions
+                    .iter()
+                    .all(|a| self.available.contains_key(&a.tag));
+                if all_done {
+                    return Ok(None);
+                }
+                anyhow::bail!("First action has unresolved dependencies");
+            }
+        };
+
+        // Select first candidate per name whose `when` passes (or has none).
+        if let Some(candidates) = &action.val {
+            let mut winners = Vec::new();
+            let mut seen: HashSet<&str> = HashSet::new();
+
+            for candidate in candidates {
+                if seen.contains(candidate.name.as_str()) {
+                    continue;
+                }
+                if let Some(when) = &candidate.when {
+                    let data = candidate.data.as_deref().unwrap_or("");
+                    let passed = self
+                        .resolve_value(data, when)
+                        .map(|v| truthy(&v))
+                        .unwrap_or(false);
+                    if !passed {
+                        continue;
                     }
                 }
+                seen.insert(candidate.name.as_str());
+                winners.push(candidate);
+            }
+
+            // Every name must have a winner, else dead tag.
+            let all_names: HashSet<&str> = candidates.iter().map(|c| c.name.as_str()).collect();
+            if winners.len() != all_names.len() {
+                self.available.insert(action.tag.clone(), String::new());
+                return self.next();
+            }
+
+            let mut filtered = action.clone();
+            filtered.val = Some(winners.into_iter().cloned().collect());
+            return Ok(Some(filtered));
+        }
+
+        Ok(Some(action.clone()))
+    }
+
+    /// Expand {name} placeholders from resolved candidates into template items.
+    /// Returns (items, merge_sep). Sanitizes ITEM_SEP → "\n" and shell-quotes
+    /// values when is_cmd is true.
+    fn expand_placeholders(&self, action: &ActionModel, is_cmd: bool) -> (Vec<String>, String) {
+        let mut items = vec![action.action.clone()];
+        let mut merge_sep = String::from("\n");
+
+        if let Some(candidates) = &action.val {
+            for candidate in candidates {
+                let value = candidate.resolved.clone().unwrap_or_default();
+                let values: Vec<String> = match &candidate.each {
+                    Some(each) => {
+                        let (split_str, merge_str) = each.resolve();
+                        merge_sep = expand_escapes(&merge_str);
+                        let split_sep = expand_escapes(&split_str);
+                        value.split(&split_sep).map(String::from).collect()
+                    }
+                    None => vec![value],
+                };
+                let placeholder = format!("{{{}}}", candidate.name);
+                let mut next = Vec::new();
+                for tmpl in &items {
+                    for v in &values {
+                        let v = v.replace(ITEM_SEP, "\n");
+                        let v = if is_cmd {
+                            shell_words::quote(&v).to_string()
+                        } else {
+                            v
+                        };
+                        next.push(tmpl.replace(&placeholder, &v));
+                    }
+                }
+                items = next;
             }
         }
 
-        anyhow::bail!("No case matched in switch '{}'", resolve_action.tag);
+        (items, merge_sep)
     }
 
-    /// Fill template, execute shell/LLM, validate each output against regex.
-    async fn execute_action(&self, action: &ActionModel) -> Result<(Vec<String>, bool)> {
-        let compiled_check = action.check.as_ref().map(|p| Regex::new(p)).transpose()?;
+    /// Expand {name} placeholders and fan out via each.split.
+    /// Returns (items, merge_sep). Public entry point for the handler.
+    pub fn expand(&self, action: &ActionModel) -> Result<(Vec<String>, String)> {
+        let is_cmd = matches!(action.run, ActionRun::Cmd);
+        Ok(self.expand_placeholders(action, is_cmd))
+    }
 
-        let expanded = self.resolve_action(action)?;
-        let mut results = Vec::with_capacity(expanded.items.len());
-
-        match action.run {
-            ActionRun::Cmd => {
-                for single_action in &expanded.items {
-                    let raw = Shell::exec(single_action).await?;
-                    Self::validate_output(&action.tag, &raw, &compiled_check)?;
-                    Self::log_action(&action.tag, &action.run, &expanded.raw, single_action, &raw);
-                    results.push(raw);
-                }
-            }
+    /// Execute a single item, apply check regex. Returns the output.
+    pub async fn exec_item(&self, action: &ActionModel, item: &str) -> Result<String> {
+        let out = match &action.run {
+            ActionRun::Cmd => Shell::exec(item).await?,
+            ActionRun::Value => item.to_string(),
             ActionRun::Vision => {
-                let mut all_images = Vec::new();
-                let mut cleaned_items = Vec::new();
-                for item in &expanded.items {
-                    let (cleaned, images) = utils::format::format_image_prompt(item);
-                    cleaned_items.push(cleaned);
-                    all_images.extend(images);
-                }
-                let cluster_outputs = Cluster::exec(
+                let (cleaned, images) = utils::format::format_image_prompt(item);
+                Cluster::exec(
                     &self.system,
                     self.retries,
                     &action.run,
-                    &cleaned_items,
-                    if all_images.is_empty() {
+                    &cleaned,
+                    if images.is_empty() {
                         None
                     } else {
-                        Some(all_images)
+                        Some(images)
                     },
                 )
-                .await?;
-                for cluster_res in cluster_outputs {
-                    Self::validate_output(&action.tag, &cluster_res.result, &compiled_check)?;
-                    Self::log_action(
-                        &action.tag,
-                        &action.run,
-                        &expanded.raw,
-                        &cluster_res.prompt,
-                        &cluster_res.result,
-                    );
-                    results.push(cluster_res.result);
-                }
+                .await?
+                .result
             }
             ActionRun::Tiny | ActionRun::Small | ActionRun::Medium | ActionRun::Large => {
-                let cluster_outputs = Cluster::exec(
-                    &self.system,
-                    self.retries,
-                    &action.run,
-                    &expanded.items,
-                    None,
-                )
-                .await?;
-                for cluster_res in cluster_outputs {
-                    Self::validate_output(&action.tag, &cluster_res.result, &compiled_check)?;
-                    Self::log_action(
-                        &action.tag,
-                        &action.run,
-                        &expanded.raw,
-                        &cluster_res.prompt,
-                        &cluster_res.result,
-                    );
-                    results.push(cluster_res.result);
-                }
+                Cluster::exec(&self.system, self.retries, &action.run, item, None)
+                    .await?
+                    .result
             }
-            ActionRun::Value => {
-                for single_action in &expanded.items {
-                    Self::validate_output(&action.tag, single_action, &compiled_check)?;
-                    results.push(single_action.to_string());
-                }
+        };
+        if !matches!(action.run, ActionRun::Value) {
+            log_action(&action.tag, &action.run, &action.action, item, &out);
+        }
+
+        let out = out.replace(ITEM_SEP, "\n");
+
+        if let Some(check) = &action.reg {
+            let re = Regex::new(check)?;
+            if !re.is_match(&out) {
+                anyhow::bail!("Action '{}' output failed check: \n{}", action.tag, out);
             }
         }
-        Ok((results, expanded.is_list))
+
+        Ok(out)
     }
 
-    /// Validate action output against optional regex pattern.
-    fn validate_output(tag: &str, output: &str, check: &Option<Regex>) -> Result<()> {
-        if let Some(re) = check {
-            if !re.is_match(output.trim()) {
-                anyhow::bail!(
-                    "Result for '{}' does not match pattern '{}': '{}'",
-                    tag,
-                    re.as_str(),
-                    output.trim()
-                );
-            }
-        }
-        Ok(())
-    }
-
-    /// Log action execution details.
-    pub fn log_action(tag: &str, run: &ActionRun, original: &str, resolved: &str, result: &str) {
-        let size = 5000;
-        let preview_original: String = original.chars().take(size).collect();
-        let preview_resolved: String = resolved.chars().take(size).collect();
-        let preview_result: String = result.chars().take(size).collect();
-        print_template!(
-            OutputKind::Trace,
-            r#"[{tag}] ({run})
-------------- original (len:{orig_len})
-{preview_original}
-------------- resolved (len:{resolved_len})
-{preview_resolved}
-------------- result (len:{result_len})
-{preview_result}
--------------"#,
-            "tag" => tag,
-            "run" => match run {
-                ActionRun::Cmd => "cmd",
-                ActionRun::Value => "val",
-                _ => "llm",
-            },
-            "orig_len" => original.len().to_string(),
-            "preview_original" => preview_original,
-            "resolved_len" => resolved.len().to_string(),
-            "preview_resolved" => preview_resolved,
-            "result_len" => result.len().to_string(),
-            "preview_result" => preview_result,
-        );
+    /// Join results, store under tag, return final value.
+    pub fn store_result(&mut self, tag: &str, results: Vec<String>, merge_sep: &str) -> String {
+        let result = results.join(merge_sep);
+        self.available.insert(tag.to_string(), result.clone());
+        result
     }
 }

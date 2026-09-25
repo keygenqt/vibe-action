@@ -1,21 +1,22 @@
-version: 0.0.1
+version: 0.0.2
 
 name: tone
 about: Transform rude or aggressive text into a professional tone
 notify: true
 
-# IDE plugin integration: maps argument names to IDE contexts
 api:
-  # Target for the final result (replace | clipboard | dialog)
   output: replace
-  # Source for the {query} tag
-  input: query
+  input: query_raw
 
 actions:
   # LLM transforms rude/aggressive language into professional tone
   - tag: tag_rewritten
     run: medium
-    expect: string
+    reg: '.+'
+    val:
+      - name: text
+        data: query_raw
+        fail: 'is:empty:not'
     action: |
       [Task]
       You receive a text that may contain rude or aggressive language.
@@ -30,10 +31,4 @@ actions:
       Input: Меня заебал этот код. -> Меня расстраивает этот код, давайте подумаем, как его улучшить.
 
       [Input]
-      {query}
-
-  # Copy result to clipboard and output
-  - tag: tag_clipboard
-    run: value
-    expect: string
-    action: '{tag_rewritten|clipboard}'
+      {text}

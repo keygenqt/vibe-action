@@ -1,0 +1,10 @@
+version: 0.0.2
+name: system_pid
+about: Test system_pid tag
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: system_pid
+    action: '{result}'

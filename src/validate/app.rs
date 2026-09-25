@@ -1,5 +1,5 @@
 //! AppConfig validation.
-//! Checks estimator and cluster configuration.
+//! See [`crate::validate`] module-level docs for validation rules.
 
 use anyhow::Result;
 

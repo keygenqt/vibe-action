@@ -1,54 +1,54 @@
-version: 0.0.1
+version: 0.0.2
 
 name: extract
 about: Extract structured data or matching lines from text and logs
-clipboard: false
 
 args:
-  - name: file
+  - name: arg_file
     short: 'f'
     input: string
     help: Path or URL to the log or text file
 
 api:
   output: dialog
-  input: query|prompt
+  input: query_prompt
   args:
-    file: query|file_path
+    arg_file: query_file_path
 
 actions:
-  # Read the file line by line
-  - tag: tag_lines
-    run: cmd
-    expect: list
-    action: echo {file|load|text}
-
-  # LLM checks each line against the query, outputs matching lines or "-"
-  - tag: tag_content
-    run: small
-    expect: string
+  # Step 1 — filter log lines by relevance to the query.
+  - tag: llm_log
+    run: large
+    val:
+      - name: 'search'
+        data: 'query_raw'
+      - name: 'val_log'
+        data: 'arg_file'
+        mods: 'fetch|text'
+        fail: 'is:empty:not'
+        each: true
+    reg: '^[^\n]+$'
     action: |
       [Task]
-      Read the log line and the search query.
-      If the line matches the query — output the EXACT line character-for-character, preserving original casing.
-      If the line does not match — output only a single dash: "-"
+      You are a log filter. Decide if the log line is relevant to the query.
+      The query describes what to find in natural language.
+      If the line is relevant — output the EXACT line character-for-character, preserving original casing.
+      If the line is NOT relevant — output only a single dash: "-"
       Do NOT skip lines. Process every line.
       Do NOT modify, normalize, or reformat the line in any way.
 
       [Query]
-      {query|prompt}
+      {search}
 
       [Line]
-      {tag_lines}
+      {val_log}
 
-  # Remove lines that became empty after filtering
-  - tag: tag_clean
+  # Step 2 — collect the relevant lines back into one block.
+  - tag: out_log
     run: value
-    expect: string
-    action: '{tag_content|trim:-}'
-
-  # Join remaining lines, remove duplicates
-  - tag: tag_extract
-    run: value
-    expect: string
-    action: '{tag_clean|uniq|join}'
+    reg: '^([^\n]+\n)*[^\n]*$'
+    val:
+      - name: 'llm_result'
+        data: 'llm_log'
+        mods: 'split|filter:eq:-|uniq|join'
+    action: '{llm_result}'

@@ -1,0 +1,22 @@
+version: 0.0.2
+name: ordering_chain
+about: Test topological ordering
+actions:
+  - tag: tag_c
+    run: value
+    val:
+      - name: result
+        data: tag_b
+    action: '{result}C'
+  - tag: tag_b
+    run: value
+    val:
+      - name: result
+        data: tag_a
+    action: '{result}B'
+  - tag: tag_a
+    run: value
+    val:
+      - name: result
+        data: 'A'
+    action: '{result}'

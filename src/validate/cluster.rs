@@ -1,5 +1,5 @@
 //! ClusterConfig validation.
-//! Checks provider, host, model, and numeric ranges.
+//! See [`crate::validate`] module-level docs for validation rules.
 
 use anyhow::Result;
 use url::Url;

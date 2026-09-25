@@ -13,7 +13,7 @@ mod configs;
 mod default;
 mod engine;
 mod models;
-mod modifier;
+mod operator;
 mod output;
 mod query;
 mod system;

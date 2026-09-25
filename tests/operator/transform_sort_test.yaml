@@ -1,0 +1,11 @@
+version: 0.0.2
+name: transform_sort
+about: Test sort operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'hello'
+        mods: 'sort'
+    action: '{result}'

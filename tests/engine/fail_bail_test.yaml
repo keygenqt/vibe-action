@@ -1,0 +1,11 @@
+version: 0.0.2
+name: fail_bail
+about: Test fail check bails on empty data
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: ''
+        fail: 'is:empty:not'
+    action: '{result}'

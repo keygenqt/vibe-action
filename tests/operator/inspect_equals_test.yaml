@@ -1,0 +1,11 @@
+version: 0.0.2
+name: inspect_equals
+about: Test equals operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'hello'
+        mods: 'equals:hello'
+    action: '{result}'

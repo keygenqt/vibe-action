@@ -1,0 +1,11 @@
+version: 0.0.2
+name: expect_pass
+about: Test reg check passes
+actions:
+  - tag: tag_result
+    run: value
+    reg: '^hello$'
+    val:
+      - name: result
+        data: 'hello'
+    action: '{result}'

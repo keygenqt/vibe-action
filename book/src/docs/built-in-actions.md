@@ -1,185 +1,200 @@
 # Built-in Actions
 
-Vibe Action ships with 21 ready-to-use actions. They are written to `~/.vibe-action/actions/` on first run and can be customized.
+Vibe Action ships 19 built-in actions embedded in the binary. Each is a
+YAML pipeline — see the source files in `~/.vibe-action/actions/` for
+the full prompt text.
 
-## comment
+## Quick Reference
 
-Replace TODO with a meaningful comment.
+| Action       | About                                            | Input                | Output    |
+| ------------ | ------------------------------------------------ | -------------------- | --------- |
+| `comment`    | Replace TODO with a meaningful comment           | `query_raw`          | `replace` |
+| `commit`     | AI-generated commit message                      | `query_project_path` | `dialog`  |
+| `describe`   | Describe a screenshot for text-only LLMs         | `query_image`        | `dialog`  |
+| `explain`    | Explain what the selected code does              | `query_raw`          | `replace` |
+| `extract`    | Extract structured data or matching lines        | `query_prompt`       | `dialog`  |
+| `faq`        | Ask a question about Vibe Action                 | `query_prompt`       | `dialog`  |
+| `fetch`      | Fetch a web page or PDF and describe content     | `query_prompt`       | `dialog`  |
+| `find`       | Semantic file finder by meaning, not name        | `query_prompt`       | `dialog`  |
+| `mock`       | Generate realistic mock data (JSON/YAML/CSV)     | `query_prompt`       | `dialog`  |
+| `naming`     | Generate code naming suggestions                 | `query_prompt`       | `dialog`  |
+| `regex`      | Generate a regex pattern from description        | `query_prompt`       | `dialog`  |
+| `review`     | Critically analyze code for bugs and flaws       | `query_raw`          | `dialog`  |
+| `scan`       | Scan project codebase, export as structured JSON | `query_project_path` | `dialog`  |
+| `spellcheck` | Check and fix spelling in text or files          | `query_raw`          | `replace` |
+| `synonyms`   | Find programming/technical synonyms              | `query_raw`          | `dialog`  |
+| `sysinfo`    | Generate a human-readable system report          | _(none)_             | `dialog`  |
+| `tone`       | Transform rude text into professional tone       | `query_raw`          | `replace` |
+| `translate`  | Translate text or files to another language      | `query_raw`          | `replace` |
+| `whois`      | Identify a person from a screenshot              | `query_image`        | `dialog`  |
 
-```text
-vibe-action comment
-vibe-action comment "path/to/file.rs"
-```
+Query type semantics (`query_raw`, `query_prompt`, …) are described in
+[Query Providers](./query-providers.md). Output targets (`replace`,
+`clipboard`, `dialog`) — in [IDE Plugin](./ide-plugin.md).
 
-## commit
+## Auto-update
 
-AI-generated git commit message with conventional commit format.
+On first run, built-in actions are written to `~/.vibe-action/actions/`.
+On every start, the engine compares the on-disk `version` field with
+`PIPELINE_VERSION` (currently `0.0.2`). If they differ, the file is
+overwritten with the embedded default. This keeps built-in actions in
+sync with the engine — but it also means **manual edits to a built-in
+file are lost when its version bumps**.
 
-```text
-vibe-action commit
-vibe-action commit ./src
-```
+Custom actions are never touched: only files whose name matches a
+built-in action are subject to the version check.
 
-## describe
+Override the actions directory with `VIBE_ACTION_PATH` — see
+[CLI Reference](./cli-reference.md).
 
-Describe a screenshot or photo. Supports images from clipboard, file, or URL.
+## Code
 
-```text
-vibe-action describe
-vibe-action describe screenshot.png
-```
+### `comment`
 
-## explain
+Replace every `TODO` and `@todo` in code with a concise technical
+comment. Preserves indentation, structure, and comment markers.
+File-level comments get two short sentences; member comments max 7 words.
+Output is wrapped in a code block matching the input language.
 
-Explain what the selected code does by adding detailed comments.
+### `explain`
 
-```text
-vibe-action explain
-vibe-action explain "your code"
-```
+Add explanatory comments above each logical block in code. The code
+itself is unchanged — only comments are inserted. Uses the system
+language for comment text.
 
-## extract
+### `review`
 
-Extract matching lines from log files or text using semantic search.
+Analyze code for logic flaws, concurrency bugs, memory leaks, and
+performance bottlenecks. Output is blunt and technical — each issue has
+a one-line `Fix:` patch. If no flaws found, outputs `PERFECT`.
 
-```text
-vibe-action extract -f app.log "find all errors"
-```
+### `scan`
 
-## faq
+Scan a project directory, parse every source file into JSON AST, and
+export to a single structured JSON file in the downloads directory.
+Chain: `resolve:dir` → `scan` → `ast` → `format:json` → `file`.
 
-Ask questions about Vibe Action — YAML structure, modifiers, usage.
+## Git
 
-```text
-vibe-action faq "как использовать модификаторы?"
-```
+### `commit`
 
-## fetch
+Generate a conventional commit message from the working tree.
 
-Fetch and summarize a web page or PDF.
+**Pipeline:**
 
-```text
-vibe-action fetch https://example.com
-vibe-action fetch document.pdf
-```
+1. Resolve project path.
+2. Shell: `git status`, `git diff --stat`, recent commits, changed
+   files list, per-file diff.
+3. LLM (medium): summarize each file's change purpose in one phrase.
+4. LLM (large): synthesize all summaries into one commit message.
+5. Shell (`ask: true`): execute `git add . && git commit -m`.
 
-## find
+**Arguments:** `-d` / `--arg_dry_run` — print message without committing.
 
-Semantic file finder — finds files by meaning, not just by name.
+Dry-run is implemented via a dead-tag guard: the `arg_dry_run` value is
+checked with `when: 'contains:false'`. When dry-run is active, no
+candidate wins → the commit action becomes a dead tag and is skipped.
 
-```text
-vibe-action find "topological sort"
-vibe-action find "topological sort" ./src
-```
+## Text
 
-## mock
+### `spellcheck`
 
-Generate realistic mock data in JSON, YAML, or CSV.
+Two-stage spell check: first ask the LLM if errors exist (`DIRTY` /
+`CLEAR`), then fix only if dirty. Preserves all code syntax and
+formatting.
 
-```text
-vibe-action mock -f json "5 users with id, name, email"
-```
+### `tone`
 
-## naming
+Transform rude or aggressive text into a professional, calm equivalent.
+Preserves the original meaning and language. Has built-in examples for
+English, Chinese, and Russian.
 
-Generate code naming suggestions based on a description.
+### `translate`
 
-```text
-vibe-action naming "function to sort actions by dependency"
-```
+Translate text or files to a target language. Preserves proper names,
+code, and comments inside code blocks.
 
-## regex
+**Arguments:** `-l` / `--arg_to` — target language (default: `Russian`).
 
-Generate regular expression patterns.
+### `synonyms`
 
-```text
-vibe-action regex "IPv4 address" -e "192.168.1.1"
-```
+Find 5 programming/technical synonyms for a word. Output is
+lowercased and newline-joined.
 
-## review
+## Data
 
-Critically analyze code for bugs and flaws.
+### `extract`
 
-```text
-vibe-action review
-vibe-action review "your code"
-```
+Extract structured data or matching lines from text and logs. Each line
+is evaluated independently by the LLM (relevant → exact line, not
+relevant → `-`). Results are filtered and joined.
 
-## scan
+**Arguments:** `-f` / `--arg_file` — path or URL to the source file.
 
-Scan project codebase and export as structured JSON via AST parsing.
+### `fetch`
 
-```text
-vibe-action scan
-vibe-action scan src/engine
-```
+Fetch a web page or PDF via URL, extract its text content, and write a
+2–5 sentence summary in the system language.
 
-## spellcheck
+### `find`
 
-Check and fix spelling in text or files.
+Semantic file finder — for each text file in a directory, ask the LLM
+whether it matches the query by meaning. Non-matches are filtered out.
 
-```text
-vibe-action spellcheck README.md
-vibe-action spellcheck "Helo, wrld!"
-```
+**Arguments:** `-p` / `--arg_path` — directory to search (default: `.`).
 
-## synonyms
+### `mock`
 
-Find programming/technical synonyms for a word.
+Generate realistic mock data arrays in the requested format.
 
-```text
-vibe-action synonyms "middleware"
-```
+**Arguments:** `-f` / `--arg_format` — `json`, `yaml`, `csv` (default:
+`json`).
 
-## sysinfo
+### `naming`
 
-Generate a human-readable system report.
+Generate 5–10 professional naming suggestions from a description.
+Output is plain — no numbering, no code blocks.
 
-```text
-vibe-action sysinfo
-```
+### `regex`
 
-## tone
+Generate a regex pattern from a natural language description.
 
-Transform rude or aggressive text into a professional tone.
+**Arguments:** `-e` / `--arg_example` — optional example string to test
+the pattern against.
 
-```text
-vibe-action tone
-vibe-action tone "How fucking long do I have to wait?"
-```
+## Image
 
-## translate-deep
+### `describe`
 
-Deep two-stage translation using local drafting and cloud polishing.
+Describe a screenshot in rich detail for text-only LLMs. Two-step
+pipeline: vision model produces a raw description, then a small model
+formats it into clean Markdown. Lists colors with hex codes.
 
-```text
-vibe-action translate-deep README.md
-vibe-action translate-deep "Some text to translate" -l English
-```
+### `whois`
 
-## translate-large
+Identify public tech figures in a screenshot. Outputs structured
+summaries (name, role, impact) from left to right.
 
-One step translation using a large model.
+Both image actions use the same fallback chain for the image source:
+`query_image` → `query_clipboard_image` → `screenshot|text`.
 
-```text
-vibe-action translate-large README.md
-vibe-action translate-large "Some text to translate" -l English
-```
+## Meta
 
-## translate-small
+### `faq`
 
-Fast single-model translation.
+Ask a question about Vibe Action. The entire schema reference (YAML
+fields, operators, providers, system tags) is embedded in the prompt.
+Answers in the same language as the query.
 
-```text
-vibe-action translate-small README.md
-vibe-action translate-small "Some text to translate" -l English
-```
+### `sysinfo`
 
-## whois
+Generate a human-readable system report from system tags (OS, arch,
+hostname, user, memory, directories, etc.). No user input required.
 
-Identify people in a photo — full name, role, and historical impact.
+## Customizing
 
-```text
-vibe-action whois
-vibe-action whois photo.jpg
-```
+To modify a built-in action, copy it to a new file with a different
+`name`. The original will be reset on version bumps; your copy won't.
+
+See [Custom Actions](./custom-actions.md) for writing pipelines from
+scratch.

@@ -1,0 +1,11 @@
+version: 0.0.2
+name: read_resolve
+about: Test resolve operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'Cargo.toml'
+        mods: 'resolve'
+    action: '{result}'

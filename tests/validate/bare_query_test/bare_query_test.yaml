@@ -1,0 +1,10 @@
+version: 0.0.2
+name: validate_bare_query
+about: Test bare query
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'query'
+    action: '{result}'

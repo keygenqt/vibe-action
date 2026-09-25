@@ -1,5 +1,5 @@
-//! Application path utilities.
-//! Provides config and data directory paths.
+//! Application directory layout, env overrides, and path resolution.
+//! See [`crate::utils`] module-level docs for summary.
 
 use anyhow::Result;
 use dirs::home_dir;
@@ -12,6 +12,11 @@ use crate::utils::constants::CACHE_VERSION;
 use crate::utils::constants::CONFIG_DIR_NAME;
 use crate::utils::constants::CONFIG_FILE_NAME;
 
+/// True when running under tests (VIBE_TEST=1).
+pub fn is_test() -> bool {
+    std::env::var("VIBE_TEST").unwrap_or_default() == "1"
+}
+
 /// Get config directory path
 pub fn config_dir() -> PathBuf {
     let home = home_dir().expect("Failed to get home directory");
@@ -20,6 +25,13 @@ pub fn config_dir() -> PathBuf {
 
 /// Get var directory for runtime data (cache, contexts).
 pub fn cache_dir() -> PathBuf {
+    if is_test() {
+        // Per-process temp cache: each spawned binary gets its own PID-keyed
+        // snapshot, so tests never leak pipelines across invocations.
+        return std::env::temp_dir()
+            .join(format!("vibe-test-{}", std::process::id()))
+            .join(CACHE_VERSION);
+    }
     config_dir().join("cache").join(CACHE_VERSION)
 }
 

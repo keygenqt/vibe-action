@@ -1,4 +1,5 @@
-//! JSON output — all messages as JSON objects.
+//! JSON output strategy with structured envelope.
+//! See [`crate::output`] module-level docs for the architecture overview.
 
 use crate::output::format::FormatOutput;
 use crate::output::msg::OutputMsg;

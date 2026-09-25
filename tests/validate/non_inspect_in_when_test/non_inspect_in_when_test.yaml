@@ -1,0 +1,11 @@
+version: 0.0.2
+name: validate_non_inspect_in_when
+about: Test non-inspect operator in when
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'hello'
+        when: 'upper'
+    action: '{result}'

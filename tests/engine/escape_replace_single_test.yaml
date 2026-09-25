@@ -1,0 +1,11 @@
+version: 0.0.2
+name: escape_replace_single
+about: Test single-brace escape in replace arg
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'foo baz'
+        mods: 'replace:foo:{:}bar'
+    action: '{result}'

@@ -1,0 +1,11 @@
+version: 0.0.2
+name: inspect_compare
+about: Test compare operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: '10'
+        mods: 'compare:gt:5'
+    action: '{result}'

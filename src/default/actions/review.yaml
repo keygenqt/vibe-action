@@ -1,50 +1,46 @@
-version: 0.0.1
+version: 0.0.2
 
 name: review
 about: Critically analyze code for bugs and flaws using a powerful model
 notify: true
 
-# IDE plugin integration: maps argument names to IDE contexts
 api:
-  # Target for the final result (replace | clipboard | dialog)
   output: dialog
-  # Source for the {query} tag
-  input: query
+  input: query_raw
 
 actions:
-  # Read input from query (prioritize file path if valid, otherwise use raw text)
+  # Read input: file path if valid, otherwise raw text
   - tag: tag_content
-    run: cmd
-    expect: string
-    check: .+
-    action:
-      - when: '{query|file_path|empty:not}'
-        then: cat "{query|file_path|load}"
-      - when: '{query|empty:not}'
-        then: echo "{query}"
-      - when: 'true'
-        then: echo "ERROR - No input provided"
+    run: value
+    reg: '.+'
+    val:
+      - name: content
+        data: query_raw
+        when: 'is:path'
+        mods: 'fetch|text'
+      - name: content
+        data: query_raw
+        fail: 'is:empty:not'
+    action: '{content}'
 
-  # Analyze code for bugs and generate technical recommendations in the target language
+  # Analyze code for bugs and generate technical recommendations
   - tag: tag_review
     run: large
-    expect: string
+    reg: '.+'
+    val:
+      - name: lang
+        data: system_language
+      - name: content
+        data: tag_content
     action: |
       [Task]
       Analyze the provided code for logic flaws, concurrency bugs, memory leaks, and performance bottlenecks.
 
       [Rules]
-      - Write strictly in the language specified in [User]. Keep feedback concise, blunt, and highly technical.
+      - Write strictly in {lang}. Keep feedback concise, blunt, and highly technical.
       - If the code has no flaws, output exactly one word: PERFECT.
       - Format each issue as a clear block: standard bullet point for the description, followed by a new line with a prefix "  Fix: " and the exact 1-line code patch.
       - Do NOT write explanation inside the fix line, provide ONLY the clean code patch.
-      - Language: {system_language}
 
       [Code to Review]
-      {tag_content}
-
-  # Copy result to clipboard and output
-  - tag: tag_clipboard
-    run: value
-    expect: string
-    action: '{tag_review|clipboard}'
+      {content}
