@@ -1,0 +1,10 @@
+version: 0.0.2
+name: system_dir_download
+about: Test system_dir_download tag
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: system_dir_download
+    action: '{result}'

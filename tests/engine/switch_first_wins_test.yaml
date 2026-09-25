@@ -1,0 +1,14 @@
+version: 0.0.2
+name: switch_first_wins
+about: Test first matching candidate wins
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'first'
+        when: 'is:empty:not'
+      - name: result
+        data: 'second'
+        when: 'is:empty:not'
+    action: '{result}'

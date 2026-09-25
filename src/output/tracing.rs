@@ -1,4 +1,5 @@
-//! Tracing output — structured logs via tracing crate.
+//! Tracing output strategy via the tracing crate.
+//! See [`crate::output`] module-level docs for the architecture overview.
 
 use crate::output::format::FormatOutput;
 use crate::output::msg::OutputMsg;

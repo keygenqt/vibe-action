@@ -1,5 +1,5 @@
-//! Formatting utilities.
-//! Converts data into a human-readable string.
+//! Human-readable formatters: duration, bytes, base64 image extraction.
+//! See [`crate::utils`] module-level docs for summary.
 
 use std::time::Duration;
 

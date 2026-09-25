@@ -1,5 +1,5 @@
-//! YAML formatting utilities with comment injection support.
-//! Provides types and functions for adding documentation comments to YAML configuration files.
+//! YAML comment injection and escape mnemonic expansion.
+//! See [`crate::utils`] module-level docs for summary.
 
 /// Comment annotation for a YAML field with multiple comment lines.
 pub enum YamlComment {
@@ -36,4 +36,12 @@ pub fn add_comments(yaml: String, comments: Vec<YamlComment>) -> String {
         }
     }
     result
+}
+
+/// Expand escape mnemonics \n, \t, \s into newline, tab, space.
+pub fn expand_escapes<S: AsRef<str>>(s: S) -> String {
+    let s = s.as_ref();
+    s.replace("\\n", "\n")
+        .replace("\\t", "\t")
+        .replace("\\s", " ")
 }

@@ -1,0 +1,10 @@
+version: 0.0.2
+name: system_uid
+about: Test system_uid tag
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: system_uid
+    action: '{result}'

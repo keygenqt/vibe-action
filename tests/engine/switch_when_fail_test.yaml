@@ -1,0 +1,13 @@
+version: 0.0.2
+name: switch_when_fail
+about: Test when guard fallback
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: ''
+        when: 'is:empty:not'
+      - name: result
+        data: 'fallback'
+    action: '{result}'

@@ -1,3 +1,6 @@
+//! Singleton process guard: PID files, stop-file signaling, stale cleanup.
+//! See [`crate::utils`] module-level docs for summary.
+
 use anyhow::Result;
 use anyhow::anyhow;
 use fs2::FileExt;
@@ -273,7 +276,7 @@ impl RunGuard {
     ///
     /// The lock is held for the whole startup sequence, including waiting for
     /// the previous instance to exit (up to ~3s). A single try_lock would
-    /// therefore fail in the common "cancel → immediately re-run" flow, so we
+    /// therefore fail in the common "cancel → immediately re-run" pipeline, so we
     /// retry until the previous startup finishes.
     fn acquire_startup_lock(cache_dir: &PathBuf) -> Result<File> {
         let lock_path = cache_dir.join(".run_lock");

@@ -1,0 +1,11 @@
+version: 0.0.2
+name: transform_item
+about: Test item operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'a,b,c'
+        mods: 'split:,|item:-1'
+    action: '{result}'

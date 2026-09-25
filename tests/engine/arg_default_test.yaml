@@ -1,0 +1,15 @@
+version: 0.0.2
+name: arg_default
+about: Test default arg value
+args:
+  - name: arg_name
+    input: string
+    default: fallback
+    help: An arg with default
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: arg_name
+    action: '{result}'

@@ -1,0 +1,11 @@
+version: 0.0.2
+name: inspect_is
+about: Test is operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: '42'
+        mods: 'is:num'
+    action: '{result}'

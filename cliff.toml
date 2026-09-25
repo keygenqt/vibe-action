@@ -16,7 +16,7 @@ body = """
 {% endif %}\
 {% for group, commits in commits | group_by(attribute="group") %}
 ### {{ group }}
-{% for commit in commits %}
+{% for commit in commits | unique(attribute="message") %}
   - {{ commit.message | upper_first }}\
 {% if commit.breaking %} **BREAKING**{% endif %}\
 {% endfor %}
@@ -28,12 +28,14 @@ trim = true
 conventional_commits = true
 filter_unconventional = true
 commit_parsers = [
-    { message = "^feat:", group = "🚀 Features" },
-    { message = "^fix:", group = "🐛 Fixes" },
-    { message = "^refactor:", group = "⚡ Refactoring" },
-    { message = "^docs:", group = "📚 Documentation" },
-    { message = "^perf:", group = "⚡ Performance" },
-    { message = "^chore:", group = "🔧 Chores", skip = true },
+  { message = "^feat:", group = "🚀 Features" },
+  { message = "^fix:", group = "🐛 Fixes" },
+  { message = "^refactor:", group = "⚡ Refactoring" },
+  { message = "^docs:", group = "📚 Documentation" },
+  { message = "^doc:", group = "📚 Documentation" },
+  { message = "^perf:", group = "⚡ Performance" },
+  { message = "^test:", group = "🧪 Tests" },
+  { message = "^chore:", group = "🔧 Chores", skip = true },
 ]
 filter_commits = true
 tag_pattern = "v[0-9].*"

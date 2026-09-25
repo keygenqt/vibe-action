@@ -1,0 +1,13 @@
+version: 0.0.2
+name: parser_each_config
+about: Test each with custom split/merge
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'a,b,c'
+        each:
+          split: ','
+          merge: '|'
+    action: '{result}'

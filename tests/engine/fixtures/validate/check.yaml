@@ -1,9 +1,0 @@
-version: 0.0.1
-name: check
-about: Test regex check validation
-check: '^\d+$'
-actions:
-  - tag: tag_val
-    run: value
-    expect: string
-    action: '42'

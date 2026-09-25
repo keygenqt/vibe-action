@@ -1,0 +1,11 @@
+version: 0.0.2
+name: read_text
+about: Test text operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'Cargo.toml'
+        mods: 'text'
+    action: '{result}'

@@ -1,0 +1,11 @@
+version: 0.0.2
+name: parser_mods_chain
+about: Test mods operator chain
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'hello'
+        mods: 'reverse|upper'
+    action: '{result}'

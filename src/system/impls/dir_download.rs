@@ -1,0 +1,19 @@
+//! System provider for `system_dir_download` — user downloads directory.
+
+use crate::system::system::SystemKey;
+use crate::system::system::SystemProvider;
+use anyhow::Result;
+
+pub struct SystemDirDownloadProvider;
+
+impl SystemProvider for SystemDirDownloadProvider {
+    fn key(&self) -> SystemKey {
+        SystemKey::DirDownload
+    }
+
+    fn resolve(&self) -> Result<String> {
+        Ok(dirs::download_dir()
+            .map(|p| p.display().to_string())
+            .unwrap_or_default())
+    }
+}

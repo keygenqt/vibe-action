@@ -7,11 +7,11 @@ Command router for shell and LLM tasks via simple YAML actions.
 ## Why
 
 - ⚡ **Complex pipelines** — chain shell and LLM into one command
-- 🔗 **Tag system** — auto-dependency graph via `{tag}`
-- 🔧 **Modifiers** — 20+ inline value transformations
-- 🔀 **When/Then** — conditional execution in YAML
-- 📥 **Unified Input** — `{query}` tag seamlessly handles text, files, images, and interactive prompts from CLI or IDE
-- 🖥️ **System tags** — `{system_os}`, `{system_user}`, `{system_dir_pwd}` and more
+- 🔗 **Tag system** — auto-dependency graph via tag references
+- 🧩 **Operators** — 30+ read/inspect/transform/write operators chained in `mods`
+- 🛡️ **Guards** — `when` skips, `fail` bails, `reg` validates output — all in YAML
+- 📥 **Unified Input** — query tags handle text, files, images, and interactive prompts from CLI or IDE
+- 🖥️ **System tags** — `system_os`, `system_user`, `system_dir_pwd` and more
 - 👁️ **Vision** — screenshot description, person identification
 - 🌐 **Fetch** — load and summarize web pages, PDFs, images
 - 🤖 **Batch LLM** — role-based routing (tiny, small, medium, large, vision)
@@ -28,12 +28,12 @@ cargo install vibe-action
 
 vibe-action --help
 vibe-action faq "what commands are available?"
-vibe-action faq "how do modifiers work?"
+vibe-action faq "how do operators work?"
 vibe-action commit .
-vibe-action translate-deep README.md
+vibe-action translate README.md
 ```
 
-[IDE Integration](https://vibe-action.keygenqt.com/docs/vibe-action-cross.html)
+[IDE Integration](https://vibe-action.keygenqt.com/docs/ide-plugin.html)
 
 ## Configuration
 

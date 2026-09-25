@@ -1,0 +1,10 @@
+version: 0.0.2
+name: validate_reserved_prefix
+about: Test reserved prefix
+actions:
+  - tag: query_raw
+    run: value
+    val:
+      - name: result
+        data: 'hello'
+    action: '{result}'

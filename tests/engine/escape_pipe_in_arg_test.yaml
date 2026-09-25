@@ -1,0 +1,11 @@
+version: 0.0.2
+name: escape_pipe_in_arg
+about: Test braced pipe in operator arg survives mods split
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'foo'
+        mods: 'replace:foo:{a|b}'
+    action: '{result}'

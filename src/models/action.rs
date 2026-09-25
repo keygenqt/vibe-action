@@ -1,87 +1,69 @@
-//! Action models for YAML parsing.
-//! Defines structures for action files, trigger and steps.
+//! Action and val-candidate models, and ActionRun enum.
+//! See [`crate::models`] module-level docs for the model hierarchy.
 
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::models::context::ContextModel;
-
-/// Action runner type.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ActionRun {
-    /// Execute command in terminal.
     Cmd,
-    /// Return the action string directly (no shell, no LLM).
     Value,
-    /// Send prompt to tiny LLM.
     Tiny,
-    /// Send prompt to small LLM.
     Small,
-    /// Send prompt to medium LLM.
     Medium,
-    /// Send prompt to large LLM.
     Large,
-    /// Send prompt to vision LLM.
     Vision,
 }
 
-/// Action value: simple string or switch with when/then pairs.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ActionValue {
-    Simple(String),
-    Switch(Vec<SwitchCase>),
+pub enum ValEach {
+    Config { split: String, merge: String },
+    Flag(bool),
 }
 
-/// A single switch case.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SwitchCase {
-    pub when: String,
-    pub then: String,
+impl ValEach {
+    /// Resolve to (split, merge). Flag(true) defaults to \n / \n.
+    pub fn resolve(&self) -> (String, String) {
+        match self {
+            ValEach::Config { split, merge } => (split.clone(), merge.clone()),
+            ValEach::Flag(_) => ("\n".to_string(), "\n".to_string()),
+        }
+    }
 }
 
-/// A single action step.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ActionModel {
-    /// Tag name for {tag} references.
-    pub tag: String,
-    /// Action runner type.
-    pub run: ActionRun,
-    /// Expected result type.
-    pub expect: Option<ContextModel>,
-    /// Optional regex validation for the result.
+pub struct ValCandidate {
+    pub name: String,
     #[serde(default)]
-    pub check: Option<String>,
-    /// Ask for confirmation before executing.
+    pub data: Option<String>,
     #[serde(default)]
-    pub confirm: bool,
-    /// Optional condition controlling execution of action.
+    pub mods: Option<String>,
     #[serde(default)]
     pub when: Option<String>,
-    /// Action value: simple string or switch with when/then pairs.
-    pub action: ActionValue,
+    #[serde(default)]
+    pub fail: Option<String>,
+    #[serde(default)]
+    pub each: Option<ValEach>,
+    /// Resolved value (set at runtime, not serialized).
+    #[serde(skip)]
+    pub resolved: Option<String>,
 }
 
-impl ActionModel {
-    /// Return all action texts for dependency scanning.
-    pub fn actions(&self) -> Vec<&str> {
-        let mut texts = Vec::new();
-        match &self.action {
-            ActionValue::Simple(s) => {
-                if !s.is_empty() {
-                    texts.push(s.as_str());
-                }
-            }
-            ActionValue::Switch(cases) => {
-                for case in cases {
-                    texts.push(case.when.as_str());
-                    texts.push(case.then.as_str());
-                }
-            }
-        }
-        texts
-    }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ActionModel {
+    pub tag: String,
+    pub run: ActionRun,
+    #[serde(default)]
+    pub reg: Option<String>,
+    #[serde(default)]
+    pub ask: bool,
+    #[serde(default)]
+    pub when: Option<String>,
+    #[serde(default)]
+    pub val: Option<Vec<ValCandidate>>,
+    pub action: String,
 }
 
 impl std::fmt::Display for ActionRun {

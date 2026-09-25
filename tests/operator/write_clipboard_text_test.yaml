@@ -1,0 +1,11 @@
+version: 0.0.2
+name: write_clipboard_text
+about: Test clipboard_text operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'hello'
+        mods: 'clipboard_text'
+    action: '{result}'

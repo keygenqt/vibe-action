@@ -1,74 +1,135 @@
 //! ActionModel validation.
-//! Checks type, expect, match regex, and non-empty action.
+//! See [`crate::validate`] module-level docs for validation rules.
+
+use std::collections::HashSet;
+use std::sync::OnceLock;
 
 use anyhow::Result;
 use regex::Regex;
 
 use crate::models::action::ActionModel;
-use crate::models::action::ActionRun;
-use crate::models::action::ActionValue;
+use crate::operator::inspect::inspect::InspectKey;
+use crate::operator::operator::OperatorKey;
+use crate::utils::escape;
 use crate::validate::ValidateTrait;
 
+/// Extract operator names from a mods/when string.
+/// Splits on unescaped `|`, takes the part before the first unescaped `:`.
+/// Braces escape separators, mirroring apply_ops parsing.
+fn operator_names(s: &str) -> Vec<String> {
+    escape::split_escaped(s, '|')
+        .iter()
+        .map(|p| {
+            let p = p.trim();
+            match escape::find_unescaped(p, ':') {
+                Some(idx) => p[..idx].trim().to_string(),
+                None => p.to_string(),
+            }
+        })
+        .filter(|n| !n.is_empty())
+        .collect()
+}
+
 impl ValidateTrait for ActionModel {
-    /// Validate action fields.
     fn validate(&self) -> Result<()> {
-        // Validate action: switch cases or simple string must be valid.
-        match &self.action {
-            ActionValue::Simple(s) => {
-                if s.trim().is_empty() {
-                    anyhow::bail!("Action '{}' has empty command/prompt.", self.tag);
+        if self.action.trim().is_empty() {
+            anyhow::bail!("Action '{}' has empty command/prompt.", self.tag);
+        }
+
+        // Action-level when: inspect operators only.
+        if let Some(when) = &self.when {
+            for name in operator_names(when) {
+                if InspectKey::from_str(&name).is_none() {
+                    anyhow::bail!(
+                        "Action '{}': 'when' allows inspect operators only, got '{}'.",
+                        self.tag,
+                        name
+                    );
                 }
             }
-            ActionValue::Switch(cases) => {
-                for case in cases {
-                    let trimmed_when = case.when.trim();
-                    if trimmed_when != "true" {
-                        // Initialize our standalone iterator to inspect the condition layout
-                        let mut iter = crate::engine::parser::TagIterator::new(trimmed_when);
+        }
 
-                        match (iter.next(), iter.next()) {
-                            (Some(mat), None) => {
-                                // The placeholder must span across the exact entirety of the when string
-                                if mat.full_match.len() != trimmed_when.len() {
-                                    anyhow::bail!(
-                                        "When condition in '{}' must be a single {{tag|modifier}} or 'true', got: '{}'",
-                                        self.tag,
-                                        case.when
-                                    );
-                                }
-                            }
-                            _ => {
-                                // Fails if 0 placeholders or multiple placeholders are detected
-                                anyhow::bail!(
-                                    "When condition in '{}' must be a single {{tag|modifier}} or 'true', got: '{}'",
-                                    self.tag,
-                                    case.when
-                                );
-                            }
+        let candidates = self.val.as_ref().map(|v| v.as_slice()).unwrap_or(&[]);
+        if !candidates.is_empty() {
+            for (i, c) in candidates.iter().enumerate() {
+                if c.name.trim().is_empty() {
+                    anyhow::bail!("Action '{}': val[{}] has empty name.", self.tag, i);
+                }
+                // Validate mods: all operator names must be known.
+                if let Some(mods) = &c.mods {
+                    for name in operator_names(mods) {
+                        if OperatorKey::from_str(&name).is_none() {
+                            anyhow::bail!(
+                                "Action '{}': val '{}' uses unknown operator '{}' in mods.",
+                                self.tag,
+                                c.name,
+                                name
+                            );
                         }
                     }
                 }
+                // Validate when: inspect operators only.
+                if let Some(when) = &c.when {
+                    for name in operator_names(when) {
+                        if InspectKey::from_str(&name).is_none() {
+                            anyhow::bail!(
+                                "Action '{}': val '{}' uses non-inspect operator '{}' in when.",
+                                self.tag,
+                                c.name,
+                                name
+                            );
+                        }
+                    }
+                }
+                // Validate fail: inspect operators only (post-mods hard check).
+                if let Some(fail) = &c.fail {
+                    for name in operator_names(fail) {
+                        if InspectKey::from_str(&name).is_none() {
+                            anyhow::bail!(
+                                "Action '{}': val '{}' uses non-inspect operator '{}' in fail.",
+                                self.tag,
+                                c.name,
+                                name
+                            );
+                        }
+                    }
+                }
+                if let Some(each) = &c.each {
+                    let (split_str, merge_str) = each.resolve();
+                    if split_str.is_empty() {
+                        anyhow::bail!(
+                            "Action '{}': val '{}' each.split is empty.",
+                            self.tag,
+                            c.name
+                        );
+                    }
+                    if merge_str.is_empty() {
+                        anyhow::bail!(
+                            "Action '{}': val '{}' each.merge is empty.",
+                            self.tag,
+                            c.name
+                        );
+                    }
+                }
+            }
+
+            // `action` is pure `{name}` interpolation: only declared names.
+            let declared: HashSet<&str> = candidates.iter().map(|c| c.name.as_str()).collect();
+            static RE: OnceLock<Regex> = OnceLock::new();
+            let re = RE.get_or_init(|| Regex::new(r"\{(\w+)\}").unwrap());
+            for cap in re.captures_iter(&self.action) {
+                let name = cap.get(1).unwrap().as_str();
+                if !declared.contains(name) {
+                    anyhow::bail!(
+                        "Action '{}': `action` references undeclared name '{{{}}}'.",
+                        self.tag,
+                        name
+                    );
+                }
             }
         }
 
-        // LLM actions must have expect set (need to know what to parse).
-        let is_llm = matches!(
-            self.run,
-            ActionRun::Tiny
-                | ActionRun::Small
-                | ActionRun::Medium
-                | ActionRun::Large
-                | ActionRun::Vision
-        );
-        if is_llm && self.expect.is_none() {
-            anyhow::bail!(
-                "LLM action '{}' must have expect set. Specify what to expect.",
-                self.tag
-            );
-        }
-
-        // Validate check regex if present.
-        if let Some(pattern) = &self.check {
+        if let Some(pattern) = &self.reg {
             Regex::new(pattern).map_err(|e| {
                 anyhow::anyhow!("Action '{}' has invalid check regex: {}", self.tag, e)
             })?;

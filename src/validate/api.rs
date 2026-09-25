@@ -1,22 +1,16 @@
-//! FlowApiModel validation.
-//! Validates the input and output settings for IDE plugin integration.
+//! PipelineApiModel validation.
+//! See [`crate::validate`] module-level docs for validation rules.
 
 use anyhow::Result;
 
-use crate::models::api::FlowApiModel;
+use crate::models::api::PipelineApiModel;
+use crate::query::query::QueryKey;
 use crate::validate::ValidateTrait;
 
-impl ValidateTrait for FlowApiModel {
+impl ValidateTrait for PipelineApiModel {
     /// Validate API model.
     fn validate(&self) -> Result<()> {
-        let valid_inputs = [
-            "query",
-            "query|file_path",
-            "query|project_path",
-            "query|line",
-            "query|prompt",
-            "query|image",
-        ];
+        let valid_inputs: Vec<&str> = QueryKey::all().iter().map(|k| k.as_str()).collect();
 
         if let Some(input) = &self.input {
             if !valid_inputs.contains(&input.as_str()) {

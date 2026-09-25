@@ -1,4 +1,5 @@
-//! Output trait, registry, and level enum.
+//! Output trait, enums, and registry.
+//! See [`crate::output`] module-level docs for the architecture and output type descriptions.
 
 use serde::Deserialize;
 use serde::Serialize;
@@ -74,13 +75,15 @@ pub struct OutputRegistry {
 impl OutputRegistry {
     /// Create registry based on VIBE_LOG_TYPE and VIBE_TRACE_LEVEL.
     pub fn new(log_type: &str, trace_level: &str) -> Self {
-        let output_type = match log_type {
-            "cli" => OutputType::Cli,
-            "tracing" => OutputType::Tracing,
-            "plain" => OutputType::Plain,
-            "json" => OutputType::Json,
-            "test" => OutputType::Test,
-            _ => OutputType::Cli,
+        let output_type = if crate::utils::path::is_test() {
+            OutputType::Test
+        } else {
+            match log_type {
+                "tracing" => OutputType::Tracing,
+                "plain" => OutputType::Plain,
+                "json" => OutputType::Json,
+                _ => OutputType::Cli,
+            }
         };
         let formatter = super::format::FormatOutput::new(output_type);
         let current: Box<dyn Output> = match output_type {

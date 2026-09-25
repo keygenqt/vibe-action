@@ -1,0 +1,11 @@
+version: 0.0.2
+name: transform_default
+about: Test default operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: ''
+        mods: 'default:fallback'
+    action: '{result}'

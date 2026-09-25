@@ -63,7 +63,8 @@ cluster:
     model: qwen2.5-coder:14b-instruct
 ```
 
-Full field reference — roles, timeouts, multi-node clusters — see [Configuration](./configuration.md).
+Full field reference — roles, timeouts, multi-node clusters — see
+[Configuration](./configuration.md).
 
 ## Run Your First Actions
 
@@ -72,21 +73,20 @@ Full field reference — roles, timeouts, multi-node clusters — see [Configura
 vibe-action commit
 
 # Translate a file
-vibe-action translate-small README.md
+vibe-action translate README.md
 
 # Describe a screenshot
 vibe-action describe screenshot.png
 ```
 
 Full list of ready-to-use actions — [Built-in Actions](./built-in-actions.md).
-System commands (`status`, `clean`, `stop`) and environment variables — [CLI Reference](./cli-reference.md).
+System commands (`status`, `clean`, `stop`) and environment variables —
+[CLI Reference](./cli-reference.md).
 
 ## Next Steps
 
-- [Action Structure](./action-structure.md) — learn the YAML format
-- [Query Tag](./query-tag.md) — unified input for CLI and IDE
-- [Built-in Actions](./built-in-actions.md) — explore what's included
+- [YAML Format](./pipeline-yaml.md) — learn the action manifest schema
+- [Val Candidates](./val-candidates.md) — data binding and guards
 - [Custom Actions](./custom-actions.md) — write your own
-- [Tag System](./tag-system.md) — understand {tag} references
-- [Modifiers](./modifiers.md) — transform output with pipe modifiers
-- [System Tags](./system-tags.md) — built-in environment variables
+- [Query Providers](./query-providers.md) — unified input for CLI and IDE
+- [System Providers](./system-providers.md) — runtime environment tags

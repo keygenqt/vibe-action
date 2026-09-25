@@ -1,4 +1,5 @@
-//! Text formatting utility for multiple application output types.
+//! Template rendering, Markdown layout, and syntax highlighting.
+//! See [`crate::output`] module-level docs for the message model description.
 
 use colored::Colorize;
 use regex::Captures;

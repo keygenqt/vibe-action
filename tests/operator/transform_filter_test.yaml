@@ -1,0 +1,11 @@
+version: 0.0.2
+name: transform_filter
+about: Test filter operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'a,-,b'
+        mods: 'split:,|filter:eq:-'
+    action: '{result}'

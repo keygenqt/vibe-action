@@ -1,0 +1,11 @@
+version: 0.0.2
+name: transform_replace
+about: Test replace operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'foo bar'
+        mods: 'replace:foo:baz'
+    action: '{result}'

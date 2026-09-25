@@ -1,10 +1,11 @@
-//! IDE plugin integration metadata.
-//! Defines the input source for the query and the output target for the result.
-//! This metadata is ignored by the CLI runtime and is intended solely for IDE plugins.
+//! IDE plugin integration metadata (PipelineApiModel).
+//! See [`crate::models`] module-level docs for context.
 
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
+
+use crate::query::query::QueryKey;
 
 /// Specifies the target where the IDE plugin should apply the action result.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -31,7 +32,7 @@ pub struct ApiInput(String);
 
 impl Default for ApiInput {
     fn default() -> Self {
-        ApiInput("query".to_string())
+        ApiInput(QueryKey::Raw.as_str().to_string())
     }
 }
 
@@ -44,9 +45,9 @@ impl ApiInput {
 /// IDE plugin integration metadata.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct FlowApiModel {
+pub struct PipelineApiModel {
     /// Defines the input source for the {query} tag.
-    /// Defaults to "query" (editor selection).
+    /// Defaults to `query_raw` (raw input as-is).
     #[serde(default)]
     pub input: Option<ApiInput>,
     /// Defines where the IDE plugin should apply the final result.

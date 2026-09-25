@@ -35,7 +35,7 @@
                 <br />
                 <span class="hl">Action</span>
               </div>
-              <div class="version">v0.2.4</div>
+              <div class="version">v0.3.0</div>
               <div class="subtitle">Command router for shell and LLM tasks</div>
               <div class="text">
                 Execute shell commands and LLM prompts via simple YAML files. Define steps, connect
@@ -58,8 +58,8 @@
 <span class="comment">## 4. Describe a screenshot</span>
 <span class="command"><span class="app">vibe-action</span> describe</span>
 
-<span class="comment">## 5. Deep translation</span>
-<span class="command"><span class="app">vibe-action</span> translate-deep</span> <span class="path">README.md</span></pre>
+<span class="comment">## 5. Translate a file</span>
+<span class="command"><span class="app">vibe-action</span> translate</span> <span class="path">README.md</span></pre>
             </div>
           </div>
         </div>
@@ -67,8 +67,8 @@
       <div class="Stats">
         <div class="Content">
           <div class="block">
-            <div><span class="v">20+</span>actions</div>
-            <div><span class="v">20+</span>modifiers</div>
+            <div><span class="v">19</span>actions</div>
+            <div><span class="v">30+</span>operators</div>
             <div><span class="v">5</span>LLM providers</div>
             <div><span class="v">2</span>IDE plugins</div>
           </div>
@@ -120,31 +120,31 @@
               <div class="num">01</div>
               <div class="name">Tag system</div>
               <div class="desc">
-                Steps connect via {tag} references. The engine builds a dependency graph and
-                executes in topological order.
+                Steps connect via tag references. The engine builds a dependency graph and executes
+                in topological order.
               </div>
             </div>
             <div class="Card">
               <div class="num">02</div>
-              <div class="name">Modifiers</div>
+              <div class="name">Operators</div>
               <div class="desc">
-                20+ inline transformations: trim, uniq, join, ast, load, clipboard and more.
-                Arguments: {tag|trim:-}, {tag|sort:desc}.
+                30+ operators chained in mods: fetch, text, ast, trim, uniq, join and more. Read,
+                inspect, transform and write.
               </div>
             </div>
             <div class="Card">
               <div class="num">03</div>
-              <div class="name">When/Then</div>
+              <div class="name">Guards</div>
               <div class="desc">
-                Conditional execution in pure YAML. The first matching branch wins — no shell
-                scripting.
+                Conditional execution in pure YAML: when skips, fail bails, reg validates output. No
+                shell scripting.
               </div>
             </div>
             <div class="Card">
               <div class="num">04</div>
               <div class="name">System tags</div>
               <div class="desc">
-                13 built-in tags for environment context: user, OS, pwd, date and more.
+                20+ built-in tags for environment context: user, OS, pwd, date and more.
               </div>
             </div>
             <div class="Card">
@@ -173,39 +173,46 @@
               <div class="h2">Describe actions in YAML, not code.</div>
               <div class="How">
                 <div class="row">
-                  <span>01</span>Write a YAML file with steps, types and dependencies.
+                  <span>01</span>Write a YAML file with steps, data sources and guards.
                 </div>
                 <div class="row">
-                  <span>02</span>Graph. The engine resolves {tag} references into topological order.
+                  <span>02</span>Graph. The engine resolves tag references into topological order.
                 </div>
                 <div class="row">
                   <span>03</span>Run. Shell commands locally, LLM prompts on your cluster.
                 </div>
                 <div class="row">
-                  <span>04</span>Validate with expect and check. Replace selection, copy to
-                  clipboard, or show a dialog.
+                  <span>04</span>Validate with reg. Replace selection, copy to clipboard, or show a
+                  dialog.
                 </div>
               </div>
             </div>
             <div>
               <pre class="preview">
-<span class="app">version</span>: <span class="command">0.0.1</span>
+<span class="app">version</span>: <span class="command">0.0.2</span>
 <span class="app">name</span>: <span class="command">extract</span>
 <span class="app">about</span>: <span class="command">Extract matching lines from logs</span>
 <span class="app">api</span>:
-  <span class="app">output</span>: <span class="command">replace</span>
-  <span class="app">input</span>: <span class="command">query|prompt</span>
+  <span class="app">output</span>: <span class="command">dialog</span>
+  <span class="app">input</span>: <span class="command">query_prompt</span>
 <span class="app">actions</span>:
-  - <span class="app">tag</span>: <span class="command">tag_lines</span>
-    <span class="app">run</span>: <span class="command">cmd</span>
-    <span class="app">expect</span>: <span class="command">list</span>
-    <span class="app">action</span>: <span class="command">cat</span> <span class="path">{query|file_path}</span>
-  - <span class="app">tag</span>: <span class="command">tag_content</span>
-    <span class="app">run</span>: <span class="command">small</span>
-    <span class="app">action</span>: <span class="command">Match lines against</span> <span class="path">{query|prompt}</span>
-  - <span class="app">tag</span>: <span class="command">tag_extract</span>
+  - <span class="app">tag</span>: <span class="command">llm_log</span>
+    <span class="app">run</span>: <span class="command">large</span>
+    <span class="app">val</span>:
+      - <span class="app">name</span>: <span class="command">search</span>
+        <span class="app">data</span>: <span class="command">query_prompt</span>
+      - <span class="app">name</span>: <span class="command">line</span>
+        <span class="app">data</span>: <span class="command">arg_file</span>
+        <span class="app">mods</span>: <span class="command">fetch|text</span>
+        <span class="app">each</span>: <span class="command">true</span>
+    <span class="app">action</span>: <span class="command">Match line against</span> <span class="path">{search}</span>
+  - <span class="app">tag</span>: <span class="command">out_log</span>
     <span class="app">run</span>: <span class="command">value</span>
-    <span class="app">action</span>: <span class="path">{tag_content|trim:-|uniq|join}</span></pre>
+    <span class="app">val</span>:
+      - <span class="app">name</span>: <span class="command">result</span>
+        <span class="app">data</span>: <span class="command">llm_log</span>
+        <span class="app">mods</span>: <span class="command">split|filter:eq:-|uniq|join</span>
+    <span class="app">action</span>: <span class="path">{result}</span></pre>
             </div>
           </div>
         </div>
@@ -219,15 +226,16 @@
               <div class="name">General</div>
               <a href="docs/introduction.html">Introduction</a>
               <a href="docs/getting-started.html">Quick Start</a>
-              <a href="docs/vibe-action-cross.html">IDE Integration</a>
+              <a href="docs/ide-plugin.html">IDE Integration</a>
             </div>
             <div class="Card">
               <div class="name">YAML Actions</div>
-              <a href="docs/action-structure.html">Action Structure</a>
-              <a href="docs/query-tag.html">Query Tag</a>
-              <a href="docs/tag-system.html">Tag System</a>
-              <a href="docs/modifiers.html">Modifiers</a>
-              <a href="docs/system-tags.html">System Tags</a>
+              <a href="docs/pipeline-yaml.html">Pipeline YAML</a>
+              <a href="docs/val-candidates.html">Val Candidates</a>
+              <a href="docs/placeholders.html">Placeholders</a>
+              <a href="docs/operators-read.html">Operators</a>
+              <a href="docs/query-providers.html">Query Providers</a>
+              <a href="docs/system-providers.html">System Providers</a>
               <a href="docs/built-in-actions.html">Built-in Actions</a>
               <a href="docs/custom-actions.html">Custom Actions</a>
             </div>
@@ -235,6 +243,7 @@
               <div class="name">Reference</div>
               <a href="docs/configuration.html">Configuration</a>
               <a href="docs/cli-reference.html">CLI Reference</a>
+              <a href="docs/output-modes.html">Output Modes</a>
             </div>
           </div>
         </div>

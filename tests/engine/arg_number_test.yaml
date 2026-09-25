@@ -1,0 +1,14 @@
+version: 0.0.2
+name: arg_number
+about: Test number arg type
+args:
+  - name: arg_num
+    input: number
+    help: A number argument
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: arg_num
+    action: '{result}'

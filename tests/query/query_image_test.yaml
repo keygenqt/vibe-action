@@ -1,0 +1,10 @@
+version: 0.0.2
+name: query_image
+about: Test query_image tag
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: query_image
+    action: '{result}'

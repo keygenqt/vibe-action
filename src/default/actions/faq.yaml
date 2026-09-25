@@ -1,33 +1,32 @@
-version: 0.0.1
+version: 0.0.2
 
 name: faq
-about: Ask a question about Vibe Action — YAML structure, fields, modifiers, or usage
-clipboard: false
-notify: false
+about: Ask a question about Vibe Action — YAML structure, fields, operators, or usage
 
-# IDE plugin integration: maps argument names to IDE contexts
 api:
-  # Target for the final result (replace | clipboard | dialog)
   output: dialog
-  # Source for the {query} tag
-  input: query|prompt
+  input: query_prompt
 
 actions:
+  # Answer questions about Vibe Action based on embedded documentation
   - tag: tag_faq
-    run: small
-    expect: string
+    run: medium
+    reg: '.+'
+    val:
+      - name: query
+        data: query_prompt
     action: |
       [Data]
-      Vibe Action — command router for shell and LLM tasks via YAML pipelines.
+      Vibe Action — command router for shell and LLM tasks via YAML pipelines (version 0.0.2).
       Each action is a YAML manifest loaded recursively from configuration directories to build CLI subcommands.
 
-      Built-in Action Ecosystem (Available CLI Subcommands):
+      Built-in Actions:
         comment         - Replace TODO with a meaningful comment
         commit          - AI-generated commit message
-        describe        - Describe screenshot for text-only LLM understanding
+        describe        - Describe a screenshot for text-only LLMs
         explain         - Explain what the selected code does in simple terms
         extract         - Extract structured data or matching lines from text and logs
-        faq             - Ask a question about Vibe Action — YAML structure, fields, modifiers, or usage
+        faq             - Ask a question about Vibe Action
         fetch           - Fetch a web page or PDF and describe its content
         find            - Semantic file finder — finds files by meaning, not just name
         mock            - Generate realistic mock data arrays (JSON, YAML, CSV) for testing
@@ -44,171 +43,176 @@ actions:
         translate-small - Translate text or files to another language
         whois           - Identify a person from a screenshot
 
-      Unified Input Tag ({{query}}):
-        The {{query}} tag is the unified entry point for data in any pipeline.
-        In CLI, it reads from a positional argument or falls back to the system clipboard.
-        In IDE, the plugin provides the context based on the `api.input` configuration.
+      Top-Level Manifest Fields:
+        version  - Pipeline format version (0.0.2)
+        name     - Action name, becomes CLI subcommand (required)
+        about    - Short description for CLI help (required)
+        notify   - Show desktop notification on completion (optional, default false)
+        args     - List of named CLI arguments (optional)
+        api      - IDE/CLI integration config
+        actions  - Ordered list of pipeline steps
 
-        Available query types (used as {{query|type}}):
-          {{query}} or {{query|raw}}  - Raw text input (default behavior)
-          {{query|file_path}}       - Validated local file path
-          {{query|project_path}}    - Project root path (searches for .git or markers upwards)
-          {{query|line}}            - First line of the input text
-          {{query|prompt}}          - Interactive prompt (terminal input in CLI, dialog in IDE)
-          {{query|image}}           - Image as base64 PNG (from clipboard or file path)
+      Args Schema (each item in the args list):
+        name    - Argument name; becomes arg_<name> tag (required)
+        short   - Short flag alias, single character (optional)
+        input   - Input type: string, bool, number
+        default - Default value, makes argument optional (optional)
+        help    - Help text for CLI (optional)
 
-      IDE Plugin Integration (api block):
-        Defines how IDE plugins interact with the action.
-        - output: Target for the final result (replace | clipboard | dialog)
-        - input: Source to fill the {{query}} tag (e.g., query, query|file_path, query|prompt)
+      API Block (IDE plugin metadata, ignored by CLI runtime):
+        output - Target for final result: replace (default), clipboard, dialog
+                 Note: clipboard_text/clipboard_image operators are no-ops when
+                 driven by a plugin — use output: clipboard to have the plugin
+                 copy the result instead
+        input  - Source query tag for {query}; defaults to query (editor selection)
+                 Common: query_raw, query_prompt, query_image, query_file_path,
+                 query_project_path, query_line, etc.
+        args   - Mapping of arg_<name> to a query type for validation (optional)
         Example:
           api:
             output: replace
-            input: query
+            input: query_raw
+            args:
+              arg_file: query_file_path
+
+      Actions Schema (each item in the actions list):
+        tag    - Unique identifier for the step (required)
+        run    - Execution engine: value, cmd, vision, tiny, small, medium, large (required)
+        val    - List of value candidates that resolve data into placeholders (optional)
+        reg    - Regex pattern to validate step output (optional)
+        ask    - Ask for user approval before running (optional, default false)
+        action - Template string with placeholders (required)
+        Execution order is resolved automatically by data dependencies (topological sort).
+
+      Val Candidates (each item in the val list):
+        name - Placeholder name used in the action template (required)
+        data - Source tag name or literal value (optional)
+        mods - Operator pipe: op:arg|op:arg|... applied left to right (optional)
+        when - Pre-mods soft guard: inspect operators; if false, skip this candidate (optional)
+        fail - Post-mods hard guard: inspect operators; if false, bail with error (optional)
+        each - Fan-out config: true (default newline split/merge) or split/merge config
+
+        Candidates are evaluated in order. First candidate per name whose when passes
+        (or has none) wins. If no candidate wins for a name, the tag becomes empty (dead tag).
+
+      Placeholder System:
+        The action template uses single-brace placeholders around a candidate name.
+        Each placeholder must match a declared val candidate name.
+        Operators are NOT inline in the template — they go in the candidate mods field.
+        For cmd actions, values are automatically shell-quoted.
+        Example:
+          val:
+            - name: content
+              data: query_raw
+              mods: 'fetch|text'
+          action uses: content inside single braces
+
+      Operators (used in mods, when, fail):
+
+        Read — world to value:
+          ast:<brief|full|lang>  - Parse source file to JSON AST (brief=signatures, full=bodies, lang=explicit code)
+          fetch                  - Download URL to temp file, or resolve local file path
+          resolve:<dir|file>     - Resolve path to absolute (optional dir/file filter)
+          scan                   - Scan directory, return list of file paths
+          screenshot             - Interactive screen capture, return image path
+          text                   - Extract text from HTML/PDF/image-file, or base64 passthrough
+
+        Inspect — value to bool (for when/fail guards):
+          compare:<mode>:<N>     - Numeric comparison (supports :not)
+                                 Modes: gt, lt, gte, lte
+                                 Non-numeric value → false; bad threshold → error
+          contains:<X>           - Substring test (supports :not)
+          equals:<X>             - Exact equality (supports :not)
+          is:<kind>              - Type/presence predicate (supports :not)
+                                 Kinds: empty, num, int, bool, url, path, json
+          matches:<regex>        - Regex test (supports :not)
+
+        Transform — value to value:
+          base64:<encode|decode> - Encode/decode base64 (scalar only; decode failure → "")
+          default:<X>            - Empty value → X, else passthrough (per-item)
+          filter:<eq:X|not:X|X>  - Keep/remove list items by pattern
+          format:<json|yaml|toml|json5> - Convert between formats (list-aware: wraps items in array)
+          grep:<regex>           - Regex filter: keep matching items; :not inverts
+          item:<N>               - Nth list item, negative counts from the end (out of range → "")
+          join:<sep>             - Collapse list to string with separator (default newline)
+          lower / upper          - Case conversion, per-item
+          replace:<from>:<to>    - Substring replacement (per-item)
+          reverse                - Reverse list order or string chars
+          size                   - Item count (list) or byte length (scalar)
+          sort:<asc|desc>        - Alphabetical sort
+          split:<sep>            - Split string to list by separator (default newline)
+          strip                  - Remove markdown code fences
+          tail:<N>               - Last N elements (list) or chars (scalar)
+          take:<N>               - First N elements (list) or chars (scalar)
+          trim:<chars>           - Trim whitespace/chars from ends, or filter list items
+          uniq                   - Deduplicate list elements or string chars
+
+        Write — value to world (pass-through):
+          clipboard_image        - Copy base64 image to clipboard (no-op when driven by a plugin;
+                                   use api.output: clipboard there instead)
+          clipboard_text         - Copy text to clipboard, strips markdown blocks (same plugin note)
+          file:<path>[:append]   - Write value to file; :append appends instead of overwriting
+
+      Query Types (source tags resolved by providers):
+        query_raw             - Raw text input (no validation)
+        query_prompt          - Interactive prompt (terminal in CLI, dialog in IDE)
+        query_clipboard       - Combined clipboard (text > paths > image, token-limited)
+        query_clipboard_text  - Raw text from clipboard
+        query_clipboard_path  - Copied file paths from clipboard
+        query_clipboard_image - Clipboard image as base64 PNG
+        query_file_path       - Explicit input to existing file path, else empty
+        query_project_path    - Explicit input to project root (walks up to marker), else empty
+        query_line            - Explicit input to first line, else empty
+        query_image           - Explicit input (URL/file/base64) to validated base64, Err if invalid
+
+      System Tags (runtime environment, always return Ok, empty if missing):
+        system_arch            - CPU architecture (e.g. aarch64, x86_64)
+        system_cpu_cores       - Logical CPU core count
+        system_date            - Current date, ISO 8601 (YYYY-MM-DD)
+        system_datetime        - Current date and time, ISO 8601 (YYYY-MM-DDTHH:MM:SS)
+        system_dir_cache       - User cache directory
+        system_dir_config      - User configuration directory
+        system_dir_data        - User data directory
+        system_dir_download    - User downloads directory
+        system_dir_home        - User home directory
+        system_dir_pwd         - Current working directory
+        system_dir_temp        - Temporary directory
+        system_hostname        - Machine hostname
+        system_language        - System language code from LANG (e.g. en, ru)
+        system_mem_available   - Available memory in bytes
+        system_os              - Operating system name (e.g. macos, linux)
+        system_pid             - Current process ID
+        system_shell           - Current shell name (e.g. zsh, bash)
+        system_time            - Current time (HH:MM:SS)
+        system_timestamp       - Current unix epoch seconds
+        system_uid             - Current user ID
+        system_user            - Current user name
+
+      Escape Sequences (in mods args and each config):
+        \n   - Newline (0x0A)
+        \t   - Tab (0x09)
+        \s   - Space (shields from YAML trimmers)
+
+      Cross-Step List Data:
+        List data passed between steps is joined with newlines.
+        To chain list operators (split, filter, uniq, join, etc.) without losing structure,
+        combine them in a single mods string within one candidate.
 
       System Commands:
-        clean          - Remove all cache
-        status         - Show system status
-        bench          - Run benchmarks
-        stop           - Stop all running processes
-
-      Built-in System Context Tags (Runtime Environment Variables):
-        {{system_arch}}            - CPU architecture (e.g., aarch64, x86_64)
-        {{system_date}}            - Current local system date formatted as ISO 8601 (YYYY-MM-DD)
-        {{system_dir_download}}    - Absolute path to the user's downloads directory
-        {{system_dir_home}}        - Absolute path to the user's home directory
-        {{system_dir_pwd}}         - Current working directory absolute path
-        {{system_dir_temp}}        - Absolute path to the operating system temporary directory
-        {{system_hostname}}        - Machine hostname
-        {{system_language}}        - System language from LANG env (e.g., en, ru, zh)
-        {{system_os}}              - Active operating system string name (e.g., macos, linux)
-        {{system_pid}}             - Current execution process ID identifier number
-        {{system_shell}}           - Current shell (e.g., zsh, bash, fish)
-        {{system_time}}            - Current local system time formatted as HH:MM:SS
-        {{system_user}}            - Current operating system user name
-
-      Top-Level Manifest Fields:
-        name      - Action name (CLI subcommand name, required)
-        about     - Short description for CLI help text layout (required)
-        check     - Optional global regex validation pattern for the final flow output
-        clipboard - Copy final pipeline string result to system clipboard (default: false)
-        notify    - Show desktop system notification on flow completion (default: false)
-        args      - Collection defining CLI arguments schema (optional)
-        actions   - Pipeline steps where execution order is resolved automatically by tag dependencies
-
-      Args Definition Schema Sub-fields:
-        name    - Argument flag name (used as --name and referenced via {{name}} tag)
-        short   - Short flag alias single character, e.g. -p (optional)
-        input   - Input type: string, bool, number, path, list<string>, list<bool>, list<number>, list<path>
-        help    - Description string for CLI help text layout (optional)
-        default - Default value payload (makes argument optional; non-required)
-
-      Pipeline Actions Sub-fields:
-        tag     - Unique identifier for {{tag}} references with automatic dependency graph sorting
-        run     - Execution engine: cmd (shell), value (static string), tiny / small / medium / large / vision (LLM nodes)
-        expect  - Expected output type: string, list. Omit expect for steps with no expected output.
-        check   - Optional regex validation pattern matching the step output result
-        confirm - Intercept execution to ask for explicit user approval before running (default: false)
-        action  - Shell instruction, LLM prompt string, static literal, or conditional when/then matrix list
-
-      Tag System & Dependency Graph Engine:
-        When writing {{tag_name}} inside an action payload, the engine replaces it with the output of that step.
-        Steps do NOT execute sequentially by file layout alignment order. The engine scans all actions for
-        {{tag}} references, builds a Directed Acyclic Graph (DAG), and sorts them topologically using Kahn's algorithm.
-        Multiple Dependencies: A single step can reference multiple tags (e.g., "Compare {{tag_a}} and {{tag_b}}").
-        The engine safely blocks execution until all parent dependencies are fully resolved.
-        Circular Dependencies: Cyclic loops (e.g., A needs B, B needs A) are caught at startup and fail validation.
-
-      List Expansion Matrix Mechanics:
-        When a pipeline step expects an input type of 'string' or executes a 'cmd' but receives a 'list'
-        payload from a referenced tag, the engine triggers List Expansion. It automatically iterates and executes
-        that specific action independently FOR EACH ELEMENT in the list.
-        Example: If {{tag_files}} yields ["main.rs", "lib.rs"], then 'git diff {{tag_files}}' runs twice:
-        'git diff main.rs' and 'git diff lib.rs', returning a new composite list result.
-        Collapsing Lists: To prevent iterative expansion loop triggers, append the '|join' modifier.
-        It collapses a list back into a single flat string.
-
-      Conditional Branching Logic (When/Then Matrix):
-        An action payload can host a sequence of conditional checks. Each 'when' clause is evaluated.
-        The first matching condition triggers its corresponding 'then' payload execution.
-        If no 'when' conditions resolve to 'true', the pipeline instantly halts with a runtime failure.
-        Example:
-          - when: '{{tag_check|contains:DIRTY}}'
-            then: 'echo "Found dirty state: {{tag_content}}"'
-          - when: '{{tag_check|contains:CLEAR}}'
-            then: 'echo "No errors detected."'
-
-      Built-in Modifiers Spacers & Transformers:
-        {{tag|ast}}                 - Any   : parse source file to JSON AST, brief by default (auto-detects language)
-        {{tag|ast:brief}}           - Any   : parse source file, brief output (signatures only, no bodies)
-        {{tag|ast:full}}            - Any   : parse source file, full output with bodies and imports
-        {{tag|ast:lang}}            - String: parse source code with explicit language (rs, py, ts, js, ...)
-        {{tag|clipboard}}           - Any   : copy value to system clipboard (pass-through)
-        {{tag|clipboard:screenshot}}- Any   : smart image fallback: get from clipboard, set value as image, or trigger interactive screen capture if empty
-        {{tag|contains:X}}          - Any   : check if sequence contains substring X (returns "true"/"false", supports :not)
-        {{tag|empty}}               - Any   : check if targeted value is empty (returns "true"/"false", supports :not)
-        {{tag|equals:X}}            - Any   : check if text strictly equals payload X (returns "true"/"false", supports :not)
-        {{tag|format:json}}         - Any   : convert between json, json5, yaml, toml formats
-        {{tag|is_dir}}              - Any   : check if provided string path is an existing directory (returns "true"/"false", supports :not)
-        {{tag|is_file}}             - Any   : check if provided string path is an existing file (returns "true"/"false", supports :not)
-        {{tag|join}}                - Any   : join list elements with newline, string passes through unchanged
-        {{tag|join:X}}              - Any   : join list elements with custom separator X
-        {{tag|load}}                - Any   : fetch URL to temp file, resolve local path, or pass through base64
-        {{tag|lower}}               - Any   : transform text block to lowercase
-        {{tag|resolve}}             - Any   : expand relative path string boundaries to absolute (~, ., .. resolved)
-        {{tag|reverse}}             - Any   : reverse string sequence or list layout order
-        {{tag|scan}}                - Any   : scan directory and return list of file paths (via vibe-fs)
-        {{tag|size}}                - Any   : calculate character length of string or element count of list
-        {{tag|sort}}                - Any   : sort characters (string) or elements (list) ascending
-        {{tag|sort:asc}}            - Any   : sort ascending (default)
-        {{tag|sort:desc}}           - Any   : sort descending
-        {{tag|split}}               - Any   : split string into list by newline, list passes through unchanged
-        {{tag|split:X}}             - Any   : split string into list by custom separator X
-        {{tag|strip}}               - Any   : auto-detect and remove code fences and wrappers (markdown, tilde, inline backtick, triple-quote)
-        {{tag|take:N}}              - Any   : extract first N characters (string) or elements (list)
-        {{tag|text}}                - Any   : extract plain text from HTML/PDF or convert image to base64
-        {{tag|trim}}                - Any   : strip surrounding whitespace, drop empty list elements
-        {{tag|trim:chars}}          - Any   : strip custom characters, drop list elements matching arg string
-        {{tag|uniq}}                - Any   : remove duplicate characters (string) or duplicate elements (list)
-        {{tag|upper}}               - Any   : transform text block to UPPERCASE
-
-      Special Spacing Escape Mnemonics inside Modifiers:
-        \n     - Represents a real newline control byte (0x0A)
-        \t     - Represents a real tab character control byte (0x09)
-        \s     - Represents a real space character byte (shields spaces from rigid YAML trimmers)
-
-      Mnemonic Examples:
-        {{tag|join:\n}}      - Standard newline collapse operation
-        {{tag|uniq|join:\s}} - Remove duplicates, join with space
-        {{tag|join:,\s}}     - Format list elements into a comma-space display sequence (", ")
-
-      Official Documentation Links (Live References):
-        Landing Page       - https://keygenqt.com
-        Introduction       - https://vibe-action.keygenqt.com/docs/introduction.html
-        Quick Start        - https://vibe-action.keygenqt.com/docs/getting-started.html
-        Action Structure   - https://vibe-action.keygenqt.com/docs/action-structure.html
-        Tag System         - https://vibe-action.keygenqt.com/docs/tag-system.html
-        Modifiers Manual   - https://vibe-action.keygenqt.com/docs/modifiers.html
-        System Tags        - https://vibe-action.keygenqt.com/docs/system-tags.html
-        Built-in Actions   - https://vibe-action.keygenqt.com/docs/built-in-actions.html
-        Custom Actions     - https://vibe-action.keygenqt.com/docs/custom-actions.html
-        VS Code Setup      - https://vibe-action.keygenqt.com/docs/ide-vscode.html
-        IntelliJ Setup     - https://vibe-action.keygenqt.com/docs/ide-intellij.html
-        Configuration      - https://vibe-action.keygenqt.com/docs/configuration.html
-        CLI Reference      - https://vibe-action.keygenqt.com/docs/cli-reference.html
+        clean  - Remove all cache
+        status - Show system status
+        bench  - Run benchmarks
+        stop   - Stop all running processes
 
       [Task]
-      Answer the user's question as a helpful, concise technical assistant based strictly on the [Data] matrix.
+      Answer the user's question as a helpful, concise technical assistant based strictly on the [Data] above.
 
-      [RULES]
-      1. Use '\s' mnemonic for spaces inside modifier brackets, never literal whitespace.
-      2. Chain operations in a single tag with pipes when possible (e.g., use '{{tag|trim|upper|uniq|join}}').
-      3. Never use quotes for TEXT answers, lists, and general descriptions.
-      4. Output YAML ONLY if explicitly asked for a configuration example.
-      5. If the response contains YAML, wrap it in a ```yaml code block.
+      [Rules]
+      1. If the response contains YAML, wrap it in a yaml code block.
+      2. Never use quotes for text answers, lists, and general descriptions.
 
-      [STRICT RULES]
+      [Strict Rules]
       1. Answer STRICTLY in the same language as the [Query]. NO mixed languages.
 
       [Query]
-      {query|prompt}
+      {query}

@@ -1,0 +1,10 @@
+version: 0.0.2
+name: query_line
+about: Test query_line tag
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: query_line
+    action: '{result}'

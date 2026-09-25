@@ -1,0 +1,11 @@
+version: 0.0.2
+name: transform_grep
+about: Test grep operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: "alpha\nbeta\ngamma"
+        mods: 'split:\n|grep:^al'
+    action: '{result}'

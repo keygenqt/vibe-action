@@ -1,0 +1,11 @@
+version: 0.0.2
+name: transform_lower
+about: Test lower operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'HELLO'
+        mods: 'lower'
+    action: '{result}'

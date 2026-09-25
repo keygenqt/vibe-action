@@ -1,0 +1,10 @@
+version: 0.0.2
+name: system_user
+about: Test system_user tag
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: system_user
+    action: '{result}'

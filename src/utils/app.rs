@@ -1,9 +1,10 @@
-//! Application metadata and CLI styling utilities.
-//! Provides version info, help text formatting, and CLI styling configuration.
+//! Application metadata and CLI styling.
+//! See [`crate::utils`] module-level docs for summary.
 
 use clap::builder::Styles;
 
-use crate::utils::constants::{CONFIG_VERSION, FLOW_VERSION};
+use crate::utils::constants::CONFIG_VERSION;
+use crate::utils::constants::PIPELINE_VERSION;
 
 /// Returns the application version from Cargo.toml
 pub fn app_version() -> &'static str {
@@ -15,9 +16,9 @@ pub fn config_version() -> &'static str {
     CONFIG_VERSION
 }
 
-/// Interface flow version from constants.
-pub fn flow_version() -> &'static str {
-    FLOW_VERSION
+/// Interface pipeline version from constants.
+pub fn pipeline_version() -> &'static str {
+    PIPELINE_VERSION
 }
 
 /// Returns the application name for CLI usage.

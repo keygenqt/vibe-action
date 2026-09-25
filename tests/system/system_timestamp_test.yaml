@@ -1,0 +1,10 @@
+version: 0.0.2
+name: system_timestamp
+about: Test system_timestamp tag
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: system_timestamp
+    action: '{result}'

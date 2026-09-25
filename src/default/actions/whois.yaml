@@ -1,23 +1,34 @@
-version: 0.0.1
+version: 0.0.2
 
 name: whois
 about: Identify a person from a screenshot
 notify: true
 
-# IDE plugin integration: maps argument names to IDE contexts
 api:
-  # Target for the final result (replace | clipboard | dialog)
   output: dialog
-  # Source for the {query} tag
-  input: query|image
+  input: query_image
 
 actions:
   # Identify and analyze tech figures in the image
   - tag: tag_identity
     run: vision
-    expect: string
+    val:
+      # image
+      - name: 'image'
+        data: 'query_image'
+        when: 'is:empty:not'
+      - name: 'image'
+        data: 'query_clipboard_image'
+        when: 'is:empty:not'
+      - name: 'image'
+        mods: 'screenshot|text'
+        fail: 'is:empty:not'
+      # lang
+      - name: 'lang'
+        data: 'system_language'
+    reg: '.+'
     action: |
-      {query|image|load|clipboard:screenshot|text}
+      {image}
 
       [Task]
       Identify and analyze all public tech figures in this image from left to right.
@@ -27,7 +38,7 @@ actions:
       - Remove any metadata or inline hints.
       - No introduction, conclusion, or conversational fluff.
       - At the beginning, add a brief description of the historical photo or event.
-      - Language: {system_language}.
+      - Language: {lang}.
 
       [Example]
       brief description of the photo or event
@@ -35,9 +46,3 @@ actions:
       1. **Full Name**
          Role: contribution
          Impact: one sentence about their impact
-
-  # Copy result to clipboard and output
-  - tag: tag_clipboard
-    run: value
-    expect: string
-    action: '{tag_identity|clipboard}'

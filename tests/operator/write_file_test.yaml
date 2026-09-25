@@ -1,0 +1,11 @@
+version: 0.0.2
+name: write_file
+about: Test file write operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'hello'
+        mods: 'file:/tmp/vibe_write_file_test.txt'
+    action: '{result}'

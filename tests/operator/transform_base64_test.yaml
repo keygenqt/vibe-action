@@ -1,0 +1,11 @@
+version: 0.0.2
+name: transform_base64
+about: Test base64 operator
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: 'hello'
+        mods: 'base64:encode|base64:decode'
+    action: '{result}'

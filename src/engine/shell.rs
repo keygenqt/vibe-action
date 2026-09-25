@@ -1,5 +1,5 @@
-//! Shell command executor.
-//! Runs terminal commands and returns stdout.
+//! Shell command executor (`sh -c`).
+//! See [`crate::engine`] module-level docs for context on `cmd` run type.
 
 use anyhow::Result;
 use std::process::Command;

@@ -1,35 +1,33 @@
-version: 0.0.1
+version: 0.0.2
 
 name: fetch
 about: Fetch a web page or PDF and describe its content
 notify: true
 
-# IDE plugin integration: maps argument names to IDE contexts
 api:
-  # Target for the final result (replace | clipboard | dialog)
   output: dialog
-  # Source for the {query} tag
-  input: query|prompt
+  input: query_prompt
 
 actions:
+  # Fetch URL/path content and write a summary
   - tag: tag_description
-    run: small
-    expect: string
+    run: medium
+    reg: '.+'
+    val:
+      - name: content
+        data: query_prompt
+        mods: 'fetch|text'
+      - name: lang
+        data: system_language
     action: |
       [Task]
-      Write a summary strictly in {system_language} language based on the document content below.
+      Write a summary strictly in {lang} language based on the document content below.
 
       [Requirements]
       1. Length: 2-5 sentences maximum.
       2. Focus: Explain the purpose, type, and core content.
       3. Details: Extract essential tools, key features, and specifics mentioned in the text.
-      4. Language: {system_language}
+      4. Language: {lang}
 
       [Content]
-      {query|load|text}
-
-  # Copy result to clipboard and output
-  - tag: tag_clipboard
-    run: value
-    expect: string
-    action: '{tag_description|clipboard}'
+      {content}

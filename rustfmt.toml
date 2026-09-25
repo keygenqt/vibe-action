@@ -5,5 +5,5 @@ imports_granularity = "Item"
 
 # Update version:
 # Install: cargo install --path . --force
-# Update changelog: git cliff --tag v0.2.4 -o CHANGELOG.md
-# Create tag: git tag v0.2.4
+# Update changelog: git cliff --tag v0.3.0 -o CHANGELOG.md
+# Create tag: git tag v0.3.0
