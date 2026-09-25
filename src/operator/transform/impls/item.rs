@@ -1,7 +1,9 @@
 //! Item operator — Nth list item (0-indexed; negative counts from the end).
 //! On scalar: whole string if N == 0, else "".
 
-use crate::operator::operator::{ITEM_SEP, Operator, OperatorKey};
+use crate::operator::operator::ITEM_SEP;
+use crate::operator::operator::Operator;
+use crate::operator::operator::OperatorKey;
 use crate::operator::transform::transform::TransformKey;
 use anyhow::Result;
 

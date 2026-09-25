@@ -53,7 +53,7 @@ actions:
 
   # LLM evaluates each file against the query
   - tag: tag_matches
-    run: small
+    run: medium
     reg: '.+'
     val:
       - name: prompt

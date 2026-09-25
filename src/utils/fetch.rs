@@ -1,7 +1,8 @@
 //! HTTP download: bytes or temp file (deduped by URL hash).
 //! See [`crate::utils`] module-level docs for summary.
 
-use anyhow::{Result, anyhow};
+use anyhow::Result;
+use anyhow::anyhow;
 use std::path::PathBuf;
 use tokio::runtime::Handle;
 use tokio::task::block_in_place;

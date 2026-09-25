@@ -1,7 +1,9 @@
 //! Grep operator — regex filter. List: keep matching items; scalar: keep the
 //! whole string on match, else "". Supports :not (invert).
 
-use crate::operator::operator::{ITEM_SEP, Operator, OperatorKey};
+use crate::operator::operator::ITEM_SEP;
+use crate::operator::operator::Operator;
+use crate::operator::operator::OperatorKey;
 use crate::operator::transform::transform::TransformKey;
 use crate::utils::escape;
 use anyhow::Result;

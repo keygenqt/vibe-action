@@ -3,7 +3,10 @@
 //! or unknown mode → Err. Supports `:not`.
 
 use crate::operator::inspect::inspect::InspectKey;
-use crate::operator::operator::{Operator, OperatorKey, invert, map_items};
+use crate::operator::operator::Operator;
+use crate::operator::operator::OperatorKey;
+use crate::operator::operator::invert;
+use crate::operator::operator::map_items;
 use crate::utils::escape;
 use anyhow::Result;
 

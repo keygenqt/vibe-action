@@ -1,6 +1,7 @@
 //! Query provider for `query_image` — image from input (URL, file path, or base64), returned as base64.
 
-use crate::query::query::{QueryKey, QueryProvider};
+use crate::query::query::QueryKey;
+use crate::query::query::QueryProvider;
 use crate::utils;
 use anyhow::Result;
 use base64::Engine;

@@ -1,7 +1,9 @@
 //! Base64 operator — encode/decode. `base64:encode` / `base64:decode`.
 //! Scalar only. Decode failure → "" (missing → empty contract).
 
-use crate::operator::operator::{Expect, Operator, OperatorKey};
+use crate::operator::operator::Expect;
+use crate::operator::operator::Operator;
+use crate::operator::operator::OperatorKey;
 use crate::operator::transform::transform::TransformKey;
 use anyhow::Result;
 use base64::Engine;

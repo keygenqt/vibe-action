@@ -38,7 +38,7 @@ actions:
 
   # Format the raw description into clean Markdown
   - tag: tag_md
-    run: small
+    run: medium
     reg: '.+'
     val:
       - name: input

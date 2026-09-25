@@ -1,6 +1,8 @@
 //! Tail operator — last N elements of a list or last N chars of a scalar.
 
-use crate::operator::operator::{ITEM_SEP, Operator, OperatorKey};
+use crate::operator::operator::ITEM_SEP;
+use crate::operator::operator::Operator;
+use crate::operator::operator::OperatorKey;
 use crate::operator::transform::transform::TransformKey;
 use anyhow::Result;
 

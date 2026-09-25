@@ -1,6 +1,8 @@
 //! Default operator — empty value → arg, else passthrough. Per-item.
 
-use crate::operator::operator::{Operator, OperatorKey, map_items};
+use crate::operator::operator::Operator;
+use crate::operator::operator::OperatorKey;
+use crate::operator::operator::map_items;
 use crate::operator::transform::transform::TransformKey;
 use crate::utils::escape;
 use anyhow::Result;

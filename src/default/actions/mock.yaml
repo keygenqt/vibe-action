@@ -19,7 +19,7 @@ api:
 actions:
   # LLM generates structured mock data in the requested format
   - tag: tag_mock
-    run: small
+    run: medium
     reg: '.+'
     val:
       - name: format

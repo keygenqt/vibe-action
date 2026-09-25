@@ -10,7 +10,7 @@ api:
 actions:
   # LLM generates 5 technical alternatives
   - tag: tag_synonyms_list
-    run: small
+    run: medium
     reg: '^([^\n]+\n)*[^\n]+$'
     val:
       - name: concept

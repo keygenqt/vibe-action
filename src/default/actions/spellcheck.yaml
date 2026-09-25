@@ -55,7 +55,7 @@ actions:
 
   # LLM fixes all errors while preserving formatting
   - tag: tag_checked
-    run: small
+    run: medium
     reg: '.+'
     val:
       - name: text
