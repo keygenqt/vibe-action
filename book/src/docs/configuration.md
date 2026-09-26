@@ -15,6 +15,12 @@ action:
     Output ONLY the requested result.
   retries: 2
 
+groups:
+  - git: https://gitcode.com/keygenqt_vz/vibe-action-groups.git
+    path: /code
+    name: code
+    about: Work with code
+
 cluster:
   - provider: ollama
     host: http://localhost:11434
@@ -45,6 +51,44 @@ and restart (fresh defaults are written).
 
 The default system prompt instructs the model to be brief and output only
 the requested result — no explanations, no Markdown fences unless asked.
+
+## Action groups
+
+`groups` declares nested command namespaces: `vibe-action <group> <action>`.
+Each group sources its YAML actions from a git repository or a local
+directory.
+
+| Field   | Type   | Required                        | Description                                                                  |
+| ------- | ------ | ------------------------------- | ---------------------------------------------------------------------------- |
+| `git`   | string | git source                      | Repository URL, cloned once into the cache                                   |
+| `path`  | string | local source; optional with git | Directory with YAML actions, or subfolder inside the clone (`/` = repo root) |
+| `ref`   | string | no                              | Branch, tag, or commit to pin (git source only)                              |
+| `name`  | string | yes                             | CLI group name                                                               |
+| `about` | string | yes                             | Short description shown in help                                              |
+
+Either `git` or `path` must be set. With a git source, `path` selects a
+subfolder of the clone and `ref` pins a specific branch, tag, or commit.
+
+A git source is cloned once into the cache and re-used on later runs.
+`vibe-action clean` removes the cloned groups, so they are re-pulled on
+the next run.
+
+### Local directory group
+
+```yaml
+groups:
+  - path: /Users/me/vibe-actions/code
+    name: code
+    about: Work with code
+```
+
+### Group validation
+
+- `name` must be non-empty: lowercase letters, digits, `_`, or `-`.
+- `name` must not collide with a system command or a top-level action.
+- `about` must be non-empty.
+- `ref` is only allowed with a `git` source.
+- With `git`, `path` must stay inside the clone (no `..`).
 
 ## Cluster
 
@@ -128,19 +172,18 @@ cluster:
 ~/.vibe-action/
 ├── config.yaml
 └── actions/
-    ├── comment.yaml
-    ├── commit.yaml
-    └── ...
+    ├── docs.yaml
+    └── info.yaml
 ```
 
 - Config: `~/.vibe-action/config.yaml` — override with `VIBE_CONFIG`.
 - Actions: `~/.vibe-action/actions/` — override with `VIBE_ACTION_PATH`.
-- Both directories are created on first run. Custom `.yaml` files in the
-  actions directory are loaded automatically.
+- Both directories are created on first run. Custom `.yaml` files in the actions directory are loaded automatically.
+- Cloned group repositories live in the application cache directory, not under `~/.vibe-action/`.
 
 ## Initialization order
 
 1. Output registry from `VIBE_LOG_TYPE` / `VIBE_TRACE_LEVEL`.
 2. Config file from `VIBE_CONFIG` or default path; create if missing.
 3. Validate config (version, cluster nodes).
-4. Load pipelines (scan actions dir, validate, cache).
+4. Load pipelines (scan actions dir and action groups, validate, cache).

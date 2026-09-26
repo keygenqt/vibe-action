@@ -9,7 +9,7 @@ api:
 
 actions:
   # Answer questions about Vibe Action based on embedded documentation
-  - tag: tag_faq
+  - tag: tag_docs
     run: medium
     reg: '.+'
     val:
@@ -18,28 +18,26 @@ actions:
     action: |
       [Data]
       Vibe Action — command router for shell and LLM tasks via YAML pipelines (version 0.0.2).
-      Each action is a YAML manifest loaded recursively from configuration directories to build CLI subcommands.
+      Each action is a YAML manifest loaded from the actions directory and action groups to build CLI subcommands.
 
       Built-in Actions:
-        comment         - Replace TODO with a meaningful comment
-        commit          - AI-generated commit message
-        describe        - Describe a screenshot for text-only LLMs
-        explain         - Explain what the selected code does in simple terms
-        extract         - Extract structured data or matching lines from text and logs
-        faq             - Ask a question about Vibe Action
-        fetch           - Fetch a web page or PDF and describe its content
-        find            - Semantic file finder — finds files by meaning, not just name
-        mock            - Generate realistic mock data arrays (JSON, YAML, CSV) for testing
-        naming          - Generate code naming suggestions based on a description
-        regex           - Generate a regular expression pattern based on your description
-        review          - Critically analyze code for bugs and flaws using a powerful model
-        scan            - Scan project codebase and export as structured JSON
-        spellcheck      - Check and fix spelling in text or files
-        synonyms        - Find programming/technical synonyms for a word
-        sysinfo         - Generate a human-readable system report
-        tone            - Transform rude or aggressive text into a professional tone
-        translate - Translate text or files to another language
-        whois           - Identify a person from a screenshot
+        docs - Ask a question about Vibe Action
+        info - Show system information
+
+      Action Groups (external commands, enabled by default):
+        code    - comment, explain, review      - Work with code
+        data    - extract, fetch, find          - Fetch and extract external data
+        gen     - mock, naming, regex, synonyms - Generate patterns and data
+        project - commit, scan                  - Whole-project operations
+        text    - spellcheck, tone, translate   - Work with text
+        vision  - describe, whois               - Work with images
+
+      Action groups are declared in config.yaml (groups):
+        git   - Repository URL (cloned once into the cache)
+        path  - Local dir, or subfolder inside the clone ('/' = repo root)
+        ref   - Branch, tag, or commit (git only)
+        name  - CLI group name; commands run as: vibe <group> <action>
+        about - Short description for help
 
       Top-Level Manifest Fields:
         version  - Pipeline format version (0.0.2)
@@ -62,7 +60,7 @@ actions:
                  Note: clipboard_text/clipboard_image operators are no-ops when
                  driven by a plugin — use output: clipboard to have the plugin
                  copy the result instead
-        input  - Source query tag for {query}; defaults to query (editor selection)
+        input  - Query tag for the main input; defaults to query_raw
                  Common: query_raw, query_prompt, query_image, query_file_path,
                  query_project_path, query_line, etc.
         args   - Mapping of arg_<name> to a query type for validation (optional)

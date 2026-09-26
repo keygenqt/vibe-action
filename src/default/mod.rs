@@ -6,25 +6,12 @@
 //!
 //! # Built-in actions
 //!
-//! - `comment` — replace TODO with a meaningful comment.
-//! - `commit` — AI-generated commit message (with `--dry-run`).
-//! - `describe` — describe a screenshot for text-only LLMs.
-//! - `explain` — explain what the selected code does.
-//! - `extract` — extract structured data or matching lines from text/logs.
-//! - `faq` — ask a question about Vibe Action.
-//! - `fetch` — fetch a web page or PDF and describe its content.
-//! - `find` — semantic file finder by meaning, not name.
-//! - `mock` — generate realistic mock data (JSON, YAML, CSV).
-//! - `naming` — generate code naming suggestions.
-//! - `regex` — generate a regex pattern from a description.
-//! - `review` — critically analyze code for bugs and flaws.
-//! - `scan` — scan project codebase, export as structured JSON.
-//! - `spellcheck` — check and fix spelling in text or files.
-//! - `synonyms` — find programming/technical synonyms.
-//! - `sysinfo` — generate a human-readable system report.
-//! - `tone` — transform rude text into professional tone.
-//! - `translate` — translate text or files to another language.
-//! - `whois` — identify a person from a screenshot.
+//! - `docs` — ask a question about Vibe Action.
+//! - `info` — show system information.
+//!
+//! Additional actions ship in external groups (git repos or local dirs)
+//! declared in the `groups` config and are loaded by
+//! [`PipelinesModel::load`](crate::models::pipelines::PipelinesModel::load).
 //!
 //! # Submodules
 //!

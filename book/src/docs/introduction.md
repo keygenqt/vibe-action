@@ -10,6 +10,7 @@ Vibe Action is a command router that executes shell commands and LLM prompts def
 - 🛡️ **Guards** — `when` / `fail` predicates and `reg` output validation, all in YAML
 - 🖥️ **System tags** — runtime environment: OS, user, directories, time, and more
 - 📥 **Unified input** — query tags handle text, files, images, and interactive prompts from CLI or IDE
+- 🗂️ **Action groups** — load actions from external git repositories or local directories as nested `vibe-action <group> <action>` commands
 - 👁️ **Vision support** — screenshot description, person identification, image from URL or clipboard
 - 🤖 **Batch LLM** — parallel execution across cluster nodes with role-based routing (`tiny`, `small`, `medium`, `large`, `vision`)
 - ⏱️ **Process guard** — a new run supersedes the previous one, keeping shared state predictable
