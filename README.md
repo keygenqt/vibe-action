@@ -9,6 +9,7 @@ Command router for shell and LLM tasks via simple YAML actions.
 - ⚡ **Complex pipelines** — chain shell and LLM into one command
 - 🔗 **Tag system** — auto-dependency graph via tag references
 - 🧩 **Operators** — 30+ read/inspect/transform/write operators chained in `mods`
+- 🗂️ **Action groups** — load commands from git repos or local dirs as `vibe-action <group> <action>`
 - 🛡️ **Guards** — `when` skips, `fail` bails, `reg` validates output — all in YAML
 - 📥 **Unified Input** — query tags handle text, files, images, and interactive prompts from CLI or IDE
 - 🖥️ **System tags** — `system_os`, `system_user`, `system_dir_pwd` and more
