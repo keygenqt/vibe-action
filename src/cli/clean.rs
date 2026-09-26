@@ -37,6 +37,19 @@ pub async fn execute() {
         print_text!(OutputKind::Info, "Actions cache cleaned");
     }
 
+    // Clean group clones (git groups re-pull on the next run)
+    let groups_dir = cache_dir.join("groups");
+    if groups_dir.exists() {
+        match std::fs::remove_dir_all(&groups_dir) {
+            Ok(()) => print_text!(OutputKind::Info, "Group caches cleaned"),
+            Err(e) => print_template!(
+                OutputKind::Error,
+                "Failed to clean group caches: {error}",
+                "error" => e.to_string()
+            ),
+        }
+    }
+
     // Clean temp files created by load modifier
     match std::fs::read_dir(std::env::temp_dir()) {
         Ok(entries) => {

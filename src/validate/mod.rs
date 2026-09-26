@@ -25,6 +25,11 @@
 //!   ASCII letter.
 //! - `cluster` — non-empty provider/model; host is a valid URL; temperature in
 //!   `0.0..=2.0`; `num_ctx`, `num_predict`, `parallel` > 0.
+//! - `group` — non-empty name (lowercase, '_'/'-'), not a built-in command;
+//!   non-empty about; `ref` only with a git source; non-empty git URL / path;
+//!   with git, `path` is a subfolder inside the clone (no '..'). Name
+//!   uniqueness across groups and collisions with action names are
+//!   checked at config level (`app`) after pipelines load.
 //! - `pipeline` — version match; non-empty name; no duplicate tags/args;
 //!   `query_*`/`system_*` prefixes are reserved; val `data` references a known
 //!   tag (not self, not bare `query`); check regex validity.
@@ -38,6 +43,7 @@ pub mod api;
 pub mod app;
 pub mod arg;
 pub mod cluster;
+pub mod group;
 pub mod pipeline;
 pub mod pipelines;
 

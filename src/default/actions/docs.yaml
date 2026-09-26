@@ -1,7 +1,7 @@
 version: 0.0.2
 
-name: faq
-about: Ask a question about Vibe Action — YAML structure, fields, operators, or usage
+name: docs
+about: Ask a question about Vibe Action
 
 api:
   output: dialog
@@ -38,9 +38,7 @@ actions:
         synonyms        - Find programming/technical synonyms for a word
         sysinfo         - Generate a human-readable system report
         tone            - Transform rude or aggressive text into a professional tone
-        translate-deep  - Deep two-stage translation using local drafting and cloud polishing
-        translate-large - One step translation using large model
-        translate-small - Translate text or files to another language
+        translate - Translate text or files to another language
         whois           - Identify a person from a screenshot
 
       Top-Level Manifest Fields:

@@ -50,6 +50,9 @@ pub struct PipelineModel {
     /// Source YAML file path (set at load time, not serialized).
     #[serde(skip, default)]
     pub file_path: Option<PathBuf>,
+    /// Group name for nested commands (set by the loader, None = top-level).
+    #[serde(skip, default)]
+    pub group: Option<String>,
 }
 
 impl PipelineModel {

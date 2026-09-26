@@ -19,6 +19,6 @@ if [ -d "$FIXTURE_DIR/dot-git" ]; then
 fi
 
 # Run the commit action in dry-run mode, passing project path as query
-VIBE_LOG_TYPE=tracing VIBE_TRACE_LEVEL=trace cargo run -- commit "$FIXTURE_DIR" -d
+cargo run -- project commit "$FIXTURE_DIR" -d
 
 # Cleanup trap will rename .git back to dot-git automatically

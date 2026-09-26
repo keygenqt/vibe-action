@@ -20,7 +20,12 @@ use crate::utils;
 const CONFIRM_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
 
 /// Execute a dynamic action command.
-pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig) {
+pub async fn execute(
+    group: Option<&str>,
+    name: &str,
+    action_matches: &ArgMatches,
+    config: &AppConfig,
+) {
     let is_output_cli = AppConfig::output().output_type() == OutputType::Cli;
     let is_output_json = AppConfig::output().output_type() == OutputType::Json;
     let start_time = std::time::Instant::now();
@@ -50,7 +55,7 @@ pub async fn execute(name: &str, action_matches: &ArgMatches, config: &AppConfig
     };
 
     let mut pipeline = config
-        .find_pipeline(name)
+        .find_pipeline(group, name)
         .unwrap_or_else(|e| {
             print_text!(OutputKind::Error, "{}", e);
             std::process::exit(1);

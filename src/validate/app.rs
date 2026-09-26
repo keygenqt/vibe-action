@@ -18,6 +18,10 @@ impl ValidateTrait for AppConfig {
                 constants::CONFIG_VERSION
             );
         }
+        // Validate each action group.
+        for group in &self.groups {
+            group.validate()?;
+        }
         // Validate each cluster node.
         for node in &self.cluster {
             node.validate()?;

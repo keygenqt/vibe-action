@@ -1,7 +1,7 @@
 version: 0.0.2
 
-name: sysinfo
-about: Generate a human-readable system report
+name: info
+about: Show system information
 
 api:
   output: dialog
