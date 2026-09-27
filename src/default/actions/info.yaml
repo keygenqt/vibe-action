@@ -18,6 +18,10 @@ actions:
         data: system_os
       - name: arch
         data: system_arch
+      - name: code_langs
+        data: system_code_langs
+      - name: code_shell
+        data: system_code_shell
       - name: hostname
         data: system_hostname
       - name: shell
@@ -58,6 +62,8 @@ actions:
       [Data]
       OS: {os}
       Architecture: {arch}
+      Code Languages: {code_langs}
+      Shell Languages: {code_shell}
       Hostname: {hostname}
       Shell: {shell}
       System Language: {lang}

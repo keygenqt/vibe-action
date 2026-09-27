@@ -163,6 +163,8 @@ actions:
 
       System Tags (runtime environment, always return Ok, empty if missing):
         system_arch            - CPU architecture (e.g. aarch64, x86_64)
+        system_code_langs      - Extensions of supported code languages (vibe_ast)
+        system_code_shell      - Extensions of supported shell languages (vibe_ast)
         system_cpu_cores       - Logical CPU core count
         system_date            - Current date, ISO 8601 (YYYY-MM-DD)
         system_datetime        - Current date and time, ISO 8601 (YYYY-MM-DDTHH:MM:SS)

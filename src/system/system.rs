@@ -5,6 +5,8 @@ use anyhow::Result;
 use std::collections::HashMap;
 
 use crate::system::impls::arch::SystemArchProvider;
+use crate::system::impls::code_langs::SystemCodeLangsProvider;
+use crate::system::impls::code_shell::SystemCodeShellProvider;
 use crate::system::impls::cpu_cores::SystemCpuCoresProvider;
 use crate::system::impls::date::SystemDateProvider;
 use crate::system::impls::datetime::SystemDatetimeProvider;
@@ -30,6 +32,8 @@ use crate::system::impls::user::SystemUserProvider;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SystemKey {
     Arch,
+    CodeLangs,
+    CodeShell,
     CpuCores,
     Date,
     Datetime,
@@ -56,6 +60,8 @@ impl SystemKey {
     pub fn as_str(&self) -> &'static str {
         match self {
             SystemKey::Arch => "system_arch",
+            SystemKey::CodeLangs => "system_code_langs",
+            SystemKey::CodeShell => "system_code_shell",
             SystemKey::CpuCores => "system_cpu_cores",
             SystemKey::Date => "system_date",
             SystemKey::Datetime => "system_datetime",
@@ -82,6 +88,8 @@ impl SystemKey {
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
             "system_arch" => Some(SystemKey::Arch),
+            "system_code_langs" => Some(SystemKey::CodeLangs),
+            "system_code_shell" => Some(SystemKey::CodeShell),
             "system_cpu_cores" => Some(SystemKey::CpuCores),
             "system_date" => Some(SystemKey::Date),
             "system_datetime" => Some(SystemKey::Datetime),
@@ -109,6 +117,8 @@ impl SystemKey {
     pub fn all() -> &'static [SystemKey] {
         &[
             SystemKey::Arch,
+            SystemKey::CodeLangs,
+            SystemKey::CodeShell,
             SystemKey::CpuCores,
             SystemKey::Date,
             SystemKey::Datetime,
@@ -151,6 +161,8 @@ impl SystemRegistry {
             providers: HashMap::new(),
         };
         registry.register(Box::new(SystemArchProvider));
+        registry.register(Box::new(SystemCodeLangsProvider));
+        registry.register(Box::new(SystemCodeShellProvider));
         registry.register(Box::new(SystemCpuCoresProvider));
         registry.register(Box::new(SystemDateProvider));
         registry.register(Box::new(SystemDatetimeProvider));

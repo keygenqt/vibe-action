@@ -35,6 +35,16 @@ val:
 `system_language` strips locale suffixes: `en_US.UTF-8` → `en`.
 Falls back to `en` if `$LANG` is unset, `C`, or `POSIX`.
 
+### Code languages
+
+| Tag                 | Value                               | Example                   |
+| ------------------- | ----------------------------------- | ------------------------- |
+| `system_code_langs` | Supported code language extensions  | `rs`, `py`, `ts`, `js`, … |
+| `system_code_shell` | Supported shell language extensions | `sh`, `bat`               |
+
+Both tags are newline-separated lists, one extension per line.
+Single source of truth: vibe_ast languages (`crate::langs`).
+
 ### Time
 
 | Tag                | Value                           | Example               |

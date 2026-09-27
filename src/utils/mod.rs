@@ -41,6 +41,7 @@ pub mod fetch;
 pub mod format;
 pub mod git;
 pub mod image;
+pub mod langs;
 pub mod path;
 pub mod run_guard;
 pub mod yaml;
