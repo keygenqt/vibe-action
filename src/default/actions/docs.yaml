@@ -8,13 +8,17 @@ api:
   input: query_prompt
 
 actions:
-  # Answer questions about Vibe Action based on embedded documentation
-  - tag: tag_docs
+  # Answer questions about Vibe Action: built-in reference + live AGENTS.md from the groups repo
+  - tag: tag_answer
     run: medium
     reg: '.+'
     val:
       - name: query
         data: query_prompt
+      - name: docs
+        data: https://raw.gitcode.com/keygenqt_vz/vibe-action-groups/raw/main/AGENTS.md
+        mods: 'fetch|text'
+        fail: 'is:empty:not'
     action: |
       [Data]
       Vibe Action — command router for shell and LLM tasks via YAML pipelines (version 0.0.2).
@@ -24,178 +28,6 @@ actions:
         docs - Ask a question about Vibe Action
         info - Show system information
 
-      Action Groups (external commands, enabled by default):
-        code    - comment, explain, review      - Work with code
-        data    - extract, fetch, find          - Fetch and extract external data
-        gen     - mock, naming, regex, synonyms - Generate patterns and data
-        project - commit, scan                  - Whole-project operations
-        text    - spellcheck, tone, translate   - Work with text
-        vision  - describe, whois               - Work with images
-
-      Action groups are declared in config.yaml (groups):
-        git   - Repository URL (cloned once into the cache)
-        path  - Local dir, or subfolder inside the clone ('/' = repo root)
-        ref   - Branch, tag, or commit (git only)
-        name  - CLI group name; commands run as: vibe <group> <action>
-        about - Short description for help
-
-      Top-Level Manifest Fields:
-        version  - Pipeline format version (0.0.2)
-        name     - Action name, becomes CLI subcommand (required)
-        about    - Short description for CLI help (required)
-        notify   - Show desktop notification on completion (optional, default false)
-        args     - List of named CLI arguments (optional)
-        api      - IDE/CLI integration config
-        actions  - Ordered list of pipeline steps
-
-      Args Schema (each item in the args list):
-        name    - Argument name; becomes arg_<name> tag (required)
-        short   - Short flag alias, single character (optional)
-        input   - Input type: string, bool, number
-        default - Default value, makes argument optional (optional)
-        help    - Help text for CLI (optional)
-
-      API Block (IDE plugin metadata, ignored by CLI runtime):
-        output - Target for final result: replace (default), clipboard, dialog
-                 Note: clipboard_text/clipboard_image operators are no-ops when
-                 driven by a plugin — use output: clipboard to have the plugin
-                 copy the result instead
-        input  - Query tag for the main input; defaults to query_raw
-                 Common: query_raw, query_prompt, query_image, query_file_path,
-                 query_project_path, query_line, etc.
-        args   - Mapping of arg_<name> to a query type for validation (optional)
-        Example:
-          api:
-            output: replace
-            input: query_raw
-            args:
-              arg_file: query_file_path
-
-      Actions Schema (each item in the actions list):
-        tag    - Unique identifier for the step (required)
-        run    - Execution engine: value, cmd, vision, tiny, small, medium, large (required)
-        val    - List of value candidates that resolve data into placeholders (optional)
-        reg    - Regex pattern to validate step output (optional)
-        ask    - Ask for user approval before running (optional, default false)
-        action - Template string with placeholders (required)
-        Execution order is resolved automatically by data dependencies (topological sort).
-
-      Val Candidates (each item in the val list):
-        name - Placeholder name used in the action template (required)
-        data - Source tag name or literal value (optional)
-        mods - Operator pipe: op:arg|op:arg|... applied left to right (optional)
-        when - Pre-mods soft guard: inspect operators; if false, skip this candidate (optional)
-        fail - Post-mods hard guard: inspect operators; if false, bail with error (optional)
-        each - Fan-out config: true (default newline split/merge) or split/merge config
-
-        Candidates are evaluated in order. First candidate per name whose when passes
-        (or has none) wins. If no candidate wins for a name, the tag becomes empty (dead tag).
-
-      Placeholder System:
-        The action template uses single-brace placeholders around a candidate name.
-        Each placeholder must match a declared val candidate name.
-        Operators are NOT inline in the template — they go in the candidate mods field.
-        For cmd actions, values are automatically shell-quoted.
-        Example:
-          val:
-            - name: content
-              data: query_raw
-              mods: 'fetch|text'
-          action uses: content inside single braces
-
-      Operators (used in mods, when, fail):
-
-        Read — world to value:
-          ast:<brief|full|lang>  - Parse source file to JSON AST (brief=signatures, full=bodies, lang=explicit code)
-          fetch                  - Download URL to temp file, or resolve local file path
-          resolve:<dir|file>     - Resolve path to absolute (optional dir/file filter)
-          scan                   - Scan directory, return list of file paths
-          screenshot             - Interactive screen capture, return image path
-          text                   - Extract text from HTML/PDF/image-file, or base64 passthrough
-
-        Inspect — value to bool (for when/fail guards):
-          compare:<mode>:<N>     - Numeric comparison (supports :not)
-                                 Modes: gt, lt, gte, lte
-                                 Non-numeric value → false; bad threshold → error
-          contains:<X>           - Substring test (supports :not)
-          equals:<X>             - Exact equality (supports :not)
-          is:<kind>              - Type/presence predicate (supports :not)
-                                 Kinds: empty, num, int, bool, url, path, json
-          matches:<regex>        - Regex test (supports :not)
-
-        Transform — value to value:
-          base64:<encode|decode> - Encode/decode base64 (scalar only; decode failure → "")
-          default:<X>            - Empty value → X, else passthrough (per-item)
-          filter:<eq:X|not:X|X>  - Keep/remove list items by pattern
-          format:<json|yaml|toml|json5> - Convert between formats (list-aware: wraps items in array)
-          grep:<regex>           - Regex filter: keep matching items; :not inverts
-          item:<N>               - Nth list item, negative counts from the end (out of range → "")
-          join:<sep>             - Collapse list to string with separator (default newline)
-          lower / upper          - Case conversion, per-item
-          replace:<from>:<to>    - Substring replacement (per-item)
-          reverse                - Reverse list order or string chars
-          size                   - Item count (list) or byte length (scalar)
-          sort:<asc|desc>        - Alphabetical sort
-          split:<sep>            - Split string to list by separator (default newline)
-          strip                  - Remove markdown code fences
-          tail:<N>               - Last N elements (list) or chars (scalar)
-          take:<N>               - First N elements (list) or chars (scalar)
-          trim:<chars>           - Trim whitespace/chars from ends, or filter list items
-          uniq                   - Deduplicate list elements or string chars
-
-        Write — value to world (pass-through):
-          clipboard_image        - Copy base64 image to clipboard (no-op when driven by a plugin;
-                                   use api.output: clipboard there instead)
-          clipboard_text         - Copy text to clipboard, strips markdown blocks (same plugin note)
-          file:<path>[:append]   - Write value to file; :append appends instead of overwriting
-
-      Query Types (source tags resolved by providers):
-        query_raw             - Raw text input (no validation)
-        query_prompt          - Interactive prompt (terminal in CLI, dialog in IDE)
-        query_clipboard       - Combined clipboard (text > paths > image, token-limited)
-        query_clipboard_text  - Raw text from clipboard
-        query_clipboard_path  - Copied file paths from clipboard
-        query_clipboard_image - Clipboard image as base64 PNG
-        query_file_path       - Explicit input to existing file path, else empty
-        query_project_path    - Explicit input to project root (walks up to marker), else empty
-        query_line            - Explicit input to first line, else empty
-        query_image           - Explicit input (URL/file/base64) to validated base64, Err if invalid
-
-      System Tags (runtime environment, always return Ok, empty if missing):
-        system_arch            - CPU architecture (e.g. aarch64, x86_64)
-        system_code_langs      - Extensions of supported code languages (vibe_ast)
-        system_code_shell      - Extensions of supported shell languages (vibe_ast)
-        system_cpu_cores       - Logical CPU core count
-        system_date            - Current date, ISO 8601 (YYYY-MM-DD)
-        system_datetime        - Current date and time, ISO 8601 (YYYY-MM-DDTHH:MM:SS)
-        system_dir_cache       - User cache directory
-        system_dir_config      - User configuration directory
-        system_dir_data        - User data directory
-        system_dir_download    - User downloads directory
-        system_dir_home        - User home directory
-        system_dir_pwd         - Current working directory
-        system_dir_temp        - Temporary directory
-        system_hostname        - Machine hostname
-        system_language        - System language code from LANG (e.g. en, ru)
-        system_mem_available   - Available memory in bytes
-        system_os              - Operating system name (e.g. macos, linux)
-        system_pid             - Current process ID
-        system_shell           - Current shell name (e.g. zsh, bash)
-        system_time            - Current time (HH:MM:SS)
-        system_timestamp       - Current unix epoch seconds
-        system_uid             - Current user ID
-        system_user            - Current user name
-
-      Escape Sequences (in mods args and each config):
-        \n   - Newline (0x0A)
-        \t   - Tab (0x09)
-        \s   - Space (shields from YAML trimmers)
-
-      Cross-Step List Data:
-        List data passed between steps is joined with newlines.
-        To chain list operators (split, filter, uniq, join, etc.) without losing structure,
-        combine them in a single mods string within one candidate.
-
       System Commands:
         clean  - Remove all cache
         status - Show system status
@@ -203,7 +35,8 @@ actions:
         stop   - Stop all running processes
 
       [Task]
-      Answer the user's question as a helpful, concise technical assistant based strictly on the [Data] above.
+      Answer the user's question as a helpful, concise technical assistant based strictly
+      on the [Data] above and the [Docs] below.
 
       [Rules]
       1. If the response contains YAML, wrap it in a yaml code block.
@@ -211,6 +44,9 @@ actions:
 
       [Strict Rules]
       1. Answer STRICTLY in the same language as the [Query]. NO mixed languages.
+
+      [Docs]
+      {docs}
 
       [Query]
       {query}
