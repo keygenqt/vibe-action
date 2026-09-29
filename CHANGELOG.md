@@ -2,37 +2,25 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
-## [0.3.0] - 2026-09-25
-
-### ⚡ Refactoring
-
-- Update pipeline and engine, add query tag validation and log filter action
-- Update action execution logic, add screenshot operator, and refactor modules structure
-- Consolidate clipboard and image utilities, update system providers, and refactor action validation
-- Consolidate action logic, update validation, and add fail conditions
-- Consolidate translation actions into single pipeline and resolve tag placeholders in operator args
-- Use querykey::raw for default api input and adjust comment model size to medium
-
-### 🐛 Fixes
-
-- Query add clipboard
+## [0.3.1] - 2026-09-29
 
 ### 📚 Documentation
 
-- Move module-level docs to mod.rs and add back-references in submodules
+- Update embedded docs action and module docs for action groups
+
+### 🚀 Features
+
+- Add action groups and external repositories
+- Add code and shell language system providers with centralized extension mapping
+- Add ci fixtures and fix fixture layout for nested groups
+- Add groups export to JSON output
+
+## [0.3.0] - 2026-09-25
 
 ### 🚀 Features
 
 - Add strip modifier to remove common wrapper/fence delimiters and update documentation
 - Upgrade pipeline and engine
-- Refactoring modificator (operator) and query
-- Add operator escape system and extend operator set
-- Update documentation
-- Upgrade default action models from small to medium
-
-### 🧪 Tests
-
-- Add engine integration tests (arg, parser, switch, expect, ordering)
 
 ## [0.2.3] - 2026-08-21
 
