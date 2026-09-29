@@ -9,7 +9,7 @@ No `println!` exists outside the output module — everything flows through
 Set `VIBE_LOG_TYPE` before startup:
 
 ```text
-VIBE_LOG_TYPE=json vibe-action review main.rs
+VIBE_LOG_TYPE=json vibe-action code review main.rs
 ```
 
 | Value     | Strategy  | Use for                             |

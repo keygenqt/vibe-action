@@ -34,7 +34,7 @@ cargo install vibe-action
 Build from source:
 
 ```text
-git clone https://gitcode.com/keygenqt_vz/vibe-action.git
+git clone https://github.com/keygenqt/vibe-action.git
 cd vibe-action
 cargo build --release
 ```

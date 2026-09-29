@@ -11,10 +11,10 @@ pub const ACTIONS_DIR_NAME: &str = "actions";
 pub const CONFIG_FILE_NAME: &str = "config.yaml";
 
 /// Config version
-pub const CONFIG_VERSION: &str = "0.0.3";
+pub const CONFIG_VERSION: &str = "0.0.4";
 
 /// pipeline version (bump to force-update default pipelines on disk).
 pub const PIPELINE_VERSION: &str = "0.0.2";
 
 /// Cache version (bump when pipeline schema or validation logic changes).
-pub const CACHE_VERSION: &str = "0.0.3";
+pub const CACHE_VERSION: &str = "0.0.4";

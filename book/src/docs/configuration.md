@@ -16,7 +16,7 @@ action:
   retries: 2
 
 groups:
-  - git: https://gitcode.com/keygenqt_vz/vibe-action-groups.git
+  - git: https://github.com/github/vibe-action-groups.git
     path: /code
     name: code
     about: Work with code

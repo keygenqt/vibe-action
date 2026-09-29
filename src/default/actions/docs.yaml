@@ -16,7 +16,7 @@ actions:
       - name: query
         data: query_prompt
       - name: docs
-        data: https://raw.gitcode.com/keygenqt_vz/vibe-action-groups/raw/main/AGENTS.md
+        data: https://raw.github.com/keygenqt/vibe-action-groups/raw/main/AGENTS.md
         mods: 'fetch|text'
         fail: 'is:empty:not'
     action: |

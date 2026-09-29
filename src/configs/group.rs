@@ -41,7 +41,7 @@ impl Default for GroupConfig {
         Self {
             name: String::new(),
             about: String::new(),
-            git: Some("https://gitcode.com/keygenqt_vz/vibe-action-groups.git".to_string()),
+            git: Some("https://github.com/keygenqt/vibe-action-groups.git".to_string()),
             path: None,
             r#ref: None,
         }

@@ -3,7 +3,7 @@
 Vibe Action embeds two actions in the binary: `docs` and `info`.
 
 Additional commands ship in the
-[vibe-action-groups](https://gitcode.com/keygenqt_vz/vibe-action-groups)
+[vibe-action-groups](https://github.com/keygenqt/vibe-action-groups)
 repository. The default config already connects it via action groups, so
 these commands are available out of the box as `vibe-action <group> <action>`.
 

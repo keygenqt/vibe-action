@@ -38,6 +38,7 @@ pub enum OutputKind {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ExportContext {
     Actions,
+    Groups,
     Status,
     Success,
     Confirm,
@@ -47,6 +48,7 @@ impl ExportContext {
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Actions => "actions",
+            Self::Groups => "groups",
             Self::Status => "status",
             Self::Success => "success",
             Self::Confirm => "confirm",

@@ -134,11 +134,36 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
                 .unwrap_or_default();
             let formatted_name = format!("  {:<width$}", g, width = max_len);
 
+            // Nested actions for the plugin (ExportContext::Groups).
+            let mut group_actions: Vec<&PipelineModel> = pipelines
+                .iter()
+                .filter(|p| p.group.as_deref() == Some(g))
+                .collect();
+            group_actions.sort_by(|a, b| a.name.cmp(&b.name));
+
+            let actions_json: Vec<serde_json::Value> = group_actions
+                .iter()
+                .map(|p| {
+                    let is_custom = !builtin_names.contains(&p.name);
+                    serde_json::json!({
+                        "name": p.name,
+                        "about": p.about,
+                        "args": p.args,
+                        "api": p.api,
+                        "is_custom": is_custom,
+                        "yaml_path": p.file_path.as_ref().map(|path| path.display().to_string()),
+                    })
+                })
+                .collect();
+
             print_template!(
+                ExportContext::Groups,
                 OutputKind::Plain,
-                "{name|cyan|bold} {about}",
-                "name" => formatted_name,
+                "{formatted_name|cyan|bold} {about}",
+                "formatted_name" => formatted_name,
+                "name" => g,
                 "about" => about,
+                "actions" => actions_json,
             );
         }
     }
