@@ -1,0 +1,52 @@
+version: 0.0.2
+
+name: docs
+about: Ask a question about Vibe Action
+
+api:
+  output: dialog
+  input: query_prompt
+
+actions:
+  # Answer questions about Vibe Action: built-in reference + live AGENTS.md from the groups repo
+  - tag: tag_answer
+    run: medium
+    reg: '.+'
+    val:
+      - name: query
+        data: query_prompt
+      - name: docs
+        data: https://raw.github.com/keygenqt/vibe-action-groups/raw/main/AGENTS.md
+        mods: 'fetch|text'
+        fail: 'is:empty:not'
+    action: |
+      [Data]
+      Vibe Action — command router for shell and LLM tasks via YAML pipelines (version 0.0.2).
+      Each action is a YAML manifest loaded from the actions directory and action groups to build CLI subcommands.
+
+      Built-in Actions:
+        docs - Ask a question about Vibe Action
+        info - Show system information
+
+      System Commands:
+        clean  - Remove all cache
+        status - Show system status
+        bench  - Run benchmarks
+        stop   - Stop all running processes
+
+      [Task]
+      Answer the user's question as a helpful, concise technical assistant based strictly
+      on the [Data] above and the [Docs] below.
+
+      [Rules]
+      1. If the response contains YAML, wrap it in a yaml code block.
+      2. Never use quotes for text answers, lists, and general descriptions.
+
+      [Strict Rules]
+      1. Answer STRICTLY in the same language as the [Query]. NO mixed languages.
+
+      [Docs]
+      {docs}
+
+      [Query]
+      {query}

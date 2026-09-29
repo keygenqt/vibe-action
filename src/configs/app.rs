@@ -13,6 +13,7 @@ use vibe_cluster::Provider;
 use crate::configs::action::ActionConfig;
 use crate::configs::cluster::ClusterConfig;
 use crate::configs::cluster::ClusterRole;
+use crate::configs::group::GroupConfig;
 use crate::models::action::ActionRun;
 use crate::models::pipeline::PipelineModel;
 use crate::models::pipelines::PipelinesModel;
@@ -36,6 +37,9 @@ pub struct AppConfig {
     pub version: String,
     /// Action runtime configuration.
     pub action: ActionConfig,
+    /// External action groups (nested CLI commands: vibe <group> <action>).
+    #[serde(default)]
+    pub groups: Vec<GroupConfig>,
     /// LLM cluster nodes (local and cloud models).
     pub cluster: Vec<ClusterConfig>,
     /// Loaded actions model (not serialized).
@@ -49,6 +53,44 @@ impl Default for AppConfig {
         Self {
             version: constants::CONFIG_VERSION.to_string(),
             action: ActionConfig::default(),
+            groups: vec![
+                GroupConfig {
+                    name: "code".to_string(),
+                    about: "Work with code".to_string(),
+                    path: Some("/code".to_string()),
+                    ..GroupConfig::default()
+                },
+                GroupConfig {
+                    name: "data".to_string(),
+                    about: "Fetch and extract external data".to_string(),
+                    path: Some("/data".to_string()),
+                    ..GroupConfig::default()
+                },
+                GroupConfig {
+                    name: "gen".to_string(),
+                    about: "Generate patterns and data".to_string(),
+                    path: Some("/gen".to_string()),
+                    ..GroupConfig::default()
+                },
+                GroupConfig {
+                    name: "project".to_string(),
+                    about: "Whole-project operations".to_string(),
+                    path: Some("/project".to_string()),
+                    ..GroupConfig::default()
+                },
+                GroupConfig {
+                    name: "text".to_string(),
+                    about: "Work with text".to_string(),
+                    path: Some("/text".to_string()),
+                    ..GroupConfig::default()
+                },
+                GroupConfig {
+                    name: "vision".to_string(),
+                    about: "Work with images".to_string(),
+                    path: Some("/vision".to_string()),
+                    ..GroupConfig::default()
+                },
+            ],
             cluster: vec![
                 ClusterConfig::default(),
                 ClusterConfig {
@@ -115,8 +157,8 @@ impl AppConfig {
 
         config.validate()?;
 
-        // Load pipelines.
-        config.pipelines = Some(PipelinesModel::load()?);
+        // Load pipelines (default actions dir + configured groups).
+        config.pipelines = Some(PipelinesModel::load(&config.groups)?);
 
         // Cache globally.
         GLOBAL_CONFIG.set(config).ok();
@@ -138,6 +180,19 @@ impl AppConfig {
                     "",
                     "system  - Global system prompt applied to all LLM requests",
                     "retries - Number of retries for failed LLM steps (0 = no retries)",
+                ],
+            ),
+            YamlComment::Field(
+                "groups",
+                vec![
+                    "External action groups (nested CLI commands: vibe <group> <action>).",
+                    "",
+                    "git   - repository URL (cloned once; re-pull via `clean`)",
+                    "path  - local dir with YAML actions, or subfolder inside",
+                    "        the git clone ('/' = repo root) [optional with git]",
+                    "ref   - branch, tag, or commit; git only [optional]",
+                    "name  - CLI group name",
+                    "about - short description for help",
                 ],
             ),
             YamlComment::Field(
@@ -165,16 +220,20 @@ impl AppConfig {
         Ok(())
     }
 
-    /// Find a pipeline by name from the loaded actions model.
-    pub fn find_pipeline(&self, name: &str) -> Result<PipelineModel> {
+    /// Find a pipeline by group and name from the loaded actions model.
+    pub fn find_pipeline(&self, group: Option<&str>, name: &str) -> Result<PipelineModel> {
         let pipelines = self
             .pipelines
             .as_ref()
             .ok_or_else(|| anyhow::anyhow!("No actions loaded."))?;
-        pipelines
-            .find(name)
-            .cloned()
-            .ok_or_else(|| anyhow::anyhow!("Unknown action: {}", name))
+        let found = match group {
+            Some(g) => pipelines.find_in_group(g, name),
+            None => pipelines.find(name),
+        };
+        found.cloned().ok_or_else(|| match group {
+            Some(g) => anyhow::anyhow!("Unknown action: {} {}", g, name),
+            None => anyhow::anyhow!("Unknown action: {}", name),
+        })
     }
 
     /// Check if any node has the given role.

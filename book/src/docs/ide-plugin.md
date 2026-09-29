@@ -19,7 +19,7 @@ Vibe Action CLI must be installed and available on your system `PATH`.
 cargo install vibe-action
 ```
 
-Get the plugin: download the latest pre-built artifacts (`.vsix` and `.zip`) directly from the [dist directory on GitCode](https://gitcode.com/keygenqt_vz/vibe-action-cross/tree/main/dist), or build them yourself from the [vibe-action-cross](https://gitcode.com/keygenqt_vz/vibe-action-cross) repository source.
+Get the plugin: download the latest pre-built artifacts (`.vsix` and `.zip`) from the [GitHub releases](https://github.com/keygenqt/vibe-action-cross/releases), or build them yourself from the [vibe-action-cross](https://github.com/keygenqt/vibe-action-cross) repository source.
 
 ## VS Code Setup
 

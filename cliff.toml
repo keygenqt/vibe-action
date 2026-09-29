@@ -25,6 +25,10 @@ body = """
 trim = true
 
 [git]
+commit_preprocessors = [
+  # GitLab MR merge commits are not conventional — rewrite then skip via chore.
+  { pattern = "^!\\d+ merge", replace = "chore: merge branch" },
+]
 conventional_commits = true
 filter_unconventional = true
 commit_parsers = [

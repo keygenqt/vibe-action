@@ -1,6 +1,8 @@
 //! System providers for resolving `system_*` tags.
 
 pub mod arch;
+pub mod code_langs;
+pub mod code_shell;
 pub mod cpu_cores;
 pub mod date;
 pub mod datetime;

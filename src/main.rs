@@ -114,7 +114,25 @@ async fn main() {
             let matches = app_builder.clone().get_matches();
             match matches.subcommand() {
                 Some((cmd_name, action_matches)) => {
-                    cli::action::execute(cmd_name, action_matches, config).await;
+                    // Group subcommand — unwrap one more level.
+                    let is_group = config.groups.iter().any(|g| g.name == cmd_name);
+                    if is_group {
+                        match action_matches.subcommand() {
+                            Some((inner_name, inner_matches)) => {
+                                cli::action::execute(
+                                    Some(cmd_name),
+                                    inner_name,
+                                    inner_matches,
+                                    config,
+                                )
+                                .await;
+                            }
+                            // No action given — print the group's help.
+                            None => utils::clap::print_group_help(&config, cmd_name),
+                        }
+                    } else {
+                        cli::action::execute(None, cmd_name, action_matches, config).await;
+                    }
                 }
                 _ => utils::clap::print_custom_help(&app_builder, &config),
             }

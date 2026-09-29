@@ -32,7 +32,11 @@
 //!   pipeline lookup, role mismatch detection.
 //! - `cluster` — [`ClusterConfig`]: provider, host, model, role, temperature,
 //!   context/predict limits, API key, parallelism. [`ClusterRole`] enum.
+//! - `group` — [`GroupConfig`]: external action groups. Source is a git repo
+//!   (cloned once, optional `ref` pin) or a local dir (scanned in place).
+//!   Group `name` becomes a nested CLI subcommand (vibe <name> <action>).
 
 pub mod action;
 pub mod app;
 pub mod cluster;
+pub mod group;

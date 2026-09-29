@@ -24,28 +24,13 @@ use crate::operator::operator::ITEM_SEP;
 use crate::operator::operator::Operator;
 use crate::operator::operator::OperatorKey;
 use crate::operator::read::read::ReadKey;
+use crate::utils;
 
 pub struct AstOperator;
 
 impl AstOperator {
     fn lang_from_arg(arg: &str) -> Result<Language> {
-        match arg {
-            "rs" => Ok(Language::Rust),
-            "py" => Ok(Language::Python),
-            "ts" => Ok(Language::TypeScript),
-            "js" => Ok(Language::JavaScript),
-            "java" => Ok(Language::Java),
-            "go" => Ok(Language::Go),
-            "cs" => Ok(Language::CSharp),
-            "kt" => Ok(Language::Kotlin),
-            "swift" => Ok(Language::Swift),
-            "dart" => Ok(Language::Dart),
-            "sh" => Ok(Language::Bash),
-            "bat" => Ok(Language::Batch),
-            "ets" => Ok(Language::ArkTS),
-            "md" => Ok(Language::Markdown),
-            _ => anyhow::bail!("Unknown language: {}", arg),
-        }
+        utils::langs::lang_from_ext(arg).ok_or_else(|| anyhow::anyhow!("Unknown language: {}", arg))
     }
 
     /// Remove non-essential data from AST based on language.

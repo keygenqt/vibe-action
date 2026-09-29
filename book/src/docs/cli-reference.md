@@ -3,21 +3,38 @@
 ## Usage
 
 ```text
-vibe-action <name> [query] [args...]
+vibe-action <action> [query] [args...]
 
-vibe-action commit .
-vibe-action translate README.md -l Russian
-vibe-action tone          # reads from clipboard if no query provided
+vibe-action docs "How to use the 'contains' operator?"
+vibe-action info
 vibe-action --help
 ```
 
-Each `<name>` maps to a YAML-defined action. Use `--help` to list all
+Each `<action>` maps to a YAML-defined action. Use `--help` to list all
 available actions and their arguments:
 
 ```text
 vibe-action --help
-vibe-action commit --help
+vibe-action docs --help
 ```
+
+## Action groups
+
+Actions from external repositories or local directories are nested under
+a group command:
+
+```text
+vibe-action <group> <action> [query] [args...]
+
+vibe-action code review main.rs
+vibe-action project commit .
+```
+
+Groups are declared in `config.yaml` and loaded on startup — see
+[Configuration](./configuration.md).
+
+- `vibe-action <group>` prints the group's action list.
+- `vibe-action <group> <action> --help` prints action-specific help.
 
 ## System commands
 
@@ -33,8 +50,8 @@ Actions define their own CLI arguments in YAML. See
 [YAML Format](./pipeline-yaml.md) for the `args` schema.
 
 ```text
-vibe-action commit -d        # dry-run flag (bool)
-vibe-action extract -f log.txt  # file argument (string)
+vibe-action project commit -d         # dry-run flag (bool)
+vibe-action data extract -f log.txt   # file argument (string)
 ```
 
 ## Singleton guard
@@ -47,7 +64,7 @@ a 3-second timeout, then force-kill). This keeps shared state
 Disable with `VIBE_SKIP_LOCK`:
 
 ```text
-VIBE_SKIP_LOCK=1 vibe-action review main.rs
+VIBE_SKIP_LOCK=1 vibe-action code review main.rs
 ```
 
 Useful for parallel API clusters or when running multiple actions

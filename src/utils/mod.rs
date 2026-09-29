@@ -21,6 +21,8 @@
 //!   extension from MIME).
 //! - `format` — human-readable formatters: duration (`1.23s`/`456ms`),
 //!   bytes (`1.2MB`), base64 image extraction from prompt text.
+//! - `git` — clone-once git helper (git2): ssh-agent auth, shallow clone of
+//!   the default branch or full clone with a pinned ref checkout.
 //! - `image` — base64 image detection (prefix scan) and encoding/validation.
 //! - `path` — application directory layout (config, cache, actions);
 //!   `VIBE_ACTION_PATH`/`VIBE_CONFIG` env overrides; path resolution
@@ -37,7 +39,9 @@ pub mod constants;
 pub mod escape;
 pub mod fetch;
 pub mod format;
+pub mod git;
 pub mod image;
+pub mod langs;
 pub mod path;
 pub mod run_guard;
 pub mod yaml;

@@ -1,10 +1,10 @@
 [package]
 name = "vibe-action"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2024"
 license = "Apache-2.0"
 description = "Command router — execute shell commands and LLM prompts via simple YAML actions."
-repository = "https://gitcode.com/keygenqt_vz/vibe-action"
+repository = "https://github.com/keygenqt/vibe-action"
 documentation = "https://vibe-action.keygenqt.com"
 authors = ["Vitaliy Zarubin <keygenqt@yandex.ru>"]
 keywords = ["cli", "llm", "pipeline", "automation"]
@@ -61,6 +61,7 @@ hostname = "0.4.2"
 indexmap = { version = "2", features = ["serde"] }
 fs2 = "0.4.3"
 libc = "0.2"
+git2 = { version = "0.21.0", features = ["vendored-openssl", "https"] }
 sysinfo = "0.38"
 unicode-width = "0.2.2"
 clipboard-rs = "0.3.5"
