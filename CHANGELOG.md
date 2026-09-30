@@ -2,6 +2,12 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.3.2] - 2026-09-30
+
+### 🐛 Fixes
+
+- Emit trace logs only in tracing mode and harden confirms for non-TTY CI runs
+
 ## [0.3.1] - 2026-09-29
 
 ### 📚 Documentation
