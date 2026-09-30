@@ -39,9 +39,9 @@ impl Output for PlainOutput {
         eprintln!("{}", self.formatter.format(msg));
     }
 
-    /// Ignored in plain mode.
+    /// Formats and prints info message to stderr.
     fn info(&self, msg: &OutputMsg) {
-        println!("{}", self.formatter.format(msg));
+        eprintln!("{}", self.formatter.format(msg));
     }
 
     /// Formats and prints successful result to stdout.
@@ -49,18 +49,18 @@ impl Output for PlainOutput {
         println!("{}", self.formatter.format(msg));
     }
 
-    /// Ignored in plain mode.
+    /// Formats and prints debug message to stderr.
     fn debug(&self, msg: &OutputMsg) {
-        println!("{}", self.formatter.format(msg));
+        eprintln!("{}", self.formatter.format(msg));
     }
 
-    /// Ignored in plain mode.
+    /// Formats and prints trace message to stderr.
     fn trace(&self, msg: &OutputMsg) {
-        println!("{}", self.formatter.format(msg));
+        eprintln!("{}", self.formatter.format(msg));
     }
 
-    /// Ignored in plain mode.
+    /// Formats and prints progress message to stderr.
     fn progress(&self, msg: &OutputMsg) {
-        println!("{}", self.formatter.format(msg));
+        eprintln!("{}", self.formatter.format(msg));
     }
 }

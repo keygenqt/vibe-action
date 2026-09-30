@@ -28,6 +28,7 @@ pub async fn execute(
 ) {
     let is_output_cli = AppConfig::output().output_type() == OutputType::Cli;
     let is_output_json = AppConfig::output().output_type() == OutputType::Json;
+    let is_output_test = AppConfig::output().output_type() == OutputType::Test;
     let start_time = std::time::Instant::now();
 
     // Start a dedicated stdin reader thread for the confirm protocol.
@@ -114,7 +115,13 @@ pub async fn execute(
 
     // Warn if pipeline uses roles not available in cluster
     if config.check_role_mismatch(&pipeline) {
-        if is_output_json {
+        if is_output_test {
+            // Non-interactive run (CI): no confirm, proceed with the fallback.
+            print_text!(
+                OutputKind::Warning,
+                "pipeline has actions with roles not found in cluster. All available nodes will be used."
+            );
+        } else if is_output_json {
             print_template!(
                 ExportContext::Confirm,
                 OutputKind::Warning,
@@ -142,7 +149,7 @@ pub async fn execute(
                 Ok(false) => return,
                 Err(e) => {
                     print_text!(OutputKind::Error, "Confirm failed: {}", e);
-                    return;
+                    std::process::exit(1);
                 }
             }
         }

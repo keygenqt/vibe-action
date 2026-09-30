@@ -100,7 +100,14 @@ impl OutputRegistry {
     }
 
     /// Universally dispatches any structural log message to its specific strategy method.
+    /// Trace-level diagnostics (Debug/Trace) are emitted only in tracing mode,
+    /// where VIBE_TRACE_LEVEL controls verbosity.
     pub fn write(&self, msg: &OutputMsg) {
+        if matches!(msg.kind, OutputKind::Debug | OutputKind::Trace)
+            && self.current.output_type() != OutputType::Tracing
+        {
+            return;
+        }
         match msg.kind {
             OutputKind::Plain => self.current.plain(msg),
             OutputKind::Info => self.current.info(msg),
