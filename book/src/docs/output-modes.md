@@ -21,6 +21,25 @@ VIBE_LOG_TYPE=json vibe-action code review main.rs
 | `tracing` | `tracing` | Debugging, detailed structured logs |
 | _(auto)_  | `test`    | Internal test mode (`VIBE_TEST=1`)  |
 
+## Verbosity
+
+`VIBE_TRACE_LEVEL` gates `debug` and `trace` messages in all modes
+except `test`. All other kinds (`plain`, `info`, `success`, `warning`,
+`error`, `progress`) always print. Default: `info`.
+
+| Level   | `debug` | `trace` |
+| ------- | ------- | ------- |
+| `error` | hidden  | hidden  |
+| `warn`  | hidden  | hidden  |
+| `info`  | hidden  | hidden  |
+| `debug` | shown   | hidden  |
+| `trace` | shown   | shown   |
+
+Exception: in `tracing` mode the variable also configures the
+subscriber's EnvFilter, which filters `error`/`warn`/`info` events
+by severity as well — e.g. `VIBE_TRACE_LEVEL=warn` hides `info`
+messages only in this mode.
+
 ## Mode details
 
 ### `cli` — terminal
@@ -30,6 +49,8 @@ ANSI-colored messages with semantic labels:
 - **error** — red bold `error:`
 - **warning** — yellow bold `warning:`
 - **info** — blue bold `info:`
+- **debug** — dimmed cyan `debug:`
+- **trace** — dimmed magenta `trace:`
 - **progress** — cyan bold, carriage-return overwrite for percentages
 - **success** — green framed block with Markdown rendering and syntax highlighting
 
@@ -78,16 +99,9 @@ Messages are tagged with an **export context** for plugin routing:
 
 ### `tracing` — structured logs
 
-Delegates to the `tracing` crate. Set `VIBE_TRACE_LEVEL` to control
-verbosity (only effective when `VIBE_LOG_TYPE=tracing`):
-
-| Level   | Shows                   |
-| ------- | ----------------------- |
-| `error` | Errors only             |
-| `warn`  | Warnings + errors       |
-| `info`  | Flow progress + results |
-| `debug` | Engine internals        |
-| `trace` | Maximum verbosity       |
+Delegates to the `tracing` crate (`tracing::info!`, `tracing::debug!`,
+etc.). Verbosity is controlled by `VIBE_TRACE_LEVEL` — see
+[Verbosity](#verbosity).
 
 ### `test` — minimal
 
