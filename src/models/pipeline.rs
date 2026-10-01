@@ -29,9 +29,6 @@ pub struct PipelineModel {
     pub name: String,
     /// Short description for help.
     pub about: String,
-    /// Optional regex validation for the result.
-    #[serde(default)]
-    pub check: Option<String>,
     /// Show system notification on completion.
     #[serde(default)]
     pub notify: bool,

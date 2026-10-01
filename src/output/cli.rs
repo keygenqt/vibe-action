@@ -123,7 +123,25 @@ impl Output for CliOutput {
         std::io::Write::flush(&mut std::io::stdout()).unwrap();
     }
 
-    /// Ignored in CLI mode.
-    fn debug(&self, _msg: &OutputMsg) {}
-    fn trace(&self, _msg: &OutputMsg) {}
+    /// Prints dimmed cyan debug message.
+    fn debug(&self, msg: &OutputMsg) {
+        let msg = self.formatter.format(msg);
+        let mut last = self.last_had_newline.lock().unwrap();
+        if !*last {
+            println!();
+        }
+        println!("\x1b[2m\x1b[36mdebug\x1b[0m: {}", msg);
+        *last = true;
+    }
+
+    /// Prints dimmed magenta trace message.
+    fn trace(&self, msg: &OutputMsg) {
+        let msg = self.formatter.format(msg);
+        let mut last = self.last_had_newline.lock().unwrap();
+        if !*last {
+            println!();
+        }
+        println!("\x1b[2m\x1b[35mtrace\x1b[0m: {}", msg);
+        *last = true;
+    }
 }

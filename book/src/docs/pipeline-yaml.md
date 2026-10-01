@@ -36,16 +36,15 @@ actions:
       Do something with {content}
 ```
 
-| Field     | Type   | Required | Description                                               |
-| --------- | ------ | -------- | --------------------------------------------------------- |
-| `version` | string | yes      | Pipeline schema version (must match `PIPELINE_VERSION`)   |
-| `name`    | string | yes      | Action name — becomes CLI subcommand                      |
-| `about`   | string | yes      | Short description for `--help`                            |
-| `notify`  | bool   | no       | Desktop notification on completion (default: false)       |
-| `check`   | string | no       | Regex to validate final pipeline result; fail if no match |
-| `args`    | list   | no       | CLI argument definitions                                  |
-| `api`     | object | no       | IDE plugin metadata (ignored by CLI runtime)              |
-| `actions` | list   | yes      | Ordered list of pipeline steps                            |
+| Field     | Type   | Required | Description                                             |
+| --------- | ------ | -------- | ------------------------------------------------------- |
+| `version` | string | yes      | Pipeline schema version (must match `PIPELINE_VERSION`) |
+| `name`    | string | yes      | Action name — becomes CLI subcommand                    |
+| `about`   | string | yes      | Short description for `--help`                          |
+| `notify`  | bool   | no       | Desktop notification on completion (default: false)     |
+| `args`    | list   | no       | CLI argument definitions                                |
+| `api`     | object | no       | IDE plugin metadata (ignored by CLI runtime)            |
+| `actions` | list   | yes      | Ordered list of pipeline steps                          |
 
 ## Args
 
@@ -144,13 +143,6 @@ reg: '.+'           # must be non-empty
 reg: '^[^\n]+$'     # must be a single line
 reg: 'DIRTY|CLEAR'  # must be one of these words
 ```
-
-### Pipeline-level `check`
-
-The top-level `check` field validates the **final pipeline result** (the
-output of the last action). Same behavior as `reg` — no match → hard
-error. Use it when you need to enforce the overall result format rather
-than individual step output.
 
 ## Reserved prefixes
 

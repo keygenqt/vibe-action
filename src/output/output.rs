@@ -34,6 +34,20 @@ pub enum OutputKind {
     Progress,
 }
 
+impl OutputKind {
+    /// Parses VIBE_TRACE_LEVEL (same values as the tracing EnvFilter).
+    pub fn from_trace_level(s: &str) -> Self {
+        match s {
+            "error" => Self::Error,
+            "warn" => Self::Warning,
+            "info" => Self::Info,
+            "debug" => Self::Debug,
+            "trace" => Self::Trace,
+            _ => Self::Info,
+        }
+    }
+}
+
 /// Export context for plugin integration.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ExportContext {
@@ -72,6 +86,7 @@ pub trait Output: Send + Sync {
 /// Registry of outputs with a single active output.
 pub struct OutputRegistry {
     current: Box<dyn Output>,
+    trace_level: OutputKind,
 }
 
 impl OutputRegistry {
@@ -96,16 +111,27 @@ impl OutputRegistry {
             OutputType::Test => Box::new(TestOutput::new(formatter)),
         };
 
-        Self { current }
+        Self {
+            current,
+            trace_level: OutputKind::from_trace_level(trace_level),
+        }
+    }
+
+    /// Whether a message kind passes the configured trace level.
+    fn level_allows(&self, kind: OutputKind) -> bool {
+        match kind {
+            OutputKind::Debug => {
+                matches!(self.trace_level, OutputKind::Debug | OutputKind::Trace)
+            }
+            OutputKind::Trace => matches!(self.trace_level, OutputKind::Trace),
+            _ => true,
+        }
     }
 
     /// Universally dispatches any structural log message to its specific strategy method.
-    /// Trace-level diagnostics (Debug/Trace) are emitted only in tracing mode,
-    /// where VIBE_TRACE_LEVEL controls verbosity.
+    /// Debug/Trace diagnostics are gated by VIBE_TRACE_LEVEL in every output mode.
     pub fn write(&self, msg: &OutputMsg) {
-        if matches!(msg.kind, OutputKind::Debug | OutputKind::Trace)
-            && self.current.output_type() != OutputType::Tracing
-        {
+        if !self.level_allows(msg.kind) {
             return;
         }
         match msg.kind {

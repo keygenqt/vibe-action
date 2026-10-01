@@ -4,7 +4,6 @@
 use std::collections::HashSet;
 
 use anyhow::Result;
-use regex::Regex;
 
 use crate::models::pipeline::PipelineModel;
 use crate::query::query::QueryKey;
@@ -109,11 +108,6 @@ impl ValidateTrait for PipelineModel {
                     }
                 }
             }
-        }
-
-        // Validate match regex if present.
-        if let Some(pattern) = &self.check {
-            Regex::new(pattern).map_err(|e| anyhow::anyhow!("Invalid check regex: {}", e))?;
         }
 
         Ok(())
