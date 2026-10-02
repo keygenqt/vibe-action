@@ -2,6 +2,20 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.4.0] - 2026-10-02
+
+### 🐛 Fixes
+
+- Store VIBE_TRACE_LEVEL in registry and gate Debug/Trace dispatch in all output modes
+
+### 📚 Documentation
+
+- Add detailed verbosity section and update table
+
+### 🚀 Features
+
+- Add off guard for conditional action skipping
+
 ## [0.3.2] - 2026-09-30
 
 ### 🐛 Fixes

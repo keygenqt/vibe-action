@@ -26,8 +26,9 @@ trim = true
 
 [git]
 commit_preprocessors = [
-  # GitLab MR merge commits are not conventional — rewrite then skip via chore.
+  # GitLab MR / GitHub PR merge commits are not conventional — rewrite then skip via chore.
   { pattern = "^!\\d+ merge", replace = "chore: merge branch" },
+  { pattern = "^Merge pull request #\\d+ from", replace = "chore: merge branch" },
 ]
 conventional_commits = true
 filter_unconventional = true
