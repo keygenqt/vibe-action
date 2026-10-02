@@ -19,6 +19,8 @@ use crate::operator::operator::ITEM_SEP;
 use crate::operator::operator::OperatorKey;
 use crate::operator::operator::OperatorRegistry;
 use crate::operator::operator::truthy;
+use crate::output::output::OutputKind;
+use crate::print_text;
 use crate::utils;
 use crate::utils::yaml::expand_escapes;
 
@@ -57,6 +59,15 @@ impl Engine {
         let mut deps: Vec<Vec<usize>> = vec![Vec::new(); actions.len()];
 
         for (i, action) in actions.iter().enumerate() {
+            // Off guard may read another action's tag — order it like val data.
+            if let Some(off) = &action.off {
+                if off.data != action.tag {
+                    if let Some(&dep_idx) = tag_to_idx.get(off.data.as_str()) {
+                        in_degree[i] += 1;
+                        deps[dep_idx].push(i);
+                    }
+                }
+            }
             if let Some(candidates) = &action.val {
                 for candidate in candidates {
                     let data = match candidate.data.as_deref() {
@@ -254,7 +265,16 @@ impl Engine {
                 Some(candidates) => candidates.iter().all(|c| c.resolved.is_some()),
                 None => true,
             };
-            if !is_resolved {
+            // Off-guard data gates readiness: an action tag must be resolved
+            // first (input tags are always in `available`).
+            let off_ready = match &action.off {
+                Some(off) => {
+                    !self.actions.iter().any(|a| a.tag == off.data)
+                        || self.available.contains_key(&off.data)
+                }
+                None => true,
+            };
+            if !is_resolved || !off_ready {
                 break;
             }
             last_ready = Some(action);
@@ -273,6 +293,23 @@ impl Engine {
                 anyhow::bail!("First action has unresolved dependencies");
             }
         };
+
+        // Off guard: condition passes → dead tag, skip the action.
+        if let Some(off) = &action.off {
+            let passed = self
+                .resolve_value(&off.data, &off.when)
+                .map(|v| truthy(&v))
+                .unwrap_or(false);
+            if passed {
+                print_text!(
+                    OutputKind::Debug,
+                    "action '{tag}' off: dead tag",
+                    tag = action.tag
+                );
+                self.available.insert(action.tag.clone(), String::new());
+                return self.next();
+            }
+        }
 
         // Select first candidate per name whose `when` passes (or has none).
         if let Some(candidates) = &action.val {
@@ -297,11 +334,19 @@ impl Engine {
                 winners.push(candidate);
             }
 
-            // Every name must have a winner, else dead tag.
+            // Every name must have a winner — a lost name is an authoring error,
+            // not a skip. Declare skips explicitly with `off`.
             let all_names: HashSet<&str> = candidates.iter().map(|c| c.name.as_str()).collect();
-            if winners.len() != all_names.len() {
-                self.available.insert(action.tag.clone(), String::new());
-                return self.next();
+            let won: HashSet<&str> = winners.iter().map(|w| w.name.as_str()).collect();
+            if won.len() != all_names.len() {
+                let mut lost: Vec<&str> = all_names.difference(&won).copied().collect();
+                lost.sort_unstable();
+                anyhow::bail!(
+                    "Action '{}': val '{}' has no winning candidate. \
+                     Add a fallback candidate (no `when`) or declare the skip with `off`.",
+                    action.tag,
+                    lost.join(", ")
+                );
             }
 
             let mut filtered = action.clone();

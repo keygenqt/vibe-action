@@ -55,11 +55,10 @@ the dependency via `data:` in a val candidate).
 When an LLM prompt needs literal braces (e.g. JSON templates, LaTeX),
 use double braces to escape them:
 
-| Written  | Resolves to   | Use case                        |
-| -------- | ------------- | ------------------------------- |
-| `{name}` | value of name | Placeholder substitution        |
-| `{{X}}`  | `{X}`         | Literal braces in LLM output    |
-| `{{X}}`  | `{X}`         | Literal braces in operator args |
+| Written  | Resolves to   | Use case                                   |
+| -------- | ------------- | ------------------------------------------ |
+| `{name}` | value of name | Placeholder substitution                   |
+| `{{X}}`  | `{X}`         | Literal braces in output and operator args |
 
 ### In action templates
 
@@ -161,9 +160,9 @@ operators in the next action.
 
 ## Quick reference
 
-| Context            | `{name}`                   | `{{X}}`              | `\n`/`\t`/`\s` |
-| ------------------ | -------------------------- | -------------------- | -------------- |
-| Action template    | Placeholder substitution   | Literal `{X}` in LLM | Not expanded   |
-| Operator arg       | Tag interpolation + unwrap | Reduce to `{X}`      | Expanded       |
-| `each.split/merge` | Not interpolated           | Not reduced          | Expanded       |
-| `when`/`fail`      | Tag interpolation + unwrap | Reduce to `{X}`      | Expanded       |
+| Context                  | `{name}`                   | `{{X}}`              | `\n`/`\t`/`\s` |
+| ------------------------ | -------------------------- | -------------------- | -------------- |
+| Action template          | Placeholder substitution   | Literal `{X}` in LLM | Not expanded   |
+| Operator arg             | Tag interpolation + unwrap | Reduce to `{X}`      | Expanded       |
+| `each.split/merge`       | Not interpolated           | Not reduced          | Expanded       |
+| `when`/`fail`/`off.when` | Tag interpolation + unwrap | Reduce to `{X}`      | Expanded       |

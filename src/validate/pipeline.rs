@@ -110,6 +110,32 @@ impl ValidateTrait for PipelineModel {
             }
         }
 
+        // Validate off guard data: must reference a known tag, not self.
+        for action in &self.actions {
+            let Some(off) = &action.off else {
+                continue;
+            };
+            if off.data == action.tag {
+                anyhow::bail!("Action '{}': off references its own tag.", action.tag);
+            }
+            if off.data == "query" {
+                anyhow::bail!(
+                    "Action '{}': off uses bare 'query' — use 'query_raw' instead.",
+                    action.tag
+                );
+            }
+            if QueryKey::from_str(&off.data).is_none()
+                && SystemKey::from_str(&off.data).is_none()
+                && !tags.contains(off.data.as_str())
+            {
+                anyhow::bail!(
+                    "Action '{}': off references unknown tag '{}'.",
+                    action.tag,
+                    off.data
+                );
+            }
+        }
+
         Ok(())
     }
 }

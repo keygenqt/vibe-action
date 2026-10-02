@@ -1,0 +1,13 @@
+version: 0.0.2
+name: off_self_reference
+about: Test off references its own tag
+actions:
+  - tag: tag_result
+    run: value
+    off:
+      data: tag_result
+      when: 'equals:on'
+    val:
+      - name: result
+        data: 'x'
+    action: '{result}'

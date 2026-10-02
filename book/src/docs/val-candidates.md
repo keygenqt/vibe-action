@@ -33,20 +33,25 @@ Candidates are evaluated in list order. For each unique `name`, the
 **first candidate whose `when` passes** (or has none) wins. Subsequent
 candidates with the same `name` are skipped.
 
-If no candidate wins for a name, the name resolves to an empty string —
-the entire action becomes a **dead tag** and is skipped by the engine.
+If no candidate wins for a name, the pipeline aborts with an error —
+add a fallback candidate (no `when`) or declare the skip with the
+action-level `off` guard, see [Pipeline — YAML Format](./pipeline-yaml.md).
 
 ## Data sources
 
 `data` references a tag from one of these namespaces:
 
-| Prefix     | Source                         | Example             |
-| ---------- | ------------------------------ | ------------------- |
-| `query_*`  | Query provider (user input)    | `query_raw`         |
-| `system_*` | System provider (runtime)      | `system_language`   |
-| `arg_*`    | CLI argument                   | `arg_dry_run`       |
-| `tag_*`    | Another action's result        | `tag_project_path`  |
-| _(none)_   | Mods-only candidate (no input) | screenshot operator |
+| Source                  | Example            | Notes                          |
+| ----------------------- | ------------------ | ------------------------------ |
+| Query provider          | `query_raw`        | Reserved `query_*` prefix      |
+| System provider         | `system_language`  | Reserved `system_*` prefix     |
+| CLI argument            | `arg_dry_run`      | The argument's own name        |
+| Another action's result | `tag_project_path` | The referenced action's `tag`  |
+| _(no data)_             | screenshot         | Mods-only candidate (no input) |
+
+Only `query_*` and `system_*` are reserved prefixes. Argument names and
+action tags are free-form; the `arg_` and `tag_` prefixes shown in the
+examples are common conventions, not rules.
 
 When `data` references another action's tag, a dependency is created.
 The engine resolves actions in topological order — the referenced action
@@ -163,25 +168,27 @@ action: |
 
 ## Dead tags
 
-If **no candidate wins** for any declared `name`, the entire action
-resolves to an empty string. The engine marks it as a dead tag and
-skips execution. Downstream actions that reference this tag receive an
-empty value.
-
-This is intentional — it allows conditional actions like dry-run guards:
+A **dead tag** is an action skipped by the engine: its tag resolves to
+an empty string, and downstream actions that reference it receive `""`.
+The only source of a dead tag is the action-level `off` guard — see
+[Pipeline — YAML Format](./pipeline-yaml.md).
 
 ```yaml
-# This action only runs when arg_dry_run is false
-val:
-  - name: dry
+# Skipped in dry-run mode: no execution, no `ask` confirmation
+- tag: tag_commit_exec
+  run: cmd
+  ask: true
+  off:
     data: arg_dry_run
-    when: 'contains:false' # skip if dry_run is true
-  - name: path
-    data: tag_project_path
-  - name: msg
-    data: tag_commit_message
-action: cd {path} && git commit -m {msg}
+    when: 'equals:true'
+  val:
+    - name: path
+      data: tag_project_path
+    - name: msg
+      data: tag_commit_message
+  action: cd {path} && git add . && git commit -m {msg}
 ```
 
-When `arg_dry_run` is `true`, the `dry` candidate's `when` fails → no
-candidate wins for `dry` → dead tag → action skipped.
+When `arg_dry_run` is `true`, the guard passes → dead tag → action
+skipped. Downstream `{tag_commit_exec}` placeholders expand to an empty
+string.

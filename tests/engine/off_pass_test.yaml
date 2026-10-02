@@ -1,0 +1,20 @@
+version: 0.0.2
+name: off_pass
+about: Test off guard not passing runs the action
+actions:
+  - tag: tag_flag
+    run: value
+    val:
+      - name: flag
+        data: 'off'
+    action: '{flag}'
+
+  - tag: tag_result
+    run: cmd
+    off:
+      data: tag_flag
+      when: 'equals:on'
+    val:
+      - name: msg
+        data: 'ran'
+    action: 'echo {msg}'

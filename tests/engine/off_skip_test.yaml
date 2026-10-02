@@ -1,0 +1,27 @@
+version: 0.0.2
+name: off_skip
+about: Test off guard skips the action
+actions:
+  - tag: tag_flag
+    run: value
+    val:
+      - name: flag
+        data: 'on'
+    action: '{flag}'
+
+  - tag: tag_skipped
+    run: cmd
+    off:
+      data: tag_flag
+      when: 'equals:on'
+    val:
+      - name: msg
+        data: 'skipped'
+    action: 'echo {msg}'
+
+  - tag: tag_result
+    run: cmd
+    val:
+      - name: skipped
+        data: tag_skipped
+    action: 'if [ -z {skipped} ]; then echo SKIPPED; else echo RAN; fi'

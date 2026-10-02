@@ -1,0 +1,13 @@
+version: 0.0.2
+name: off_unknown_data
+about: Test off references unknown tag
+actions:
+  - tag: tag_result
+    run: value
+    off:
+      data: tag_missing
+      when: 'equals:on'
+    val:
+      - name: result
+        data: 'x'
+    action: '{result}'

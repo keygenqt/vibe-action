@@ -14,6 +14,8 @@ use crate::models::action::ActionModel;
 use crate::models::api::PipelineApiModel;
 use crate::models::arg::ArgActionModel;
 use crate::models::arg::ArgInput;
+use crate::output::output::OutputKind;
+use crate::print_text;
 use crate::query::query::QueryKey;
 use crate::query::query::QueryRegistry;
 use crate::system::system::SystemKey;
@@ -56,8 +58,16 @@ impl PipelineModel {
     /// Load and validate a PipelineModel from a YAML file.
     pub fn load(path: &PathBuf) -> Result<Self> {
         let content = fs::read_to_string(path)?;
-        let mut pipeline: Self = yaml_serde::from_str(&content)
-            .map_err(|e| anyhow::anyhow!("Failed to parse {}: {}", path.display(), e))?;
+        let de = yaml_serde::Deserializer::from_str(&content);
+        let mut pipeline: Self = serde_ignored::deserialize(de, |field| {
+            print_text!(
+                OutputKind::Warning,
+                "{}: unknown field '{}' — the pipeline may need a newer app version. Check for updates.",
+                path.display(),
+                field
+            );
+        })
+        .map_err(|e| anyhow::anyhow!("Failed to parse {}: {}", path.display(), e))?;
         pipeline.file_path = Some(path.clone());
         Ok(pipeline)
     }

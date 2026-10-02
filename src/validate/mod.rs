@@ -15,9 +15,10 @@
 //!
 //! # Submodules
 //!
-//! - `action` — non-empty command/prompt; `when`/`fail` use inspect operators
-//!   only; `mods` use known operators; `{name}` interpolation references only
-//!   declared val-candidate names; regex validity.
+//! - `action` — non-empty command/prompt; `when`/`fail`/`off.when` use
+//!   inspect operators only; `mods` use known operators; `{name}`
+//!   interpolation references only declared val-candidate names; regex
+//!   validity.
 //! - `api` — `input` and `args` values must be known `query_*` keys; output
 //!   target is enum (Serde-validated).
 //! - `app` — config version match; each cluster node validated.

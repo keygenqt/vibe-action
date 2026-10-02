@@ -87,7 +87,9 @@ actions:
     run: medium
     reg: '.+'
     ask: true
-    when: 'is:empty:not'
+    off:
+      data: query_raw
+      when: 'is:empty'
     val:
       - name: content
         data: query_raw
@@ -98,25 +100,34 @@ actions:
       Process {content}
 ```
 
-| Field    | Type   | Required | Description                                                         |
-| -------- | ------ | -------- | ------------------------------------------------------------------- |
-| `tag`    | string | yes      | Unique identifier; referenced by other steps via `data`             |
-| `run`    | string | yes      | Execution engine (see below)                                        |
-| `val`    | list   | no       | Val candidates — see [Val Candidates](./val-candidates.md)          |
-| `when`   | string | no       | Action-level guard (inspect operators); skip entire action if false |
-| `reg`    | string | no       | Regex to validate step output; fails if no match                    |
-| `ask`    | bool   | no       | Prompt user confirmation before execution (default: false)          |
-| `action` | string | yes      | Template with `{name}` placeholders from val candidates             |
+| Field    | Type   | Required | Description                                                |
+| -------- | ------ | -------- | ---------------------------------------------------------- |
+| `tag`    | string | yes      | Unique identifier; referenced by other steps via `data`    |
+| `run`    | string | yes      | Execution engine (see below)                               |
+| `val`    | list   | no       | Val candidates — see [Val Candidates](./val-candidates.md) |
+| `off`    | object | no       | Skip condition — see below                                 |
+| `reg`    | string | no       | Regex to validate step output; fails if no match           |
+| `ask`    | bool   | no       | Prompt user confirmation before execution (default: false) |
+| `action` | string | yes      | Template with `{name}` placeholders from val candidates    |
 
-### Action-level `when`
+### Action-level `off`
 
-An action-level `when` is evaluated before any candidates are resolved.
-If it fails, the entire action is skipped (dead tag). Accepts **inspect
-operators only** — the same set as candidate-level `when` and `fail`.
+`off` declares a skip condition: when it passes, the entire action is
+skipped (dead tag — the tag resolves to an empty string, downstream
+steps see `""`). This is the only way to skip an action; a val name
+with no winning candidate is an error.
 
-This is separate from candidate-level `when`, which controls individual
-candidate selection. Use the action-level guard to skip an entire step
-based on runtime conditions.
+```yaml
+off:
+  data: arg_dry_run
+  when: 'equals:true' # skip when dry-run is on
+```
+
+`data` follows the same reference rules as val `data` (any known tag,
+not the action's own), and `when` accepts **inspect operators only** —
+the same set as candidate-level `when` and `fail`. Use `off` for
+conditional steps (dry-run guards, optional stages); use
+candidate-level `when` to pick between data sources.
 
 ### Run types
 

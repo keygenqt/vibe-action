@@ -20,9 +20,10 @@
 //!
 //! # Submodules
 //!
-//! - `action` — `ActionModel` (tag, run size, val candidates, action prompt)
-//!   and `ValCandidate` (data source, mods chain, when/fail guards, each
-//!   split/merge). `ActionRun`: `cmd`, `value`, `tiny`..`large`, `vision`.
+//! - `action` — `ActionModel` (tag, run size, off guard, val candidates,
+//!   action prompt), `ValCandidate` (data source, mods chain, when/fail
+//!   guards, each split/merge), and `GuardModel` (off: data + when skip
+//!   condition). `ActionRun`: `cmd`, `value`, `tiny`..`large`, `vision`.
 //! - `api` — `PipelineApiModel`: IDE plugin metadata (input source, output
 //!   target, extra args). Ignored by CLI runtime.
 //! - `arg` — `ArgActionModel`: CLI argument definition (name, short flag,

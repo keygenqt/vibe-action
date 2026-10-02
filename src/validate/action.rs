@@ -36,12 +36,18 @@ impl ValidateTrait for ActionModel {
             anyhow::bail!("Action '{}' has empty command/prompt.", self.tag);
         }
 
-        // Action-level when: inspect operators only.
-        if let Some(when) = &self.when {
-            for name in operator_names(when) {
+        // Off guard: both fields required, when uses inspect operators only.
+        if let Some(off) = &self.off {
+            if off.data.trim().is_empty() {
+                anyhow::bail!("Action '{}': off.data is empty.", self.tag);
+            }
+            if off.when.trim().is_empty() {
+                anyhow::bail!("Action '{}': off.when is empty.", self.tag);
+            }
+            for name in operator_names(&off.when) {
                 if InspectKey::from_str(&name).is_none() {
                     anyhow::bail!(
-                        "Action '{}': 'when' allows inspect operators only, got '{}'.",
+                        "Action '{}': off.when allows inspect operators only, got '{}'.",
                         self.tag,
                         name
                     );

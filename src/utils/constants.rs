@@ -17,4 +17,4 @@ pub const CONFIG_VERSION: &str = "0.0.4";
 pub const PIPELINE_VERSION: &str = "0.0.2";
 
 /// Cache version (bump when pipeline schema or validation logic changes).
-pub const CACHE_VERSION: &str = "0.0.4";
+pub const CACHE_VERSION: &str = "0.0.5";

@@ -1,0 +1,11 @@
+version: 0.0.2
+name: switch_none_wins
+about: Test no winning candidate is an error
+actions:
+  - tag: tag_result
+    run: value
+    val:
+      - name: result
+        data: ''
+        when: 'is:empty:not'
+    action: '{result}'

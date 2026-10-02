@@ -1,0 +1,13 @@
+version: 0.0.2
+name: off_non_inspect
+about: Test off when uses non-inspect operator
+actions:
+  - tag: tag_result
+    run: value
+    off:
+      data: query_raw
+      when: 'lower'
+    val:
+      - name: result
+        data: 'x'
+    action: '{result}'

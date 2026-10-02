@@ -39,6 +39,8 @@ mod engine {
     mod expect_pass_test;
     mod fail_bail_test;
     mod fail_pass_test;
+    mod off_pass_test;
+    mod off_skip_test;
     mod ordering_chain_test;
     mod ordering_circular_test;
     mod parser_each_config_test;
@@ -46,6 +48,7 @@ mod engine {
     mod parser_literal_test;
     mod parser_mods_chain_test;
     mod switch_first_wins_test;
+    mod switch_none_wins_test;
     mod switch_when_fail_test;
     mod switch_when_pass_test;
 }

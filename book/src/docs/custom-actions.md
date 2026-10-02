@@ -168,17 +168,18 @@ See [Built-in Actions](./built-in-actions.md).
 
 All custom actions are validated on startup. Common errors:
 
-| Error                                 | Fix                                         |
-| ------------------------------------- | ------------------------------------------- |
-| Version mismatch                      | Set `version` to current `PIPELINE_VERSION` |
-| Empty `name` or `about`               | Add required fields                         |
-| Duplicate `tag` across actions        | Use unique tag names                        |
-| `data` references own `tag`           | Remove self-reference                       |
-| Bare `query` in `data`                | Use `query_raw` instead                     |
-| `query_*`/`system_*` prefix on tag    | Rename the tag                              |
-| Unknown operator in `mods`            | Check operator name and spelling            |
-| Non-inspect operator in `when`/`fail` | Use inspect operators only                  |
-| Undeclared `{name}` in `action`       | Add a val candidate with that `name`        |
+| Error                                            | Fix                                         |
+| ------------------------------------------------ | ------------------------------------------- |
+| Version mismatch                                 | Set `version` to current `PIPELINE_VERSION` |
+| Empty `name` or `about`                          | Add required fields                         |
+| Duplicate `tag` across actions                   | Use unique tag names                        |
+| `data` references own `tag`                      | Remove self-reference                       |
+| Bare `query` in `data`                           | Use `query_raw` instead                     |
+| `query_*`/`system_*` prefix on tag               | Rename the tag                              |
+| Unknown operator in `mods`                       | Check operator name and spelling            |
+| Non-inspect operator in `when`/`fail`/`off.when` | Use inspect operators only                  |
+| `off` references unknown tag                     | Check the tag name in `off.data`            |
+| Undeclared `{name}` in `action`                  | Add a val candidate with that `name`        |
 
 ## Tips
 
@@ -190,6 +191,8 @@ All custom actions are validated on startup. Common errors:
   `fail: 'is:empty:not'`.
 - **Use `when` guards** — avoid unnecessary work (e.g. don't take a
   screenshot if the clipboard already has an image).
+- **Use `off`** — declare conditional steps (dry-run, optional stages)
+  explicitly; a val name with no winning candidate is an error.
 - **Use `ask: true`** — for destructive shell commands (git push, file
   deletion), require user confirmation.
 - **Test with `--help`** — your action and its args appear in the help

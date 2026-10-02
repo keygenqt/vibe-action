@@ -31,6 +31,9 @@ mod validate {
     mod duplicate_tag_test;
     mod empty_name_test;
     mod non_inspect_in_when_test;
+    mod off_non_inspect_test;
+    mod off_self_reference_test;
+    mod off_unknown_data_test;
     mod reserved_prefix_test;
     mod self_reference_test;
     mod undeclared_placeholder_test;

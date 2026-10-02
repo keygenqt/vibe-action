@@ -51,6 +51,15 @@ pub struct ValCandidate {
     pub resolved: Option<String>,
 }
 
+/// Run guard: when the condition passes, the action is skipped (dead tag).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GuardModel {
+    /// Data source tag (same reference rules as val `data`).
+    pub data: String,
+    /// Inspect operators applied to the data value.
+    pub when: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActionModel {
     pub tag: String,
@@ -59,8 +68,9 @@ pub struct ActionModel {
     pub reg: Option<String>,
     #[serde(default)]
     pub ask: bool,
+    /// Skip the action (dead tag) when the guard passes.
     #[serde(default)]
-    pub when: Option<String>,
+    pub off: Option<GuardModel>,
     #[serde(default)]
     pub val: Option<Vec<ValCandidate>>,
     pub action: String,

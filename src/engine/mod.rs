@@ -10,6 +10,8 @@
 //!    guards, resolve data + apply `mods` chain, check `fail` predicates.
 //! 3. `next()` — topologically sort actions by data dependencies, return
 //!    the next ready action (all candidates resolved, no unresolved deps).
+//!    `off` guard passing → dead tag (skipped, empty value). A val name
+//!    with no winning candidate is an error, not a skip.
 //! 4. `expand()` — substitute `{name}` placeholders from winning candidates;
 //!    fan out via `each.split`/`each.merge`; shell-quote for `cmd` runs.
 //! 5. `exec_item()` — dispatch by `ActionRun`: `cmd` → shell, `value` →
