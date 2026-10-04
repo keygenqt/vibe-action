@@ -2,6 +2,13 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.4.1] - 2026-10-04
+
+### 🐛 Fixes
+
+- Report grouped actions as not custom in plugin export
+- Seed clipboard state in query tests instead of relying on user clipboard
+
 ## [0.4.0] - 2026-10-02
 
 ### 🐛 Fixes
