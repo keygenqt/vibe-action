@@ -56,37 +56,37 @@ impl Default for AppConfig {
             groups: vec![
                 GroupConfig {
                     name: "code".to_string(),
-                    about: "Work with code".to_string(),
+                    about: "Group for working with code. Code modification in the editor via pipelines.".to_string(),
                     path: Some("/code".to_string()),
                     ..GroupConfig::default()
                 },
                 GroupConfig {
                     name: "data".to_string(),
-                    about: "Fetch and extract external data".to_string(),
+                    about: "Fetch and extract external data - from the user or the internet.".to_string(),
                     path: Some("/data".to_string()),
                     ..GroupConfig::default()
                 },
                 GroupConfig {
                     name: "gen".to_string(),
-                    about: "Generate patterns and data".to_string(),
+                    about: "Generate new data without direct code modification.".to_string(),
                     path: Some("/gen".to_string()),
                     ..GroupConfig::default()
                 },
                 GroupConfig {
                     name: "project".to_string(),
-                    about: "Whole-project operations".to_string(),
+                    about: "Tasks working with the whole project, not individual code sections.".to_string(),
                     path: Some("/project".to_string()),
                     ..GroupConfig::default()
                 },
                 GroupConfig {
                     name: "text".to_string(),
-                    about: "Work with text".to_string(),
+                    about: "Natural language text. Tasks unrelated to code.".to_string(),
                     path: Some("/text".to_string()),
                     ..GroupConfig::default()
                 },
                 GroupConfig {
                     name: "vision".to_string(),
-                    about: "Work with images".to_string(),
+                    about: "Group with vision models for tasks requiring images.".to_string(),
                     path: Some("/vision".to_string()),
                     ..GroupConfig::default()
                 },

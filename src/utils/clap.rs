@@ -144,13 +144,13 @@ pub fn print_custom_help(app_builder: &Command, config: &AppConfig) {
             let actions_json: Vec<serde_json::Value> = group_actions
                 .iter()
                 .map(|p| {
-                    let is_custom = !builtin_names.contains(&p.name);
                     serde_json::json!({
                         "name": p.name,
                         "about": p.about,
                         "args": p.args,
                         "api": p.api,
-                        "is_custom": is_custom,
+                        // Custom = not built-in AND not in a group.
+                        "is_custom": false,
                         "yaml_path": p.file_path.as_ref().map(|path| path.display().to_string()),
                     })
                 })
@@ -283,7 +283,7 @@ pub fn print_group_help(config: &AppConfig, group: &str) {
             "about" => &pipeline.about,
             "args" => &pipeline.args,
             "api" => &pipeline.api,
-            "is_custom" => true,
+            "is_custom" => false,
             "yaml_path" => pipeline.file_path.as_ref().map(|p| p.display().to_string()),
         );
     }
