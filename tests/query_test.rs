@@ -2,6 +2,8 @@
 //!
 //! cargo test --test query_test -- --test-threads=1 # --nocapture
 
+use clipboard_rs::common::RustImage;
+
 pub fn app_test_query(args: &str) -> std::process::Output {
     app_test_query_env(args, &[])
 }
@@ -29,6 +31,41 @@ pub fn app_test_query_env(args: &str, envs: &[(&str, &str)]) -> std::process::Ou
         stdout
     );
     output
+}
+
+/// Write known text to the clipboard — tests must not depend on user state.
+pub(crate) fn seed_clipboard_text(text: &str) {
+    use clipboard_rs::Clipboard;
+    use clipboard_rs::ClipboardContext;
+
+    let ctx = ClipboardContext::new().expect("clipboard access");
+    ctx.set_text(text.to_string()).expect("seed clipboard text");
+}
+
+/// Write a 1x1 PNG to the clipboard — tests must not depend on user state.
+pub(crate) fn seed_clipboard_image() {
+    use base64::Engine as _;
+    use base64::engine::general_purpose::STANDARD as BASE64;
+    use clipboard_rs::Clipboard;
+    use clipboard_rs::ClipboardContext;
+    use clipboard_rs::RustImageData;
+
+    let bytes = BASE64
+        .decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==")
+        .expect("decode seed png");
+    let img = image::load_from_memory(&bytes).expect("parse seed png");
+    let ctx = ClipboardContext::new().expect("clipboard access");
+    ctx.set_image(RustImageData::from_dynamic_image(img))
+        .expect("seed clipboard image");
+}
+
+/// Clear the clipboard so seeded test data doesn't leak into user state.
+pub(crate) fn clear_clipboard() {
+    use clipboard_rs::Clipboard;
+    use clipboard_rs::ClipboardContext;
+
+    let ctx = ClipboardContext::new().expect("clipboard access");
+    ctx.clear().expect("clear clipboard");
 }
 
 mod query {
