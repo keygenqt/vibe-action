@@ -94,6 +94,12 @@ body::before {
   height: 64px;
 }
 
+.Header .block > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .Header .title {
   display: inline-flex;
   align-items: center;
@@ -302,6 +308,18 @@ body::before {
   color: var(--teal);
 }
 
+.preview a {
+  color: var(--teal);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(46, 196, 182, 0.5);
+  transition: color 0.2s;
+}
+
+.preview a:hover {
+  color: #3ad0c0;
+  border-bottom-color: #3ad0c0;
+}
+
 /* ---------- Footer ---------- */
 .Footer {
   border-top: 1px solid var(--border-soft);
@@ -325,6 +343,24 @@ body::before {
 .Footer .title {
   font-size: 13px;
   color: var(--text-dim);
+}
+
+.Footer .block > div:nth-child(2) {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.Footer .block a {
+  font-size: 13px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.Footer .block a:hover {
+  color: var(--teal);
 }
 
 .Footer .block::after {
@@ -385,6 +421,11 @@ body::before {
   .preview {
     padding: 40px 20px 20px;
     font-size: 11px;
+  }
+  .Footer .block {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 0;
   }
   .Footer .block::after {
     display: none;
