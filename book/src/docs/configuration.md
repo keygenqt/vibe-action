@@ -6,7 +6,7 @@ Created automatically on first run. Override the path with `VIBE_CONFIG`.
 ## Config file structure
 
 ```yaml
-version: '0.0.3'
+version: '0.0.4'
 
 action:
   system: |-
@@ -16,7 +16,7 @@ action:
   retries: 2
 
 groups:
-  - git: https://github.com/github/vibe-action-groups.git
+  - git: https://github.com/keygenqt/vibe-action-groups.git
     path: /code
     name: code
     about: Work with code
@@ -127,7 +127,8 @@ nodes by matching `role`:
 
 - No node with the requested role → **fallback**: all nodes are used.
 - Node without a `role` → responds to every request.
-- Missing role at pipeline start → warning printed.
+- Missing role at pipeline start → warning; in interactive modes the user
+  confirms continuing with all available nodes.
 
 ### Multi-node example
 
@@ -179,7 +180,7 @@ cluster:
 - Config: `~/.vibe-action/config.yaml` — override with `VIBE_CONFIG`.
 - Actions: `~/.vibe-action/actions/` — override with `VIBE_ACTION_PATH`.
 - Both directories are created on first run. Custom `.yaml` files in the actions directory are loaded automatically.
-- Cloned group repositories live in the application cache directory, not under `~/.vibe-action/`.
+- Cloned group repositories live under `~/.vibe-action/cache/<CACHE_VERSION>/groups/`.
 
 ## Initialization order
 

@@ -61,6 +61,13 @@ cluster:
   - provider: ollama
     host: http://localhost:11434
     model: qwen2.5-coder:14b-instruct
+    role: large
+    timeout_secs: 120
+    temperature: 0.1
+    seed: 42
+    num_ctx: 4096
+    num_predict: 2048
+    parallel: 1
 ```
 
 Full field reference — roles, timeouts, multi-node clusters — see
@@ -70,13 +77,13 @@ Full field reference — roles, timeouts, multi-node clusters — see
 
 ```text
 # AI-powered commit
-vibe-action commit
+vibe-action project commit
 
 # Translate a file
-vibe-action translate README.md
+vibe-action text translate README.md
 
 # Describe a screenshot
-vibe-action describe screenshot.png
+vibe-action vision describe screenshot.png
 ```
 
 Full list of ready-to-use actions — [Built-in Actions](./built-in-actions.md).

@@ -1,8 +1,8 @@
 # Custom Actions
 
 Add your own YAML files to `~/.vibe-action/actions/` — they are loaded
-automatically alongside the built-in defaults. The file name (without
-`.yaml`) becomes the CLI subcommand unless `name` overrides it.
+automatically alongside the built-in defaults. The `name` field becomes the
+CLI subcommand; the file name does not matter.
 
 ## Minimal action
 
@@ -104,10 +104,12 @@ actions:
   - tag: tag_save
     run: value
     val:
+      - name: path
+        data: tag_path
       - name: content
         data: query_raw
         mods: 'file:{tag_path}'
-    action: 'Saved to {tag_path}'
+    action: 'Saved to {path}'
 ```
 
 `tag_save` depends on `tag_path` — the engine runs `tag_path` first.

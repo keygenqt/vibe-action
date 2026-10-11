@@ -140,7 +140,10 @@ each:
 | `split` | Separator to split the value into items |
 | `merge` | Separator to join results back          |
 
-Both support escape mnemonics (`\n`, `\t`, `\s`, `\x1F`).
+Both support escape mnemonics (`\n`, `\t`, `\s`). `\x1F` is not expanded —
+it is a literal string chosen as a merge/split separator because it cannot
+collide with real data. Any string works, as long as the next step splits
+on the same value.
 
 ### How fan-out works
 

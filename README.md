@@ -28,10 +28,10 @@ Command router for shell and LLM tasks via simple YAML actions.
 cargo install vibe-action
 
 vibe-action --help
-vibe-action faq "what commands are available?"
-vibe-action faq "how do operators work?"
-vibe-action commit .
-vibe-action translate README.md
+vibe-action docs "what commands are available?"
+vibe-action docs "how do operators work?"
+vibe-action project commit .
+vibe-action text translate README.md
 ```
 
 [IDE Integration](https://vibe-action.keygenqt.com/docs/ide-plugin.html)
@@ -41,7 +41,7 @@ vibe-action translate README.md
 `~/.vibe-action/config.yaml`:
 
 ```yaml
-version: '0.0.3'
+version: '0.0.4'
 action:
   system: 'You are Vibe Action — a CLI tool. Output ONLY the result.'
   retries: 2

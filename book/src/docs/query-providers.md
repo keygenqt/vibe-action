@@ -7,8 +7,9 @@ startup (before the engine loop) and stored in `input_tags`.
 ## Contract
 
 - Each `query_*` provider receives the raw positional argument (if any).
-- Non-empty result wins. Empty input → `""` — the val candidate is
-  skipped and the next candidate for the same name is tried.
+- Empty input → `""`. The empty value itself never skips a candidate —
+  skipping is decided by `when` guards. An empty query value reaching a
+  candidate without a `when` guard is a startup error.
 - Exception: `query_image` returns `Err` if the input is not a valid
   image (hard failure, not empty).
 - Empty query value without a `when` guard is a startup error (ambiguous
@@ -137,8 +138,9 @@ missing images gracefully.
 Query providers are resolved early, before the engine loop:
 
 1. `apply_args()` — CLI flags → `input_tags`.
-2. `apply_query_tags()` — each `query_*` in val candidates → `input_tags`.
-3. `validate_query_tags()` — reject empty query values without a `when` guard.
+2. `apply_system_tags()` — referenced `system_*` tags → `input_tags`.
+3. `apply_query_tags()` — each `query_*` in val candidates → `input_tags`.
+4. `validate_query_tags()` — reject empty query values without a `when` guard.
 
 After this, `input_tags` is frozen and the engine begins resolving
 actions.
@@ -147,7 +149,7 @@ actions.
 
 | Tag                  | CLI source                  | IDE source                   |
 | -------------------- | --------------------------- | ---------------------------- |
-| `query_raw`          | Positional arg or clipboard | Editor selection text        |
+| `query_raw`          | Positional arg              | Editor selection text        |
 | `query_prompt`       | Interactive terminal prompt | IDE input dialog             |
 | `query_file_path`    | Arg → existing file path    | Path to current file         |
 | `query_project_path` | Arg → project root          | Project root path            |

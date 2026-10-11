@@ -52,7 +52,8 @@ val:
 The path is unescaped for brace-escape sequences. Empty path is a hard
 error. Write failure is a hard error.
 
-Always passes the input value through, regardless of write outcome.
+On success the input value passes through unchanged; on failure the
+pipeline aborts.
 
 ```yaml
 # Overwrite

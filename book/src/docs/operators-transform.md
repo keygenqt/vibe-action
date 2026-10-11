@@ -110,7 +110,7 @@ On scalar input: returns the whole string on match, else empty string.
 
 ```yaml
 mods: 'split|grep:^(feat|fix)'       # keep conventional commit lines
-mods: 'split|grep:^\\s*$:not'        # remove blank lines
+mods: 'split|grep:^\s*$:not'         # remove blank lines
 ```
 
 ## List sort / deduplicate operators

@@ -93,6 +93,7 @@ Messages are tagged with an **export context** for plugin routing:
 | Context   | Purpose                  |
 | --------- | ------------------------ |
 | `actions` | Action list / status     |
+| `groups`  | Group action list        |
 | `status`  | System status response   |
 | `success` | Final action result      |
 | `confirm` | User confirmation prompt |

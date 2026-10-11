@@ -16,7 +16,7 @@ Vibe Action is a command router that executes shell commands and LLM prompts def
 - ⏱️ **Process guard** — a new run supersedes the previous one, keeping shared state predictable
 - 🔔 **Notifications** — optional desktop notifications on completion
 - 🔐 **Confirmations** — ask before executing dangerous commands
-- 💬 **Self-documenting** — the built-in `faq` action answers questions about Vibe Action itself
+- 💬 **Self-documenting** — the built-in `docs` action answers questions about Vibe Action itself
 - 🔌 **IDE integration** — the `api` block drives the VS Code and IntelliJ plugins
 - 🔒 **Open & flexible** — open source. Local models via Ollama or cloud APIs (DeepSeek, Qwen, Kimi, Zhipu)
 - 🦀 **Fast** — built in Rust
@@ -31,6 +31,11 @@ Describe your workflow in YAML, not code. Each file is one CLI command:
 version: 0.0.2
 name: extract
 about: Extract matching lines from text and logs
+args:
+  - name: arg_file
+    short: 'f'
+    input: string
+    help: 'Path or URL to the log or text file'
 api:
   output: dialog
   input: query_prompt

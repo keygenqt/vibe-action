@@ -115,5 +115,7 @@ All inspect operators are per-item over lists. When the input is a list
 (separated by `ITEM_SEP`), each item is evaluated independently, and the
 results are joined back into a list of `"true"`/`"false"` strings.
 
-This matters when `when`/`fail` guards evaluate list data — every item
-must pass for the candidate to proceed.
+This matters for guards on list data: the guard sees the joined result as
+one value with normal truthiness (empty or `"false"` = fail), so a
+multi-item list effectively always passes. Apply `when`/`fail` to scalar
+values, or reduce the list first (`join`, `grep`, `item`).

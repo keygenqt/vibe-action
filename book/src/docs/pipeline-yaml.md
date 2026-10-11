@@ -1,8 +1,8 @@
 # Pipeline — YAML Format
 
-Each action is a YAML file in `~/.vibe-action/actions/`. The file name
-becomes the CLI subcommand. Custom files are loaded automatically
-alongside the built-in defaults.
+Each action is a YAML file in `~/.vibe-action/actions/`. The `name` field
+becomes the CLI subcommand; the file name does not matter. Custom files are
+loaded automatically alongside the built-in defaults.
 
 ## Top-level fields
 
@@ -36,15 +36,15 @@ actions:
       Do something with {content}
 ```
 
-| Field     | Type   | Required | Description                                             |
-| --------- | ------ | -------- | ------------------------------------------------------- |
-| `version` | string | yes      | Pipeline schema version (must match `PIPELINE_VERSION`) |
-| `name`    | string | yes      | Action name — becomes CLI subcommand                    |
-| `about`   | string | yes      | Short description for `--help`                          |
-| `notify`  | bool   | no       | Desktop notification on completion (default: false)     |
-| `args`    | list   | no       | CLI argument definitions                                |
-| `api`     | object | no       | IDE plugin metadata (ignored by CLI runtime)            |
-| `actions` | list   | yes      | Ordered list of pipeline steps                          |
+| Field     | Type   | Required | Description                                              |
+| --------- | ------ | -------- | -------------------------------------------------------- |
+| `version` | string | yes      | Pipeline schema version (must match `PIPELINE_VERSION`)  |
+| `name`    | string | yes      | Action name — becomes CLI subcommand                     |
+| `about`   | string | yes      | Short description for `--help`                           |
+| `notify`  | bool   | no       | Desktop notification on completion (default: false)      |
+| `args`    | list   | no       | CLI argument definitions                                 |
+| `api`     | object | no       | IDE plugin metadata (ignored by CLI runtime)             |
+| `actions` | list   | yes      | Pipeline steps; execution order resolved by dependencies |
 
 ## Args
 
