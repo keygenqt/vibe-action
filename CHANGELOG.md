@@ -2,6 +2,14 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.4.2] - 2026-10-31
+
+### 🚀 Features
+
+- Add links
+- Add AGENTS.md, update docs
+- Add OpenAI, Yandex and GigaChat providers with optional project field (vibe-cluster 0.1.0)
+
 ## [0.4.1] - 2026-10-04
 
 ### 🐛 Fixes
