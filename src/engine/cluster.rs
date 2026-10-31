@@ -44,6 +44,7 @@ impl Cluster {
             user: escape::unescape_text(prompt),
             system: Some(system.to_string()),
             images: images.clone(),
+            history: Vec::new(),
         }];
 
         let cluster_results = cluster

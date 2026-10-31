@@ -18,7 +18,7 @@ Command router for shell and LLM tasks via simple YAML actions.
 - 🤖 **Batch LLM** — role-based routing (tiny, small, medium, large, vision)
 - ⏱️ **Process Guard** — new runs auto-cancel previous ones
 - 🔌 **IDE Integration** — built-in `api` block for VS Code & IntelliJ
-- 🔒 **Open & Flexible** — local models via Ollama or cloud APIs (DeepSeek, Qwen, Kimi, Zhipu)
+- 🔒 **Open & Flexible** — local models via Ollama or cloud APIs (OpenAI, DeepSeek, Qwen, Moonshot, Zhipu, Yandex, GigaChat)
 - 🎯 **CLI-first** — no browser, just terminal
 - 🦀 **Fast** — built in Rust
 
@@ -82,7 +82,17 @@ cargo install vibe-action
 - **macOS** — full support
 - **Linux** — full support
 
+## Providers
+
+- [Ollama](https://ollama.com) (recommended)
+- [OpenAI](https://openai.com)
+- [DeepSeek](https://deepseek.com)
+- [Qwen](https://qwen.ai)
+- [Moonshot](https://moonshot.cn)
+- [Zhipu](https://open.bigmodel.cn/)
+- [YandexGPT](https://yandex.cloud)
+- [GigaChat](https://giga.chat)
+
 ## Dependencies
 
-- [Ollama](https://ollama.com) (recommended), [DeepSeek](https://deepseek.com), [Qwen](https://qwen.ai), [Kimi](https://moonshot.cn), or [Zhipu](https://open.bigmodel.cn/)
 - [terminal-notifier](https://github.com/julienXX/terminal-notifier) (macOS, optional)

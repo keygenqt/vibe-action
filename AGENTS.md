@@ -99,7 +99,7 @@ groups:
 
 cluster:
   # LLM nodes; a step's `run` size selects nodes with the matching role.
-  - provider: ollama # ollama | deepseek | qwen | kimi | zhipu
+  - provider: ollama # ollama | openai | deepseek | qwen | moonshot | zhipu | yandex | gigachat
     host: http://localhost:11434
     model: qwen2.5-coder:3b-instruct
     role: small # tiny | small | medium | large | vision; omit = any
@@ -109,6 +109,7 @@ cluster:
     num_ctx: 4096 # context window, > 0
     num_predict: 2048 # max generated tokens, > 0
     # api_key: sk-         # cloud providers only
+    # project: <folder-id> # Yandex only: routes the request to the project's folder
     parallel: 1 # parallel connections to this node, > 0
 ```
 

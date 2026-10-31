@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Ollama (recommended), or API keys for DeepSeek, Qwen, Kimi, or Zhipu — for LLM inference
+- Ollama (recommended), or API keys for OpenAI, DeepSeek, Qwen, Moonshot, Zhipu, Yandex, or GigaChat — for LLM inference
 - Rust (if building from source)
 
 ## Supported Platforms

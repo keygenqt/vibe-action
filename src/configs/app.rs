@@ -200,7 +200,8 @@ impl AppConfig {
                 vec![
                     "LLM cluster nodes (local and cloud models).",
                     "",
-                    "provider - Provider type: ollama, deepseek, qwen, kimi, zhipu",
+                    "provider - Provider type: ollama, openai, deepseek, qwen, moonshot,",
+                    "           zhipu, yandex, gigachat",
                     "host - API endpoint",
                     "model - LLM model name",
                     "role - Node role: small, medium, large (optional, default: all)",
@@ -210,6 +211,7 @@ impl AppConfig {
                     "num_ctx - Context window size",
                     "num_predict - Maximum tokens to generate",
                     "api_key - API key for cloud providers",
+                    "project - Project/folder id for providers that route by it (Yandex)",
                     "parallel - Number of parallel connections (default 1)",
                 ],
             ),
@@ -286,10 +288,13 @@ impl AppConfig {
             .map(|c| {
                 let provider = match c.provider.as_str() {
                     "ollama" => Provider::Ollama,
+                    "openai" => Provider::OpenAI,
                     "deepseek" => Provider::DeepSeek,
                     "qwen" => Provider::Qwen,
-                    "kimi" => Provider::Kimi,
+                    "kimi" | "moonshot" => Provider::Moonshot,
                     "zhipu" => Provider::Zhipu,
+                    "yandex" => Provider::Yandex,
+                    "gigachat" => Provider::GigaChat,
                     other => anyhow::bail!("Unknown provider: {}", other),
                 };
                 Ok(ConnectionParams {
@@ -302,6 +307,7 @@ impl AppConfig {
                     num_predict: Some(c.num_predict),
                     timeout_secs: Some(c.timeout_secs),
                     api_key: c.api_key.clone(),
+                    project: c.project.clone(),
                     parallel: c.parallel,
                 })
             })

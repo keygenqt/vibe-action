@@ -98,19 +98,20 @@ step to nodes whose `role` matches the step's `run` size
 
 ### Cluster node fields
 
-| Field          | Type    | Required | Description                                   |
-| -------------- | ------- | -------- | --------------------------------------------- |
-| `provider`     | string  | yes      | `ollama`, `deepseek`, `qwen`, `kimi`, `zhipu` |
-| `host`         | string  | yes      | API endpoint URL                              |
-| `model`        | string  | yes      | Model name                                    |
-| `role`         | string  | no       | `tiny`, `small`, `medium`, `large`, `vision`  |
-| `timeout_secs` | integer | yes      | Request timeout in seconds                    |
-| `temperature`  | float   | yes      | 0.0–2.0, lower = more deterministic           |
-| `seed`         | integer | yes      | Random seed for reproducibility               |
-| `num_ctx`      | integer | yes      | Context window size in tokens                 |
-| `num_predict`  | integer | yes      | Max tokens to generate                        |
-| `api_key`      | string  | no       | API key for cloud providers                   |
-| `parallel`     | integer | yes      | Concurrent connections (default: 1)           |
+| Field          | Type    | Required | Description                                                                       |
+| -------------- | ------- | -------- | --------------------------------------------------------------------------------- |
+| `provider`     | string  | yes      | `ollama`, `openai`, `deepseek`, `qwen`, `moonshot`, `zhipu`, `yandex`, `gigachat` |
+| `host`         | string  | yes      | API endpoint URL                                                                  |
+| `model`        | string  | yes      | Model name                                                                        |
+| `role`         | string  | no       | `tiny`, `small`, `medium`, `large`, `vision`                                      |
+| `timeout_secs` | integer | yes      | Request timeout in seconds                                                        |
+| `temperature`  | float   | yes      | 0.0–2.0, lower = more deterministic                                               |
+| `seed`         | integer | yes      | Random seed for reproducibility                                                   |
+| `num_ctx`      | integer | yes      | Context window size in tokens                                                     |
+| `num_predict`  | integer | yes      | Max tokens to generate                                                            |
+| `api_key`      | string  | no       | API key for cloud providers                                                       |
+| `project`      | string  | no       | Project/folder id (Yandex: routes the request to the project's folder)            |
+| `parallel`     | integer | yes      | Concurrent connections (default: 1)                                               |
 
 ### Role-based routing
 
@@ -164,6 +165,18 @@ cluster:
     seed: 42
     num_ctx: 8192
     num_predict: 8192
+    parallel: 1
+  - provider: yandex
+    host: https://ai.api.cloud.yandex.net/v1
+    model: yandexgpt-5-lite
+    role: medium
+    timeout_secs: 120
+    temperature: 0.1
+    seed: 42
+    num_ctx: 8192
+    num_predict: 2048
+    api_key: ...
+    project: <folder-id>
     parallel: 1
 ```
 

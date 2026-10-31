@@ -58,6 +58,9 @@ pub struct ClusterConfig {
     /// API key for cloud providers (not needed for Ollama).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub api_key: Option<String>,
+    /// Project/folder id for providers that route by it (Yandex).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub project: Option<String>,
     /// Number of parallel connections to this provider (default 1).
     pub parallel: usize,
 }
@@ -76,6 +79,7 @@ impl Default for ClusterConfig {
             num_ctx: 4096,
             num_predict: 2048,
             api_key: None,
+            project: None,
             parallel: 1,
         }
     }
