@@ -206,7 +206,7 @@ impl AppConfig {
                     "model - LLM model name",
                     "role - Node role: small, medium, large (optional, default: all)",
                     "timeout_secs - Request timeout in seconds",
-                    "temperature - Sampling temperature (0.0 - 1.0)",
+                    "temperature - Sampling temperature (0.0 - 2.0)",
                     "seed - Random seed for reproducibility",
                     "num_ctx - Context window size",
                     "num_predict - Maximum tokens to generate",
@@ -309,6 +309,7 @@ impl AppConfig {
                     api_key: c.api_key.clone(),
                     project: c.project.clone(),
                     parallel: c.parallel,
+                    stats: false,
                 })
             })
             .collect::<Result<Vec<_>>>()?;

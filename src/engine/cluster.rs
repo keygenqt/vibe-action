@@ -62,16 +62,6 @@ impl Cluster {
                         })
                         .unwrap_or_default();
 
-                    let bpe = tiktoken_rs::o200k_base().unwrap();
-                    let user_tokens = bpe.encode_with_special_tokens(&result.prompt.user).len();
-
-                    let system_tokens = result
-                        .prompt
-                        .system
-                        .as_ref()
-                        .map(|s| bpe.encode_with_special_tokens(s).len())
-                        .unwrap_or(0);
-
                     let role_label = AppConfig::instance()
                         .ok()
                         .and_then(|c| c.cluster.iter().find(|n| n.model == result.model))
@@ -88,7 +78,7 @@ impl Cluster {
                         "role" => role_label,
                         "model" => result.model,
                         "duration" => duration_ms,
-                        "tokens" => (user_tokens + system_tokens).to_string(),
+                        "tokens" => result.prompt_tokens.to_string(),
                         "image" => image_info,
                     );
                 },

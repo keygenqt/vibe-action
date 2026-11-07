@@ -4801,7 +4801,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "vibe-action"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "anyhow",
  "base64 0.23.1",
@@ -4836,7 +4836,6 @@ dependencies = [
  "syntect",
  "sysinfo",
  "termimad",
- "tiktoken-rs",
  "tokio",
  "tokio-stream",
  "toml",
@@ -4882,9 +4881,9 @@ dependencies = [
 
 [[package]]
 name = "vibe-cluster"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2c93d03fc916b7f7c46b9b44c0eefe176a9f0f0a5f6ea2e824263c8407bcae0"
+checksum = "e901d8e300bcbc6b24891c940f14296a2d75f516f8492d2a389bc3dca8474f00"
 dependencies = [
  "async-trait",
  "futures",
@@ -4895,6 +4894,7 @@ dependencies = [
  "reqwest 0.12.28",
  "serde",
  "serde_json",
+ "tiktoken-rs",
  "tokio",
  "tokio-util",
  "tracing",

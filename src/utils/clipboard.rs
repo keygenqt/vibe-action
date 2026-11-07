@@ -102,9 +102,7 @@ fn enforce_token_limit(text: String, max_tokens: Option<usize>) -> Result<String
         Some(max) => max,
         None => return Ok(text),
     };
-    let bpe =
-        tiktoken_rs::cl100k_base().map_err(|e| anyhow::anyhow!("Failed to load tokenizer: {e}"))?;
-    let tokens = bpe.encode_with_special_tokens(&text).len();
+    let tokens = vibe_cluster::count_tokens(&text);
     if tokens > max {
         anyhow::bail!(
             "Clipboard content is too large ({} tokens). Max context size is {} tokens.",

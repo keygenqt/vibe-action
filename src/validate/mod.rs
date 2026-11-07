@@ -24,8 +24,9 @@
 //! - `app` — config version match; each cluster node validated.
 //! - `arg` — non-empty name, alphanumeric + underscore only; short flag is an
 //!   ASCII letter.
-//! - `cluster` — non-empty provider/model; host is a valid URL; temperature in
-//!   `0.0..=2.0`; `num_ctx`, `num_predict`, `parallel` > 0.
+//! - `cluster` — known provider; non-empty model; host is a valid http/https
+//!   URL; temperature in `0.0..=2.0`; `num_ctx`, `num_predict`, `timeout_secs`,
+//!   `parallel` > 0; `api_key` required for the keyed clouds.
 //! - `group` — non-empty name (lowercase, '_'/'-'), not a built-in command;
 //!   non-empty about; `ref` only with a git source; non-empty git URL / path;
 //!   with git, `path` is a subfolder inside the clone (no '..'). Name

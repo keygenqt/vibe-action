@@ -117,9 +117,11 @@ cluster:
   not collide with built-in commands or action names. Either `git` or `path`
   is required; `ref` is only valid with `git`; with `git`, `path` must stay
   inside the clone (no `..`).
-- Cluster: `host` must be a valid URL; `num_ctx`, `num_predict`, `parallel`
-  must be > 0. A node without `role` serves any run size. No node with the
-  requested role → warning, user confirms, all nodes are used (fallback).
+- Cluster: `host` must be a valid http/https URL; `num_ctx`, `num_predict`,
+  `timeout_secs`, `parallel` must be > 0; cloud nodes (deepseek, qwen,
+  moonshot, zhipu, yandex, gigachat) require `api_key`. A node without
+  `role` serves any run size. No node with the requested role → warning,
+  user confirms, all nodes are used (fallback).
   `query_clipboard` is token-limited by the largest `num_ctx` across nodes.
 - Git groups are cloned once into the cache and re-pulled after `clean`.
   Group YAML is validated on every run (no snapshot cache).

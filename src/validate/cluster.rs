@@ -7,6 +7,16 @@ use url::Url;
 use crate::configs::cluster::ClusterConfig;
 use crate::validate::ValidateTrait;
 
+/// Provider names accepted by the cluster (mirrors `create_cluster_filtered`).
+const PROVIDERS: &[&str] = &[
+    "ollama", "openai", "deepseek", "qwen", "kimi", "moonshot", "zhipu", "yandex", "gigachat",
+];
+
+/// Providers that cannot work without an API key.
+const KEYED_PROVIDERS: &[&str] = &[
+    "deepseek", "qwen", "kimi", "moonshot", "zhipu", "yandex", "gigachat",
+];
+
 impl ValidateTrait for ClusterConfig {
     /// Validate cluster node configuration.
     fn validate(&self) -> Result<()> {
@@ -16,6 +26,13 @@ impl ValidateTrait for ClusterConfig {
         if is_empty_or_whitespace(&self.provider) {
             anyhow::bail!("Cluster node: provider is empty.");
         }
+        if !PROVIDERS.contains(&self.provider.as_str()) {
+            anyhow::bail!(
+                "Cluster node: unknown provider '{}' (expected one of: {})",
+                self.provider,
+                PROVIDERS.join(", ")
+            );
+        }
         if is_empty_or_whitespace(&self.model) {
             anyhow::bail!("Cluster node: model is empty.");
         }
@@ -24,9 +41,12 @@ impl ValidateTrait for ClusterConfig {
         if is_empty_or_whitespace(&self.host) {
             anyhow::bail!("Cluster node: host is empty.");
         }
-        Url::parse(&self.host).map_err(|e| {
+        let url = Url::parse(&self.host).map_err(|e| {
             anyhow::anyhow!("Cluster node: invalid host URL '{}': {}", self.host, e)
         })?;
+        if url.scheme() != "http" && url.scheme() != "https" {
+            anyhow::bail!("Cluster node: host '{}' must be http/https.", self.host);
+        }
 
         // Temperature must be valid (NaN-safe).
         if self.temperature.is_nan() || !(0.0..=2.0).contains(&self.temperature) {
@@ -45,6 +65,24 @@ impl ValidateTrait for ClusterConfig {
         }
         if self.parallel == 0 {
             anyhow::bail!("Cluster node: parallel must be > 0.");
+        }
+        if self.timeout_secs == 0 {
+            anyhow::bail!("Cluster node: timeout_secs must be > 0.");
+        }
+
+        // Keyed clouds cannot work without a key; the OpenAI kind doubles
+        // as a keyless gateway host (vLLM), so it stays lenient.
+        if KEYED_PROVIDERS.contains(&self.provider.as_str())
+            && self
+                .api_key
+                .as_ref()
+                .map_or(true, |key| key.trim().is_empty())
+        {
+            anyhow::bail!(
+                "Cluster node '{}': api_key is required for provider '{}'.",
+                self.model,
+                self.provider
+            );
         }
 
         Ok(())
