@@ -2,6 +2,12 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.4.3] - 2026-11-07
+
+### 🚀 Features
+
+- Bump vibe-cluster to 0.2.0, full startup validation parity, and cluster-side token stats
+
 ## [0.4.2] - 2026-10-31
 
 ### 🚀 Features
