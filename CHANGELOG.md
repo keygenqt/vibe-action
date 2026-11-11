@@ -2,6 +2,12 @@
 
 All notable changes to Vibe Action will be documented in this file.
 
+## [0.4.4] - 2026-11-11
+
+### 🚀 Features
+
+- Migrate to the redesigned vibe-cluster API
+
 ## [0.4.3] - 2026-11-07
 
 ### 🚀 Features
