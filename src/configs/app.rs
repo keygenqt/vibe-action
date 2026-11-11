@@ -7,7 +7,11 @@ use serde::Serialize;
 use std::fs;
 use std::sync::OnceLock;
 use vibe_cluster::Cluster;
-use vibe_cluster::ConnectionParams;
+use vibe_cluster::Connection;
+use vibe_cluster::GigaChatParams;
+use vibe_cluster::OllamaParams;
+use vibe_cluster::OpenAiParams;
+use vibe_cluster::Params;
 use vibe_cluster::Provider;
 
 use crate::configs::action::ActionConfig;
@@ -277,7 +281,7 @@ impl AppConfig {
             _ => target_role,
         };
 
-        let connections: Vec<ConnectionParams> = self
+        let connections: Vec<Connection> = self
             .cluster
             .iter()
             .filter(|c| match (&effective_role, &c.role) {
@@ -297,19 +301,39 @@ impl AppConfig {
                     "gigachat" => Provider::GigaChat,
                     other => anyhow::bail!("Unknown provider: {}", other),
                 };
-                Ok(ConnectionParams {
+                // Params follow the provider family; num_ctx exists only
+                // in the Ollama schema.
+                let params = match provider {
+                    Provider::Ollama => Params::Ollama(OllamaParams {
+                        temperature: Some(c.temperature),
+                        seed: Some(c.seed),
+                        num_ctx: Some(c.num_ctx),
+                        num_predict: Some(c.num_predict),
+                        ..Default::default()
+                    }),
+                    Provider::GigaChat => Params::GigaChat(GigaChatParams {
+                        temperature: Some(c.temperature),
+                        seed: Some(c.seed),
+                        num_predict: Some(c.num_predict),
+                        ..Default::default()
+                    }),
+                    _ => Params::OpenAi(OpenAiParams {
+                        temperature: Some(c.temperature),
+                        seed: Some(c.seed),
+                        num_predict: Some(c.num_predict),
+                        ..Default::default()
+                    }),
+                };
+                Ok(Connection {
                     provider,
                     host: c.host.clone(),
                     model: c.model.clone(),
-                    temperature: Some(c.temperature),
-                    seed: Some(c.seed),
-                    num_ctx: Some(c.num_ctx),
-                    num_predict: Some(c.num_predict),
+                    params,
                     timeout_secs: Some(c.timeout_secs),
                     api_key: c.api_key.clone(),
                     project: c.project.clone(),
                     parallel: c.parallel,
-                    stats: false,
+                    bpe: None,
                 })
             })
             .collect::<Result<Vec<_>>>()?;

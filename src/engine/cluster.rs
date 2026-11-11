@@ -69,16 +69,31 @@ impl Cluster {
                         .map(|r| r.to_string())
                         .unwrap_or_else(|| "llm".to_string());
 
-                    let duration_ms =
-                        utils::format::format_duration(Duration::from_millis(result.duration_ms));
+                    // Provider-reported facts only: no stats → no duration,
+                    // no input report → no tokens in the line.
+                    let (duration, tokens) = match result.stats.as_ref() {
+                        Some(stats) => (
+                            format!(
+                                " | {}",
+                                utils::format::format_duration(Duration::from_millis(
+                                    stats.duration_ms
+                                ))
+                            ),
+                            stats
+                                .input_tokens
+                                .map(|n| format!(" ({n} tokens)"))
+                                .unwrap_or_default(),
+                        ),
+                        None => (String::new(), String::new()),
+                    };
 
                     print_template!(
                         OutputKind::Progress,
-                        "[{role}] node: {model} | {duration} (~{tokens} tokens{image})",
+                        "[{role}] node: {model}{duration}{tokens}{image}",
                         "role" => role_label,
                         "model" => result.model,
-                        "duration" => duration_ms,
-                        "tokens" => result.prompt_tokens.to_string(),
+                        "duration" => duration,
+                        "tokens" => tokens,
                         "image" => image_info,
                     );
                 },

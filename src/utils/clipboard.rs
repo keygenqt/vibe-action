@@ -11,6 +11,7 @@ use base64::engine::general_purpose::STANDARD as BASE64;
 use clipboard_rs::Clipboard;
 use clipboard_rs::ClipboardContext;
 use clipboard_rs::common::RustImage;
+use vibe_cluster::Bpe;
 
 /// Raw plain text from the clipboard, or `None` if unavailable.
 pub fn clipboard_read_text() -> Option<String> {
@@ -102,7 +103,7 @@ fn enforce_token_limit(text: String, max_tokens: Option<usize>) -> Result<String
         Some(max) => max,
         None => return Ok(text),
     };
-    let tokens = vibe_cluster::count_tokens(&text);
+    let tokens = vibe_cluster::count_tokens(&text, Bpe::O200kBase);
     if tokens > max {
         anyhow::bail!(
             "Clipboard content is too large ({} tokens). Max context size is {} tokens.",
